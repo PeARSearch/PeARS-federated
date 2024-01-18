@@ -1,0 +1,54 @@
+{% extends "base/base.html" %}
+
+{% block body %}
+<div class="container">
+  <div class="row p-3">
+    <div class="card-group">
+  
+    <div class="card">
+      <div class="card-header text-center"><b>Signup</b></div>
+      <div class="card-body">
+	{% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="notification is-danger">
+            {{ messages[0] }}  Go to <a href="{{ url_for('auth.login') }}">login page</a>.
+            </div>
+        {% endif %}
+        {% endwith %}
+      <form method="POST" action="/auth/signup" enctype="multipart/form-data">
+            <div class="input-group p-2">
+              <span class="input-group-text">Email   </span>
+              <input class="form-control input-s" type="email" name="email" placeholder="Your email" autofocus="">
+            </div>
+            <div class="input-group p-2">
+              <span class="input-group-text">Username   </span>
+              <input class="form-control input-s" type="text" name="username" placeholder="Username" autofocus="">
+            </div>
+            <div class="input-group p-2">
+              <span class="input-group-text">Password</span>
+              <input class="form-control input-s" type="password" name="password" placeholder="Choose a password">
+            </div>
+      </div>
+      <div class="card-footer clearfix">
+        <span class="input-group-btn">
+        <input id="submit_button" type="submit" class="btn btn-success" value="Sign up">
+      </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="card-header text-center"><b>Already have an account?</b></div>
+        <div class="card-body">
+	  Nice to see you back here!
+        </div>
+        <div class="card-footer clearfix">
+          <span class="input-group-btn">
+          <a href={{url_for('auth.login')}} class="btn btn-success" role="button">Log in</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+

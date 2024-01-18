@@ -1,0 +1,71 @@
+<!--
+SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>, 
+
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
+{% extends "base/base.html" %}
+{% block body %}
+
+<div class="container">
+  <div class="row pt-3">
+    <div class="col-md-6">
+      <div class="row">
+
+        <div class="col-md-12 pt-3">
+          <div class="card">
+            <div class="card-header text-center"><b>Record pod from file</b></div>
+            <div class="card-body">
+              <p>A friend sent you their pod? Add it to your pear! The file you input should be in .share format.</p>
+        
+              <form method="POST" accept-charset="UTF-8" enctype="multipart/form-data"
+                action="{{url_for('pod_finder.subscribe_from_file')}}">
+                <div class="input-group p-2">
+                  <input required type="file" class="form-control input-s" accept=".csv,image/x-png,.fh" name='file_source'
+                    id='file_source'>
+                </div>
+            </div>
+            <div class="card-footer clearfix">
+              <span class="input-group-btn float-end">
+                <input id="submit_button" type="submit" class="btn btn-success" value="Read file">
+              </span>
+            </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6" style="padding-left:50px">
+      <div class="card">
+        <div class="card-header text-center"><b>Your pods</b></div>
+        <div class="card-body">
+            <p>Below, you will find the pods that your are currently subscribed to. Click on 'unsubscribe' to delete all
+            record of a pod on your pear.</p>
+
+            <form method="POST" accept-charset="UTF-8" enctype="multipart/form-data"
+                action="{{url_for('pod_finder.unsubscribe')}}" onsubmit="return confirm('Are you sure you wish to delete this pod?');">
+                <div class="input-group p-2">
+                    {% for pod in pods %}
+                    <div class="form-check">
+                        <label class="toggle">
+                            <input type="checkbox" name="pods" id="{{pod[0]}}" value="{{pod[0]}}"> <span class="label-text">{{pod[0]}}</span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+        </div>
+        <div class="card-footer clearfix">
+            <span class="input-group-btn float-end">
+                <input id="submit_button" type="submit" class="btn btn-success" value="Unsubscribe">
+            </span>
+        </div>
+        </form>
+    </div>
+    </div>
+  </div>
+
+  
+</div>
+
+</div><!-- /.container -->
+{% endblock %}

@@ -9,7 +9,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 ## Important info
 
-*PeARS Federated* is a version of PeARS for federated use.
+*PeARS Federated* is a version of PeARS for federated use. Admins create PeARS instances that users can join to contribute to the index.
 
 *PeARS Lite* is provided as-is. Before you use it, please check the rules of your country on crawling Web content and displaying snippets. And be a good netizen: do not overload people's servers while indexing!
 

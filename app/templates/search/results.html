@@ -1,0 +1,79 @@
+<!--
+SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>, 
+
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
+{% extends "base/base.html" %}
+{% block navbar_toggler %}
+{% endblock %}
+{%block navbar_links %}
+{% endblock %}
+{% block searchbox %}
+<form class="form-inline my-2 my-lg-0 mx-2" action="{{url_for('.index')}}" id="searchform">
+  <div class="input-group group">
+    <input required class="form-control" type="search" value={{query|safe}} aria-label="Search" name="q">
+    <button class="btn btn-outline-success" type="submit" id="searchbutton">Search</button>
+    <button class="btn btn-outline-success" type="button" id="loadingbutton" style='display:none'>
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        Searching...
+    </button>
+  </div>
+</form>
+{% endblock %}
+{% block body %}
+<!-- Page Content -->
+<div id="page-content-wrapper">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-10">
+        {% for result in results %}
+        <div class="card mt-2">
+          <div class="card-body">
+	  <!--<h4 class="card-title"><a href="{{result[1]}}">{{result[2]}}</a></h4>-->
+
+	    {% if result[3] == 'doc' %}
+              <a class="btn btn-secondary" href="{{result[1]}}">{{result[2]}}</a>
+	    {% elif result[3] == 'csv' %}
+              <a class="btn btn-warning" href="{{result[1]}}">{{result[2]}}</a>
+	    {% else %}
+              <a class="btn btn-primary" href="{{result[1]}}">{{result[2]}}</a>
+	    {% endif %}
+		{% if edit and current_user.is_authenticated and current_user.is_confirmed %}
+	    <a href='../../admin/urls/edit/?id={{result[0]}}'><img src="{{ url_for('static', filename='annot.png')}}" width='30px' /></a>
+	    {% endif %}
+
+	    <p class="card-text"><br>{{result[3]|safe}} ...</p>
+	    <a href="{{result[1]}}" class="card-link">{{result[1]}}</a>
+	    {% if expert %}
+	      {% if result[4] == 'doc' %}
+	        <a href="{{url_for('.experts', kwd=result[7], idx=result[6])}}" style="text-decoration:none; color:black;"><b> >> </b></a>
+	      {% endif %}
+	    {% endif %}
+	    <br>
+          </div>
+          {% if result[5] != None %}
+          <div class="card-footer">
+              <img src="{{ url_for('static', filename='note.png')}}" width='40px' />{{result[5]}}
+          </div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      <div class="col-sm-2 d-none d-md-block">
+        {% if internal_message %}
+        <div id="sidebar-wrapper">
+          <div class="alert alert-info alert-dismissible">
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            {{internal_message|safe}}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /#page-content-wrapper -->
+<script src="{{ url_for('static', filename='js/bootstrap.min.js')}}"></script>
+<script src="{{ url_for('static', filename='js/loading.js')}}"></script>
+{% endblock %}

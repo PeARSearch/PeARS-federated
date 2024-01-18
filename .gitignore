@@ -1,0 +1,8 @@
+env/
+app/*.txt
+app/static/pods
+app/static/toindex
+__pycache__/
+app/__pycache__/
+app.db
+.env

@@ -1,0 +1,49 @@
+<!--
+SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>, 
+
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
+{% extends "base/base.html" %}
+{% block body %}
+  <div class="row">
+    <div class="col-lg-2"></div>
+    <div class="col-lg-8 text-center mt-5">
+      {% if own_brand %}
+      <a href="{{ url_for('search.index')}}"><img width=350px; src="{{ url_for('static', filename='assets/logo.png')}}"></a>
+      {% else %}
+      <a href="{{ url_for('search.index')}}"><img width=350px; src="{{ url_for('static', filename='pears-logo.png')}}"></a>
+      {% endif %}
+      <form  action="{{url_for('search.index')}}" id='searchform'>
+        <div class="input-group group mt-4" >
+          <input class="form-control" title="Enter your Search Query." placeholder="Enter your Search Query" type="search" name='q' required>
+          <button class="btn btn-lg btn-success" type="submit" id='searchbutton'>Search</button>
+          <button class="btn btn-lg btn-success" type="button" id='loadingbutton' style='display:none'>
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            Searching...
+          </button>
+        </div>
+      </form>
+	{% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="notification is-danger">
+            {{ messages[0] }}
+            </div>
+        {% endif %}
+        {% endwith %}
+    </div>
+  </div> 
+  {% if internal_message %}
+  <div class="row">
+    <div class="col-lg-8 mt-5 mx-auto">
+      <div class="alert alert-info alert-dismissible">
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        {{internal_message|safe}}
+      </div>
+    </div>
+  </div>
+      {% endif %}
+
+<script src="{{ url_for('static', filename='js/loading.js')}}"></script>
+{% endblock %}
+

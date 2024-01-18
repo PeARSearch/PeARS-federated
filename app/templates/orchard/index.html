@@ -1,0 +1,26 @@
+<!--
+SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>, 
+
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
+{% extends "base/base.html" %}
+{% block body %}
+<div class="container-full">
+  <br><br>
+  <div class="row">
+    <div class="col-md-10 p-3" style="padding-left: 20px; display:flex;  flex-direction: row;  flex-wrap: wrap;  margin-bottom: 45px;">
+      {% for p in pears %}
+      <div class="card bg-light mb-3" style="width: 18rem; margin:20px">
+	    <div class="card-header"><b>Pod: {{p[0]}}</b></div>
+            <div class="card-body">
+	    <p class="card-text">{{p[1]}} entries.</p>
+	    <a href="{{url_for('orchard.get_a_pod')}}?pod={{p[0]}}" class="btn btn-success">Share</a>
+      </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+

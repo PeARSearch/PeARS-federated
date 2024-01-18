@@ -1,0 +1,41 @@
+<!--
+SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>, 
+
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
+{% extends "base/base.html" %}
+{% block body %}
+    <div class="container">
+
+        <div  class="row">
+            <div class="col-md-6">
+            <br><br>
+            <p><b>Pods you could subscribe to</b></p>
+            <p>Below, you will find the pods that we think you might be interested in. Click on 'subscribe' to subscribe to that pod.</p><br>
+            <form class="form-inline" method="POST"  accept-charset="UTF-8" enctype="multipart/form-data" action="{{url_for('pod_finder.subscribe')}}">
+                <div class="input-group">
+                    {% for pod in pods %}
+                    <div class="form-check">
+		        <label class="toggle">
+		        <input type="checkbox" name="pods" id="{{pod[0]}}" value="{{pod[0]}}"> <span class="label-text"><span style="color:blue;">{{pod[1]}}</span> ({{pod[2]}}): {{pod[3]}}</span>
+		        </label>
+		    </div>
+                    {% endfor %}<br>
+                    {% if msg %}
+                    <p><b>{{msg}}</b></p>
+                    {% else %}
+                    <input id="submit_button" type="submit" class="btn btn-primary" value="Subscribe">
+                    {% endif %}
+                </div>
+            </form>
+            <hr>
+            </div>
+            <div class="col-md-6">
+            <br><br>
+            <img src="{{url_for('static', filename='tree-silhouette.png')}}" width='300px'/>
+            </div>
+        </div>
+
+    </div><!-- /.container -->
+{% endblock %}

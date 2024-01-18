@@ -1,0 +1,36 @@
+<!--
+SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>, 
+
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
+{% extends "base/base.html" %}
+{% block body %}
+
+    <div class="container">
+    <div class="card">
+      <div class="card-header text-center"><h1>Database admin page</h1></div>
+      <div class="card-body">
+        <p>This page allows you to manually administer your pods and indexed URLs. If you ever need to e.g. delete a single
+          URL
+          from your indexed pages, or modify a keyword, this is the place to do so. You can also view and search the entire
+          list
+          of available pods, as registered by your pear. (You may want to run 'Update known pods' from your pod management
+          page'
+          to get latest information.)</p>
+        <div class="row">
+          <div class="col-sm-3 p-3">
+            <a href="{{url_for('urls.index_view')}}" class="btn btn-success">See/modify your URL list</a>
+          </div>
+          <div class="col-sm-3 p-3">
+            <a href="{{url_for('pods.index_view')}}" class="btn btn-success">See/modify your Pods list</a>
+          </div>
+          <div class="col-sm-3 p-3">
+            <a href="{{url_for('user.index_view')}}" class="btn btn-success">See/modify your Users list</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+{% endblock %}
+
