@@ -8,7 +8,7 @@ import logging
 from pathlib import Path
 
 # Import flask and template operators
-from flask import Flask, render_template, send_file
+from flask import Flask, render_template, send_file, send_from_directory, request
 from flask_admin import Admin, AdminIndexView
 from flask_mail import Mail
 
@@ -18,7 +18,7 @@ from flask_login import LoginManager, current_user
 
 # Global variables
 EXPERT_ADD_ON = False
-OWN_BRAND = False
+OWN_BRAND = True
 WALKTHROUGH = False
 
 # Make sure user data directories exist
@@ -54,7 +54,7 @@ def configure_logging():
 configure_logging()
 
 # Define the WSGI application object
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 
 # Configurations
 app.config.from_object('config')
@@ -253,3 +253,8 @@ def serve_manifest():
 @app.route('/sw.js')
 def serve_sw():
     return send_file('sw.js', mimetype='application/javascript')
+
+@app.route('/robots.txt')
+def static_from_root():
+ return send_from_directory(app.static_folder, request.path[1:])
+

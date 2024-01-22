@@ -37,7 +37,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 	    {% elif result[3] == 'csv' %}
               <a class="btn btn-warning" href="{{result[1]}}">{{result[2]}}</a>
 	    {% else %}
-              <a class="btn btn-primary" href="{{result[1]}}">{{result[2]}}</a>
+	    <a class="btn btn-light" href="{{result[1]}}"><b>{{result[2]}}</b></a>
 	    {% endif %}
 		{% if edit and current_user.is_authenticated and current_user.is_confirmed %}
 	    <a href='../../admin/urls/edit/?id={{result[0]}}'><img src="{{ url_for('static', filename='annot.png')}}" width='30px' /></a>
