@@ -7,6 +7,7 @@ import re
 import logging
 import joblib
 import numpy as np
+from shutil import copyfile
 from scipy import sparse
 from pandas import read_csv
 from math import ceil, isnan
@@ -95,7 +96,8 @@ def from_csv():
         keyword, _, lang = parse_query(keyword)
         print("LANGUAGE:",lang)
         file = request.files['file_source']
-        file.save(join(dir_path, "spreadsheet_to_index.csv"))
+        file.save(join(dir_path, "static/userdata/csv/spreadsheet_to_index.csv"))
+        copyfile(join(dir_path, "static/userdata/csv/spreadsheet_to_index.csv"), join(dir_path, "static/userdata/csv",filename))
         f = open(join(dir_path, "file_source_info.txt"), 'w')
         f.write(filename+'::'+keyword+'::'+lang+'::'+doctype+'\n')
         f.close()
@@ -246,10 +248,10 @@ def progress_csv():
         lang = LANG
         doctype = 'csv'
         try:
-            df = read_csv(join(dir_path, "spreadsheet_to_index.csv"), delimiter=';', encoding="utf-8")
+            df = read_csv(join(dir_path, "static/userdata/csv/spreadsheet_to_index.csv"), delimiter=';', encoding="utf-8")
         except:
             print("CSV Encoding is not utf-8")
-            df = read_csv(join(dir_path, "spreadsheet_to_index.csv"), delimiter=';', encoding="iso-8859-1")
+            df = read_csv(join(dir_path, "static/userdata/csv/spreadsheet_to_index.csv"), delimiter=';', encoding="iso-8859-1")
 
         f = open(join(dir_path, "file_source_info.txt"), 'r')
         for line in f:

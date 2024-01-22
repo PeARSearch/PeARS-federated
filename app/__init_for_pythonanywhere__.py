@@ -5,6 +5,7 @@
 import sys
 import os
 import logging
+from pathlib import Path
 
 # Import flask and template operators
 from flask import Flask, render_template, send_file
@@ -17,14 +18,20 @@ from flask_login import LoginManager, current_user
 
 # Global variables
 EXPERT_ADD_ON = False
-OWN_BRAND = False
+OWN_BRAND = True
 WALKTHROUGH = False
+
+# Make sure user data directories exist
+DEFAULT_PATH = f'/home/<your username>/PeARS-Lite/app/'
+Path(os.path.join(DEFAULT_PATH,'static/userdata')).mkdir(parents=True, exist_ok=True)
+Path(os.path.join(DEFAULT_PATH,'static/userdata/csv')).mkdir(parents=True, exist_ok=True)
+Path(os.path.join(DEFAULT_PATH,'static/userdata/pdf')).mkdir(parents=True, exist_ok=True)
 
 # Get paths to SentencePiece model and vocab
 LANG = 'en' #default language for your installation. Change as appropriate.
-SPM_DEFAULT_VOCAB_PATH = f'/home/<your_username>/PeARS-lite/app/api/models/{LANG}/{LANG}wiki.lite.16k.vocab'
+SPM_DEFAULT_VOCAB_PATH = f'/home/<your username>/PeARS-Lite/app/api/models/{LANG}/{LANG}wiki.lite.16k.vocab'
 spm_vocab_path = os.environ.get("SPM_VOCAB", SPM_DEFAULT_VOCAB_PATH)
-SPM_DEFAULT_MODEL_PATH = f'/home/<your_username>/PeARS-lite/app/api/models/{LANG}/{LANG}wiki.lite.16k.model'
+SPM_DEFAULT_MODEL_PATH = f'/home/<your username>/PeARS-Lite/app/api/models/{LANG}/{LANG}wiki.lite.16k.model'
 spm_model_path = os.environ.get("SPM_MODEL", SPM_DEFAULT_MODEL_PATH)
 
 # Define vector size
@@ -50,9 +57,9 @@ configure_logging()
 app = Flask(__name__)
 
 # Configurations
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////home/<your_username>/PeARS-lite/app.db'
-app.config['MAIL_DEFAULT_SENDER'] = "<your_email_address>"
-app.config['MAIL_SERVER'] = "<your_mail_server>"
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////home/<your username>/PeARS-Lite/app.db'
+app.config['MAIL_DEFAULT_SENDER'] = "<your email>"
+app.config['MAIL_SERVER'] = "<your mail server>"
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False

@@ -61,7 +61,8 @@ def index():
             pears = ['no results found :(']
             results = [{'url':None, 'title':None, 'snippet':'No pages found', 'doctype':None, 'notes':None, 'img':None}]
         for r in results:
-            r['snippet'] = r['snippet'][:150]
+            if r['doctype'] != 'csv':
+                r['snippet'] = r['snippet'][:150]
             r['title'] = beautify_title(r['title'], r['doctype'])
             r['snippet'] = beautify_snippet(r['snippet'], r['img'], query, EXPERT_ADD_ON)
             displayresults.append(list(r.values()))

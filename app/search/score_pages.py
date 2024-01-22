@@ -24,7 +24,7 @@ import numpy as np
 
 dir_path = dirname(dirname(realpath(__file__)))
 pod_dir = join(dir_path,'static','pods')
-raw_dir = join(dir_path,'static','toindex')
+raw_dir = join(dir_path,'static','userdata')
 
 
 def score_experts(doc_idx,kwd):
