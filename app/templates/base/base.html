@@ -5,7 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"  class="h-100">
 
 <head>
     {% block head %}
@@ -40,7 +40,7 @@ SPDX-License-Identifier: AGPL-3.0-only
   </script>
 </head>
 
-<body>
+<body class="d-flex flex-column h-100">
 {% block navbar %}
 <nav class="navbar navbar-expand-lg navbar-light">
     <div class="container">
@@ -124,6 +124,11 @@ SPDX-License-Identifier: AGPL-3.0-only
     <div class="container pt-5">
         {% block body %}{% endblock %}
     </div>
+    <footer class="footer mt-auto py-3 bg-dark">
+    <div class="container">
+      <span class="text-light">Privacy policy | Terms of service | Contact</span>
+    </div>
+  </footer>
 <!-- script references -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="{{ url_for('static', filename='js/bootstrap/bootstrap.min.js')}}"></script>
