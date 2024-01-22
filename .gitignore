@@ -1,5 +1,6 @@
 env/
 app/*.txt
+app/static/*.txt
 app/static/pods
 app/static/toindex
 __pycache__/

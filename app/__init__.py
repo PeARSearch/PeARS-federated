@@ -5,6 +5,7 @@
 import sys
 import os
 import logging
+from pathlib import Path
 
 # Import flask and template operators
 from flask import Flask, render_template, send_file
@@ -19,6 +20,13 @@ from flask_login import LoginManager, current_user
 EXPERT_ADD_ON = False
 OWN_BRAND = False
 WALKTHROUGH = False
+
+# Make sure user data directories exist
+DEFAULT_PATH = f'app'
+Path(os.path.join(DEFAULT_PATH,'static/userdata')).mkdir(parents=True, exist_ok=True)
+Path(os.path.join(DEFAULT_PATH,'static/userdata/csv')).mkdir(parents=True, exist_ok=True)
+Path(os.path.join(DEFAULT_PATH,'static/userdata/pdf')).mkdir(parents=True, exist_ok=True)
+
 
 # Get paths to SentencePiece model and vocab
 LANG = sys.argv[1] #default language for the installation
