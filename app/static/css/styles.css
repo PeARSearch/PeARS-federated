@@ -39,8 +39,8 @@ a:hover {
 
 .alert-info {
     --bs-alert-color: #636464;
-    --bs-alert-bg: #e9ecef;
-    --bs-alert-border-color: #636464;
+    --bs-alert-bg: #ffffff;
+    --bs-alert-border-color: #111111;
 }
 
 .navbar {

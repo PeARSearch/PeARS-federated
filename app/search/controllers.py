@@ -45,8 +45,8 @@ def index():
 
     query = request.args.get('q')
     if not query:
-        if WALKTHROUGH:
-            with open(join(static_dir,'walkthrough1.txt'), 'r') as file:
+        if OWN_BRAND:
+            with open(join(static_dir,'intro.txt'), 'r') as file:
                 internal_message = file.read().replace('\n', '<br>')
         return render_template("search/index.html", internal_message=internal_message, own_brand=OWN_BRAND)
     else:
@@ -54,7 +54,7 @@ def index():
         displayresults = []
         query = ' '.join([w for w in query.split() if w not in STOPWORDS])
         if WALKTHROUGH:
-            with open(join(static_dir,'walkthrough2.txt'), 'r') as file:
+            with open(join(static_dir,'walkthrough.txt'), 'r') as file:
                 internal_message = file.read().replace('\n', '<br>')
         results, pods = score_pages.run(query, pears)
         if not results:
