@@ -3,12 +3,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 # Import flask dependencies
-from flask import Blueprint, request, render_template
+from flask import Blueprint, request, render_template, send_from_directory
 from flask_login import login_required
+from os.path import dirname, realpath, join
 from app.api.models import Urls
 from app import db, OWN_BRAND
 from app.orchard.mk_urls_file import make_shareable_pod
 from app.auth.decorators import check_is_confirmed
+
+dir_path = dirname(dirname(realpath(__file__)))
 
 # Define the blueprint:
 orchard = Blueprint('orchard', __name__, url_prefix='/my-orchard')
@@ -42,10 +45,13 @@ def index():
 @login_required
 def get_a_pod():
     query = request.args.get('pod')
-    hfile = make_shareable_pod(query)
-    #del_pod(query)
-    print(hfile)
-    return render_template(
-        'orchard/get-a-pod.html',
-        query=query,
-        location=hfile)
+    filename, urls = make_shareable_pod(query)
+    print("\t>> Orchard: get_a_pod: generated", filename)
+    return render_template('orchard/get-a-pod.html', urls=urls, query=query, location=filename)
+
+@orchard.route("/download", methods=['GET'])
+@login_required
+def download_file():
+    filename = request.args.get('filename')
+    print('>> orchard: download_file:',filename)
+    return send_from_directory(join(dir_path,'static','pods'), filename, as_attachment=True)
