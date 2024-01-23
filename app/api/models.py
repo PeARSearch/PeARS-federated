@@ -52,6 +52,8 @@ class Urls(Base):
     pod = db.Column(db.String(1000))
     notes = db.Column(db.String(1000))
     img = db.Column(db.String(1000))
+    trigger = db.Column(db.String(1000))
+    contributor = db.Column(db.String(1000))
 
     def __init__(self,
                  url=None,
@@ -61,7 +63,9 @@ class Urls(Base):
                  doctype=None,
                  pod=None,
                  notes=None,
-                 img=None):
+                 img=None,
+                 trigger=None,
+                 contributor=None):
         self.url = url
         self.title = title
         self.vector = vector
@@ -70,6 +74,8 @@ class Urls(Base):
         self.pod = pod
         self.notes = notes
         self.img = img
+        self.trigger = trigger
+        self.contributor = contributor
 
     def __repr__(self):
         return self.url
@@ -85,7 +91,9 @@ class Urls(Base):
             'doctype': self.doctype,
             'pod': self.pod,
             'notes': self.notes,
-            'img': self.img
+            'img': self.img,
+            'trigger': self.trigger,
+            'contributor': self.contributor
         }
 
 

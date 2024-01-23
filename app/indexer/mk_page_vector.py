@@ -32,7 +32,7 @@ def compute_vec(lang, text, pod_m):
     return pod_m
 
 
-def compute_vectors(target_url, keyword, lang, url_type):
+def compute_vectors(target_url, keyword, lang, trigger, contributor, url_type):
     print("Computing vectors for", target_url, "(",keyword,")",lang)
     if not db.session.query(Urls).filter_by(url=target_url).all():
         u = Urls(url=target_url)
@@ -57,6 +57,8 @@ def compute_vectors(target_url, keyword, lang, url_type):
             u.pod = keyword
             u.snippet = str(snippet)
             u.doctype = 'url'
+            u.trigger = trigger
+            u.contributor = contributor
             #print(u.url,u.title,u.vector,u.snippet,u.pod)
             db.session.add(u)
             db.session.commit()

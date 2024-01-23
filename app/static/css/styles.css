@@ -68,6 +68,13 @@ a:hover {
   --bs-btn-hover-border-color: var(--secondary-color);
 }
 
+.btn-info {
+  --bs-btn-bg: white;
+  --bs-btn-border-color: white;
+  --bs-btn-hover-bg: white;
+  --bs-btn-hover-border-color: #F8F8F8;
+}
+
 .submit-color-button {
   height: 30px;
   width: 30px;
@@ -87,4 +94,19 @@ a:hover {
 
 .submit-color-button.active {
   box-shadow: 3px 3px 3px gray;
+}
+
+.results-emoji {
+  margin: 0;
+  color: transparent;
+  text-shadow: 0 0 1px grey;
+  font-size: 20px;
+  position: relative;
+  text-decoration: none;
+}
+
+.results-emoji::before {
+  content: attr(title);
+  position: absolute;
+  text-shadow: 0 0 0 #fff;
 }

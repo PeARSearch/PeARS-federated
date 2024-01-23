@@ -206,6 +206,8 @@ def output(best_urls, doctype):
         result['idx'] = rec.vector
         result['pod'] = rec.pod
         result['img'] = None
+        result['trigger'] = rec.trigger
+        result['contributor'] = rec.contributor
         results.append(result)
 
     for u in urls:
@@ -222,6 +224,8 @@ def output(best_urls, doctype):
         result['idx'] = rec.vector
         result['pod'] = rec.pod
         result['img'] = rec.img
+        result['trigger'] = rec.trigger
+        result['contributor'] = rec.contributor
         results.append(result)
         pod = rec.pod
         if pod not in pods:

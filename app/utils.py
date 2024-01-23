@@ -40,13 +40,13 @@ def read_stopwords(lang):
 
 def _extract_url_and_kwd(line):
     try:
-        url, kwd, lang = line.rstrip('\n').split(';')
+        url, kwd, lang, trigger, contributor = line.rstrip('\n').split(';')
         #In case keyword or lang is not given, go back to defaults
         if kwd == '':
             kwd = 'home'
         if lang == '':
             lang = LANG
-        return url, kwd, lang
+        return url, kwd, lang, trigger, contributor
     except:
         print("ERROR: urls_to_index.txt does not have the right format.")
         return None
@@ -56,6 +56,8 @@ def readUrls(url_file):
     urls = []
     keywords = []
     langs = []
+    triggers = []
+    contributors = []
     errors = False
     with open(url_file) as fd:
         for line in fd:
@@ -64,9 +66,11 @@ def readUrls(url_file):
                 urls.append(matches[0])
                 keywords.append(matches[1])
                 langs.append(matches[2])
+                triggers.append(matches[3])
+                contributors.append(matches[4])
             else:
                 errors = True
-    return urls, keywords, langs, errors
+    return urls, keywords, langs, triggers, contributors, errors
 
 def readDocs(doc_file):
     urls = []
@@ -284,15 +288,15 @@ def parse_query(query):
 
 def beautify_title(title, doctype):
     if doctype == 'stat':
-        title = '📈 STAT: '+title
+        title = '📈 '+title
     if doctype == 'doc':
-        title = '📝 DOC: '+title
+        title = '📝 '+title
     if doctype == 'url':
-        title = '🌏 URL: '+title
+        title = '🌏 '+title
     if doctype == 'ind':
-        title = '☺️  IND: '+title
+        title = '☺️  '+title
     if doctype == 'map':
-        title = '📍 MAP: '+title
+        title = '📍 '+title
     return title
 
 def beautify_snippet(snippet, img, query, expert):

@@ -59,7 +59,7 @@ def index():
         results, pods = score_pages.run(query, pears)
         if not results:
             pears = ['no results found :(']
-            results = [{'url':None, 'title':None, 'snippet':'No pages found', 'doctype':None, 'notes':None, 'img':None}]
+            results = [{'url':None, 'title':None, 'snippet':'No pages found', 'doctype':None, 'notes':None, 'img':None, 'trigger':None, 'contributor':None}]
         for r in results:
             if r['doctype'] != 'csv':
                 r['snippet'] = r['snippet'][:150]
@@ -76,7 +76,7 @@ def experts(kwd,idx):
     results, pods = score_pages.score_experts(idx,kwd)
     if not results:
         pears = ['no pear found :(']
-        results = [{'url':None, 'title':None, 'snippet':'No pages found', 'doctype':None, 'notes':None, 'img':None}]
+        results = [{'url':None, 'title':None, 'snippet':'No pages found', 'doctype':None, 'notes':None, 'img':None, 'trigger':None, 'contributor':None}]
     for r in results:
         r['title'] = beautify_title(r['title'], r['doctype'])
         r['snippet'] = beautify_snippet(r['snippet'], r['img'], 'ind', EXPERT_ADD_ON)

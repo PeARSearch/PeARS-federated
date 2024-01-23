@@ -108,7 +108,7 @@ def extract_html(url):
 
             # Process snippet
             if og_description:
-                snippet = og_description['content']
+                snippet = og_description['content'][:1000]
             else:
                 body_str = remove_boilerplates(req, LANG)
                 try:

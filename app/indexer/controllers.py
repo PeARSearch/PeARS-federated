@@ -152,9 +152,15 @@ def from_url():
         f = open(join(dir_path, "urls_to_index.txt"), 'w')
         u = request.form['url']
         keyword = request.form['url_keyword']
+        trigger = request.form['url_trigger']
+        contributor = request.form.get('contribution')
         keyword, _, lang = parse_query(keyword)
-        print(u, keyword, lang)
-        f.write(u + ";" + keyword + ";" + lang +"\n")
+        if contributor == 'on':
+            contributor = current_user.username
+        else:
+            contributor = ''
+        print(u, keyword, lang, trigger, contributor)
+        f.write(u + ";" + keyword + ";" + lang + ";" + trigger + ";" + contributor + "\n")
         f.close()
         return render_template('indexer/progress_file.html')
 
@@ -173,7 +179,7 @@ The URL indexing uses same progress as file.
 def progress_file():
     print("Running progress file")
     def generate():
-        urls, keywords, langs, errors = readUrls(join(dir_path, "urls_to_index.txt"))
+        urls, keywords, langs, triggers, contributors, errors = readUrls(join(dir_path, "urls_to_index.txt"))
         if errors:
             logging.error('Some URLs could not be processed')
         if not urls or not keywords or not langs:
@@ -182,11 +188,11 @@ def progress_file():
         kwd = keywords[0]
         init_pod(kwd)
         c = 0
-        for url, kwd, lang in zip(urls, keywords, langs):
+        for url, kwd, lang, trigger, contributor in zip(urls, keywords, langs, triggers, contributors):
             access, req = request_url(url)
             if access:
                 url_type = req.headers['Content-Type']
-                success, podsum, text, doc_id = mk_page_vector.compute_vectors(url, kwd, lang, url_type)
+                success, podsum, text, doc_id = mk_page_vector.compute_vectors(url, kwd, lang, trigger, contributor, url_type)
                 if success:
                     posix_doc(text, doc_id, kwd)
                     pod_from_file(kwd, lang, podsum)

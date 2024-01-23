@@ -19,6 +19,17 @@ def confirm_token(token, expiration=3600):
         return False
 
 def send_email(to, subject, template):
+    print("SENDER",app.config["MAIL_DEFAULT_SENDER"])
+    msg = Message(
+        subject,
+        recipients=[to],
+        html=template,
+        sender=app.config["MAIL_DEFAULT_SENDER"],
+    )
+    mail.send(msg)
+
+def send_reset_password_email(to, subject, template):
+    print("SENDER",app.config["MAIL_DEFAULT_SENDER"])
     msg = Message(
         subject,
         recipients=[to],

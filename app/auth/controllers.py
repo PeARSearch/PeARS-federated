@@ -10,11 +10,13 @@ from app.api.models import User
 from app import db
 
 from flask import (Blueprint, flash, request, render_template, Response, redirect, url_for)
-from app.auth.token import send_email, generate_token, confirm_token
+from app.auth.token import send_email, send_reset_password_email, generate_token, confirm_token
 from datetime import datetime
 
 # Define the blueprint:
 auth = Blueprint('auth', __name__, url_prefix='/auth')
+
+''' LOGGING OUT '''
 
 @auth.route('/logout')
 @login_required
@@ -26,7 +28,9 @@ def logout():
 def login():
     return render_template('auth/login.html')
 
-...
+
+''' LOGGING IN '''
+
 @auth.route('/login', methods=['POST'])
 def login_post():
     # login code goes here
@@ -47,6 +51,10 @@ def login_post():
     welcome = "<b>Welcome, "+current_user.username+"!</b>"
     return render_template('search/index.html', internal_message=welcome)
 
+
+
+''' SIGNING UP '''
+
 @auth.route('/signup')
 def signup():
     return render_template('auth/signup.html')
@@ -58,10 +66,15 @@ def signup_post():
     username = request.form.get('username')
     password = request.form.get('password')
 
-    user = User.query.filter_by(email=email).first() # if this returns a user, then the email already exists in database
+    user1 = User.query.filter_by(email=email).first() # if this returns a user, then the email already exists in database
+    user2 = User.query.filter_by(username=username).first() # if this returns a user, then the username already exists in database
 
-    if user: # if a user is found, we want to redirect back to signup page so user can try again
-        flash('Email address already exists')
+    if user1 : # if a user is found, we want to redirect back to signup page so user can try again
+        flash('Email address already exists.')
+        return redirect(url_for('auth.signup'))
+
+    if user2 : # if a user is found, we want to redirect back to signup page so user can try again
+        flash('Username already exists.')
         return redirect(url_for('auth.signup'))
 
     # create a new user with the form data. Hash the password so the plaintext version isn't saved.
@@ -80,13 +93,11 @@ def signup_post():
 
     login_user(new_user)
 
-    flash("A confirmation email has been sent via email.", "success")
+    flash("A confirmation has been sent via email.", "success")
     return redirect(url_for("auth.inactive"))
     #return redirect(url_for('auth.login'))
 
-
-
-@auth.route("/confirm/<token>")
+@auth.route("/registration-confirm/<token>")
 @login_required
 def confirm_email(token):
     if current_user.is_confirmed:
@@ -104,16 +115,6 @@ def confirm_email(token):
         flash("The confirmation link is invalid or has expired.", "danger")
     return redirect(url_for("search.index"))
 
-
-
-@auth.route("/inactive")
-@login_required
-def inactive():
-    if current_user.is_confirmed:
-        return redirect(url_for("search.index"))
-    return render_template("auth/inactive.html")
-
-
 @auth.route("/resend")
 @login_required
 def resend_confirmation():
@@ -127,3 +128,61 @@ def resend_confirmation():
     send_email(current_user.email, subject, html)
     flash("A new confirmation email has been sent.", "success")
     return redirect(url_for("auth.inactive"))
+
+
+
+''' PASSWORD FORGOTTEN '''
+
+@auth.route('/password-forgotten')
+def password_forgotten():
+    return render_template('auth/password_forgotten.html')
+
+@auth.route('/password-reset', methods=['POST'])
+def password_reset_post():
+    # code to validate and add user to database goes here
+    email = request.form.get('email')
+    user = User.query.filter_by(email=email).first() # if this returns a user, then the email exists in database
+
+    # generate confirmation email
+    token = generate_token(user.email)
+    confirm_url = url_for("auth.password_reset", token=token, _external=True)
+    html = render_template("auth/password_reset_email.html", confirm_url=confirm_url)
+    subject = "You have requested a password reset"
+    send_reset_password_email(user.email, subject, html)
+
+    flash("A link has been sent via email to reset your password.", "success")
+    return redirect(url_for('auth.login'))
+
+@auth.route("/password-reset-confirm/<token>")
+def password_reset(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('search.index'))
+    email = confirm_token(token)
+    user = User.query.filter_by(email=email).first_or_404()
+    if user.email == email:
+        login_user(user)
+        return render_template('auth/password_change.html', username=user.username)
+    else:
+        flash("The confirmation link is invalid or has expired.", "danger")
+        return redirect(url_for("auth.password_forgotten"))
+
+@auth.route("/password-change", methods=['POST'])
+@login_required
+def password_change():
+    user = User.query.filter_by(email=current_user.email).first_or_404()
+    password = request.form.get('password')
+    user.password=generate_password_hash(password, method='sha256')
+    db.session.commit()
+    flash("Your password has been successfully changed.", "success")
+    return redirect(url_for("search.index"))
+
+
+''' INACTIVE '''
+
+@auth.route("/inactive")
+@login_required
+def inactive():
+    if current_user.is_confirmed:
+        return redirect(url_for("search.index"))
+    return render_template("auth/inactive.html")
+

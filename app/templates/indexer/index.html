@@ -34,6 +34,15 @@ SPDX-License-Identifier: AGPL-3.0-only
               <input class="form-control input-s" title="Enter a keyword." placeholder="Enter a keyword" type="text"
                 name='url_keyword' id='url_keyword' required>
             </div>
+            <div class="input-group p-2">
+              <span class="input-group-text">Optional trigger warning</span>
+              <input class="form-control input-s" title="Short trigger warning" placeholder="Enter a short trigger warning if needed" type="text"
+                name='url_trigger' id='url_trigger'>
+            </div>
+            <div class="form-check">
+	      <input class="form-check-input" type="checkbox" name="contribution" checked>
+              <label class="form-check-label" for="contribution">Record my contribution</label>
+            </div>
         </div>
         <div class="card-footer clearfix">
           <span class="input-group-btn float-end">
@@ -113,86 +122,6 @@ SPDX-License-Identifier: AGPL-3.0-only
 
   </div>
 </div>
-
-  <div class="row p-3">
-    <div class="card-group">
-      <div class="card">
-        <div class="card-header text-center"><b>Index a document collection</b></div>
-        <div class="card-body">
-	<p>This option lets you index a local document collection in format &lt;doc&gt;.</p>
-
-          <form method="POST" accept-charset="UTF-8" enctype="multipart/form-data"
-            action="{{url_for('indexer.from_docs')}}">
-            <div class="input-group p-2">
-              <input required type="file" class="form-control input-s" accept="text/plain" name='file_source'
-                id='file_source'>
-              {% with messages = get_flashed_messages(category_filter=["text"]) %}
-              {% if messages %}
-              {% for message in messages %}
-              {{message}}
-              {% endfor %}
-              {% endif %}
-              {% endwith %}
-            </div>
-            <div class="input-group p-2">
-              <span class="input-group-text">Keyword</span>
-              <input class="form-control input-s" title="Enter a keyword." placeholder="Enter a keyword" type="text"
-                name='docs_keyword' id='docs_keyword' required>
-            </div>
-            <div class="input-group p-2">
-              <span class="input-group-text">Optional doctype</span>
-              <input class="form-control input-s" title="Enter a document type." placeholder="Enter a document type" type="text"
-                name='docs_type' id='docs_type'>
-            </div>
-        </div>
-
-        <div class="card-footer clearfix">
-          <span class="input-group-btn float-end">
-            <input id="submit_button" type="submit" class="btn btn-success" value="Index local file">
-          </span>
-        </div>
-        </form>
-    </div>
-
-      <div class="card">
-        <div class="card-header text-center"><b>Index a CSV file</b></div>
-        <div class="card-body">
-          <p>Index a local CSV file.
-          </p>
-
-          <form method="POST" accept-charset="UTF-8" enctype="multipart/form-data"
-            action="{{url_for('indexer.from_csv')}}">
-            <div class="input-group p-2">
-              <input required type="file" class="form-control input-s" accept=".csv" name='file_source'
-                id='file_source'>
-              {% with messages = get_flashed_messages(category_filter=["all"]) %}
-              {% if messages %}
-              {% for message in messages %}
-              {{message}}
-              {% endfor %}
-              {% endif %}
-              {% endwith %}
-            </div>
-            <div class="input-group p-2">
-              <span class="input-group-text">Keyword</span>
-              <input class="form-control input-s" title="Enter a keyword." placeholder="Enter a keyword" type="text"
-                name='csv_keyword' id='csv_keyword' required>
-            </div>
-            <div class="input-group p-2">
-              <span class="input-group-text">Optional doctype</span>
-              <input class="form-control input-s" title="Enter a document type." placeholder="Enter a document type" type="text"
-                name='docs_type' id='docs_type'>
-            </div>
-        </div>
-        <div class="card-footer clearfix">
-          <span class="input-group-btn float-end">
-            <input id="submit_button" type="submit" class="btn btn-success" value="Index CSV">
-          </span>
-        </div>
-        </form>
-      </div>
-    </div>
-  </div>
 
 </div><!-- /.container -->
 {% endblock %}
