@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-import sys
 import os
+import click
 import logging
 from pathlib import Path
 
@@ -29,7 +29,7 @@ Path(os.path.join(DEFAULT_PATH,'static/userdata/pdf')).mkdir(parents=True, exist
 
 
 # Get paths to SentencePiece model and vocab
-LANG = sys.argv[1] #default language for the installation
+LANG = 'en' #default language for the installation
 SPM_DEFAULT_VOCAB_PATH = f'app/api/models/{LANG}/{LANG}wiki.lite.16k.vocab'
 spm_vocab_path = os.environ.get("SPM_VOCAB", SPM_DEFAULT_VOCAB_PATH)
 SPM_DEFAULT_MODEL_PATH = f'app/api/models/{LANG}/{LANG}wiki.lite.16k.model'
@@ -127,7 +127,7 @@ def load_user(user_id):
 
 class MyAdminIndexView(AdminIndexView):
     def is_accessible(self):
-        return current_user.is_authenticated # This does the trick rendering the view only if the user is authenticated
+        return current_user.is_admin # This does the trick rendering the view only if the user is admin
 
 
 admin = Admin(app, name='PeARS DB', template_mode='bootstrap3', index_view=MyAdminIndexView())
@@ -257,4 +257,13 @@ def serve_sw():
 @app.route('/robots.txt')
 def static_from_root():
  return send_from_directory(app.static_folder, request.path[1:])
+
+@app.cli.command('setadmin')
+@click.argument('username')
+def set_admin(username):
+    '''Use from CLI with flask setadmin <username>.'''
+    user = User.query.filter_by(username=username).first()
+    user.is_admin = True
+    db.session.commit()
+    print(username,"is now admin.")
 

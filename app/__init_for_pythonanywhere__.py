@@ -138,7 +138,7 @@ def load_user(user_id):
 
 class MyAdminIndexView(AdminIndexView):
     def is_accessible(self):
-        return current_user.is_authenticated # This does the trick rendering the view only if the user is authenticated
+        return current_user.is_admin # This does the trick rendering the view only if the user is admin
 
 
 admin = Admin(app, name='PeARS DB', template_mode='bootstrap3', index_view=MyAdminIndexView())
@@ -270,3 +270,13 @@ def serve_sw():
 @app.route('/robots.txt')
 def static_from_root():
  return send_from_directory(app.static_folder, request.path[1:])
+
+@app.cli.command('setadmin')
+@click.argument('username')
+def set_admin(username):
+    '''Use from CLI with flask setadmin <username>.'''
+    user = User.query.filter_by(username=username).first()
+    user.is_admin = True
+    db.session.commit()
+    print(username,"is now admin.")
+

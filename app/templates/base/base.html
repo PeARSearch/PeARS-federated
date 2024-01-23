@@ -72,7 +72,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 		{% if current_user.is_authenticated and current_user.is_confirmed %}
                 <li class="nav-item"><a class="nav-link" href="{{url_for('orchard.index')}}">My orchard</a></li>
 		{% endif %}
-		{% if current_user.is_authenticated and current_user.is_confirmed %}
+		{% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
                 <li class="nav-item"><a class="nav-link" href="{{url_for('admin.index')}}">DB admin</a></li>          
 		{% endif %}
             </ul>
