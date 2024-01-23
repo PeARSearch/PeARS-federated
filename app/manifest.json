@@ -1,6 +1,6 @@
 {
-  "name": "PeARS PWA",
-  "short_name": "PeARS PWA",
+  "name": "PeARS Federated",
+  "short_name": "PeARS",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -8,19 +8,19 @@
   "background_color": "#317EFB",
   "icons": [
     {
-      "src": "/static/pears-logo.png",
+      "src": "/static/pears-logo-green.144x144.png",
       "sizes": "144x144",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/static/pears-logo.png",
+      "src": "/static/pears-logo-green.192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/static/pears-logo.png",
+      "src": "/static/pears-logo-green.512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
