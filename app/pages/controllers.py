@@ -24,3 +24,7 @@ def return_faq():
 @pages.route('/acknowledgements/')
 def return_acknowledgements():
     return render_template("pages/acknowledgements.html")
+
+@pages.route('/privacy/')
+def return_privacy():
+    return render_template("pages/privacy.html")
