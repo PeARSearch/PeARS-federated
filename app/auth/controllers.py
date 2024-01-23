@@ -6,7 +6,7 @@ import logging
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.api.models import User
-from app import db
+from app import db, OWN_BRAND
 
 from flask import (Blueprint, flash, request, render_template, Response, redirect, url_for)
 from app.auth.token import send_email, send_reset_password_email, generate_token, confirm_token
@@ -25,7 +25,7 @@ def logout():
 
 @auth.route('/login')
 def login():
-    return render_template('auth/login.html')
+    return render_template('auth/login.html', own_brand=OWN_BRAND)
 
 
 ''' LOGGING IN '''
@@ -56,7 +56,7 @@ def login_post():
 
 @auth.route('/signup')
 def signup():
-    return render_template('auth/signup.html')
+    return render_template('auth/signup.html', own_brand=OWN_BRAND)
 
 @auth.route('/signup', methods=['POST'])
 def signup_post():
@@ -134,7 +134,7 @@ def resend_confirmation():
 
 @auth.route('/password-forgotten')
 def password_forgotten():
-    return render_template('auth/password_forgotten.html')
+    return render_template('auth/password_forgotten.html', own_brand=OWN_BRAND)
 
 @auth.route('/password-reset', methods=['POST'])
 def password_reset_post():
@@ -160,7 +160,7 @@ def password_reset(token):
     user = User.query.filter_by(email=email).first_or_404()
     if user.email == email:
         login_user(user)
-        return render_template('auth/password_change.html', username=user.username)
+        return render_template('auth/password_change.html', username=user.username, own_brand=OWN_BRAND)
     else:
         flash("The confirmation link is invalid or has expired.", "danger")
         return redirect(url_for("auth.password_forgotten"))
@@ -183,5 +183,5 @@ def password_change():
 def inactive():
     if current_user.is_confirmed:
         return redirect(url_for("search.index"))
-    return render_template("auth/inactive.html")
+    return render_template("auth/inactive.html", own_brand=OWN_BRAND)
 
