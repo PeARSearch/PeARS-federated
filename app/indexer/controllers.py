@@ -145,6 +145,7 @@ def from_bookmarks():
 @login_required
 @check_is_confirmed
 def from_url():
+    print("\t>> Indexer : from_url")
     if Urls.query.count() == 0:
         init_podsum()
 
@@ -162,7 +163,9 @@ def from_url():
         print(u, keyword, lang, trigger, contributor)
         f.write(u + ";" + keyword + ";" + lang + ";" + trigger + ";" + contributor + "\n")
         f.close()
-        return render_template('indexer/progress_file.html')
+        print("\t>> Indexer : progress_file")
+        messages = progress_file()
+        return render_template('indexer/progress_file.html', messages = messages)
 
 
 
@@ -173,36 +176,27 @@ The URL indexing uses same progress as file.
 '''
 
 
-@indexer.route("/progress_file")
-@login_required
-@check_is_confirmed
 def progress_file():
     print("Running progress file")
-    def generate():
-        urls, keywords, langs, triggers, contributors, errors = readUrls(join(dir_path, "urls_to_index.txt"))
-        if errors:
-            logging.error('Some URLs could not be processed')
-        if not urls or not keywords or not langs:
-            logging.error('Invalid file format')
-            yield "data: 0 \n\n"
-        kwd = keywords[0]
-        init_pod(kwd)
-        c = 0
-        for url, kwd, lang, trigger, contributor in zip(urls, keywords, langs, triggers, contributors):
-            access, req = request_url(url)
-            if access:
-                url_type = req.headers['Content-Type']
-                success, podsum, text, doc_id = mk_page_vector.compute_vectors(url, kwd, lang, trigger, contributor, url_type)
-                if success:
-                    posix_doc(text, doc_id, kwd)
-                    pod_from_file(kwd, lang, podsum)
-            c += 1
-            data = ceil(c / len(urls) * 100)
-            yield "data:" + str(data) + "\n\n"
-        yield "data:" + "Finished!" + "\n\n"
-        #num_db_entries = len(Urls.query.all())
-        #yield render_template("indexer/index.html", num_entries=num_db_entries)
-    return Response(generate(), mimetype='text/event-stream')
+    messages = []
+    urls, keywords, langs, triggers, contributors, errors = readUrls(join(dir_path, "urls_to_index.txt"))
+    if errors:
+        return errors
+    if not urls or not keywords or not langs:
+        messages.append('Invalid file format.')
+        return messages
+    kwd = keywords[0]
+    init_pod(kwd)
+    for url, kwd, lang, trigger, contributor in zip(urls, keywords, langs, triggers, contributors):
+        access, req = request_url(url)
+        if access:
+            url_type = req.headers['Content-Type']
+            success, podsum, text, doc_id = mk_page_vector.compute_vectors(url, kwd, lang, trigger, contributor, url_type)
+            if success:
+                posix_doc(text, doc_id, kwd)
+                pod_from_file(kwd, lang, podsum)
+        messages.append(url+' successfully indexed.')
+    return messages
 
 @indexer.route("/progress_docs")
 @login_required
