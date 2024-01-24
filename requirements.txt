@@ -31,7 +31,7 @@ python-decouple==3.8
 python-dotenv==1.0.0
 pytz==2023.3.post1
 requests==2.25.1
-scikit-learn==1.1.2
+scikit-learn==1.4.0
 scipy==1.9.2
 sentencepiece==0.1.97
 six==1.16.0
