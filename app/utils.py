@@ -300,6 +300,8 @@ def beautify_title(title, doctype):
     return title
 
 def beautify_snippet(snippet, img, query, expert):
+    if snippet[-3:] != '...':
+        snippet+='...'
     tmp_snippet = snippet
     for w in query.split():
         tmp_snippet = tmp_snippet.replace(w,'<b>'+w+'</b>')

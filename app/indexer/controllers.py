@@ -109,6 +109,8 @@ def from_url():
             contributor = current_user.username
         else:
             contributor = ''
+        if trigger.isspace():
+            trigger = ''
         print(u, keyword, lang, trigger, contributor)
         f.write(u + ";" + keyword + ";" + lang + ";" + trigger + ";" + contributor + "\n")
         f.close()
