@@ -36,7 +36,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 	    <a href='../../admin/urls/edit/?id={{result[0]}}'><img src="{{ url_for('static', filename='annot.png')}}" width='30px' /></a>
 	    {% endif %}
 
-	    <p class="card-text"><br>{{result[3]|safe}} ...</p>
+	    <p class="card-text small" style='margin: 0px 0px -3px 40px'><br>{{result[3]|safe}} ...</p>
+	    <p class="small" style='margin-left:40px;'>
 	    <a class="results-emoji" href="pages/faq.html" data-toggle="tooltip" title="Report this entry">🕶️</a> | 
             {% if result[9] != '' %}
 	    <a class="results-emoji" href="#" data-toggle="tooltip" title="trigger warning">🔥</a> {{result[9]}} | 
@@ -50,7 +51,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 	        <a href="{{url_for('.experts', kwd=result[7], idx=result[6])}}" style="text-decoration:none; color:black;"><b> >> </b></a>
 	      {% endif %}
 	    {% endif %}
-	    <br>
+	    </p>
           </div>
           {% if result[5] != None %}
           <div class="card-footer">
