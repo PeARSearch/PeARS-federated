@@ -58,7 +58,10 @@ def compute_vectors(target_url, keyword, lang, trigger, contributor, url_type):
             u.snippet = str(snippet)
             u.doctype = 'url'
             u.trigger = trigger
-            u.contributor = '@'+contributor
+            if contributor != '':
+                u.contributor = '@'+contributor
+            else:
+                u.contributor = contributor
             #print(u.url,u.title,u.vector,u.snippet,u.pod)
             db.session.add(u)
             db.session.commit()
