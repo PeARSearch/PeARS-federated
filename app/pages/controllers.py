@@ -28,3 +28,11 @@ def return_acknowledgements():
 @pages.route('/privacy/')
 def return_privacy():
     return render_template("pages/privacy.html")
+
+@pages.route('/terms-of-service/')
+def return_tos():
+    return render_template("pages/tos.html")
+
+@pages.route('/contact/')
+def return_contact():
+    return render_template("pages/contact.html")

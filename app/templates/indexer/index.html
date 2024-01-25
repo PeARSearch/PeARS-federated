@@ -23,8 +23,7 @@ SPDX-License-Identifier: AGPL-3.0-only
           <p>Think you should index your favourite webpage? Enter its URL here! 
           </p>
 
-          <form method="POST" accept-charset="UTF-8" enctype="multipart/form-data"
-            action="{{url_for('indexer.from_url')}}">
+          <form method="POST" accept-charset="UTF-8" enctype="multipart/form-data" action="{{url_for('indexer.from_url')}}">
             <div class="input-group p-2">
               <span class="input-group-text">URL</span>
               <input required type="text" class="form-control" placeholder="Enter a URL" name='url' id='url'>
@@ -67,8 +66,7 @@ SPDX-License-Identifier: AGPL-3.0-only
           <p>This option requires a .txt file containing the URLs you would like to index, with associated keywords.
             Please make sure to follow <a href="{{url_for('pages.return_faq', _anchor='indexfile')}}">the right format</a>.</p>
 
-          <form method="POST" accept-charset="UTF-8" enctype="multipart/form-data"
-            action="{{url_for('indexer.from_file')}}">
+          <form method="POST" accept-charset="UTF-8" enctype="multipart/form-data" action="{{url_for('indexer.from_file')}}" id="indexfileform">
             <div class="input-group p-2">
               <input required type="file" class="form-control input-s" accept="text/plain" name='file_source'
                 id='file_source'>
@@ -100,8 +98,7 @@ SPDX-License-Identifier: AGPL-3.0-only
             to
             index.</p>
 
-          <form method="POST" accept-charset="UTF-8" enctype="multipart/form-data"
-            action="{{url_for('indexer.from_bookmarks')}}">
+          <form method="POST" accept-charset="UTF-8" enctype="multipart/form-data" action="{{url_for('indexer.from_bookmarks')}}" id="indexbookmarksform">
             <div class="input-group p-2">
               <input required type="file" class="form-control input-s" accept="text/html" name='file_source'
                 id='bookmark_source'>

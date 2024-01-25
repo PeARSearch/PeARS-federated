@@ -70,7 +70,7 @@ SPDX-License-Identifier: AGPL-3.0-only
                 <li class="nav-item"><a class="nav-link" href="{{url_for('indexer.index')}}">Indexer</a></li>
 		{% endif %}
 		{% if current_user.is_authenticated and current_user.is_confirmed %}
-                <li class="nav-item"><a class="nav-link" href="{{url_for('orchard.index')}}">My orchard</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{url_for('orchard.index')}}">Pods</a></li>
 		{% endif %}
 		{% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
                 <li class="nav-item"><a class="nav-link" href="{{url_for('admin.index')}}">DB admin</a></li>          
@@ -126,7 +126,7 @@ SPDX-License-Identifier: AGPL-3.0-only
     </div>
     <footer class="footer mt-auto py-3 bg-dark">
     <div class="container">
-	    <span class="text-light"><a class="btn btn-dark" href="{{url_for('pages.return_privacy')}}">Privacy Policy</a> | <a class="btn btn-dark" href="{{url_for('pages.return_privacy')}}">Terms of service </a>| <a class="btn btn-dark" href="{{url_for('pages.return_privacy')}}">Contact</a></span>
+	    <span class="text-light"><a class="btn btn-dark" href="{{url_for('pages.return_privacy')}}">Privacy Policy</a> | <a class="btn btn-dark" href="{{url_for('pages.return_tos')}}">Terms of service</a> | <a class="btn btn-dark" href="{{url_for('pages.return_contact')}}">Contact</a></span>
     </div>
   </footer>
 <!-- script references -->

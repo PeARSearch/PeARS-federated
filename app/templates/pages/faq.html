@@ -9,70 +9,39 @@ SPDX-License-Identifier: AGPL-3.0-only
 <div class="container">
 
   <div class="row">
-       <div class="col-md-6">
+       <div class="col">
        <h3>F.A.Q.</h3>
-       <p><a href="#firsttime">So I'm here now. What do I do?</a><br>
-       <a href="#indexurl">How do I index?</a><br>
+       <p><a href="#firsttime">What is this?</a><br>
+       <a href="#indexurl">How do I contribute?</a><br>
        <a href="#newpods">What is a pod?</a><br>
-       <a href="#indexfile">How do I use 'index from a URL list'?</a><br>
-       <a href="#indexdocs">How do I use 'index a document collection'?</a><br>
-       <a href="#indexbookmarks">How do I use 'index from bookmarks'?</a><br>
-       <a href="#mistake">Help! I made a mistake while indexing!</a><br>
-       <a href="#multilingual">Can I use PeARS in my language?</a><br>
-       <a href="#contribute">How do I contribute to the PeARS code?</a><br>
-       <a href="#chat">Where can I chat to the PeARS community?</a></p>
+       <a href="#contribute">How do I contribute to the code?</a><br>
+       <a href="#copyright">What is your approach to copyright?</a><br>
        <br><br>
 
-       <p id="firsttime"><b>So I'm here now. What do I do?</b></p>
-       <p>First, welcome! Really nice to see you here!</p> 
-       <p>PeARS Lite is a local search solution. It is meant to help you create a little private search engine on your own machine, recording the documents you care about. Like all search engines, it is made of two components: an indexer, which lets you transform Web pages and other documents into a searchable representation, and the actual search module, which finds documents in response to a query. In order to search, you will need to index first. So grab a few URLs and let's get started...<p>
+       <p id="firsttime"><b>What is this?</b></p>
+       <p>Welcome, stranger! You are on an instance of 'PeARS Federated', a decentralised search engine. Every instance of PeARS can be considered a mini search engine for a single topic of interest. The focus of <a href="YOUR SITE URL">YOUR SITE</a> is Big Tech and AI. Other instances deal with different topics.</p>
+       <p>The idea behind PeARS is that each instance is populated via crowdsourcing. That means that if you sign up for an account, you can contribute to the content of the search index by sharing interesting URLs. This ensures that the index is of particularly high quality, as it has been vetted by human contributors.</p>
 
        <br><br>
-       <p id="indexurl"><b>How do I index?</b></p>
-       <p>Your PeARS installation includes an <a href="{{url_for('indexer.index')}}">indexing page</a> which helps you with the hard work of converting documents into searchable representations. You can index in several ways but we will start with the simplest one, which consists in typing a single URL in the 'Index a single URL' box -- this will index just that page. You should also enter a keyword under the URL, telling your PeARS install the topic of the page you want to index. Over time, this will contribute to the creation of <a href="#newpods">pods</a>, which you can manage individually.</p>
-       <p><b>Important:</b>There are various things to consider when crawling. First, please check the laws of your country before indexing: there might be rules on crawling that you want to be aware of. Second, be a good netizen. Some websites impose restrictions on crawling and might block you if you don't respect their rules. Do not index too many pages from a single site in a short period of time: you might overload their server. PeARS automatically checks the robots.txt file of sites you are trying to index.</p>
+       <p id="indexurl"><b>How do I help?</b></p>
+       <p>First, <a href="{{url_for('auth.signup')}}">sign up</a> for an account on this instance. We are happy to have you onboard!</a>
+       <p>Every PeARS instance includes an <a href="{{url_for('indexer.index')}}">indexing page</a> which helps you with the hard work of converting documents into searchable representations. You can index in several ways but we will start with the simplest one, which consists in typing a single URL in the 'Index a single URL' box -- this will index just that page. You should also enter a keyword under the URL, telling PeARS the topic of the page you want to index. Over time, this will contribute to the creation of <a href="#newpods">pods</a>, which you can manage individually. Finally, add an optional trigger warning (if the page contains elements that you feel might be upsetting for others), and tell us whether you would like your username to appear next to your contribution in the search results. (By default, that box is ticked, so untick it if you prefer to stay anonymous.)</p>
 
        <br><br>
-
        <p id="newpods"><b>What is a pod?</b></p>
-       <p>A pod is an index dedicated to a particular topic. Imagine your document collection is a library, and you are the librarian labelling different sections of your bookshelves. Having labelled sections help you direct visitors to the right book more easily. It also helps you managing your collection.</p>
-       <p>Once in a while, you can go and check how many pages you've indexed on a particular topic. Head over to <a href="{{url_for('indexer.index')}}">My orchard</a>. There, you will find a beautiful orchard growing a pod for each keyword you have used in the indexer. Each pod in the making shows you its current size. Once a pod has grown enough, you may want to share it with other PeARS users. To do this, click on the pod of your choice. After a moment, a new page will be displayed, giving you instructions about where to find your pod's information. Please note that for copyright reasons, you will only be sharing the URLs you have indexed in that pod. Your friend still has to do their own indexing of that list, using the <a href="#indexfile">URL list</a> indexing function.</p>
-
-
-       <br><br>
-       <p id="indexfile"><b>How do I use 'index from a URL list'?</b></p>
-       <p>'Index from file' lets you index a list of URLs from a plain text file. For the sake of example, let's say we want to index two URLs, https://en.wikipedia.org/ and http://flask.pocoo.org/. We'll assign them the keywords 'general knowledge' and 'programming'. We first open a new file in a text editor, and enter each URL, together with a suitable keyword and language code on one line, separated by a semi-colon, like so:</p>
-       <p>https://en.wikipedia.org/;general knowledge;en<br>
-          http://flask.pocoo.org/;programming;en</p>
-       <p>We then ensure that the file is save in <b>plain text</b> format. This is important! Now, all we need to do is go to our indexer page, and search for that file under 'index from file'. PeARS will do the rest.</p>
-
-
-       <br><br>
-       <p id="indexbookmarks"><b>How do I use 'index from bookmarks'?</b></p>
-       <p>If you use Firefox, you can <a href="https://support.mozilla.org/en-US/kb/export-firefox-bookmarks-to-backup-or-transfer">export your bookmarks as a bookmarks.html file</a>. This function is particularly handy if you want to make a pod out of your favourites.</p>
-       <p>We'll assume that you have been <a href="https://support.mozilla.org/en-US/kb/categorizing-bookmarks-make-them-easy-to-find">using tags</a> while bookmarking (if not, start!) Say you have tagged some pages as <i>cute cats</i>, all you have to do to create a pod out of those pages is to give your bookmarks.html file to PeARS, and indicate the keyword <i>cute cats</i> in the relevant text box. Your indexing will start shortly! You can then search those pages locally, and also share them with your friends as a pod by going to <a href="{{url_for('indexer.index')}}">My orchard</a>.</p>
-
-       <br><br>
-       <p id="mistake"><b>Help! I made a mistake while indexing!</b></p>
-       <p>Don't panic! Head over to your <a href="{{url_for('admin.index')}}">DB Admin</a> page. From this page, you can access records in your pear's database. Click on 'See/modify your URL list'. You will get back a list of all URLs indexed on your pear. There's a search box at the top of the list, which you can use to find the record you wish to modify. Once you've found it, either delete it completely (clicking on the little wastebin on the left) or edit it (by clicking on the pencil). Problem solved!</p>
-
-       <br><br>
-       <p id="multilingual"><b>Can I use PeARS in my language?</b></p>
-       <p>Yes! The list of supported languages is growing. PeARS is designed to be multilingual at the core, because we know that so many of us across the world routinely speak several languages. Before you can use another language than English, you will need to enable it in your installation. Simply head over to your terminal and type <i>python3 install_language.py lc</i>, replacing 'lc' with the code of the language you need (e.g. 'ml' for Malayalam or 'fr' for French).</p> 
-       <p>You can then search and index in your language by adding the relevant code to the end of your query (if you are searching), or the end of your keyword (if you are indexing). For instance, you could search for pages about cheese in French by typing: <i>fromage -fr</i> (note the hyphen before the language code!)</p>
-
+       <p>A pod is an index dedicated to a particular subtopic on the PeARS instance. Imagine the URL collection on this site is a library, and you are the librarian labelling different sections of your bookshelves. Having labelled sections help you direct visitors to the right book more easily. It also helps you and your fellow contributors managing the collection you have built.</p>
+       <p>If needed, you can go and check which pages have been indexed for a particular subtopic. Head over to <a href="{{url_for('orchard.index')}}">Pods</a>. There, you will find a pod for each keyword that has ever been used in the indexer. Each pod in the making shows you its current size. You can check the content of the pod by clicking on it. It is also possible to download the information contained in that pod.</p> 
 
        <br><br>
        <p id="contribute"><b>How do I contribute to the PeARS code?</b></p>
-       <p>We'd love to see you on our GitHub repo! This version of PeARS is <a href="">PeARS-Orchard</a>. Feel free to send us a pull request or contribute to our issues list.</p>
+       <p>We'd love to see you on our GitHub repos! Come and join the discussion <a href="https://github.com/orgs/PeARSearch/discussions">here</a>.</p>
 
        <br><br>
-       <p id="chat"><b>Where can I chat to the PeARS community?</b></p>
-       <p>Join our <a href="https://discord.gg/fcxEywrHKu">discord server</a>! We're looking forward to seeing you there!</p>
-       </div>
+       <p id="indexurl"><b>What is your approach to copyright?</b></p>
+       <p>Copyright is a big topic at the moment, as Big Tech companies are often accused of indiscriminately crawling Web content to train AI models, and by extension, AI-based search.</p>
+       <p>PeARS always respects copyright holders. It automatically checks constraints set by robots.txt files and it only displays minimal snippets in search results. If you wish for your site to be removed from the the index, simply contact the admin for this instance, and we will delete your content.</p>
        
-       <div class="col-md-6">
-       <img src="{{url_for('static', filename='tree-silhouette.png')}}" width='300px'/>
+       <br><br>
        </div>
   </div> <!-- /row -->
 </div> <!-- /container full -->
