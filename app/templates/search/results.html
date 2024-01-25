@@ -37,9 +37,9 @@ SPDX-License-Identifier: AGPL-3.0-only
 	    {% endif %}
 
 	    <p class="card-text"><br>{{result[3]|safe}} ...</p>
-	    <a class="results-emoji" href="pages/faq.html">🕶️</a> | 
+	    <a class="results-emoji" href="pages/faq.html" data-toggle="tooltip" title="Report this entry">🕶️</a> | 
             {% if result[9] != '' %}
-	    <a class="results-emoji" href="#">🔥</a> {{result[9]}} | 
+	    <a class="results-emoji" href="#" data-toggle="tooltip" title="trigger warning">🔥</a> {{result[9]}} | 
 	    {% endif %}
             {% if result[10] != '' %}
 	    {{result[10]}} | 
@@ -76,4 +76,9 @@ SPDX-License-Identifier: AGPL-3.0-only
 <!-- /#page-content-wrapper -->
 <script src="{{ url_for('static', filename='js/bootstrap.min.js')}}"></script>
 <script src="{{ url_for('static', filename='js/loading.js')}}"></script>
+<script>
+$(document).ready(function(){
+  $('[data-toggle="tooltip"]').tooltip();
+});
+</script>
 {% endblock %}

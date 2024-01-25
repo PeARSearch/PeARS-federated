@@ -105,8 +105,3 @@ a:hover {
   text-decoration: none;
 }
 
-.results-emoji::before {
-  content: attr(title);
-  position: absolute;
-  text-shadow: 0 0 0 #fff;
-}
