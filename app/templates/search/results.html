@@ -38,10 +38,10 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 	    <p class="card-text"><br>{{result[3]|safe}} ...</p>
 	    <a class="results-emoji" href="pages/faq.html">🕶️</a> | 
-            {% if result[9] != None %}
+            {% if result[9] != '' %}
 	    <a class="results-emoji" href="#">🔥</a> {{result[9]}} | 
 	    {% endif %}
-            {% if result[10] != None %}
+            {% if result[10] != '' %}
 	    {{result[10]}} | 
 	    {% endif %}
 	    <a href="{{result[1]}}" class="card-link">{{result[1]}}</a>

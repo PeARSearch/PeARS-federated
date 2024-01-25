@@ -104,11 +104,11 @@ def extract_html(url):
                     title = ""
             else:
                 title = og_title['content']
-            title = title[:90]
+            title = ' '.join(title.split()[:11]) #11 to conform with EU regulations
 
             # Process snippet
             if og_description:
-                snippet = og_description['content'][:1000]
+                snippet = 'og desc:'+og_description['content'][:1000]
             else:
                 body_str = remove_boilerplates(req, LANG)
                 try:
@@ -123,5 +123,5 @@ def extract_html(url):
                     error = "\t>> ERROR: extract_html: language is not supported."
                     title = ""
                     return title, body_str, snippet, cc, error
-                snippet = body_str[:90].replace(',', '-')
+                snippet = ' '.join(body_str.split()[:11]) #11 to conform with EU regulations
     return title, body_str, snippet, cc, error

@@ -51,59 +51,6 @@ def index():
 '''
 
 
-@indexer.route("/from_docs", methods=["POST"])
-@login_required
-@check_is_confirmed
-def from_docs():
-    if Urls.query.count() == 0:
-        init_podsum()
-
-    filename = request.files['file_source'].filename
-    print("DOC FILE:", filename)
-    if filename[-4:] == ".txt":
-        keyword = request.form['docs_keyword']
-        doctype = request.form['docs_type']
-        if doctype == '' or doctype.isspace():
-            doctype = 'doc'
-        else:
-            doctype = request.form['docs_type'].lower()
-        keyword, _, lang = parse_query(keyword)
-        print("LANGUAGE:",lang)
-        file = request.files['file_source']
-        file.save(join(dir_path, "docs_to_index.txt"))
-        f = open(join(dir_path, "file_source_info.txt"), 'w')
-        f.write(filename+'::'+keyword+'::'+lang+'::'+doctype+'\n')
-        f.close()
-        return render_template('indexer/progress_docs.html')
-
-
-@indexer.route("/from_csv", methods=["POST"])
-@login_required
-@check_is_confirmed
-def from_csv():
-    if Urls.query.count() == 0:
-        init_podsum()
-
-    filename = request.files['file_source'].filename
-    print("CSV FILE:", filename)
-    if filename[-4:] == ".csv":
-        keyword = request.form['csv_keyword']
-        doctype = request.form['docs_type']
-        if doctype == '' or doctype.isspace():
-            doctype = 'csv'
-        else:
-            doctype = request.form['docs_type'].lower()
-        keyword, _, lang = parse_query(keyword)
-        print("LANGUAGE:",lang)
-        file = request.files['file_source']
-        file.save(join(dir_path, "static/userdata/csv/spreadsheet_to_index.csv"))
-        copyfile(join(dir_path, "static/userdata/csv/spreadsheet_to_index.csv"), join(dir_path, "static/userdata/csv",filename))
-        f = open(join(dir_path, "file_source_info.txt"), 'w')
-        f.write(filename+'::'+keyword+'::'+lang+'::'+doctype+'\n')
-        f.close()
-        return render_template('indexer/progress_csv.html')
-
-
 @indexer.route("/from_file", methods=["POST"])
 @login_required
 @check_is_confirmed
@@ -116,7 +63,8 @@ def from_file():
         file = request.files['file_source']
         # filename = secure_filename(file.filename)
         file.save(join(dir_path, "urls_to_index.txt"))
-        return render_template('indexer/progress_file.html')
+        messages = progress_file()
+        return render_template('indexer/progress_file.html', messages = messages)
 
 
 @indexer.route("/from_bookmarks", methods=["POST"])
@@ -138,7 +86,8 @@ def from_bookmarks():
         for u in urls:
             f.write(u + ";" + keyword + ";" + lang +"\n")
         f.close()
-        return render_template('indexer/progress_file.html')
+        messages = progress_file()
+        return render_template('indexer/progress_file.html', messages = messages)
 
 
 @indexer.route("/from_url", methods=["POST"])
@@ -197,6 +146,68 @@ def progress_file():
                 pod_from_file(kwd, lang, podsum)
         messages.append(url+' successfully indexed.')
     return messages
+
+
+
+
+
+
+
+
+######## FROM PeARS LITE #################
+
+@indexer.route("/from_docs", methods=["POST"])
+@login_required
+@check_is_confirmed
+def from_docs():
+    if Urls.query.count() == 0:
+        init_podsum()
+
+    filename = request.files['file_source'].filename
+    print("DOC FILE:", filename)
+    if filename[-4:] == ".txt":
+        keyword = request.form['docs_keyword']
+        doctype = request.form['docs_type']
+        if doctype == '' or doctype.isspace():
+            doctype = 'doc'
+        else:
+            doctype = request.form['docs_type'].lower()
+        keyword, _, lang = parse_query(keyword)
+        print("LANGUAGE:",lang)
+        file = request.files['file_source']
+        file.save(join(dir_path, "docs_to_index.txt"))
+        f = open(join(dir_path, "file_source_info.txt"), 'w')
+        f.write(filename+'::'+keyword+'::'+lang+'::'+doctype+'\n')
+        f.close()
+        return render_template('indexer/progress_docs.html')
+
+
+@indexer.route("/from_csv", methods=["POST"])
+@login_required
+@check_is_confirmed
+def from_csv():
+    if Urls.query.count() == 0:
+        init_podsum()
+
+    filename = request.files['file_source'].filename
+    print("CSV FILE:", filename)
+    if filename[-4:] == ".csv":
+        keyword = request.form['csv_keyword']
+        doctype = request.form['docs_type']
+        if doctype == '' or doctype.isspace():
+            doctype = 'csv'
+        else:
+            doctype = request.form['docs_type'].lower()
+        keyword, _, lang = parse_query(keyword)
+        print("LANGUAGE:",lang)
+        file = request.files['file_source']
+        file.save(join(dir_path, "static/userdata/csv/spreadsheet_to_index.csv"))
+        copyfile(join(dir_path, "static/userdata/csv/spreadsheet_to_index.csv"), join(dir_path, "static/userdata/csv",filename))
+        f = open(join(dir_path, "file_source_info.txt"), 'w')
+        f.write(filename+'::'+keyword+'::'+lang+'::'+doctype+'\n')
+        f.close()
+        return render_template('indexer/progress_csv.html')
+
 
 @indexer.route("/progress_docs")
 @login_required

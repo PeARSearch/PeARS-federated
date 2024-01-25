@@ -62,7 +62,9 @@ def index():
             results = [{'url':None, 'title':None, 'snippet':'No pages found', 'doctype':None, 'notes':None, 'img':None, 'trigger':None, 'contributor':None}]
         for r in results:
             if r['doctype'] != 'csv':
-                r['snippet'] = r['snippet'][:150]
+                r['snippet'] = ' '.join(r['snippet'].split()[:11]) #11 to conform with EU regulations
+                if r['snippet'][-3:] != '...':
+                    r['snippet']+='...'
             r['title'] = beautify_title(r['title'], r['doctype'])
             r['snippet'] = beautify_snippet(r['snippet'], r['img'], query, EXPERT_ADD_ON)
             displayresults.append(list(r.values()))
