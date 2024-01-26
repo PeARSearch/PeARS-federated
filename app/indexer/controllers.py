@@ -146,7 +146,7 @@ def progress_file():
             if success:
                 posix_doc(text, doc_id, kwd)
                 pod_from_file(kwd, lang, podsum)
-        messages.append(url+' successfully indexed.')
+        messages.append(url)
     return messages
 
 
