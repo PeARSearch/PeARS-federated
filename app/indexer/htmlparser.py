@@ -118,7 +118,7 @@ def extract_html(url):
                     title = ""
                     error = "\t>> ERROR: extract_html: Couldn't detect page language."
                     return title, body_str, snippet, cc, error
-                print(body_str)
+                #print(body_str)
                 if language not in installed_languages:
                     error = "\t>> ERROR: extract_html: language is not supported."
                     title = ""

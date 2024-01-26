@@ -24,6 +24,12 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "/static/favicon.png",
+      "sizes": "16x16",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
