@@ -47,8 +47,8 @@ VEC_SIZE = len(vocab)
 
 def configure_logging():
     # register root logging
-    logging.basicConfig(level=logging.DEBUG)
-    logging.getLogger('werkzeug').setLevel(logging.INFO)
+    logging.basicConfig(level=logging.ERROR)
+    logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 
 configure_logging()
@@ -267,3 +267,8 @@ def set_admin(username):
     db.session.commit()
     print(username,"is now admin.")
 
+from app.indexer.controllers import progress_file
+@app.cli.command('index')
+def index():
+    '''Index from the app/urls_to_index.txt file'''
+    progress_file() 

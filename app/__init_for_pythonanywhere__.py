@@ -23,16 +23,16 @@ OWN_BRAND = True
 WALKTHROUGH = False
 
 # Make sure user data directories exist
-DEFAULT_PATH = f'/home/<your username>/PeARS-Lite/app/'
+DEFAULT_PATH = f'/home/<your username>/PeARS-federated/app/'
 Path(os.path.join(DEFAULT_PATH,'static/userdata')).mkdir(parents=True, exist_ok=True)
 Path(os.path.join(DEFAULT_PATH,'static/userdata/csv')).mkdir(parents=True, exist_ok=True)
 Path(os.path.join(DEFAULT_PATH,'static/userdata/pdf')).mkdir(parents=True, exist_ok=True)
 
 # Get paths to SentencePiece model and vocab
 LANG = 'en' #default language for your installation. Change as appropriate.
-SPM_DEFAULT_VOCAB_PATH = f'/home/<your username>/PeARS-Lite/app/api/models/{LANG}/{LANG}wiki.lite.16k.vocab'
+SPM_DEFAULT_VOCAB_PATH = f'/home/<your username>/PeARS-federated/app/api/models/{LANG}/{LANG}wiki.lite.16k.vocab'
 spm_vocab_path = os.environ.get("SPM_VOCAB", SPM_DEFAULT_VOCAB_PATH)
-SPM_DEFAULT_MODEL_PATH = f'/home/<your username>/PeARS-Lite/app/api/models/{LANG}/{LANG}wiki.lite.16k.model'
+SPM_DEFAULT_MODEL_PATH = f'/home/<your username>/PeARS-federated/app/api/models/{LANG}/{LANG}wiki.lite.16k.model'
 spm_model_path = os.environ.get("SPM_MODEL", SPM_DEFAULT_MODEL_PATH)
 
 # Define vector size
@@ -48,8 +48,8 @@ VEC_SIZE = len(vocab)
 
 def configure_logging():
     # register root logging
-    logging.basicConfig(level=logging.DEBUG)
-    logging.getLogger('werkzeug').setLevel(logging.INFO)
+    logging.basicConfig(level=logging.ERROR)
+    logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 
 configure_logging()
@@ -58,7 +58,7 @@ configure_logging()
 app = Flask(__name__, static_folder='static')
 
 # Configurations
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////home/<your username>/PeARS-Lite/app.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////home/<your username>/PeARS-federated/app.db'
 app.config['MAIL_DEFAULT_SENDER'] = "<your email>"
 app.config['MAIL_SERVER'] = "<your mail server>"
 app.config['MAIL_PORT'] = 587
@@ -281,3 +281,8 @@ def set_admin(username):
     db.session.commit()
     print(username,"is now admin.")
 
+from app.indexer.controllers import progress_file
+@app.cli.command('index')
+def index():
+    '''Index from the app/urls_to_index.txt file'''
+    progress_file() 

@@ -24,7 +24,6 @@ def pdf_mine(pdf_path):
         for element in page_layout:
             if isinstance(element, LTTextContainer):
                 body+=element.get_text()
-    print("PDF TEXT:",body[:300])
     return body
 
 
@@ -66,5 +65,5 @@ def extract_txt(url):
         error = "ERROR extract_html: language is not supported."
         title = ""
         return title, body_str, snippet, cc, error
-    snippet = body_str[:300]
+    snippet = body_str[:90]
     return title, body_str, snippet, cc, error
