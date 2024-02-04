@@ -352,6 +352,8 @@ def run_search(q:str):
     for k,v in extended_document_scores.items():
         if k in document_scores:
             merged_scores[k] = document_scores[k]+ 0.5*extended_document_scores[k]
+        else:
+            merged_scores[k] = 0.5*extended_document_scores[k]
 
     #print("DOCUMENT SCORES MERGED",merged_scores)
     best_urls = bestURLs(merged_scores)
