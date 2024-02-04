@@ -5,7 +5,7 @@
 import re
 import numpy as np
 import string
-from app import db, VEC_SIZE, SPM_DEFAULT_MODEL_PATH
+from app import db, ftcos, VEC_SIZE, SPM_DEFAULT_MODEL_PATH
 from app.api.models import Urls, installed_languages, sp
 from app.indexer.htmlparser import extract_html
 from app.indexer.pdfparser import extract_txt
@@ -110,9 +110,34 @@ def compute_vectors_local_docs(target_url, doctype, title, doc, keyword, lang):
 def compute_query_vectors(query, lang):
     """ Make distribution for query """
     #query = query.rstrip('\n')
-    #words = query.split()
-    text = tokenize_text(lang, query)
-    print(text)
-    v = vectorize_scale(lang, text, 5, len(text)) #log prob power 5
+    words = query.split()
+    print("QUERY SPLIT:",words)
+
+    # Individual words tokenized
+    words_tokenized = []
+    for w in words:
+        words_tokenized.append(tokenize_text(lang,w))
+    print("WORDS TOKENIZED:",words_tokenized)
+
+    # Entire query tokenized
+    query_tokenized = ' '.join(words_tokenized)
+    print("QUERY TOKENIZED:",query_tokenized)
+
+    # Add similar tokens
+    words_tokenized_expanded = []
+    for w in words_tokenized:
+        sims = [i for i in w.split() if len(i) > 1]
+        for wtoken in w.split():
+            if len(wtoken.replace('▁','')) > 3:
+                neighbours = [n for n in ftcos[wtoken] if len(n) > 2]
+                sims.extend(neighbours)
+        sims = list(set(sims))
+        words_tokenized_expanded.append(sims)
+    print("WORDS TOKENIZED EXPANDED",words_tokenized_expanded)
+
+    v_query = vectorize_scale(lang, query_tokenized, 5, len(query_tokenized)) #log prob power 5
+    v_query_expanded = [] # A list of neighbourhood vectors, one for each word in the query
+    for nns in words_tokenized_expanded:
+        v_query_expanded.append(vectorize_scale(lang, ' '.join(nns), 5, len(nns)))
     #print(csr_matrix(v))
-    return v, text
+    return query_tokenized, words_tokenized_expanded, v_query, v_query_expanded

@@ -37,7 +37,6 @@ def read_stopwords(lang):
         STOPWORDS = f.read().splitlines()
     return STOPWORDS
 
-
 def _extract_url_and_kwd(line):
     try:
         url, kwd, lang, trigger, contributor = line.rstrip('\n').split(';')

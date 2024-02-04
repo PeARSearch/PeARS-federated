@@ -18,3 +18,13 @@ def read_vocab(vocab_file):
             c+=1
     return vocab, reverse_vocab, logprobs
 
+def read_cosines(cosine_file):
+    cosines = {}
+    with open(cosine_file) as f:
+        for l in f:
+            l = l.rstrip('\n')
+            fields = l.split()
+            wp = fields[0]
+            cosines[wp] = fields[2:]
+    return cosines
+

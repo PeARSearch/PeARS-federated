@@ -123,7 +123,7 @@ def posix_score_seq(posl, enforce_subwords=True):
 
 def posix(q, pod_name):
     posindex = load_posix(pod_name)
-    print(q.split())
+    #print(q.split())
     query_vocab_ids = [vocab.get(wp) for wp in q.split()]
     if any([i is None for i in query_vocab_ids]):
         print("WARNING: there were unknown tokens in the query")
@@ -131,24 +131,28 @@ def posix(q, pod_name):
         query_vocab_ids = [i for i in query_vocab_ids if i is not None]
 
     idx = []
-    for w in query_vocab_ids:
-        idx.append(set(posindex[w].keys()))        # get docs containing token
+    for w in query_vocab_ids:                      # for each token in query
+        idx.append(set(posindex[w].keys()))        # get docs containing token, resulting in list of sets (one set per token)
+        #if len(set(posindex[w].keys())) > 0:
+        #    print("FOUND",inverted_vocab[w], set(posindex[w].keys()))
 
     matching_docs = list(set.intersection(*idx))   # intersect doc lists to only retain the docs that contain *all* tokens
+    #if len(matching_docs) > 0:
+        #print("MATCHING DOCS",matching_docs)
     doc_scores = {}
     for doc in matching_docs:
         positions = []
         for w in query_vocab_ids:
             token_str = inverted_vocab[w]
             token_positions = posindex[w][doc]
-            #print("TOKEN STR",token_str)
-            if token_str.startswith("▁"):
+            #print("DOC",doc,"TOKEN STR",token_str)
+            if token_str.startswith("▁") or len(positions) == 0:
                 positions.append((token_positions,))
             else:
                 positions[-1] += (token_positions,)
-            #print("DOC",doc,"Q WORD", token_str, token_positions)
+            #print("\tDOC",doc,"Q WORD", token_str, token_positions)
 
         final_score = posix_score_seq(positions)
         doc_scores[doc] = final_score
-        #print("\nFINAL SCORE FOR DOC", doc, final_score)
+        #print("\tFINAL SCORE FOR DOC", doc, final_score,"\n")
     return doc_scores
