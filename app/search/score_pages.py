@@ -41,7 +41,7 @@ def score_experts(doc_idx,kwd):
     urls = bestURLs(DS_scores)
     return output(urls, 'ind')
 
-def score(query, query_dist, tokenized, kwd):
+def score(query, query_vector, tokenized, kwd):
     URL_scores = {}
     snippet_scores = {}
     DS_scores = {}
@@ -49,8 +49,8 @@ def score(query, query_dist, tokenized, kwd):
     posix_scores = posix(tokenized, kwd)
 
     pod_m = load_npz(join(pod_dir,kwd+'.npz'))
-    m_cosines = 1 - distance.cdist(query_dist, pod_m.todense(), 'cosine')
-    m_completeness = completeness(query_dist, pod_m.todense())
+    m_cosines = 1 - distance.cdist(query_vector, pod_m.todense(), 'cosine')
+    m_completeness = completeness(query_vector, pod_m.todense())
 
     for u in db.session.query(Urls).filter_by(pod=kwd).all():
         DS_scores[u.url] = m_cosines[0][int(u.vector)]
@@ -61,44 +61,57 @@ def score(query, query_dist, tokenized, kwd):
     return DS_scores, completeness_scores, snippet_scores, posix_scores
 
 @timer
-def score_pods(query, query_dist, extended_q_tokenized, extended_q_dist, lang):
-    '''Score pods for a query'''
+def score_pods(query_vector, extended_q_vectors, lang):
+    """Score pods for a query.
+
+    We score pods with respect to the original query as well as the extended
+    query. To do this, we first compute cosine between the query / elements
+    of the extended query and each podsum vector, resulting in a matrix of 
+    cosines for each computation. Then, we hit the database to attach a pod
+    name to each score.
+
+    Parameters:
+    query_vector: the numpy array for the query (dim = size of vocab)
+    extended_q_vectors: a list of numpy arrays for the extended query
+    lang: the language of the query
+
+    Returns: a list of the best <max_pods: int> pods, or if all scores
+    are under a certain threshold, the list of all pods.
+    """
     print(">> SEARCH: SCORE PAGES: SCORE PODS")
-    #print(extended_q_tokenized)
+
+    max_pods = 3 # How many pods to return
+    quality_threshold = 0.01 # Minimum score for a pod to be considered okay
     pod_scores = {}
 
     # Compute similarity of query to all pods
     podsum = load_npz(join(pod_dir,'podsum.npz'))
-    m_cosines = 1 - distance.cdist(query_dist, podsum.todense(), 'cosine')
+    m_cosines = 1 - distance.cdist(query_vector, podsum.todense(), 'cosine')
+
+    # Compute similarity of each extended query element to all pods
     extended_m_cosines = []
-    for nns_dist in extended_q_dist:
-        extended_m_cosines.append(1 - distance.cdist(nns_dist, podsum.todense(), 'cosine'))
+    for nns_vector in extended_q_vectors:
+        extended_m_cosines.append(1 - distance.cdist(nns_vector, podsum.todense(), 'cosine'))
 
     # For each pod, retrieve cosine to query as well as overlap to extended query
     pods = db.session.query(Pods).filter_by(language=lang).filter_by(registered=True).all()
     for p in pods:
         cosine_score = m_cosines[0][int(p.DS_vector)]
-        #if cosine_score > 0:
-            #print("\n\tCOSINE SCORE",p.name,cosine_score)
         if math.isnan(cosine_score):
             cosine_score = 0
         extended_score = 0
         for m in extended_m_cosines:
             extended_score += m[0][int(p.DS_vector)]
-        #if extended_score > 0:
-            #print("\tEXTENDED POD SCORE",p.name, extended_score)
         pod_scores[p.name] = cosine_score + extended_score
-    print("POD SCORES:",pod_scores)
 
-    '''If all scores are rubbish, search entire pod collection
-    (we're desperate!)'''
-    if max(pod_scores.values()) < 0.01:
+    #If all scores are rubbish, search entire pod collection (we're desperate!)
+    if max(pod_scores.values()) < quality_threshold:
         return list(pod_scores.keys())
     else:
         best_pods = []
         for k in sorted(pod_scores, key=pod_scores.get, reverse=True):
-            if len(best_pods) < 3: 
-                print("\tAppending pod",k)
+            if len(best_pods) < max_pods: 
+                print("\t>> Appending best pod",k)
                 best_pods.append(k)
             else:
                 break
@@ -106,10 +119,10 @@ def score_pods(query, query_dist, extended_q_tokenized, extended_q_dist, lang):
 
 
 @timer
-def score_docs(query, query_dist, tokenized, pod):
+def score_docs(query, query_vector, tokenized, pod):
     '''Score documents for a query'''
     document_scores = {}  # Document scores
-    DS_scores, completeness_scores, snippet_scores, posix_scores = score(query, query_dist, tokenized, pod)
+    DS_scores, completeness_scores, snippet_scores, posix_scores = score(query, query_vector, tokenized, pod)
     #if len(posix_scores) != 0:
     #    print("POSIX SCORES",posix_scores)
     for url in list(DS_scores.keys()):
@@ -291,19 +304,35 @@ def output(best_urls):
     return results, pods
 
 
-def run(q, pears):
+def run_search(q:str):
+    """Run search on query input by user
+
+    Search happens in three steps. 1) We get the pods most likely
+    to contain documents relevant to the query. 2) We run search 
+    on the original query. 3) We run search on an 'extended' query
+    consisting of distributional neighbours of the original words.
+
+    Parameter: q, a query string.
+    Returns: a list of documents. Each document is a dictionary. 
+    """
+
+    # Set up multithreading to use half of CPU count
     max_thread = int(multiprocessing.cpu_count() * 0.5)
+
+    # Get doctype and language from query in case they are there
     query, doctype, lang = parse_query(q)
-    q_tokenized, extended_q_tokenized, q_dist, extended_q_dist = compute_query_vectors(query, lang)
+
+    # Run tokenization and vectorization on query. We also get an extended query and its vector.
+    q_tokenized, extended_q_tokenized, q_vectors, extended_q_vectors = compute_query_vectors(query, lang)
 
     # Get best pods
-    best_pods = score_pods(query, q_dist, extended_q_tokenized, extended_q_dist, lang)
+    best_pods = score_pods(q_vectors, extended_q_vectors, lang)
     print("Q:",query,"BEST PODS:",best_pods)
     
     # Compute results for original query
     document_scores = {}
     with Parallel(n_jobs=max_thread, prefer="threads") as parallel:
-        delayed_funcs = [delayed(score_docs)(query, q_dist, q_tokenized, pod) for pod in best_pods]
+        delayed_funcs = [delayed(score_docs)(query, q_vectors, q_tokenized, pod) for pod in best_pods]
         scores = parallel(delayed_funcs)
     for dic in scores:
         document_scores.update(dic)
@@ -326,4 +355,5 @@ def run(q, pears):
 
     #print("DOCUMENT SCORES MERGED",merged_scores)
     best_urls = bestURLs(merged_scores)
-    return output(best_urls)
+    results, pods = output(best_urls)
+    return results

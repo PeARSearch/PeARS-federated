@@ -50,15 +50,13 @@ def index():
                 internal_message = file.read().replace('\n', '<br>')
         return render_template("search/index.html", internal_message=internal_message, own_brand=OWN_BRAND)
     else:
-        pears = ['0.0.0.0']
         displayresults = []
         query = ' '.join([w for w in query.split() if w not in STOPWORDS])
         if WALKTHROUGH:
             with open(join(static_dir,'walkthrough.txt'), 'r') as file:
                 internal_message = file.read().replace('\n', '<br>')
-        results, pods = score_pages.run(query, pears)
+        results = score_pages.run_search(query)
         if not results:
-            pears = ['no results found :(']
             results = [{'url':None, 'title':None, 'snippet':'No pages found', 'doctype':None, 'notes':None, 'img':None, 'trigger':None, 'contributor':None}]
         for r in results:
             if r['doctype'] != 'csv':
@@ -67,7 +65,7 @@ def index():
             r['snippet'] = beautify_snippet(r['snippet'], r['img'], query, EXPERT_ADD_ON)
             displayresults.append(list(r.values()))
         query = query.replace(' ','&nbsp;')
-        return render_template('search/results.html', pears=[], query=query, results=displayresults, internal_message=internal_message, expert=EXPERT_ADD_ON, own_brand=OWN_BRAND)
+        return render_template('search/results.html', query=query, results=displayresults, internal_message=internal_message, expert=EXPERT_ADD_ON, own_brand=OWN_BRAND)
 
 @search.route('/experts/<kwd>/<idx>/')
 def experts(kwd,idx):  
