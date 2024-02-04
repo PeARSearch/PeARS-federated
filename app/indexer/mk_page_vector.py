@@ -10,7 +10,7 @@ from app.api.models import Urls, installed_languages, sp
 from app.indexer.htmlparser import extract_html
 from app.indexer.pdfparser import extract_txt
 from app.indexer.vectorizer import vectorize_scale
-from app.utils import convert_to_string, convert_dict_to_string, normalise
+from app.utils import convert_to_string, convert_dict_to_string, normalise, timer
 from scipy.sparse import csr_matrix, vstack, save_npz, load_npz
 from os.path import dirname, join, realpath, isfile
 
@@ -106,7 +106,7 @@ def compute_vectors_local_docs(target_url, doctype, title, doc, keyword, lang):
         return False, None, None, None
 
 
-
+@timer
 def compute_query_vectors(query, lang):
     """ Make distribution for query """
     #query = query.rstrip('\n')

@@ -7,6 +7,7 @@ import logging
 import re
 import requests
 
+from time import time
 from bs4 import BeautifulSoup
 from math import sqrt
 import numpy as np
@@ -313,3 +314,14 @@ def beautify_snippet(snippet, img, query, expert):
             img = join('static','assets',img)
         tmp_snippet = "<img src='"+img+"' style='float:left; width:150px; margin-right: 10px'/>"+tmp_snippet
     return tmp_snippet
+
+def timer(func):
+    # This function shows the execution time of
+    # the function object passed
+    def wrap_func(*args, **kwargs):
+        t1 = time()
+        result = func(*args, **kwargs)
+        t2 = time()
+        print(f'\n>>TIMER: Function {func.__name__!r} executed in {(t2-t1):.4f}s')
+        return result
+    return wrap_func

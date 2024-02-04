@@ -156,3 +156,19 @@ def posix(q, pod_name):
         doc_scores[doc] = final_score
         #print("\tFINAL SCORE FOR DOC", doc, final_score,"\n")
     return doc_scores
+
+
+def posix_no_seq(q, pod_name):
+    posindex = load_posix(pod_name)
+    #print(q.split())
+    query_vocab_ids = [vocab.get(wp) for wp in q.split()]
+    if any([i is None for i in query_vocab_ids]):
+        print("WARNING: there were unknown tokens in the query")
+        print(q.split(), query_vocab_ids)
+        query_vocab_ids = [i for i in query_vocab_ids if i is not None]
+
+    idx = []
+    for w in query_vocab_ids:                      # for each token in query
+        idx.extend(list(set(posindex[w].keys())))        # get docs containing token, resulting in list of sets (one set per token)
+
+    return idx

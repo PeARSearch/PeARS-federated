@@ -12,9 +12,9 @@ from app.api.models import Urls, Pods
 from app import db, LANG, VEC_SIZE
 from app.utils_db import get_db_url_snippet, get_db_url_title, get_db_url_doctype, get_db_url_pod, get_db_url_notes
 
-from .overlap_calculation import score_url_overlap, generic_overlap, completeness, posix
+from .overlap_calculation import score_url_overlap, generic_overlap, completeness, posix, posix_no_seq
 from app.search import term_cosine
-from app.utils import cosine_similarity, hamming_similarity, convert_to_array, parse_query
+from app.utils import cosine_similarity, hamming_similarity, convert_to_array, parse_query, timer
 from app.indexer.mk_page_vector import tokenize_text, compute_query_vectors
 from scipy.sparse import csr_matrix, load_npz
 from scipy.spatial import distance
@@ -60,7 +60,7 @@ def score(query, query_dist, tokenized, kwd):
         #print("SNIPPET SCORE",u.url,snippet_scores[u.url])
     return DS_scores, completeness_scores, snippet_scores, posix_scores
 
-
+@timer
 def score_pods(query, query_dist, extended_q_tokenized, extended_q_dist, lang):
     '''Score pods for a query'''
     print(">> SEARCH: SCORE PAGES: SCORE PODS")
@@ -105,6 +105,7 @@ def score_pods(query, query_dist, extended_q_tokenized, extended_q_dist, lang):
         return best_pods
 
 
+@timer
 def score_docs(query, query_dist, tokenized, pod):
     '''Score documents for a query'''
     document_scores = {}  # Document scores
@@ -126,24 +127,25 @@ def score_docs(query, query_dist, tokenized, pod):
             document_scores[url] = document_score
     return document_scores
 
+@timer
 def score_docs_extended(extended_q_tokenized, pod):
     '''Score documents for an extended query, using posix scoring only'''
     #print(">> SEARCH: SCORE_PAGES: SCORES_DOCS_EXTENDED",pod)
     document_scores = {}  # Document scores
     for w_tokenized in extended_q_tokenized:
+        #print("W TOKENIZED",w_tokenized)
         urls_incremented = [] # Keep list of urls already increment by 1, we don't want to score several times within the same neighbourhood
-        for w in w_tokenized:
-            posix_scores = posix(w, pod)
-            #print(posix_scores)
-            for v in list(posix_scores.keys()):
-                url = db.session.query(Urls).filter_by(pod=pod).filter_by(vector=v).first().url #We assume a url can only belong to one pod
-                if url not in urls_incremented:
-                    if url in document_scores:
-                        document_scores[url] += posix_scores[v]
-                    else:
-                        document_scores[url] = posix_scores[v]
-                    urls_incremented.append(url)
-                    #print(w,document_scores[url])
+        matching_docs = posix_no_seq(' '.join(w_tokenized), pod)
+        #print("MATCHING DOCS", matching_docs)
+        for v in matching_docs:
+            url = db.session.query(Urls).filter_by(pod=pod).filter_by(vector=v).first().url #We assume a url can only belong to one pod
+            if url not in urls_incremented:
+                if url in document_scores:
+                    document_scores[url] += 1
+                else:
+                    document_scores[url] = 1
+                urls_incremented.append(url)
+                #print(w,document_scores[url])
     return document_scores
 
 def bestURLs(doc_scores):
