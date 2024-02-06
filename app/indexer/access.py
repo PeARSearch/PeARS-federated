@@ -5,7 +5,6 @@ import sys
 import re
 
 def robotcheck(url):
-
     scheme = urlparse(url).scheme
     domain = scheme + '://' + urlparse(url).netloc
     robot_url = join(domain,"robots.txt")
@@ -34,7 +33,8 @@ def robotcheck(url):
     for u in disallowed:
         m = re.search(u.replace('*','.*'),url)
         if m:
-            print("\t>> ERROR: robotcheck:",url,"is disallowed because of ",u)
+            error = "ERROR: robotcheck: "+url+" is disallowed because of "+u
+            print("\t>>",error)
             getpage = False
     return getpage
 
@@ -42,20 +42,27 @@ def request_url(url):
     print("\n> CHECKING URL CAN BE REQUESTED")
     access = None
     req = None
+    errs = []
     headers = {'User-Agent': 'PeARS User Agent'}
     try:
         req = requests.head(url, timeout=10, headers=headers)
         if req.status_code >= 400:
-            print("\t>> ERROR: request_url: status code is",req.status_code)
-            return access, req
+            error = "ERROR: request_url: status code is "+str(req.status_code)
+            print("\t>>",error)
+            errs.append(error)
+            return access, req, errs
         else:
             if robotcheck(url):
                 access = True
             else:
-                print("\t>> ERROR: request_url: robot.txt disallows the page", url, "...")
+                error = "ERROR: request_url: robot.txt disallows the url "+url+"."
+                print("\t>>",error)
+                errs.append(error)
     except Exception:
-        print("\t>> ERROR: request_url: request.head failed trying to access", url, "...")
-        return access, req
-    return access, req
+        error = "ERROR: request_url: request.head failed trying to access"+url+"."
+        print("\t>>",error)
+        errs.append(error)
+        return access, req, errs
+    return access, req, errs
 
 

@@ -139,14 +139,17 @@ def progress_file():
     kwd = keywords[0]
     init_pod(kwd)
     for url, kwd, lang, trigger, contributor in zip(urls, keywords, langs, triggers, contributors):
-        access, req = request_url(url)
+        access, req, request_errors = request_url(url)
         if access:
             url_type = req.headers['Content-Type']
             success, podsum, text, doc_id = mk_page_vector.compute_vectors(url, kwd, lang, trigger, contributor, url_type)
             if success:
                 posix_doc(text, doc_id, kwd)
                 pod_from_file(kwd, lang, podsum)
-        messages.append(url)
+                success_message = url+" was successfully indexed."
+                messages.append(success_message)
+        else:
+            messages.extend(request_errors)
     return messages
 
 
