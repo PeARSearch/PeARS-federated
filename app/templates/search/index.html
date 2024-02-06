@@ -27,7 +27,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 	{% with messages = get_flashed_messages() %}
         {% if messages %}
             <div class="notification is-danger">
-            {{ messages[0] }}
+		    <br><b>{{ messages[0] }}</b>
             </div>
         {% endif %}
         {% endwith %}
