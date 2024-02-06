@@ -47,6 +47,13 @@ a:hover {
   background-color: var(--primary-color);
 }
 
+.nav-pills .nav-link.active {
+    background-color: var(--secondary-color);
+    color: #ffffff;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
 .btn-success {
   --bs-btn-bg: var(--primary-color);
   --bs-btn-border-color: var(--primary-color);
