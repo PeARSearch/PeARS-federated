@@ -127,8 +127,8 @@ def resend_confirmation():
         flash("Your account has already been confirmed.", "success")
         return redirect(url_for("search.index"))
     token = generate_token(current_user.email)
-    confirm_url = url_for("accounts.confirm_email", token=token, _external=True)
-    html = render_template("accounts/confirm_email.html", confirm_url=confirm_url)
+    confirm_url = url_for("auth.confirm_email", token=token, _external=True)
+    html = render_template("auth/confirm_email.html", confirm_url=confirm_url)
     subject = "Please confirm your email"
     send_email(current_user.email, subject, html)
     flash("A new confirmation email has been sent.", "success")
