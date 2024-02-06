@@ -5,13 +5,11 @@
 
 # Import flask dependencies
 import logging
-from app import OWN_BRAND
+from app import db, OWN_BRAND
+from app.api.models import Urls
 
-from flask import (Blueprint,
-                   flash,
-                   request,
-                   render_template,
-                   Response)
+from flask import Blueprint, flash, request, render_template, Response
+from flask_login import current_user
 
 
 # Define the blueprint:
@@ -25,6 +23,11 @@ def inject_brand():
 # Set the route and accepted methods
 @settings.route("/")
 def index():
-    return render_template("settings/index.html")
+    username = current_user.username
+    contributions = []
+    for i in db.session.query(Urls).filter_by(contributor='@'+username).all():
+        contributions.append([i.url, i.title])
+
+    return render_template("settings/index.html", username=username, contributions=contributions)
 
 

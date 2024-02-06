@@ -7,9 +7,18 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% extends "base/base.html" %}
 {% block body %}
 <div class="container">
-
   <div class="row p-3">
-    <div class="col-md-6">
+    <div class="card-group">
+      <div class="card">
+        <div class="card-header text-center"><b>Your profile</b></div>
+        <div class="card-body">
+	  <p>Username: {{username}}</p>
+        </div>
+        <div class="card-footer clearfix" style="height:38px">
+        </div>
+        </form>
+      </div>
+
       <div class="card">
         <div class="card-header text-center"><b>Color scheme</b></div>
           <div class="card-body">
@@ -22,24 +31,26 @@ SPDX-License-Identifier: AGPL-3.0-only
           <div class="card-footer clearfix" style="height:38px">
 	  </div>
         </div>
-    </div>
-
-    <div class="col-md-6">
-      <div class="card">
-        <div class="card-header text-center"><b>Install languages</b></div>
-        <div class="card-body">
-          <p>You will soon be able to install new languages for your PeARS, right here. Stay tuned!</p>
-
-        </div>
-        <div class="card-footer clearfix">
-          <span class="input-group-btn float-end">
-            <input id="submit_button" type="submit" class="btn btn-success" value="Coming soon">
-          </span>
-        </div>
-        </form>
       </div>
+     </div>
+
     </div>
+
+  <div class="row p-3">
+  <div class="card">
+            <div class="card-header text-center"><b>Your contributions</b></div>
+         <div class="card-body">
+         {% for url in contributions %}
+         <a href='{{url[0]}}'>{{url[0]}}</a>
+         <br>
+         {% endfor %}
+         </div>
+       </div>
+    </div>
+
   </div>
+  </div>
+
 
 </div><!-- /.container -->
 {% endblock %}
