@@ -35,12 +35,3 @@ SECURITY_PASSWORD_SALT = config("SECURITY_PASSWORD_SALT", default="very-importan
 
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-# Mail Settings
-MAIL_DEFAULT_SENDER = "<your email address>"
-MAIL_SERVER = "<your email server>"
-MAIL_PORT = 587
-MAIL_USE_TLS = True
-MAIL_USE_SSL = False
-MAIL_DEBUG = False
-MAIL_USERNAME = os.getenv("EMAIL_USER")
-MAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")

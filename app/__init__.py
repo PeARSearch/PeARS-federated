@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org> 
+# SPDX-FileCopyrightText: 2023 PeARS Project, <community@pearsproject.org> 
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
@@ -18,8 +18,34 @@ from flask_login import LoginManager, current_user
 
 # Global variables
 EXPERT_ADD_ON = False
-OWN_BRAND = True
+OWN_BRAND = False
 WALKTHROUGH = False
+
+# Logging
+def configure_logging():
+    # register root logging
+    logging.basicConfig(level=logging.ERROR)
+    logging.getLogger('werkzeug').setLevel(logging.ERROR)
+
+configure_logging()
+
+# Define the WSGI application object
+app = Flask(__name__, static_folder='static')
+
+# Configurations
+from dotenv import load_dotenv
+app.config.from_object('config')
+
+load_dotenv()
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv("MAIL_DEFAULT_SENDER")
+app.config['MAIL_SERVER'] = os.getenv("MAIL_SERVER")
+app.config['MAIL_PORT'] = os.getenv("MAIL_PORT")
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_DEBUG'] = False
+app.config['MAIL_USERNAME'] = os.getenv("EMAIL_USER")
+app.config['MAIL_PASSWORD'] = os.getenv("EMAIL_PASSWORD")
+
 
 # Make sure user data directories exist
 DEFAULT_PATH = f'app'
@@ -27,9 +53,8 @@ Path(os.path.join(DEFAULT_PATH,'static/userdata')).mkdir(parents=True, exist_ok=
 Path(os.path.join(DEFAULT_PATH,'static/userdata/csv')).mkdir(parents=True, exist_ok=True)
 Path(os.path.join(DEFAULT_PATH,'static/userdata/pdf')).mkdir(parents=True, exist_ok=True)
 
-
 # Get paths to SentencePiece model and vocab
-LANG = 'en' #default language for the installation
+LANG = os.getenv('PEARS_LANG') #default language for the installation
 SPM_DEFAULT_VOCAB_PATH = f'app/api/models/{LANG}/{LANG}wiki.lite.16k.vocab'
 spm_vocab_path = os.environ.get("SPM_VOCAB", SPM_DEFAULT_VOCAB_PATH)
 SPM_DEFAULT_MODEL_PATH = f'app/api/models/{LANG}/{LANG}wiki.lite.16k.model'
@@ -49,20 +74,6 @@ VEC_SIZE = len(vocab)
 FT_DEFAULT_MODEL_PATH = f'app/api/models/{LANG}/{LANG}wiki.lite.16k.cos'
 ft_path = os.environ.get("FT", FT_DEFAULT_MODEL_PATH)
 ftcos = read_cosines(ft_path)
-
-def configure_logging():
-    # register root logging
-    logging.basicConfig(level=logging.ERROR)
-    logging.getLogger('werkzeug').setLevel(logging.ERROR)
-
-
-configure_logging()
-
-# Define the WSGI application object
-app = Flask(__name__, static_folder='static')
-
-# Configurations
-app.config.from_object('config')
 
 # Mail
 mail = Mail(app)
