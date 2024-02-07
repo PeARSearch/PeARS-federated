@@ -54,16 +54,16 @@ app.config['SECURITY_PASSWORD_SALT'] = os.getenv("SECURITY_PASSWORD_SALT") # set
 mail = Mail(app)
 
 # Make sure user data directories exist
-DEFAULT_PATH = f'/home/'+USERNAME+'/PeARS-federated/app/'
+DEFAULT_PATH = f'/home/{USERNAME}/PeARS-federated/app/'
 Path(os.path.join(DEFAULT_PATH,'static/userdata')).mkdir(parents=True, exist_ok=True)
 Path(os.path.join(DEFAULT_PATH,'static/userdata/csv')).mkdir(parents=True, exist_ok=True)
 Path(os.path.join(DEFAULT_PATH,'static/userdata/pdf')).mkdir(parents=True, exist_ok=True)
 
 # Get paths to SentencePiece model and vocab
 LANG = os.getenv('PEARS_LANG') #default language for the installation
-SPM_DEFAULT_VOCAB_PATH = f'/home/'+USERNAME+'/PeARS-federated/app/api/models/{LANG}/{LANG}wiki.lite.16k.vocab'
+SPM_DEFAULT_VOCAB_PATH = f'/home/{USERNAME}/PeARS-federated/app/api/models/{LANG}/{LANG}wiki.lite.16k.vocab'
 spm_vocab_path = os.environ.get("SPM_VOCAB", SPM_DEFAULT_VOCAB_PATH)
-SPM_DEFAULT_MODEL_PATH = f'/home/'+USERNAME+'/PeARS-federated/app/api/models/{LANG}/{LANG}wiki.lite.16k.model'
+SPM_DEFAULT_MODEL_PATH = f'/home/{USERNAME}/PeARS-federated/app/api/models/{LANG}/{LANG}wiki.lite.16k.model'
 spm_model_path = os.environ.get("SPM_MODEL", SPM_DEFAULT_MODEL_PATH)
 
 # Define vector size
@@ -77,7 +77,7 @@ vectorizer = CountVectorizer(vocabulary=vocab, lowercase=True, token_pattern='[^
 VEC_SIZE = len(vocab)
 
 # Load ft cosines
-FT_DEFAULT_MODEL_PATH = f'app/api/models/{LANG}/{LANG}wiki.lite.16k.cos'
+FT_DEFAULT_MODEL_PATH = f'/home/{USERNAME}/PeARS-federated/app/api/models/{LANG}/{LANG}wiki.lite.16k.cos'
 ft_path = os.environ.get("FT", FT_DEFAULT_MODEL_PATH)
 ftcos = read_cosines(ft_path)
 
