@@ -8,6 +8,7 @@ import logging
 from app import db, OWN_BRAND
 from app.api.models import Urls
 
+from app.forms import ManualEntryForm
 from flask import Blueprint, flash, request, render_template, Response
 from flask_login import current_user
 
@@ -24,10 +25,10 @@ def inject_brand():
 @settings.route("/")
 def index():
     username = current_user.username
+    form = ManualEntryForm()
     contributions = []
     for i in db.session.query(Urls).filter_by(contributor='@'+username).all():
         contributions.append([i.url, i.title])
 
-    return render_template("settings/index.html", username=username, contributions=contributions)
-
+    return render_template("settings/index.html", username=username, contributions=contributions, form=form)
 

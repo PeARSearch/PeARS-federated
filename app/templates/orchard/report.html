@@ -1,0 +1,43 @@
+<!--
+SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>, 
+
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
+{% extends "base/base.html" %}
+{% from "base/_formhelpers.html" import render_field %}
+{% block body %}
+<div class="container">
+
+  <div class="row p-3">
+    <div class="card">
+      <div class="card-header text-center"><b>Report a URL</b></div>
+      <div class="card-body">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="notification is-danger">
+            {{ messages[0] }}</a>
+            </div>
+        {% endif %}
+        {% endwith %}
+	<p>You may want to report a url to us for various reasons. For instance, the url links to harmful content that you think should not be in our index. Or you are the owner of a site who would rather not be listed in our database. Whatever your concern is, please give us as much detail as possible, so that we can resolve the problem quickly. We may contact you at your registered email address if we need further details from you.</p>
+	<br><br>
+      <form method="POST" action="/orchard/report" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <p>{{ render_field(form.url) }}</p>
+        <p>{{ render_field(form.report) }}</p>
+	<div class="form-check">
+	  {{ form.accept_tos(class_="form-check-input") }}
+	  <label class="form-check-label" for="legal">I confirm that I may be contacted in relation to my report and that my email address is {{email}}.</label>
+        </div>
+      </div><!-- card body -->
+      <div class="card-footer clearfix">
+        <span class="input-group-btn">
+        <input id="submit_button" type="submit" class="btn btn-success" value="Send report">
+      </div><!-- card footer -->
+    </form>
+    </div>
+ </div>
+
+</div><!-- /.container -->
+{% endblock %}

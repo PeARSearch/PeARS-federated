@@ -5,6 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 {% extends "base/base.html" %}
+{% from "base/_formhelpers.html" import render_field %}
 {% block body %}
 <div class="container">
   <div class="row p-3">
@@ -35,6 +36,36 @@ SPDX-License-Identifier: AGPL-3.0-only
      </div>
 
     </div>
+
+  <div class="row p-3">
+    <div class="card">
+      <div class="card-header text-center"><b>Add an offline resource</b></div>
+      <div class="card-body">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="notification is-danger">
+            {{ messages[0] }}</a>
+            </div>
+        {% endif %}
+        {% endwith %}
+      <form method="POST" action="/indexer/manual" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <p>{{ render_field(form.title) }}</p>
+        <p>{{ render_field(form.description) }}</p>
+	<div class="form-check">
+	  {{ form.accept_tos(class_="form-check-input") }}
+	  <label class="form-check-label" for="legal">I confirm that my entry does not contravene the <a href="{{url_for('pages.return_privacy')}}">terms of service</a> of this site.</label>
+        </div>
+      </div><!-- card body -->
+      <div class="card-footer clearfix">
+        <span class="input-group-btn">
+        <input id="submit_button" type="submit" class="btn btn-success" value="Add">
+      </div><!-- card footer -->
+    </form>
+    </div>
+ </div>
+
+
 
   <div class="row p-3">
   <div class="card">

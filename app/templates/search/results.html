@@ -32,31 +32,31 @@ SPDX-License-Identifier: AGPL-3.0-only
           <div class="card-body">
 	  <!--<h4 class="card-title"><a href="{{result[1]}}">{{result[2]}}</a></h4>-->
 	    <a class="btn btn-light" href="{{result[1]}}"><b>{{result[2]}}</b></a>
-	    {% if edit and current_user.is_authenticated and current_user.is_confirmed %}
-	    <a href='../../admin/urls/edit/?id={{result[0]}}'><img src="{{ url_for('static', filename='annot.png')}}" width='30px' /></a>
+
+            {% if result[5] != None %}
+	    <button class="btn btn-link collapsed" data-bs-toggle="collapse" data-bs-target="#collapse{{result[0]}}" aria-expanded="false" aria-controls="collapse{{result[0]}}">
+	    <img src="{{ url_for('static', filename='note.png')}}" width='30px' />
+            </button>
 	    {% endif %}
 
-	    <p class="card-text small" style='margin: 0px 0px -3px 40px'><br>{{result[3]|safe}} ...</p>
+	    <p class="card-text small" style='margin: 0px 0px 10px 40px'><br>{{result[3]|safe}} ...</p>
 	    <p class="small" style='margin-left:40px;'>
-	    <a class="results-emoji" href="pages/faq.html" data-toggle="tooltip" title="Report this entry">🕶️</a> | 
+	    <a href="{{result[1]}}" class="card-link">{{result[1]}}</a> |
             {% if result[9] != '' %}
 	    <a class="results-emoji" href="#" data-toggle="tooltip" title="trigger warning">🔥</a> {{result[9]}} | 
 	    {% endif %}
-            {% if result[10] != '' %}
-	    {{result[10]}} | 
-	    {% endif %}
-	    <a href="{{result[1]}}" class="card-link">{{result[1]}}</a>
-	    {% if expert %}
-	      {% if result[4] == 'doc' %}
-	        <a href="{{url_for('.experts', kwd=result[7], idx=result[6])}}" style="text-decoration:none; color:black;"><b> >> </b></a>
-	      {% endif %}
+	    <a class="p-2" href="{{url_for('orchard.report')}}?url={{result[1]}}">Report this entry</a> | 
+	    {% if current_user.is_authenticated and current_user.is_confirmed %}
+	    <a href="{{url_for('orchard.annotate')}}?url={{result[1]}}" data-toggle="tooltip" title="Add a note to this entry."><span class="results-emoji">🖊️ </span></a> | 
 	    {% endif %}
 	    </p>
           </div>
           {% if result[5] != None %}
-          <div class="card-footer">
-              <img src="{{ url_for('static', filename='note.png')}}" width='40px' />{{result[5]}}
-          </div>
+            <div class="card card-body">
+		    <div class="collapse" id="collapse{{result[0]}}">
+              {{result[5]|safe}}
+              </div>
+            </div>
           {% endif %}
         </div>
         {% endfor %}

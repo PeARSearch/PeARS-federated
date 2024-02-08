@@ -11,7 +11,7 @@ from shutil import copyfile
 from scipy import sparse
 from pandas import read_csv
 from math import ceil, isnan
-from flask import (Blueprint, flash, request, render_template, Response, stream_with_context)
+from flask import Blueprint, flash, request, render_template, Response, stream_with_context, url_for
 from flask_login import login_required, current_user
 from app import VEC_SIZE, LANG, OWN_BRAND
 from app.api.models import Urls
@@ -24,6 +24,7 @@ from app.indexer.access import request_url
 from app.indexer.posix import posix_doc
 from app.auth.decorators import check_is_confirmed
 from os.path import dirname, join, realpath, isfile
+from app.forms import ManualEntryForm
 
 dir_path = dirname(dirname(realpath(__file__)))
 
@@ -49,6 +50,112 @@ def index():
  Controllers for various ways to index
  (from file, from url, from crawl)
 '''
+
+
+@indexer.route("/manual", methods=["POST"])
+@login_required
+@check_is_confirmed
+def manual():
+    print("\t>> Indexer : manual")
+    if Urls.query.count() == 0:
+        init_podsum()
+   
+    form = ManualEntryForm()
+    if form.validate_on_submit():
+        title = request.form.get('title')
+        snippet = request.form.get('description')
+        u = url_for('search.index',q=' '.join(snippet.split()[:4]))
+        contributor = current_user.username
+        trigger = ''
+        keyword = 'Tips'
+        print(u, keyword, LANG, trigger, contributor)
+        print("\t>> Indexer : manual_progress_file")
+        messages = manual_progress_file(u, title, snippet, keyword, LANG, trigger, contributor)
+        return render_template('indexer/progress_file.html', messages=messages)
+    else:
+        return render_template('settings/index.html')
+
+
+@indexer.route("/from_url", methods=["POST"])
+@login_required
+@check_is_confirmed
+def from_url():
+    print("\t>> Indexer : from_url")
+    if Urls.query.count() == 0:
+        init_podsum()
+
+    if request.form['url'] != "":
+        f = open(join(dir_path, "urls_to_index.txt"), 'w')
+        u = request.form['url']
+        keyword = request.form['url_keyword']
+        trigger = request.form['url_trigger']
+        contributor = request.form.get('contribution')
+        keyword, _, lang = parse_query(keyword)
+        contributor = current_user.username
+        if trigger.isspace():
+            trigger = ''
+        print(u, keyword, lang, trigger, contributor)
+        f.write(u + ";" + keyword + ";" + lang + ";" + trigger + ";" + contributor + "\n")
+        f.close()
+        print("\t>> Indexer : progress_file")
+        messages = progress_file()
+        return render_template('indexer/progress_file.html', messages = messages)
+
+
+
+'''
+Controllers for progress pages.
+One controller per ways to index (file, crawl).
+The URL indexing uses same progress as file.
+'''
+
+
+def progress_file():
+    print(">> INDEXER: Running progress file")
+    messages = []
+    urls, keywords, langs, triggers, contributors, errors = readUrls(join(dir_path, "urls_to_index.txt"))
+    if errors:
+        return errors
+    if not urls or not keywords or not langs:
+        messages.append('Invalid file format.')
+        return messages
+    kwd = keywords[0]
+    init_pod(kwd)
+    for url, kwd, lang, trigger, contributor in zip(urls, keywords, langs, triggers, contributors):
+        access, req, request_errors = request_url(url)
+        if access:
+            url_type = req.headers['Content-Type']
+            success, podsum, text, doc_id = mk_page_vector.compute_vectors(url, kwd, lang, trigger, contributor, url_type)
+            if success:
+                posix_doc(text, doc_id, kwd)
+                pod_from_file(kwd, lang, podsum)
+                success_message = url+" was successfully indexed."
+                messages.append(success_message)
+        else:
+            messages.extend(request_errors)
+    return messages
+
+
+def manual_progress_file(url, title, doc, kwd, lang, trigger, contributor):
+    print(">> INDEXER: Running manual progress file")
+    init_pod(kwd)
+    messages = []
+    doctype = 'doc'
+    success, podsum, text, doc_id = mk_page_vector.compute_vectors_local_docs(url, doctype, title, doc, kwd, lang, trigger, contributor)
+    if success:
+        posix_doc(text, doc_id, kwd)
+        pod_from_file(kwd, lang, podsum)
+        success_message = url+" was successfully indexed."
+        messages.append(success_message)
+    else:
+        messages.append("ERROR: failed in index manual document. Contact your administrator.")
+    return messages
+
+
+
+
+
+######## FROM PeARS LITE #################
 
 
 @indexer.route("/from_file", methods=["POST"])
@@ -88,78 +195,6 @@ def from_bookmarks():
         f.close()
         messages = progress_file()
         return render_template('indexer/progress_file.html', messages = messages)
-
-
-@indexer.route("/from_url", methods=["POST"])
-@login_required
-@check_is_confirmed
-def from_url():
-    print("\t>> Indexer : from_url")
-    if Urls.query.count() == 0:
-        init_podsum()
-
-    if request.form['url'] != "":
-        f = open(join(dir_path, "urls_to_index.txt"), 'w')
-        u = request.form['url']
-        keyword = request.form['url_keyword']
-        trigger = request.form['url_trigger']
-        contributor = request.form.get('contribution')
-        keyword, _, lang = parse_query(keyword)
-        if contributor == 'on':
-            contributor = current_user.username
-        else:
-            contributor = ''
-        if trigger.isspace():
-            trigger = ''
-        print(u, keyword, lang, trigger, contributor)
-        f.write(u + ";" + keyword + ";" + lang + ";" + trigger + ";" + contributor + "\n")
-        f.close()
-        print("\t>> Indexer : progress_file")
-        messages = progress_file()
-        return render_template('indexer/progress_file.html', messages = messages)
-
-
-
-'''
-Controllers for progress pages.
-One controller per ways to index (file, crawl).
-The URL indexing uses same progress as file.
-'''
-
-
-def progress_file():
-    print("Running progress file")
-    messages = []
-    urls, keywords, langs, triggers, contributors, errors = readUrls(join(dir_path, "urls_to_index.txt"))
-    if errors:
-        return errors
-    if not urls or not keywords or not langs:
-        messages.append('Invalid file format.')
-        return messages
-    kwd = keywords[0]
-    init_pod(kwd)
-    for url, kwd, lang, trigger, contributor in zip(urls, keywords, langs, triggers, contributors):
-        access, req, request_errors = request_url(url)
-        if access:
-            url_type = req.headers['Content-Type']
-            success, podsum, text, doc_id = mk_page_vector.compute_vectors(url, kwd, lang, trigger, contributor, url_type)
-            if success:
-                posix_doc(text, doc_id, kwd)
-                pod_from_file(kwd, lang, podsum)
-                success_message = url+" was successfully indexed."
-                messages.append(success_message)
-        else:
-            messages.extend(request_errors)
-    return messages
-
-
-
-
-
-
-
-
-######## FROM PeARS LITE #################
 
 @indexer.route("/from_docs", methods=["POST"])
 @login_required

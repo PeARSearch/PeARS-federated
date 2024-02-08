@@ -51,8 +51,6 @@ def return_pod_delete(pod_name):
     db.session.commit()
 
 
-
-
 @api.route('/urls/')
 def return_urls():
     return jsonify(json_list=[i.serialize for i in Urls.query.all()])
