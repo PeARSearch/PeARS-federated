@@ -78,14 +78,15 @@ def compute_vectors(target_url, keyword, lang, trigger, contributor, url_type):
         return False, None, None, None
 
 
-def compute_vectors_local_docs(target_url, doctype, title, doc, keyword, lang):
+def compute_vectors_local_docs(target_url, doctype, title, doc, keyword, lang, trigger, contributor):
     cc = False
     pod_m = load_npz(join(pod_dir,keyword+'.npz'))
     if not db.session.query(Urls).filter_by(url=target_url).all():
-        print("Computing vectors for", target_url, "(",keyword,")",lang)
+        #print("Computing vectors for", target_url, "(",keyword,")",lang)
         u = Urls(url=target_url)
         text = title + " " + doc
         text = tokenize_text(lang, text)
+        print(text)
         pod_m = compute_vec(lang, text, pod_m)
         u.title = str(title)
         u.vector = str(pod_m.shape[0]-1)
@@ -96,7 +97,12 @@ def compute_vectors_local_docs(target_url, doctype, title, doc, keyword, lang):
         else:
             u.snippet = u.title
         u.doctype = doctype
-        print(u.url,u.doctype,u.title,u.vector,u.snippet,u.pod)
+        u.trigger = trigger
+        if contributor != '':
+            u.contributor = '@'+contributor
+        else:
+            u.contributor = contributor
+        #print(u.url,u.doctype,u.title,u.vector,u.snippet,u.pod, u.trigger, u.contributor)
         db.session.add(u)
         db.session.commit()
         save_npz(join(pod_dir,keyword+'.npz'),pod_m)
@@ -129,6 +135,8 @@ def compute_query_vectors(query, lang):
         sims = [i for i in w.split() if len(i) > 1]
         for wtoken in w.split():
             if len(wtoken.replace('▁','')) > 3:
+                if wtoken not in ftcos:
+                    continue
                 neighbours = [n for n in ftcos[wtoken] if len(n) > 2]
                 sims.extend(neighbours)
         sims = list(set(sims))
