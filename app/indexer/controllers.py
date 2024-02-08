@@ -117,14 +117,18 @@ def progress_file():
     if errors:
         return errors
     if not urls or not keywords or not langs:
-        messages.append('Invalid file format.')
+        messages.append('ERROR: Invalid file format.')
         return messages
     kwd = keywords[0]
     init_pod(kwd)
     for url, kwd, lang, trigger, contributor in zip(urls, keywords, langs, triggers, contributors):
         access, req, request_errors = request_url(url)
         if access:
-            url_type = req.headers['Content-Type']
+            try:
+                url_type = req.headers['Content-Type']
+            except:
+                messages.append('ERROR: Content type could not be retrieved from header.')
+                continue
             success, podsum, text, doc_id = mk_page_vector.compute_vectors(url, kwd, lang, trigger, contributor, url_type)
             if success:
                 posix_doc(text, doc_id, kwd)
