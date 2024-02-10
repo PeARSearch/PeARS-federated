@@ -43,26 +43,27 @@ def request_url(url):
     access = None
     req = None
     errs = []
-    headers = {'User-Agent': 'PeARS User Agent'}
-    try:
-        req = requests.head(url, timeout=10, headers=headers)
-        if req.status_code >= 400:
-            error = "ERROR: request_url: status code is "+str(req.status_code)
-            print("\t>>",error)
-            errs.append(error)
-            return access, req, errs
-        else:
-            if robotcheck(url):
-                access = True
-            else:
-                error = "ERROR: request_url: robot.txt disallows the url "+url+"."
-                print("\t>>",error)
-                errs.append(error)
-    except Exception:
-        error = "ERROR: request_url: request.head failed trying to access"+url+"."
+    headers = {'User-Agent': 'PeARSbot/0.1 (+https://www.pearsproject.org/)'}
+    #try:
+    req = requests.head(url, timeout=10, headers=headers)
+    if req.status_code >= 400:
+        error = "ERROR: request_url: status code is "+str(req.status_code)
         print("\t>>",error)
         errs.append(error)
         return access, req, errs
+    else:
+        if robotcheck(url):
+            print("CAn access")
+            access = True
+        else:
+            error = "ERROR: request_url: robot.txt disallows the url "+url+"."
+            print("\t>>",error)
+            errs.append(error)
+    #except Exception:
+    #    error = "ERROR: request_url: request.head failed trying to access"+url+"."
+    #    print("\t>>",error)
+    #    errs.append(error)
+    #    return access, req, errs
     return access, req, errs
 
 
