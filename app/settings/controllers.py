@@ -25,10 +25,12 @@ def inject_brand():
 @settings.route("/")
 def index():
     username = current_user.username
+    email = current_user.email
     form = ManualEntryForm()
     contributions = []
     for i in db.session.query(Urls).filter_by(contributor='@'+username).all():
         contributions.append([i.url, i.title])
+    num_contributions = len(contributions)
 
-    return render_template("settings/index.html", username=username, contributions=contributions, form=form)
+    return render_template("settings/index.html", username=username, email=email, num_contributions=num_contributions, contributions=contributions, form=form)
 
