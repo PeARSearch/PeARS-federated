@@ -28,7 +28,7 @@ def make_shareable_pod(keyword):
             contributor = url.contributor
             
         urls.append([url.url,trigger,contributor])
-        f_out.write(url.url+';'+keyword+';'+lang+';'+trigger+';'+contributor+'\n')
+        f_out.write(url.url+';'+keyword+';'+lang+';'+trigger+';;'+'\n')
     f_out.close()
     filename = hfile.split('/')[-1]
     return filename, urls
