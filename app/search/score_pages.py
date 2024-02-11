@@ -16,6 +16,7 @@ from .overlap_calculation import score_url_overlap, generic_overlap, completenes
 from app.search import term_cosine
 from app.utils import cosine_similarity, hamming_similarity, convert_to_array, parse_query, timer
 from app.indexer.mk_page_vector import tokenize_text, compute_query_vectors
+from app.indexer.posix import load_posix
 from scipy.sparse import csr_matrix, load_npz
 from scipy.spatial import distance
 from os.path import dirname, join, realpath, isfile
@@ -41,12 +42,13 @@ def score_experts(doc_idx,kwd):
     urls = bestURLs(DS_scores)
     return output(urls, 'ind')
 
-def score(query, query_vector, tokenized, kwd):
+@timer
+def score(query, query_vector, tokenized, kwd, posindex):
     URL_scores = {}
     snippet_scores = {}
     DS_scores = {}
     completeness_scores = {}
-    posix_scores = posix(tokenized, kwd)
+    posix_scores = posix(tokenized, kwd, posindex)
 
     pod_m = load_npz(join(pod_dir,kwd+'.npz'))
     m_cosines = 1 - distance.cdist(query_vector, pod_m.todense(), 'cosine')
@@ -56,7 +58,8 @@ def score(query, query_vector, tokenized, kwd):
         DS_scores[u.url] = m_cosines[0][int(u.vector)]
         completeness_scores[u.url] = m_completeness[0][int(u.vector)]
         #URL_scores[u.url] = score_url_overlap(query, u.url)
-        snippet_scores[u.url] = generic_overlap(query, u.title+' '+u.snippet)
+        #snippet_scores[u.url] = generic_overlap(query, u.title+' '+u.snippet)
+        snippet_scores[u.url] = generic_overlap(query, u.title)
         #print("SNIPPET SCORE",u.url,snippet_scores[u.url])
     return DS_scores, completeness_scores, snippet_scores, posix_scores
 
@@ -111,7 +114,7 @@ def score_pods(query_vector, extended_q_vectors, lang):
         best_pods = []
         for k in sorted(pod_scores, key=pod_scores.get, reverse=True):
             if len(best_pods) < max_pods: 
-                print("\t>> Appending best pod",k)
+                print("\t>> Appending best pod",k, pod_scores[k])
                 best_pods.append(k)
             else:
                 break
@@ -119,10 +122,10 @@ def score_pods(query_vector, extended_q_vectors, lang):
 
 
 @timer
-def score_docs(query, query_vector, tokenized, pod):
+def score_docs(query, query_vector, tokenized, pod, posindex):
     '''Score documents for a query'''
     document_scores = {}  # Document scores
-    DS_scores, completeness_scores, snippet_scores, posix_scores = score(query, query_vector, tokenized, pod)
+    DS_scores, completeness_scores, snippet_scores, posix_scores = score(query, query_vector, tokenized, pod, posindex)
     #if len(posix_scores) != 0:
     #    print("POSIX SCORES",posix_scores)
     for url in list(DS_scores.keys()):
@@ -141,14 +144,14 @@ def score_docs(query, query_vector, tokenized, pod):
     return document_scores
 
 @timer
-def score_docs_extended(extended_q_tokenized, pod):
+def score_docs_extended(extended_q_tokenized, pod, posindex):
     '''Score documents for an extended query, using posix scoring only'''
-    #print(">> SEARCH: SCORE_PAGES: SCORES_DOCS_EXTENDED",pod)
+    print(">> SEARCH: SCORE_PAGES: SCORES_DOCS_EXTENDED",pod)
     document_scores = {}  # Document scores
     for w_tokenized in extended_q_tokenized:
         #print("W TOKENIZED",w_tokenized)
         urls_incremented = [] # Keep list of urls already increment by 1, we don't want to score several times within the same neighbourhood
-        matching_docs = posix_no_seq(' '.join(w_tokenized), pod)
+        matching_docs = posix_no_seq(' '.join(w_tokenized), pod, posindex)
         #print("MATCHING DOCS", matching_docs)
         for v in matching_docs:
             url = db.session.query(Urls).filter_by(pod=pod).filter_by(vector=v).first().url #We assume a url can only belong to one pod
@@ -158,7 +161,7 @@ def score_docs_extended(extended_q_tokenized, pod):
                 else:
                     document_scores[url] = 1
                 urls_incremented.append(url)
-                #print(w,document_scores[url])
+                #print(v,document_scores[url])
     return document_scores
 
 def bestURLs(doc_scores):
@@ -168,7 +171,7 @@ def bestURLs(doc_scores):
     for w in sorted(doc_scores, key=doc_scores.get, reverse=True):
         loc = urlparse(w).netloc
         if c < 50:
-            if doc_scores[w] > 0:
+            if doc_scores[w] > 1:
                 #if netlocs_used.count(loc) < 10:
                 #print("DOC SCORE",w,doc_scores[w])
                 best_urls.append(w)
@@ -328,11 +331,16 @@ def run_search(q:str):
     # Get best pods
     best_pods = score_pods(q_vectors, extended_q_vectors, lang)
     print("Q:",query,"BEST PODS:",best_pods)
-    
+   
+    # Load positional indices
+    posindices = []
+    for pod in best_pods:
+        posindices.append(load_posix(pod))
+
     # Compute results for original query
     document_scores = {}
     with Parallel(n_jobs=max_thread, prefer="threads") as parallel:
-        delayed_funcs = [delayed(score_docs)(query, q_vectors, q_tokenized, pod) for pod in best_pods]
+        delayed_funcs = [delayed(score_docs)(query, q_vectors, q_tokenized, best_pods[i], posindices[i]) for i in range(len(best_pods))]
         scores = parallel(delayed_funcs)
     for dic in scores:
         document_scores.update(dic)
@@ -340,7 +348,7 @@ def run_search(q:str):
     # Compute results for extended query
     extended_document_scores = {}
     with Parallel(n_jobs=max_thread, prefer="threads") as parallel:
-        delayed_funcs = [delayed(score_docs_extended)(extended_q_tokenized, pod) for pod in best_pods]
+        delayed_funcs = [delayed(score_docs_extended)(extended_q_tokenized, best_pods[i], posindices[i]) for i in range(len(best_pods))]
         scores = parallel(delayed_funcs)
     for dic in scores:
         extended_document_scores.update(dic)

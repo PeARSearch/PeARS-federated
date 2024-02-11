@@ -121,8 +121,7 @@ def posix_score_seq(posl, enforce_subwords=True):
     else:
         return np.max(scores)  # meaning: 1.0 if there is at least one pair of tokens that is consecutive both in the query and in the document. Otherwise a fraction of this. 
 
-def posix(q, pod_name):
-    posindex = load_posix(pod_name)
+def posix(q, pod_name, posindex):
     #print(q.split())
     query_vocab_ids = [vocab.get(wp) for wp in q.split()]
     if any([i is None for i in query_vocab_ids]):
@@ -158,8 +157,7 @@ def posix(q, pod_name):
     return doc_scores
 
 
-def posix_no_seq(q, pod_name):
-    posindex = load_posix(pod_name)
+def posix_no_seq(q, pod_name, posindex):
     #print(q.split())
     query_vocab_ids = [vocab.get(wp) for wp in q.split()]
     if any([i is None for i in query_vocab_ids]):

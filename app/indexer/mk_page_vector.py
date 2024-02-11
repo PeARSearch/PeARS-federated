@@ -140,6 +140,7 @@ def compute_query_vectors(query, lang):
                 neighbours = [n for n in ftcos[wtoken] if len(n) > 2]
                 sims.extend(neighbours)
         sims = list(set(sims))
+        #print("SIMS",w,sims)
         words_tokenized_expanded.append(sims)
     print("WORDS TOKENIZED EXPANDED",words_tokenized_expanded)
 

@@ -287,3 +287,21 @@ from app.indexer.controllers import progress_file
 def index():
     '''Index from the app/urls_to_index.txt file'''
     progress_file() 
+
+
+from app.indexer.access import request_url
+from app.indexer.htmlparser import extract_links
+@app.cli.command('getlinks')
+@click.argument('url')
+def get_links(url):
+    access, req, request_errors = request_url(url)
+    if access:
+        try:
+            url_type = req.headers['Content-Type']
+        except:
+            print('ERROR: Content type could not be retrieved from header.')
+        links = extract_links(url)
+        for link in links:
+            print(link)
+    else:
+        print("Access denied.")

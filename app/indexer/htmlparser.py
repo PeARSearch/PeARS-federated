@@ -43,7 +43,6 @@ def BS_parse(url):
         print("\t>> ERROR: BS_parse: request.head failed trying to access", url, "...")
         pass
     try:
-        #headers = {'User-Agent': 'Customer User Agent'}
         req = requests.get(url, allow_redirects=True, timeout=30, headers=headers)
         req.encoding = 'utf-8'
     except Exception:
@@ -55,8 +54,9 @@ def BS_parse(url):
 
 def extract_links(url):
     links = []
+    headers = {'User-Agent': 'PeARS User Agent'}
     try:
-        req = requests.head(url, timeout=10)
+        req = requests.head(url, timeout=10, headers=headers)
         if req.status_code >= 400:
             print("\t>> ERROR: extract_links: status code is",req.status_code)
             return links
@@ -64,6 +64,7 @@ def extract_links(url):
             print("\t>> ERROR: Not a HTML document...")
             return links
     except Exception:
+        print("\t>> ERROR: extract_links: request.head failed trying to access", url, "...")
         return links
     bs_obj, req = BS_parse(url)
     if not bs_obj:
