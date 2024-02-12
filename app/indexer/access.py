@@ -53,7 +53,6 @@ def request_url(url):
         return access, req, errs
     else:
         if robotcheck(url):
-            print("CAn access")
             access = True
         else:
             error = "ERROR: request_url: robot.txt disallows the url "+url+"."

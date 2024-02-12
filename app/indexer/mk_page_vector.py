@@ -34,6 +34,7 @@ def compute_vec(lang, text, pod_m):
 
 def compute_vectors(target_url, keyword, lang, trigger, contributor, url_type):
     print("Computing vectors for", target_url, "(",keyword,")",lang)
+    messages = []
     if not db.session.query(Urls).filter_by(url=target_url).all():
         u = Urls(url=target_url)
         print("CONTENT TYPE",url_type)
@@ -43,7 +44,7 @@ def compute_vectors(target_url, keyword, lang, trigger, contributor, url_type):
             title, body_str, snippet, cc, error = extract_txt(target_url)
         else:
             snippet = ''
-            error = "ERROR: No supported content type."
+            error = ">> INDEXER ERROR: compute_vectors: No supported content type."
         if error is None and snippet != '':
             print("TITLE",title,"SNIPPET",snippet,"CC",cc,"ERROR",error)
             pod_m = load_npz(join(pod_dir,keyword+'.npz'))
@@ -67,19 +68,21 @@ def compute_vectors(target_url, keyword, lang, trigger, contributor, url_type):
             db.session.commit()
             save_npz(join(pod_dir,keyword+'.npz'),pod_m)
             podsum = np.sum(pod_m, axis=0)
-            return True, podsum, text, u.vector
+            return True, podsum, text, u.vector, messages
         else:
             if snippet == '':
-                print("IGNORING URL: Snippet empty.")
+                messages.append(">> INDEXER ERROR: compute_vectors: ignoring URL, snippet empty.")
             else:
-                print('ERROR DURING PARSING',error)
-            return False, None, None, None
+                messages.append(">> INDEXER ERROR: compute_vectors: error during parsing -->",error)
+            return False, None, None, None, messages
     else:
-        return False, None, None, None
+        messages.append(">> URL already exists in database.")
+        return False, None, None, None, messages
 
 
 def compute_vectors_local_docs(target_url, doctype, title, doc, keyword, lang, trigger, contributor):
     cc = False
+    messages = []
     pod_m = load_npz(join(pod_dir,keyword+'.npz'))
     if not db.session.query(Urls).filter_by(url=target_url).all():
         #print("Computing vectors for", target_url, "(",keyword,")",lang)
@@ -107,9 +110,10 @@ def compute_vectors_local_docs(target_url, doctype, title, doc, keyword, lang, t
         db.session.commit()
         save_npz(join(pod_dir,keyword+'.npz'),pod_m)
         podsum = np.sum(pod_m, axis=0)
-        return True, podsum, text, u.vector
+        return True, podsum, text, u.vector, messages
     else:
-        return False, None, None, None
+        messages.append(">> URL already exists in database.")
+        return False, None, None, None, messages
 
 
 @timer

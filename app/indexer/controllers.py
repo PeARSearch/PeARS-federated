@@ -128,12 +128,14 @@ def progress_file():
             except:
                 messages.append('ERROR: Content type could not be retrieved from header.')
                 continue
-            success, podsum, text, doc_id = mk_page_vector.compute_vectors(url, kwd, lang, trigger, contributor, url_type)
+            success, podsum, text, doc_id, mgs = mk_page_vector.compute_vectors(url, kwd, lang, trigger, contributor, url_type)
             if success:
                 posix_doc(text, doc_id, kwd)
                 pod_from_file(kwd, lang, podsum)
                 success_message = url+" was successfully indexed."
                 messages.append(success_message)
+            else:
+                messages.extend(mgs)
         else:
             messages.extend(request_errors)
     return messages
@@ -144,13 +146,14 @@ def manual_progress_file(url, title, doc, kwd, lang, trigger, contributor):
     init_pod(kwd)
     messages = []
     doctype = 'doc'
-    success, podsum, text, doc_id = mk_page_vector.compute_vectors_local_docs(url, doctype, title, doc, kwd, lang, trigger, contributor)
+    success, podsum, text, doc_id, mgs = mk_page_vector.compute_vectors_local_docs(url, doctype, title, doc, kwd, lang, trigger, contributor)
     if success:
         posix_doc(text, doc_id, kwd)
         pod_from_file(kwd, lang, podsum)
         success_message = url+" was successfully indexed."
         messages.append(success_message)
     else:
+        messages.extend(mgs)
         messages.append("ERROR: failed in index manual document. Contact your administrator.")
     return messages
 
