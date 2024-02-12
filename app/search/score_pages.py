@@ -320,7 +320,7 @@ def run_search(q:str):
     """
 
     # Set up multithreading to use half of CPU count
-    max_thread = int(multiprocessing.cpu_count() * 0.5)
+    max_thread = int(multiprocessing.cpu_count() * 0.75)
 
     # Get doctype and language from query in case they are there
     query, doctype, lang = parse_query(q)
