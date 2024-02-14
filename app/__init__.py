@@ -37,6 +37,7 @@ from dotenv import load_dotenv
 app.config.from_object('config')
 
 load_dotenv()
+LANG = os.getenv('PEARS_LANG') #default language for the installation
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv("MAIL_DEFAULT_SENDER")
 app.config['MAIL_SERVER'] = os.getenv("MAIL_SERVER")
 app.config['MAIL_PORT'] = os.getenv("MAIL_PORT")
@@ -46,6 +47,11 @@ app.config['MAIL_DEBUG'] = False
 app.config['MAIL_USERNAME'] = os.getenv("EMAIL_USER")
 app.config['MAIL_PASSWORD'] = os.getenv("EMAIL_PASSWORD")
 
+# Localization
+from flask_babel import Babel
+app.config['BABEL_DEFAULT_LOCALE'] = os.getenv("PEARS_LANG")
+app.config['BABEL_TRANSLATION_DIRECTORIES'] = os.getenv("TRANSLATION_DIR")
+babel = Babel(app)
 
 # Make sure user data directories exist
 DEFAULT_PATH = f'app'
@@ -54,7 +60,6 @@ Path(os.path.join(DEFAULT_PATH,'static/userdata/csv')).mkdir(parents=True, exist
 Path(os.path.join(DEFAULT_PATH,'static/userdata/pdf')).mkdir(parents=True, exist_ok=True)
 
 # Get paths to SentencePiece model and vocab
-LANG = os.getenv('PEARS_LANG') #default language for the installation
 SPM_DEFAULT_VOCAB_PATH = f'app/api/models/{LANG}/{LANG}wiki.lite.16k.vocab'
 spm_vocab_path = os.environ.get("SPM_VOCAB", SPM_DEFAULT_VOCAB_PATH)
 SPM_DEFAULT_MODEL_PATH = f'app/api/models/{LANG}/{LANG}wiki.lite.16k.model'

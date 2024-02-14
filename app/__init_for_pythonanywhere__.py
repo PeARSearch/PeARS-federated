@@ -50,6 +50,14 @@ app.config['MAIL_PASSWORD'] = os.getenv("EMAIL_PASSWORD")
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")                         # set in .env file
 app.config['SECURITY_PASSWORD_SALT'] = os.getenv("SECURITY_PASSWORD_SALT") # set in .env file
 
+
+# Localization
+from flask_babel import Babel
+app.config['BABEL_DEFAULT_LOCALE'] = os.getenv("PEARS_LANG")
+app.config['BABEL_TRANSLATION_DIRECTORIES'] = os.getenv("TRANSLATION_DIR")
+babel = Babel(app)
+
+
 # Mail
 mail = Mail(app)
 
@@ -59,8 +67,10 @@ Path(os.path.join(DEFAULT_PATH,'static/userdata')).mkdir(parents=True, exist_ok=
 Path(os.path.join(DEFAULT_PATH,'static/userdata/csv')).mkdir(parents=True, exist_ok=True)
 Path(os.path.join(DEFAULT_PATH,'static/userdata/pdf')).mkdir(parents=True, exist_ok=True)
 
-# Get paths to SentencePiece model and vocab
 LANG = os.getenv('PEARS_LANG') #default language for the installation
+app.config['BABEL_DEFAULT_LOCALE'] = LANG
+
+# Get paths to SentencePiece model and vocab
 SPM_DEFAULT_VOCAB_PATH = f'/home/{USERNAME}/PeARS-federated/app/api/models/{LANG}/{LANG}wiki.lite.16k.vocab'
 spm_vocab_path = os.environ.get("SPM_VOCAB", SPM_DEFAULT_VOCAB_PATH)
 SPM_DEFAULT_MODEL_PATH = f'/home/{USERNAME}/PeARS-federated/app/api/models/{LANG}/{LANG}wiki.lite.16k.model'
