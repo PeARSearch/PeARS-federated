@@ -23,7 +23,7 @@ from app.indexer.access import request_url
 from app.indexer.posix import posix_doc
 from app.auth.decorators import check_is_confirmed
 from os.path import dirname, join, realpath, isfile
-from app.forms import ManualEntryForm
+from app.forms import IndexerForm, ManualEntryForm
 
 dir_path = dirname(dirname(realpath(__file__)))
 
@@ -41,8 +41,10 @@ def inject_brand():
 @check_is_confirmed
 def index():
     num_db_entries = len(Urls.query.all())
+    form1 = IndexerForm(request.form)
+    form2 = ManualEntryForm(request.form)
     if request.method == "GET":
-        return render_template("indexer/index.html", num_entries=num_db_entries)
+        return render_template("indexer/index.html", num_entries=num_db_entries, form1=form1, form2=form2)
 
 
 '''
@@ -59,7 +61,7 @@ def manual():
     if Urls.query.count() == 0:
         init_podsum()
    
-    form = ManualEntryForm()
+    form = ManualEntryForm(request.form)
     if form.validate_on_submit():
         title = request.form.get('title')
         snippet = request.form.get('description')
@@ -72,7 +74,7 @@ def manual():
         messages = manual_progress_file(u, title, snippet, keyword, LANG, trigger, contributor)
         return render_template('indexer/progress_file.html', messages=messages)
     else:
-        return render_template('settings/index.html')
+        return render_template('indexer/index.html')
 
 
 @indexer.route("/from_url", methods=["POST"])
@@ -83,22 +85,25 @@ def from_url():
     if Urls.query.count() == 0:
         init_podsum()
 
-    if request.form['url'] != "":
+    form = IndexerForm(request.form)
+    if form.validate_on_submit():
         f = open(join(dir_path, "urls_to_index.txt"), 'w')
-        u = request.form['url']
-        keyword = request.form['url_keyword']
-        trigger = request.form['url_trigger']
+        url = request.form.get('url')
+        theme = request.form.get('theme')
+        trigger = request.form.get('trigger')
         contributor = request.form.get('contribution')
-        keyword, _, lang = parse_query(keyword)
+        theme, _, lang = parse_query(theme)
         contributor = current_user.username
-        if trigger.isspace():
+        if trigger is None:
             trigger = ''
-        print(u, keyword, lang, trigger, contributor)
-        f.write(u + ";" + keyword + ";" + lang + ";" + trigger + ";" + contributor + "\n")
+        print(url, theme, lang, trigger, contributor)
+        f.write(url + ";" + theme + ";" + lang + ";" + trigger + ";" + contributor + "\n")
         f.close()
         print("\t>> Indexer : progress_file")
         messages = progress_file()
         return render_template('indexer/progress_file.html', messages = messages)
+    else:
+        return render_template('indexer/index.html')
 
 
 
