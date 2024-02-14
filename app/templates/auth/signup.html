@@ -8,12 +8,12 @@
   <div class="row">
   <div class="col-sm-6">
     <div class="card">
-      <div class="card-header text-center"><b>Signup</b></div>
+      <div class="card-header text-center"><b>{{gettext('Signup')}}</b></div>
       <div class="card-body">
 	{% with messages = get_flashed_messages() %}
         {% if messages %}
             <div class="notification is-danger">
-            {{ messages[0] }}  Go to <a href="{{ url_for('auth.login') }}">login page</a>.
+            {{ messages[0] }}
             </div>
         {% endif %}
         {% endwith %}
@@ -25,16 +25,16 @@
         <p>{{ render_field(form.confirm) }}</p>
 	<div class="form-check">
 	  {{ form.accept_tos(class_="form-check-input") }}
-	  <label class="form-check-label" for="legal">I agree to the <a href="{{url_for('pages.return_privacy')}}">privacy policy</a> and <a href="{{url_for('pages.return_privacy')}}">terms of service</a> of this site.</label>
+	  <label class="form-check-label" for="legal">{{gettext("I agree to the <a href='../../privacy/'>privacy policy</a> and <a href='../../terms-of-service/'>terms of service</a> of this site.")|safe}}</label>
         </div>
       </div><!-- card body -->
       <div class="card-footer clearfix">
         <span class="input-group-btn">
-	<input id="submit_button" type="submit" class="btn btn-success" value="Sign up">
+		<input id="submit_button" type="submit" class="btn btn-success" value="{{gettext('Sign up')}}">
       </div><!-- card footer -->
     </form>
     </div>
-    <br><p>Do you already have an account?  <a href={{url_for('auth.login')}}>Log in</a></p>
+    <br><p>{{gettext('Do you already have an account?')}}  <a href={{url_for('auth.login')}}>{{gettext('Log in')}}</a></p>
  </div>
  </div>
  </div>

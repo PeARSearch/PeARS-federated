@@ -1,0 +1,425 @@
+# German translations for PeARS Federated.
+# Copyright (C) 2024 The PeARS Project
+# This file is distributed under the same license as the PROJECT project.
+# Aurelie Herbelot, 2024.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2024-02-14 17:13+0100\n"
+"PO-Revision-Date: 2024-02-12 16:51+0100\n"
+"Last-Translator: Aurelie Herbelot\n"
+"Language: de\n"
+"Language-Team: de <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.14.0\n"
+
+#: app/__init__.py:192 app/__init__.py:232
+#: app/__init_for_pythonanywhere__.py:196
+#: app/__init_for_pythonanywhere__.py:236
+#, python-format
+msgid "Failed to delete record. %(error)s"
+msgstr "Eintrag konnte nicht gelöscht werden."
+
+#: app/forms.py:7
+msgid "Username"
+msgstr "Benutzername"
+
+#: app/forms.py:7
+msgid "Your username should have between 4 and 25 characters."
+msgstr "Dein Benutzername sollte zwischen 4 und 25 Zeichen lang sein."
+
+#: app/forms.py:8 app/forms.py:14 app/forms.py:18
+msgid "Email Address"
+msgstr "E-Mail Adresse"
+
+#: app/forms.py:9 app/forms.py:21
+msgid "New Password"
+msgstr "Neues Passwort"
+
+#: app/forms.py:9 app/forms.py:15 app/forms.py:21
+msgid "Your password should have between 6 and 20 characters."
+msgstr "Dein Passwort sollte zwischen 4 und 25 Zeichen lang sein."
+
+#: app/forms.py:9 app/forms.py:21
+msgid "Passwords must match"
+msgstr "Die Passwörter müssen übereinstimmen."
+
+#: app/forms.py:10 app/forms.py:22
+msgid "Repeat Password"
+msgstr "Passwort wiederholen"
+
+#: app/forms.py:11
+msgid "I accept the TOS and Privacy statement"
+msgstr "Ich akzeptiere die AGB und die Datenschutzerklärung"
+
+#: app/forms.py:15
+msgid "Password"
+msgstr "Passwort"
+
+#: app/forms.py:25
+msgid "The url to index"
+msgstr "Url"
+
+#: app/forms.py:26
+msgid "Theme"
+msgstr "Themen"
+
+#: app/forms.py:27
+msgid "Optional trigger warning"
+msgstr "Optionale Triggerwarnung"
+
+#: app/forms.py:28
+msgid "I confirm that my suggestion does not contravene the Terms of Service"
+msgstr ""
+"Ich bestätige, dass mein Eintrag nicht gegen die Nutzungsbedingungen "
+"verstößt"
+
+#: app/forms.py:31
+msgid "A title for your entry"
+msgstr "Ein Titel für Deinen Beitrag"
+
+#: app/forms.py:31
+msgid "The title of your entry should have between 4 and 100 characters."
+msgstr "Der Titel Deines Beitrags sollte zwischen 4 und 25 Zeichen lang sein."
+
+#: app/forms.py:32
+msgid "Description"
+msgstr "Beschreibung"
+
+#: app/forms.py:33
+msgid "I confirm that my entry does not contravene the Terms of Service"
+msgstr ""
+"Ich bestätige, dass mein Eintrag nicht gegen die Nutzungsbedingungen "
+"verstößt"
+
+#: app/forms.py:36
+msgid "The url you are reporting"
+msgstr "Die Url, die Du meldest."
+
+#: app/forms.py:37
+msgid "Description of the issue"
+msgstr "Beschreibung des Problems"
+
+#: app/forms.py:38
+msgid "I confirm that I may be contacted in relation to my report."
+msgstr ""
+"Ich bestätige, dass ich im Zusammenhang mit meiner Meldung kontaktiert "
+"werden kann."
+
+#: app/forms.py:41
+msgid "The url you wish to annotate"
+msgstr "Die Url, die Du kommentieren möchtest"
+
+#: app/forms.py:42
+msgid "Your note"
+msgstr "Dein Kommentar"
+
+#: app/forms.py:43
+msgid "I confirm that my comment can be openly published."
+msgstr "Ich bestätige, dass mein Kommentar öffentlich veröffentlicht werden kann."
+
+#: app/auth/controllers.py:45
+msgid "Please check your login details and try again."
+msgstr "Bitte überprüfe deine Anmeldedaten und versuche es erneut."
+
+#: app/auth/controllers.py:50
+msgid "Welcome"
+msgstr "Willkommen"
+
+#: app/auth/controllers.py:75
+#, fuzzy
+msgid "Email address already exists."
+msgstr "Diese E-Mail Adresse existiert schon."
+
+#: app/auth/controllers.py:79
+msgid "Username already exists."
+msgstr "Dieser Benutzername existiert schon."
+
+#: app/auth/controllers.py:91 app/auth/controllers.py:133
+msgid "Please confirm your email."
+msgstr "Bitte Deine E-Mail bestätigen."
+
+#: app/auth/controllers.py:100
+msgid "A confirmation has been sent via email."
+msgstr "Ein Bestätigungslink wurde geschickt an deine Adresse."
+
+#: app/auth/controllers.py:119
+msgid "You have confirmed your account. Thanks!"
+msgstr "Du hast dein Konto bestätigt. Danke!"
+
+#: app/auth/controllers.py:121 app/auth/controllers.py:174
+msgid "The confirmation link is invalid or has expired."
+msgstr "Der Bestätigungslink ist ungültig oder abgelaufen."
+
+#: app/auth/controllers.py:128
+msgid "Your account has already been confirmed."
+msgstr "Dein Konto wurde bereits bestätigt."
+
+#: app/auth/controllers.py:135
+msgid "A new confirmation email has been sent."
+msgstr "Ein neuer Bestätigungslink wurde geschickt."
+
+#: app/auth/controllers.py:158
+msgid "A link has been sent via email to reset your password."
+msgstr "Du hast per E-Mail einen Link erhalten, um dein Passwort zurückzusetzen."
+
+#: app/auth/controllers.py:187
+msgid "Your password has been successfully changed."
+msgstr "Dein Passwort wurde erfolgreich geändert."
+
+#: app/templates/auth/confirm_email.html:2
+msgid ""
+"Welcome! Thanks for signing up. Please follow this link to activate your "
+"account:"
+msgstr ""
+"Herzlich willkommen! Vielen Dank für deine Anmeldung. Bitte folge diesem "
+"Link, um dein Konto zu aktivieren:"
+
+#: app/templates/auth/confirm_email.html:6
+msgid "We are looking forward to seeing you on this PeARS instance!"
+msgstr "Wir freuen uns darauf, dich auf dieser PeARS-Instanz zu sehen!"
+
+#: app/templates/auth/inactive.html:6
+#, fuzzy
+msgid "Welcome!"
+msgstr "Willkommen!"
+
+#: app/templates/auth/inactive.html:16
+msgid ""
+"You have not confirmed your account. Please check your inbox (and your "
+"spam folder) - you should have received an email with a confirmation "
+"link."
+msgstr ""
+"Du hast dein Konto nicht bestätigt. Bitte überprüfe deinen Posteingang "
+"(und deinen Spam-Ordner) - du solltest eine E-Mail mit einem "
+"Bestätigungslink erhalten haben."
+
+#: app/templates/auth/inactive.html:19
+msgid "Didn't get the email?"
+msgstr "Hast du die E-Mail nicht bekommen?"
+
+#: app/templates/auth/inactive.html:20
+msgid "Resend"
+msgstr "Schicke die E-Mail erneut."
+
+#: app/templates/auth/login.html:12 app/templates/base/base.html:115
+msgid "Login"
+msgstr "Einloggen"
+
+#: app/templates/auth/login.html:28 app/templates/auth/signup.html:37
+#, fuzzy
+msgid "Log in"
+msgstr "Einloggen"
+
+#: app/templates/auth/login.html:32
+msgid "No account yet?"
+msgstr "Du hast noch kein Konto?"
+
+#: app/templates/auth/login.html:32 app/templates/auth/signup.html:33
+msgid "Sign up"
+msgstr "Einmelden"
+
+#: app/templates/auth/password_change.html:11
+#, fuzzy
+msgid "Enter a new password"
+msgstr "Neues Passwort"
+
+#: app/templates/auth/password_change.html:27
+#, fuzzy
+msgid "Change password"
+msgstr "Neues Passwort"
+
+#: app/templates/auth/password_change.html:31
+msgid "Return to the <a href='../login/'>login page</a>."
+msgstr "Zurück zu der <a href='../login/'>login Seite</a>."
+
+#: app/templates/auth/password_forgotten.html:12
+msgid "Forgotten your password? No problem!"
+msgstr "Passwort vergessen? Kein Problem!"
+
+#: app/templates/auth/password_forgotten.html:27
+msgid "Send link"
+msgstr "Link schiken"
+
+#: app/templates/auth/password_reset_email.html:1
+msgid "Hi there!"
+msgstr "Hallo!"
+
+#: app/templates/auth/password_reset_email.html:2
+msgid ""
+"We are sending you this email because you have requested to reset your "
+"password. If the request did not originate from you, please ignore this "
+"email. Otherwise, use the link below to choose a new password."
+msgstr ""
+"Wir senden dir diese E-Mail, weil du darum gebeten hast, dein Passwort "
+"zurückzusetzen. Wenn die Anfrage nicht von dir stammt, ignoriere bitte "
+"diese E-Mail. Andernfalls verwende den untenstehenden Link, um ein neues "
+"Passwort zu wählen."
+
+#: app/templates/auth/password_reset_email.html:5
+msgid "See you soon on our PeARS instance again!"
+msgstr "Bis bald wieder auf unserer PeARS-Instanz!"
+
+#: app/templates/auth/signup.html:11
+#, fuzzy
+msgid "Signup"
+msgstr "Melde dich ein!"
+
+#: app/templates/auth/signup.html:28
+#, fuzzy
+msgid ""
+"I agree to the <a href='../../privacy/'>privacy policy</a> and <a href"
+"='../../terms-of-service/'>terms of service</a> of this site."
+msgstr ""
+"Ich stimme den <a href='../../privacy'>Datenschutzrichtlinien</a> und <a "
+"href='../../terms-of-service'>Nutzungsbedingungen</a> dieser Website zu."
+
+#: app/templates/auth/signup.html:37
+msgid "Do you already have an account?"
+msgstr "Hast du schon ein Konto?"
+
+#: app/templates/base/_formhelpers.html:18
+msgid "Password forgotten?"
+msgstr "Passwort vergessen?"
+
+#: app/templates/base/base.html:68 app/templates/search/index.html:20
+#: app/templates/search/results.html:16
+msgid "Search"
+msgstr "Suchen"
+
+#: app/templates/base/base.html:70
+msgid "Index"
+msgstr "Indexieren"
+
+#: app/templates/base/base.html:73
+msgid "Themes"
+msgstr "Themen"
+
+#: app/templates/base/base.html:76
+msgid "DB Admin"
+msgstr "DB Admin"
+
+#: app/templates/base/base.html:81
+msgid "Profile"
+msgstr "Profil"
+
+#: app/templates/base/base.html:83
+msgid "F.A.Q."
+msgstr "F.A.Q."
+
+#: app/templates/base/base.html:84
+msgid "Acknowledgments"
+msgstr "Danksagung"
+
+#: app/templates/base/base.html:118
+msgid "Logout"
+msgstr "Ausloggen"
+
+#: app/templates/base/base.html:131
+msgid "Privacy policy"
+msgstr "Datenschutz"
+
+#: app/templates/base/base.html:131
+msgid "Terms of service"
+msgstr "AGB"
+
+#: app/templates/base/base.html:131
+msgid "Contact"
+msgstr "Impressum"
+
+#: app/templates/indexer/index.html:14
+msgid "pages recorded"
+msgstr "Beiträge im Index"
+
+#: app/templates/indexer/index.html:22
+msgid "Index a single URL"
+msgstr "Url vorschlagen"
+
+#: app/templates/indexer/index.html:38 app/templates/indexer/index.html:67
+msgid ""
+"I confirm that my entry does not contravene the <a href='../terms-of-"
+"service'>terms of service</a> of this site."
+msgstr "Ich bestätige, dass mein Eintrag nicht gegen die <a href='../terms-of-service'>Nutzungsbedingungen</a> verstößt."
+
+#: app/templates/indexer/index.html:43 app/templates/indexer/index.html:72
+msgid "Add"
+msgstr "Vorschlagen"
+
+#: app/templates/indexer/index.html:52
+msgid "Add an offline resource"
+msgstr "Einen Offline-Tipp hinzufügen"
+
+#: app/templates/indexer/progress_file.html:17
+msgid "Index more pages"
+msgstr "Mehr Seiten vorschlagen"
+
+#: app/templates/orchard/index.html:15
+#, fuzzy
+msgid "Theme:"
+msgstr "Themen"
+
+#: app/templates/orchard/index.html:17
+msgid "entries"
+msgstr "Beiträge"
+
+#: app/templates/orchard/index.html:18
+msgid "View"
+msgstr "Ansehen"
+
+#: app/templates/search/index.html:19
+msgid "Enter your search query"
+msgstr "Gib deine Suchanfrage ein."
+
+#: app/templates/search/index.html:23 app/templates/search/results.html:19
+msgid "Searching..."
+msgstr "Ein kleines Moment..."
+
+#: app/templates/search/results.html:46
+msgid "Trigger warning"
+msgstr "Triggerwarnung"
+
+#: app/templates/search/results.html:48
+msgid "Report this entry"
+msgstr "Diesen Beitrag melden"
+
+#: app/templates/search/results.html:50
+msgid "Add a note to this entry"
+msgstr "Diesen Beitrag kommentieren"
+
+#: app/templates/settings/index.html:13
+#, fuzzy
+msgid "Your profile"
+msgstr "Profil"
+
+#: app/templates/settings/index.html:15
+#, fuzzy
+msgid "Username:"
+msgstr "Benutzername"
+
+#: app/templates/settings/index.html:16
+msgid "Email:"
+msgstr "E-Mail:"
+
+#: app/templates/settings/index.html:17
+msgid "#Contributions:"
+msgstr "#Beiträge:"
+
+#: app/templates/settings/index.html:25
+msgid "Color scheme"
+msgstr "Farbauswahl"
+
+#: app/templates/settings/index.html:27
+msgid "Change your color scheme by clicking on the options below."
+msgstr ""
+"Ändere die Farben dieser Oberfläche, indem du auf die unten stehenden "
+"Optionen klickst."
+
+#: app/templates/settings/index.html:43
+msgid "Your contributions"
+msgstr "Deine Beiträge"
+

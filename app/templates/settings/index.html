@@ -5,15 +5,16 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 {% extends "base/base.html" %}
-{% from "base/_formhelpers.html" import render_field %}
 {% block body %}
 <div class="container">
   <div class="row p-3">
     <div class="card-group">
       <div class="card">
-        <div class="card-header text-center"><b>Your profile</b></div>
+	      <div class="card-header text-center"><b>{{gettext("Your profile")}}</b></div>
         <div class="card-body">
-	  <p>Username: {{username}}</p>
+		<p>{{gettext("Username:")}} {{username}}</p>
+		<p>{{gettext("Email:")}} {{email}}</p>
+		<p>{{gettext("#Contributions:")}} {{num_contributions}}</p>
         </div>
         <div class="card-footer clearfix" style="height:38px">
         </div>
@@ -21,9 +22,9 @@ SPDX-License-Identifier: AGPL-3.0-only
       </div>
 
       <div class="card">
-        <div class="card-header text-center"><b>Color scheme</b></div>
+	      <div class="card-header text-center"><b>{{gettext("Color scheme")}}</b></div>
           <div class="card-body">
-          <p>Change your color scheme by clicking on the options below.</p>
+		  <p>{{gettext("Change your color scheme by clicking on the options below.")}}</p>
 	    <button type="button" class="submit-color-button" style="--theme-primary:orange; --theme-secondary:green;" id="orange"></button>
             <button type="button" class="submit-color-button active" style="--theme-primary:#2196F3; --theme-secondary:black;" id="blue"></button>
             <button type="button" class="submit-color-button" style="--theme-primary:#038B30; --theme-secondary:#013D15;" id="green"></button>
@@ -38,38 +39,8 @@ SPDX-License-Identifier: AGPL-3.0-only
     </div>
 
   <div class="row p-3">
-    <div class="card">
-      <div class="card-header text-center"><b>Add an offline resource</b></div>
-      <div class="card-body">
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <div class="notification is-danger">
-            {{ messages[0] }}</a>
-            </div>
-        {% endif %}
-        {% endwith %}
-      <form method="POST" action="/indexer/manual" enctype="multipart/form-data">
-        {{ form.hidden_tag() }}
-        <p>{{ render_field(form.title) }}</p>
-        <p>{{ render_field(form.description) }}</p>
-	<div class="form-check">
-	  {{ form.accept_tos(class_="form-check-input") }}
-	  <label class="form-check-label" for="legal">I confirm that my entry does not contravene the <a href="{{url_for('pages.return_privacy')}}">terms of service</a> of this site.</label>
-        </div>
-      </div><!-- card body -->
-      <div class="card-footer clearfix">
-        <span class="input-group-btn">
-        <input id="submit_button" type="submit" class="btn btn-success" value="Add">
-      </div><!-- card footer -->
-    </form>
-    </div>
- </div>
-
-
-
-  <div class="row p-3">
   <div class="card">
-            <div class="card-header text-center"><b>Your contributions</b></div>
+	  <div class="card-header text-center"><b>{{gettext("Your contributions")}}</b></div>
          <div class="card-body">
          {% for url in contributions %}
          <a href='{{url[0]}}'>{{url[0]}}</a>

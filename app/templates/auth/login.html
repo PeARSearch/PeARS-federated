@@ -9,7 +9,7 @@
   <div class="row">
   <div class="col-sm-6">
     <div class="card">
-      <div class="card-header text-center"><b>Login</b></div>
+      <div class="card-header text-center"><b>{{gettext('Login')}}</b></div>
       <div class="card-body">
 	{% with messages = get_flashed_messages() %}
         {% if messages %}
@@ -25,11 +25,11 @@
       </div><!-- card body -->
       <div class="card-footer clearfix">
         <span class="input-group-btn">
-	<input id="submit_button" type="submit" class="btn btn-success" value="Log in">
+		<input id="submit_button" type="submit" class="btn btn-success" value="{{gettext('Log in')}}">
       </div><!-- card footer -->
     </form>
     </div>
-    <br><p>No account yet? <a href={{url_for('auth.signup')}}>Sign up</a></p>
+    <br><p>{{gettext('No account yet?')}} <a href={{url_for('auth.signup')}}>{{gettext('Sign up')}}</a></p>
  </div>
  </div>
  </div>

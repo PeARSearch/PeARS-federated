@@ -14,7 +14,7 @@ SPDX-License-Identifier: AGPL-3.0-only
       <b>{{message}}</b><br>
       {% endfor %}
     </div>
-    <a class="btn btn-success" href="{{url_for('indexer.index')}}">Index more pages</a>
+    <a class="btn btn-success" href="{{url_for('indexer.index')}}">{{gettext("Index more pages")}}</a>
   </div>
 </div>
 {% endblock %}

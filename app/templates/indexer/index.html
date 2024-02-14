@@ -5,12 +5,13 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 {% extends "base/base.html" %}
+{% from "base/_formhelpers.html" import render_field %}
 {% block body %}
 <div class="container">
   <div class="row">
     <div class="col">
       <div class="alert alert-success text-center">
-        <b>{{num_entries}} pages recorded</b>
+	      <b>{{num_entries}} {{gettext("pages recorded")}}</b>
       </div>
     </div>
   </div>
@@ -18,41 +19,61 @@ SPDX-License-Identifier: AGPL-3.0-only
   <div class="row p-3">
     <div class="card-group">
       <div class="card">
-        <div class="card-header text-center"><b>Index a single URL</b></div>
+        <div class="card-header text-center"><b>{{gettext("Index a single URL")}}</b></div>
         <div class="card-body">
-          <p>Think you should index your favourite webpage? Enter its URL here! 
-          </p>
-
-          <form method="POST" accept-charset="UTF-8" enctype="multipart/form-data" action="{{url_for('indexer.from_url')}}">
-            <div class="input-group p-2">
-              <span class="input-group-text">URL</span>
-              <input required type="text" class="form-control" placeholder="Enter a URL" name='url' id='url'>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="notification is-danger">
+            {{ messages[0] }}</a>
             </div>
-            <div class="input-group p-2">
-              <span class="input-group-text">Keyword</span>
-              <input class="form-control input-s" title="Enter a keyword." placeholder="Enter a keyword" type="text"
-                name='url_keyword' id='url_keyword' required>
-            </div>
-            <div class="input-group p-2">
-              <span class="input-group-text">Optional trigger warning</span>
-              <input class="form-control input-s" title="Short trigger warning" placeholder="Enter a short trigger warning if needed" type="text"
-                name='url_trigger' id='url_trigger'>
-            </div>
+        {% endif %}
+        {% endwith %}
+	<form method="POST" accept-charset="UTF-8" action="{{url_for('indexer.from_url')}}" enctype="multipart/form-data">
+        {{ form1.hidden_tag() }}
+        <p>{{ render_field(form1.url) }}</p>
+        <p>{{ render_field(form1.theme) }}</p>
+        <p>{{ render_field(form1.trigger_warning) }}</p>
+        <div class="form-check">
+          {{ form1.accept_tos(class_="form-check-input") }}
+          <label class="form-check-label" for="legal">{{gettext("I confirm that my entry does not contravene the <a href='../terms-of-service'>terms of service</a> of this site.")}}</label>
         </div>
-        <div class="card-footer clearfix">
-          <span class="input-group-btn float-end">
-            <button class="btn btn-lg btn-success" type="submit" id='searchbutton'>Index URL</button>
-            <button class="btn btn-lg btn-success" type="button" id='loadingbutton' style='display:none'>
-            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            Indexing...
-            </button>
-          </span>
-        </div>
-        </form>
-      </div>
+      </div><!-- card body -->
+      <div class="card-footer clearfix">
+        <span class="input-group-btn">
+                <input id="submit_button" type="submit" class="btn btn-success" value="{{gettext('Add')}}">
+      </div><!-- card footer -->
+    </form>
     </div>
+   </div>
   </div>
 
+  <div class="row p-3">
+    <div class="card">
+	    <div class="card-header text-center"><b>{{gettext("Add an offline resource")}}</b></div>
+      <div class="card-body">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="notification is-danger">
+            {{ messages[0] }}</a>
+            </div>
+        {% endif %}
+        {% endwith %}
+      <form method="POST" action="/indexer/manual" enctype="multipart/form-data">
+        {{ form2.hidden_tag() }}
+        <p>{{ render_field(form2.title) }}</p>
+        <p>{{ render_field(form2.description) }}</p>
+	<div class="form-check">
+	  {{ form2.accept_tos(class_="form-check-input") }}
+	  <label class="form-check-label" for="legal">{{gettext("I confirm that my entry does not contravene the <a href='../terms-of-service'>terms of service</a> of this site.")}}</label>
+        </div>
+      </div><!-- card body -->
+      <div class="card-footer clearfix">
+        <span class="input-group-btn">
+		<input id="submit_button" type="submit" class="btn btn-success" value="{{gettext('Add')}}">
+      </div><!-- card footer -->
+    </form>
+    </div>
+ </div>
 </div><!-- /.container -->
 <script src="{{ url_for('static', filename='js/loading.js')}}"></script>
 

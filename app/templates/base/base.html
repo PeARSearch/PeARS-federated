@@ -65,23 +65,23 @@ SPDX-License-Identifier: AGPL-3.0-only
                     <div class="vr d-none d-lg-flex h-100 mx-lg-2 text-white"></div>
                     <hr class="d-lg-none text-white-50">
                 </li>
-                <li class="nav-item"><a class="nav-link" href="{{url_for('search.index')}}">Search</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{url_for('search.index')}}">{{gettext('Search')}}</a></li>
 		{% if current_user.is_authenticated and current_user.is_confirmed %}
-                <li class="nav-item"><a class="nav-link" href="{{url_for('indexer.index')}}">Indexer</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{url_for('indexer.index')}}">{{gettext('Index')}}</a></li>
 		{% endif %}
 		{% if current_user.is_authenticated and current_user.is_confirmed %}
-                <li class="nav-item"><a class="nav-link" href="{{url_for('orchard.index')}}">Pods</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{url_for('orchard.index')}}">{{gettext('Themes')}}</a></li>
 		{% endif %}
 		{% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
-                <li class="nav-item"><a class="nav-link" href="{{url_for('admin.index')}}">DB admin</a></li>          
+                <li class="nav-item"><a class="nav-link" href="{{url_for('admin.index')}}">{{gettext('DB Admin')}}</a></li>          
 		{% endif %}
             </ul>
             <ul class="nav nav-pills navbar-nav navbar-right">
 		{% if current_user.is_authenticated and current_user.is_confirmed %}
-                <li class="nav-item"><a class="nav-link" href="{{url_for('settings.index')}}">Profile</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{url_for('settings.index')}}">{{gettext('Profile')}}</a></li>
 		{% endif %}
-                <li class="nav-item"><a class="nav-link" href="{{url_for('pages.return_faq')}}">F.A.Q.</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{url_for('pages.return_acknowledgements')}}">Acknowledgments</a>
+                <li class="nav-item"><a class="nav-link" href="{{url_for('pages.return_faq')}}">{{gettext('F.A.Q.')}}</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{url_for('pages.return_acknowledgements')}}">{{gettext('Acknowledgments')}}</a>
                 </li>
                 <li class="nav-item py-1 col-12 col-lg-auto">
                     <div class="vr d-none d-lg-flex h-100 mx-lg-2 text-white"></div>
@@ -112,10 +112,10 @@ SPDX-License-Identifier: AGPL-3.0-only
                     </a>
                 </li>                
 		{% if not current_user.is_authenticated %}
-                <li class="nav-item"><a class="nav-link active" href="{{url_for('auth.login')}}">Login</a></li>
+                <li class="nav-item"><a class="nav-link active" href="{{url_for('auth.login')}}">{{gettext('Login')}}</a></li>
 		{% endif %}
 		{% if current_user.is_authenticated %}
-                <li class="nav-item"><a class="nav-link" href="{{url_for('auth.logout')}}">Logout</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{url_for('auth.logout')}}">{{gettext('Logout')}}</a></li>
 		{% endif %}
             </ul>
             {% endblock %}
@@ -128,7 +128,7 @@ SPDX-License-Identifier: AGPL-3.0-only
     </div>
     <footer class="footer mt-auto py-3 bg-dark">
     <div class="container">
-	    <span class="text-light"><a class="btn btn-dark" href="{{url_for('pages.return_privacy')}}">Privacy Policy</a> | <a class="btn btn-dark" href="{{url_for('pages.return_tos')}}">Terms of service</a> | <a class="btn btn-dark" href="{{url_for('pages.return_contact')}}">Contact</a></span>
+	    <span class="text-light"><a class="btn btn-dark" href="{{url_for('pages.return_privacy')}}">{{gettext('Privacy policy')}}</a> | <a class="btn btn-dark" href="{{url_for('pages.return_tos')}}">{{gettext('Terms of service')}}</a> | <a class="btn btn-dark" href="{{url_for('pages.return_contact')}}">{{gettext('Contact')}}</a></span>
     </div>
   </footer>
 <!-- script references -->

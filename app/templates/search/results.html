@@ -13,10 +13,10 @@ SPDX-License-Identifier: AGPL-3.0-only
 <form class="form-inline my-2 my-lg-0 mx-2" action="{{url_for('.index')}}" id="searchform">
   <div class="input-group group">
     <input required class="form-control" type="search" value={{query|safe}} aria-label="Search" name="q">
-    <button class="btn btn-outline-success" type="submit" id="searchbutton">Search</button>
+    <button class="btn btn-outline-success" type="submit" id="searchbutton">{{gettext('Search')}}</button>
     <button class="btn btn-outline-success" type="button" id="loadingbutton" style='display:none'>
       <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        Searching...
+        {{gettext('Searching...')}}
     </button>
   </div>
 </form>
@@ -43,11 +43,11 @@ SPDX-License-Identifier: AGPL-3.0-only
 	    <p class="small" style='margin-left:40px;'>
 	    <a href="{{result[1]}}" class="card-link">{{result[1]}}</a> |
             {% if result[9] != '' %}
-	    <a class="results-emoji" href="#" data-toggle="tooltip" title="trigger warning">🔥</a> {{result[9]}} | 
+	    <a class="results-emoji" href="#" data-toggle="tooltip" title="{{gettext('Trigger warning')}}">🔥</a> {{result[9]}} | 
 	    {% endif %}
-	    <a class="p-2" href="{{url_for('orchard.report')}}?url={{result[1]}}">Report this entry</a> | 
+	    <a class="p-2" href="{{url_for('orchard.report')}}?url={{result[1]}}">{{gettext('Report this entry')}}</a> | 
 	    {% if current_user.is_authenticated and current_user.is_confirmed %}
-	    <a href="{{url_for('orchard.annotate')}}?url={{result[1]}}" data-toggle="tooltip" title="Add a note to this entry."><span class="results-emoji">🖊️ </span></a> | 
+	    <a href="{{url_for('orchard.annotate')}}?url={{result[1]}}" data-toggle="tooltip" title="{{gettext('Add a note to this entry')}}"><span class="results-emoji">🖊️ </span></a> | 
 	    {% endif %}
 	    </p>
           </div>
