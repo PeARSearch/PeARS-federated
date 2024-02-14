@@ -154,14 +154,17 @@ def score_docs_extended(extended_q_tokenized, pod, posindex):
         matching_docs = posix_no_seq(' '.join(w_tokenized), pod, posindex)
         #print("MATCHING DOCS", matching_docs)
         for v in matching_docs:
-            url = db.session.query(Urls).filter_by(pod=pod).filter_by(vector=v).first().url #We assume a url can only belong to one pod
-            if url and url not in urls_incremented:
-                if url in document_scores:
-                    document_scores[url] += 1
-                else:
-                    document_scores[url] = 1
-                urls_incremented.append(url)
-                #print(v,document_scores[url])
+            url = db.session.query(Urls).filter_by(pod=pod).filter_by(vector=v).first() #We assume a url can only belong to one pod
+            if url:
+                if url not in urls_incremented:
+                    if url in document_scores:
+                        document_scores[url] += 1
+                    else:
+                        document_scores[url] = 1
+                    urls_incremented.append(url)
+                    #print(v,document_scores[url])
+            else:
+                print(">> ERROR: SCORE PAGES: score_docs_extended: url not found")
     return document_scores
 
 def bestURLs(doc_scores):
