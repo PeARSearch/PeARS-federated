@@ -163,7 +163,7 @@ def score_docs_extended(extended_q_tokenized, pod, posindex):
                     else:
                         document_scores[url] = 1
                     urls_incremented.append(url)
-                    print(v,document_scores[url])
+                    #print(v,document_scores[url])
             else:
                 print(">> ERROR: SCORE PAGES: score_docs_extended: url not found")
     return document_scores
@@ -173,7 +173,6 @@ def bestURLs(doc_scores):
     netlocs_used = []  # Don't return 100 pages from the same site
     c = 0
     for w in sorted(doc_scores, key=doc_scores.get, reverse=True):
-        print(w)
         loc = urlparse(w).netloc
         if c < 50:
             if doc_scores[w] > 1:
