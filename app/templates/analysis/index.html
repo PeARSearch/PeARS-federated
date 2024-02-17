@@ -1,0 +1,20 @@
+<!--
+SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>, 
+
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
+{% extends "base/base.html" %}
+{% block body %}
+<div class="container-full">
+  <br><br>
+  <div class="row">
+    <div class="col-md-10 p-3" style="padding-left: 20px; display:flex;  flex-direction: row;  flex-wrap: wrap;  margin-bottom: 45px;">
+      {% for p in ppmis %}
+      <p>{{p[0]}}: {{p[1]}}</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
