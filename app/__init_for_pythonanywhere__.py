@@ -9,7 +9,7 @@ import logging
 from pathlib import Path
 
 # Import flask and template operators
-from flask import Flask, render_template, send_file, send_from_directory, request
+from flask import Flask, flash, render_template, send_file, send_from_directory, request
 from flask_admin import Admin, AdminIndexView
 from flask_mail import Mail
 
