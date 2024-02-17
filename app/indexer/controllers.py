@@ -136,7 +136,7 @@ def progress_file(contributor, user_url_file):
                 continue
             success, podsum, text, doc_id, mgs = mk_page_vector.compute_vectors(url, theme, lang, trigger, contributor, url_type)
             if success:
-                posix_doc(text, doc_id, theme)
+                posix_doc(text, doc_id, contributor, theme)
                 create_or_update_pod(contributor, theme, lang, podsum)
                 success_message = url+" was successfully indexed."
                 messages.append(success_message)
@@ -154,7 +154,7 @@ def manual_progress_file(url, title, doc, theme, lang, trigger, contributor):
     doctype = 'doc'
     success, podsum, text, doc_id, mgs = mk_page_vector.compute_vectors_local_docs(url, doctype, title, doc, theme, lang, trigger, contributor)
     if success:
-        posix_doc(text, doc_id, theme)
+        posix_doc(text, doc_id, contributor, theme)
         create_or_update_pod(contributor, theme, lang, podsum)
         success_message = url+" was successfully indexed."
         messages.append(success_message)
