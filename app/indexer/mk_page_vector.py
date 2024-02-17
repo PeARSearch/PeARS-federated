@@ -26,15 +26,16 @@ def tokenize_text(lang, text):
     return text
 
 
-def compute_vec(lang, text, pod_m):
+def compute_and_stack_new_vec(lang, text, pod_m):
     v = vectorize_scale(lang, text, 5, VEC_SIZE) #log prob power 5, top words 100
     pod_m = vstack((pod_m,csr_matrix(v)))
     return pod_m
 
 
-def compute_vectors(target_url, keyword, lang, trigger, contributor, url_type):
-    print("Computing vectors for", target_url, "(",keyword,")",lang)
+def compute_vectors(target_url, theme, lang, trigger, contributor, url_type):
+    print("Computing vectors for", target_url, "(",theme,")",lang)
     messages = []
+    npz_path = join(pod_dir,theme+'.u.'+contributor+'.npz')
     if not db.session.query(Urls).filter_by(url=target_url).all():
         u = Urls(url=target_url)
         print("CONTENT TYPE",url_type)
@@ -47,26 +48,22 @@ def compute_vectors(target_url, keyword, lang, trigger, contributor, url_type):
             error = ">> INDEXER ERROR: compute_vectors: No supported content type."
         if error is None and snippet != '':
             print("TITLE",title,"SNIPPET",snippet,"CC",cc,"ERROR",error)
-            pod_m = load_npz(join(pod_dir,keyword+'.npz'))
+            pod_m = load_npz(npz_path)
             text = title + " " + body_str
             text = tokenize_text(lang, text)
             #print(text)
-            pod_m = compute_vec(lang, text, pod_m)
+            pod_m = compute_and_stack_new_vec(lang, text, pod_m)
             u.title = str(title)
             u.vector = str(pod_m.shape[0]-1)
-            u.keyword = keyword
-            u.pod = keyword
+            u.pod = theme+'.u.'+contributor
             u.snippet = str(snippet)
             u.doctype = 'url'
             u.trigger = trigger
-            if contributor != '':
-                u.contributor = '@'+contributor
-            else:
-                u.contributor = contributor
+            u.contributor = '@'+contributor
             #print(u.url,u.title,u.vector,u.snippet,u.pod)
             db.session.add(u)
             db.session.commit()
-            save_npz(join(pod_dir,keyword+'.npz'),pod_m)
+            save_npz(npz_path,pod_m)
             podsum = np.sum(pod_m, axis=0)
             return True, podsum, text, u.vector, messages
         else:
@@ -80,35 +77,32 @@ def compute_vectors(target_url, keyword, lang, trigger, contributor, url_type):
         return False, None, None, None, messages
 
 
-def compute_vectors_local_docs(target_url, doctype, title, doc, keyword, lang, trigger, contributor):
+def compute_vectors_local_docs(target_url, doctype, title, doc, theme, lang, trigger, contributor):
     cc = False
     messages = []
-    pod_m = load_npz(join(pod_dir,keyword+'.npz'))
+    npz_path = join(pod_dir,theme+'.u.'+contributor+'.npz')
+    pod_m = load_npz(npz_path)
     if not db.session.query(Urls).filter_by(url=target_url).all():
-        #print("Computing vectors for", target_url, "(",keyword,")",lang)
+        #print("Computing vectors for", target_url, "(",theme,")",lang)
         u = Urls(url=target_url)
         text = title + " " + doc
         text = tokenize_text(lang, text)
         print(text)
-        pod_m = compute_vec(lang, text, pod_m)
+        pod_m = compute_and_stack_new_vec(lang, text, pod_m)
         u.title = str(title)
         u.vector = str(pod_m.shape[0]-1)
-        u.keyword = keyword
-        u.pod = keyword
+        u.pod = theme+'.u.'+contributor
         if doc != "":
             u.snippet = doc[:500]+'...'
         else:
             u.snippet = u.title
         u.doctype = doctype
         u.trigger = trigger
-        if contributor != '':
-            u.contributor = '@'+contributor
-        else:
-            u.contributor = contributor
+        u.contributor = '@'+contributor
         #print(u.url,u.doctype,u.title,u.vector,u.snippet,u.pod, u.trigger, u.contributor)
         db.session.add(u)
         db.session.commit()
-        save_npz(join(pod_dir,keyword+'.npz'),pod_m)
+        save_npz(npz_path,pod_m)
         podsum = np.sum(pod_m, axis=0)
         return True, podsum, text, u.vector, messages
     else:

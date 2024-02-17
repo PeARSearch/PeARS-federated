@@ -121,9 +121,9 @@ def score_pods(query_vector, extended_q_vectors, lang):
         return best_pods
 
 
-@timer
 def score_docs(query, query_vector, tokenized, pod, posindex):
     '''Score documents for a query'''
+    print(">> INFO: SEARCH: SCORE_PAGES: SCORES_DOCS",pod)
     document_scores = {}  # Document scores
     DS_scores, completeness_scores, snippet_scores, posix_scores = score(query, query_vector, tokenized, pod, posindex)
     #if len(posix_scores) != 0:
@@ -143,10 +143,9 @@ def score_docs(query, query_vector, tokenized, pod, posindex):
             document_scores[url] = document_score
     return document_scores
 
-@timer
 def score_docs_extended(extended_q_tokenized, pod, posindex):
     '''Score documents for an extended query, using posix scoring only'''
-    print(">> SEARCH: SCORE_PAGES: SCORES_DOCS_EXTENDED",pod)
+    print(">> INFO: SEARCH: SCORE_PAGES: SCORES_DOCS_EXTENDED",pod)
     document_scores = {}  # Document scores
     for w_tokenized in extended_q_tokenized:
         #print("W TOKENIZED",w_tokenized)
@@ -360,7 +359,7 @@ def run_search(q:str):
     # Merge
     #print("DOCUMENT SCORES 1",document_scores)
     #print("DOCUMENT SCORES 2",extended_document_scores)
-    merged_scores = {}
+    merged_scores = document_scores.copy()
     for k,v in extended_document_scores.items():
         if k in document_scores:
             merged_scores[k] = document_scores[k]+ 0.5*extended_document_scores[k]

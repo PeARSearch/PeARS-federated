@@ -8,7 +8,7 @@ from flask import Blueprint, jsonify, request
 import numpy as np
 from scipy.sparse import csr_matrix, vstack, save_npz, load_npz
 from os.path import dirname, join, realpath, basename
-from app.utils_db import pod_from_file
+from app.utils_db import create_or_update_pod
 from app.api.models import Urls, Pods
 from app import db, vocab, VEC_SIZE
 from app.indexer.posix import load_posix, dump_posix

@@ -116,19 +116,20 @@ def readPods(pod_file):
     return pods
 
 
-def init_pod(pod_name):
+def init_pod(contributor, theme):
     dir_path = dirname(dirname(realpath(__file__)))
     pod_dir = join(dir_path,'app', 'static','pods')
-    if not isfile(join(pod_dir,pod_name+'.npz')):
+    pod_path = join(pod_dir,theme+'.u.'+contributor)
+    if not isfile(pod_path+'.npz'):
         print("Making 0 CSR matrix for new pod")
         pod = np.zeros((1,VEC_SIZE))
         pod = csr_matrix(pod)
-        save_npz(join(pod_dir,pod_name+'.npz'), pod)
+        save_npz(pod_path+'.npz', pod)
     
-    if not isfile(join(pod_dir,pod_name+'.pos')):
+    if not isfile(pod_path+'.pos'):
         print("Making empty positional index for new pod")
         posindex = [{} for _ in range(len(vocab))]
-        joblib.dump(posindex, join(pod_dir,pod_name+'.pos'))
+        joblib.dump(posindex, pod_path+'.pos')
 
 def init_podsum():
     dir_path = dirname(dirname(realpath(__file__)))

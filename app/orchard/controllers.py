@@ -6,7 +6,7 @@
 from flask import Blueprint, request, render_template, send_from_directory, flash
 from flask_login import login_required, current_user
 from os.path import dirname, realpath, join
-from app.api.models import Urls
+from app.api.models import Urls, Pods
 from app import db, OWN_BRAND
 from app.orchard.mk_urls_file import make_shareable_pod
 from app.auth.decorators import check_is_confirmed
@@ -28,19 +28,21 @@ def inject_brand():
 @login_required
 @check_is_confirmed
 def index():
-    query = db.session.query(Urls.pod.distinct().label("pod"))
-    keywords = [row.pod for row in query.all()]
-    print(keywords)
+    #query = db.session.query(Urls.pod.distinct().label("pod"))
+    #keywords = [row.pod for row in query.all()]
+    pods = db.session.query(Pods).all()
+    themes = [p.name.split('.u.')[0] for p in pods]
     pears = []
-    for keyword in keywords:
-        if keyword and '.pears.txt' not in keyword:
-            pear_urls = []
-            for u in db.session.query(Urls).filter_by(pod=keyword).all():
-                pear_urls.append(u)
-            pear = [keyword, len(pear_urls)]
-            pears.append(pear)
-    # for p in sorted(pears, key=lambda p: len(pears[p]), reverse=True):
-    #    print(p,len(pears[p]),pears[p][:5])
+    recorded = []
+    for theme in themes:
+        if theme in recorded: #don't record same theme several times
+            continue
+        pear_urls = []
+        for u in Urls.query.filter(Urls.pod.contains(theme)).all():
+            pear_urls.append(u)
+        pear = [theme, len(pear_urls)]
+        pears.append(pear)
+        recorded.append(theme) 
     return render_template('orchard/index.html', pears=pears)
 
 

@@ -102,9 +102,8 @@ def pod_from_json(pod, url):
     db.session.commit()
 
 
-def pod_from_file(name, lang, podsum):
-    # TODO: pods can't be named any old thing,
-    # if they're going to be in localhost URLs
+def create_or_update_pod(contributor, name, lang, podsum):
+    name = name+'.u.'+contributor
     url = "http://localhost:8080/api/pods/" + name.replace(' ', '+')
     if not db.session.query(Pods).filter_by(url=url).all():
         p = Pods(url=url)

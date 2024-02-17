@@ -18,14 +18,15 @@ from app.api.models import Urls
 from app.indexer.neighbours import neighbour_urls
 from app.indexer import mk_page_vector, spider
 from app.utils import readDocs, readUrls, readBookmarks, parse_query, init_pod, init_podsum
-from app.utils_db import pod_from_file
+from app.utils_db import create_or_update_pod
 from app.indexer.access import request_url
 from app.indexer.posix import posix_doc
 from app.auth.decorators import check_is_confirmed
 from os.path import dirname, join, realpath, isfile
 from app.forms import IndexerForm, ManualEntryForm
 
-dir_path = dirname(dirname(realpath(__file__)))
+app_dir_path = dirname(dirname(realpath(__file__)))
+suggestions_dir_path = join(app_dir_path,'static', 'userdata')
 
 # Define the blueprint:
 indexer = Blueprint('indexer', __name__, url_prefix='/indexer')
@@ -74,7 +75,7 @@ def manual():
         messages = manual_progress_file(u, title, snippet, keyword, LANG, trigger, contributor)
         return render_template('indexer/progress_file.html', messages=messages)
     else:
-        return render_template('indexer/index.html')
+        return render_template('indexer/index.html', form1=IndexerForm(request.form), form2=form)
 
 
 @indexer.route("/from_url", methods=["POST"])
@@ -87,23 +88,23 @@ def from_url():
 
     form = IndexerForm(request.form)
     if form.validate_on_submit():
-        f = open(join(dir_path, "urls_to_index.txt"), 'w')
+        contributor = current_user.username
+        user_url_file = join(suggestions_dir_path, contributor+".suggestions")
+        f = open(user_url_file, 'w') #Every contributor gets their own file to avoid race conditions
         url = request.form.get('url')
         theme = request.form.get('theme')
         trigger = request.form.get('trigger')
-        contributor = request.form.get('contribution')
         theme, _, lang = parse_query(theme)
-        contributor = current_user.username
         if trigger is None:
             trigger = ''
         print(url, theme, lang, trigger, contributor)
         f.write(url + ";" + theme + ";" + lang + ";" + trigger + ";" + contributor + "\n")
         f.close()
         print("\t>> Indexer : progress_file")
-        messages = progress_file()
+        messages = progress_file(contributor, user_url_file)
         return render_template('indexer/progress_file.html', messages = messages)
     else:
-        return render_template('indexer/index.html')
+        return render_template('indexer/index.html', form1=form, form2=ManualEntryForm(request.form))
 
 
 
@@ -114,18 +115,18 @@ The URL indexing uses same progress as file.
 '''
 
 
-def progress_file():
+def progress_file(contributor, user_url_file):
     print(">> INDEXER: Running progress file")
     messages = []
-    urls, keywords, langs, triggers, contributors, errors = readUrls(join(dir_path, "urls_to_index.txt"))
+    urls, themes, langs, triggers, contributors, errors = readUrls(user_url_file)
     if errors:
         return errors
-    if not urls or not keywords or not langs:
+    if not urls or not themes or not langs:
         messages.append('ERROR: Invalid file format.')
         return messages
-    kwd = keywords[0]
-    init_pod(kwd)
-    for url, kwd, lang, trigger, contributor in zip(urls, keywords, langs, triggers, contributors):
+    theme = themes[0]
+    init_pod(contributor, theme)
+    for url, theme, lang, trigger, contributor in zip(urls, themes, langs, triggers, contributors):
         access, req, request_errors = request_url(url)
         if access:
             try:
@@ -133,10 +134,10 @@ def progress_file():
             except:
                 messages.append('ERROR: Content type could not be retrieved from header.')
                 continue
-            success, podsum, text, doc_id, mgs = mk_page_vector.compute_vectors(url, kwd, lang, trigger, contributor, url_type)
+            success, podsum, text, doc_id, mgs = mk_page_vector.compute_vectors(url, theme, lang, trigger, contributor, url_type)
             if success:
-                posix_doc(text, doc_id, kwd)
-                pod_from_file(kwd, lang, podsum)
+                posix_doc(text, doc_id, theme)
+                create_or_update_pod(contributor, theme, lang, podsum)
                 success_message = url+" was successfully indexed."
                 messages.append(success_message)
             else:
@@ -146,15 +147,15 @@ def progress_file():
     return messages
 
 
-def manual_progress_file(url, title, doc, kwd, lang, trigger, contributor):
+def manual_progress_file(url, title, doc, theme, lang, trigger, contributor):
     print(">> INDEXER: Running manual progress file")
-    init_pod(kwd)
+    init_pod(contributor, theme)
     messages = []
     doctype = 'doc'
-    success, podsum, text, doc_id, mgs = mk_page_vector.compute_vectors_local_docs(url, doctype, title, doc, kwd, lang, trigger, contributor)
+    success, podsum, text, doc_id, mgs = mk_page_vector.compute_vectors_local_docs(url, doctype, title, doc, theme, lang, trigger, contributor)
     if success:
-        posix_doc(text, doc_id, kwd)
-        pod_from_file(kwd, lang, podsum)
+        posix_doc(text, doc_id, theme)
+        create_or_update_pod(contributor, theme, lang, podsum)
         success_message = url+" was successfully indexed."
         messages.append(success_message)
     else:
@@ -266,15 +267,15 @@ def from_csv():
 def progress_docs():
     logging.debug("Running progress local file")
     def generate():
-        kwd = ''
+        theme = ''
         lang = LANG
         doctype = 'doc'
         docfile = join(dir_path, "docs_to_index.txt")
         urls = readDocs(docfile)
         f = open(join(dir_path, "file_source_info.txt"), 'r')
         for line in f:
-            source, kwd, lang, doctype = line.rstrip('\n').split('::')
-        init_pod(kwd)
+            source, theme, lang, doctype = line.rstrip('\n').split('::')
+        init_pod(theme)
         c = 0
         #for url, title, snippet in zip(urls, titles, snippets):
         with open(docfile) as df:
@@ -289,10 +290,10 @@ def progress_docs():
                 elif "</doc" not in l:
                     doc+=l+' '
                 else:
-                    success, podsum, text, doc_id = mk_page_vector.compute_vectors_local_docs(url, doctype, title, doc, kwd, lang)
+                    success, podsum, text, doc_id = mk_page_vector.compute_vectors_local_docs(url, doctype, title, doc, theme, lang)
                     if success:
-                        posix_doc(text, doc_id, kwd)
-                        pod_from_file(kwd, lang, podsum)
+                        posix_doc(text, doc_id, theme)
+                        create_or_update_pod(contributor, theme, lang, podsum)
                     c += 1
                     data = ceil(c / len(urls) * 100)
                     yield "data:" + str(data) + "\n\n"
@@ -306,7 +307,7 @@ def progress_docs():
 def progress_csv():
     logging.debug("Running progress local csv")
     def generate():
-        kwd = ''
+        theme = ''
         lang = LANG
         doctype = 'csv'
         try:
@@ -317,8 +318,8 @@ def progress_csv():
 
         f = open(join(dir_path, "file_source_info.txt"), 'r')
         for line in f:
-            source, kwd, lang, doctype = line.rstrip('\n').split('::')
-        init_pod(kwd)
+            source, theme, lang, doctype = line.rstrip('\n').split('::')
+        init_pod(theme)
         c = 0
         columns = list(df.columns)
         table = df.to_numpy()
@@ -334,10 +335,10 @@ def progress_csv():
                 value = str(row[i]).replace('/',' / ')
                 snippet+=str(columns[i])+': ' +value+'. '
             print(url,title)
-            success, podsum, text, doc_id = mk_page_vector.compute_vectors_local_docs(url, doctype, title, snippet, kwd, lang)
+            success, podsum, text, doc_id = mk_page_vector.compute_vectors_local_docs(url, doctype, title, snippet, theme, lang)
             if success:
-                posix_doc(text, doc_id, kwd)
-                pod_from_file(kwd, lang, podsum)
+                posix_doc(text, doc_id, theme)
+                create_or_update_pod(contributor, theme, lang, podsum)
             c += 1
             data = ceil(c / table.shape[0] * 100)
             yield "data:" + str(data) + "\n\n"
