@@ -52,7 +52,7 @@ app.config['SECURITY_PASSWORD_SALT'] = os.getenv("SECURITY_PASSWORD_SALT") # set
 
 
 # Localization
-from flask_babel import Babel
+from flask_babel import Babel, gettext
 app.config['BABEL_DEFAULT_LOCALE'] = os.getenv("PEARS_LANG")
 app.config['BABEL_TRANSLATION_DIRECTORIES'] = os.getenv("TRANSLATION_DIR")
 babel = Babel(app)
