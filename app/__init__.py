@@ -189,7 +189,6 @@ class UrlsModelView(ModelView):
         except Exception as ex:
             if not self.handle_view_exception(ex):
                 flash(gettext('Failed to delete record. %(error)s', error=str(ex)), 'error')
-                log.exception('Failed to delete record.')
 
             self.session.rollback()
 
@@ -229,7 +228,6 @@ class PodsModelView(ModelView):
         except Exception as ex:
             if not self.handle_view_exception(ex):
                 flash(gettext('Failed to delete record. %(error)s', error=str(ex)), 'error')
-                log.exception('Failed to delete record.')
 
             self.session.rollback()
 
