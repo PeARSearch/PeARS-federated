@@ -34,6 +34,8 @@ def return_pod(pod):
 @api.route('/pods/delete', methods=["GET","POST"])
 def return_pod_delete(pod_name):
     print("Unsubscribing pod...", pod_name)
+    theme, contributor = pod_name.split('.u.')
+    print(theme, contributor)
     pod = db.session.query(Pods).filter_by(name=pod_name).first()
     lang = pod.language
     urls = db.session.query(Urls).filter_by(pod=pod_name).all()
@@ -46,7 +48,7 @@ def return_pod_delete(pod_name):
     print("Removing positional index")
     remove(join(pod_dir,pod_name+'.pos'))
     print("Reverting summary to 0")
-    pod_from_file(pod_name, lang, np.zeros(VEC_SIZE))
+    create_or_update_pod(contributor, theme, lang, np.zeros(VEC_SIZE))
     db.session.delete(pod)
     db.session.commit()
 
@@ -60,19 +62,21 @@ def return_urls():
 def return_url_delete(path):
     #path = request.args.get('path')
     u = db.session.query(Urls).filter_by(url=path).first()
-    pod = u.pod
+    pod_name = u.pod
     vid = int(u.vector)
-    print(path, vid,pod)
+    theme, contributor = pod_name.split('.u.')
+    print(theme, contributor)
+    print(path, vid, pod_name)
 
     #Remove document row from .npz matrix
-    pod_m = load_npz(join(pod_dir,pod+'.npz'))
+    pod_m = load_npz(join(pod_dir,pod_name+'.npz'))
     m1 = pod_m[:vid]
     m2 = pod_m[vid+1:]
     pod_m = vstack((m1,m2)) 
-    save_npz(join(pod_dir,pod+'.npz'),pod_m)
+    save_npz(join(pod_dir,pod_name+'.npz'),pod_m)
 
     #Correct indices in DB
-    urls = db.session.query(Urls).filter_by(pod=pod).all()
+    urls = db.session.query(Urls).filter_by(pod=pod_name).all()
     for url in urls:
         if int(url.vector) > vid:
             url.vector = str(int(url.vector)-1) #Decrease ID now that matrix row has gone
@@ -80,7 +84,7 @@ def return_url_delete(path):
         db.session.commit()
    
     #Remove doc from positional index
-    posindex = load_posix(pod)
+    posindex = load_posix(pod_name)
     new_posindex = []
     for token in vocab:
         token_id = vocab[token]
@@ -91,16 +95,14 @@ def return_url_delete(path):
             #else:
             #    print("Deleting doc",doc_id,"from token",token,token_id)
         new_posindex.append(tmp)
-    dump_posix(new_posindex,pod)
+    dump_posix(new_posindex,pod_name)
 
     #Recompute pod summary
     podsum = np.sum(pod_m, axis=0)
-    p = db.session.query(Pods).filter_by(name=pod).first()
-    pod_from_file(pod, p.language, podsum)
+    p = db.session.query(Pods).filter_by(name=pod_name).first()
+    create_or_update_pod(contributor, theme, p.language, podsum)
     db.session.delete(u)
     db.session.commit()
-    #except:
-    #    return "Deletion failed"
     return "Deleted document with vector id"+str(vid)
 
 
