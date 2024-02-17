@@ -21,7 +21,7 @@ SPDX-License-Identifier: AGPL-3.0-only
       <div class="card indexer">
         <div class="card-header text-center"><b>{{gettext("Index a single URL")}}</b></div>
         <div class="card-body">
-        {% with messages = get_flashed_messages() %}
+        {% with messages = get_flashed_messages(category_filter=["url"]) %}
         {% if messages %}
             <div class="notification is-danger">
             {{ messages[0] }}</a>
@@ -51,7 +51,7 @@ SPDX-License-Identifier: AGPL-3.0-only
     <div class="card indexer">
 	    <div class="card-header text-center"><b>{{gettext("Add an offline resource")}}</b></div>
       <div class="card-body">
-        {% with messages = get_flashed_messages() %}
+        {% with messages = get_flashed_messages(category_filter=["offline"]) %}
         {% if messages %}
             <div class="notification is-danger">
             {{ messages[0] }}</a>
