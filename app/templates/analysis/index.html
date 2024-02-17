@@ -8,13 +8,56 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% block body %}
 <div class="container-full">
   <br><br>
-  <div class="row">
-    <div class="col-md-10 p-3" style="padding-left: 20px; display:flex;  flex-direction: row;  flex-wrap: wrap;  margin-bottom: 45px;">
-      {% for p in ppmis %}
-      <p>{{p[0]}}: {{p[1]}}</p>
-      {% endfor %}
+  <div class="row p-3">
+    <div class="card">
+      <div class="card-header text-center"><b>{{gettext("Run association analysis")}}</b></div>
+        <div class="card-body">
+        <form action="{{url_for('analysis.ppmi')}}" id='searchform' method='post'>
+	  <button class="btn btn-lg btn-success" type="submit" id='searchbutton'>{{gettext('Analyse')}}</button>
+          <button class="btn btn-lg btn-success" type="button" id='loadingbutton' style='display:none'>
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+	    {{gettext('Analysing...')}}
+          </button>
+        </form>
+	{% with messages = get_flashed_messages(category_filter=["analysis"]) %}
+        {% if messages %}
+            <div class="notification is-danger">
+		    <br><b>{{ messages[0] }}</b>
+            </div>
+        {% endif %}
+        {% endwith %}
+        </div><!-- card body -->
+      </div><!-- card header -->
+    </div>
+  </div>
+  
+  <div class="row p-3">
+    <div class="card">
+      <div class="card-header text-center"><b>{{gettext("Search associations")}}</b></div>
+        <div class="card-body">
+        <form  action="{{url_for('analysis.search')}}" id='searchform'>
+          <div class="input-group group mt-4" >
+    	  <input class="form-control" title="Enter your search query." placeholder="{{gettext('Enter your search query')}}"  type="search" name='q' required>
+	  <button class="btn btn-lg btn-success" type="submit" id='searchbutton'>{{gettext('Search')}}</button>
+          </div>
+        </form>
+	{% with messages = get_flashed_messages(category_filter=["association"]) %}
+        {% if messages %}
+            <div class="notification is-danger">
+		    <br><b>{{ messages[0] }}</b>
+            </div>
+        {% endif %}
+        {% endwith %}
+	<br>
+        {% for p in ppmis %}
+        <p>{{p[0]}}: {{p[1]}}</p>
+        {% endfor %}
+        </div><!-- card body -->
+      </div><!-- card header -->
     </div>
   </div>
 </div>
+
+<script src="{{ url_for('static', filename='js/loading.js')}}"></script>
 {% endblock %}
 
