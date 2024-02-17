@@ -301,3 +301,5 @@ from app.indexer.controllers import progress_file
 def index():
     '''Index from the app/urls_to_index.txt file'''
     progress_file() 
+
+from app import errors

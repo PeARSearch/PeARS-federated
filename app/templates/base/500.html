@@ -1,0 +1,7 @@
+{% extends "base/base.html" %}
+
+{% block body %}
+    <h1>An unexpected error has occurred</h1>
+    <p>The administrator has been notified. Sorry for the inconvenience!</p>
+    <p><a href="{{ url_for('search.index') }}">Go back to the main page.</a></p>
+{% endblock %}

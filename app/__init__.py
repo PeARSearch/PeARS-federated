@@ -144,7 +144,6 @@ def load_user(user_id):
 
 # Flask and Flask-SQLAlchemy initialization here
 
-
 class MyAdminIndexView(AdminIndexView):
     def is_accessible(self):
         return current_user.is_admin # This does the trick rendering the view only if the user is admin
@@ -310,3 +309,6 @@ def get_links(url):
             print(link)
     else:
         print("Access denied.")
+
+
+from app import errors
