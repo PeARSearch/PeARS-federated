@@ -10,7 +10,7 @@ from scipy.sparse import csr_matrix, vstack, save_npz, load_npz
 from os.path import dirname, join, realpath, basename
 from app.utils_db import create_or_update_pod
 from app.api.models import Urls, Pods
-from app import db, vocab, VEC_SIZE
+from app import db, vocab, LANG, VEC_SIZE
 from app.indexer.posix import load_posix, dump_posix
 from os import remove
 
@@ -92,15 +92,12 @@ def return_url_delete(path):
         for doc_id, posidx in posindex[token_id].items():
             if doc_id != str(vid):
                 tmp[doc_id] = posidx
-            #else:
-            #    print("Deleting doc",doc_id,"from token",token,token_id)
         new_posindex.append(tmp)
     dump_posix(new_posindex,pod_name)
 
     #Recompute pod summary
     podsum = np.sum(pod_m, axis=0)
-    p = db.session.query(Pods).filter_by(name=pod_name).first()
-    create_or_update_pod(contributor, theme, p.language, podsum)
+    create_or_update_pod(contributor, theme, LANG, podsum)
     db.session.delete(u)
     db.session.commit()
     return "Deleted document with vector id"+str(vid)
