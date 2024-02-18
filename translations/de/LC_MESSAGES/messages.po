@@ -377,7 +377,7 @@ msgstr "Gib deine Suchanfrage ein."
 
 #: app/templates/search/index.html:23 app/templates/search/results.html:19
 msgid "Searching..."
-msgstr "Einen kleinen Moment..."
+msgstr "Suche..."
 
 #: app/templates/search/results.html:46
 msgid "Trigger warning"
