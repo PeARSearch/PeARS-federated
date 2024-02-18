@@ -241,10 +241,13 @@ class UsersModelView(ModelView):
     list_template = 'admin/pears_list.html'
     column_exclude_list = ['password']
     column_searchable_list = ['email', 'username']
-    can_edit = False
+    can_edit = True
     page_size = 50
     form_widget_args = {
         'email': {
+            'readonly': True
+        },
+        'password': {
             'readonly': True
         },
         'username': {
