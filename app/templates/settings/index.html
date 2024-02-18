@@ -42,8 +42,15 @@ SPDX-License-Identifier: AGPL-3.0-only
   <div class="card">
 	  <div class="card-header text-center"><b>{{gettext("Your contributions")}}</b></div>
          <div class="card-body">
+	{% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="notification is-danger">
+		    <br><b>{{ messages[0] }}</b>
+            </div>
+        {% endif %}
+        {% endwith %}
          {% for url in contributions %}
-         <a href='{{url[0]}}'>{{url[0]}}</a>
+	 <a href='{{url[0]}}'>{{url[0]}}</a><a href='{{url_for('settings.delete_url')}}?url={{url[0]}}' data-toggle="tooltip" title="{{gettext('Delete this URL')}}"><span class="results-emoji">  🗑️</span></a>
          <br>
          {% endfor %}
          </div>

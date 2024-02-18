@@ -7,10 +7,12 @@
 import logging
 from app import db, OWN_BRAND
 from app.api.models import Urls
-
 from app.forms import ManualEntryForm
-from flask import Blueprint, flash, request, render_template, Response
-from flask_login import current_user
+from app.api.controllers import return_url_delete
+
+from flask import Blueprint, flash, request, render_template, redirect, url_for
+from flask_login import login_required, current_user
+from app.auth.decorators import check_is_confirmed
 
 
 # Define the blueprint:
@@ -23,6 +25,7 @@ def inject_brand():
 
 # Set the route and accepted methods
 @settings.route("/")
+@login_required
 def index():
     username = current_user.username
     email = current_user.email
@@ -34,3 +37,21 @@ def index():
 
     return render_template("settings/index.html", username=username, email=email, num_contributions=num_contributions, contributions=contributions, form=form)
 
+@settings.route('/delete', methods=['GET'])
+@login_required
+@check_is_confirmed
+def delete_url():
+    username = current_user.username
+    url = request.args.get('url')
+    pod = db.session.query(Urls).filter_by(url=url).first().pod
+    # Double check url belongs to the user
+    contributor = pod.split('.u.')[1]
+    if contributor != username:
+        flash("URL does not belong to you and cannot be deleted.")
+        return redirect(url_for("settings.index"))
+    try:
+        return_url_delete(url)
+        flash("URL "+url+" was successfully deleted.")
+    except:
+        flash("There was a problem deleting URL "+url+" Please contact your administrator.")
+    return redirect(url_for("settings.index"))

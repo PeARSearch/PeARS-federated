@@ -34,8 +34,12 @@ def return_pod(pod):
 @api.route('/pods/delete', methods=["GET","POST"])
 def return_pod_delete(pod_name):
     print("Unsubscribing pod...", pod_name)
-    theme, contributor = pod_name.split('.u.')
-    print(theme, contributor)
+    if '.u.' in pod_name:
+        theme, contributor = pod_name.split('.u.')
+        print(theme, contributor)
+    else:
+        theme = pod_name
+        contributor = None
     pod = db.session.query(Pods).filter_by(name=pod_name).first()
     lang = pod.language
     urls = db.session.query(Urls).filter_by(pod=pod_name).all()
@@ -60,7 +64,6 @@ def return_urls():
 
 @api.route('/urls/delete', methods=["GET","POST"])
 def return_url_delete(path):
-    #path = request.args.get('path')
     u = db.session.query(Urls).filter_by(url=path).first()
     pod_name = u.pod
     vid = int(u.vector)
@@ -104,12 +107,20 @@ def return_url_delete(path):
 
 
 @api.route('/pods/move', methods=["GET","POST"])
-def return_pod_rename(src, target):
-    #src = request.args.get('src')
-    #target = request.args.get('target')
-    contributor = request.args.get('contributor')
+def return_pod_rename(src, target, contributor=None):
+    #if '.' in target:
+    #    return "Disallowed characters in new pod name. Please do not use punctuation."
+    #pods = db.session.query(Pods).all()
+    #contributor_pods = []
+    #for pod in pods:
+    #    if pod.name[-len(contributor)+3:] == '.u.'+contributor:
+    #        contributor_pods.append(pod.name.split('.u.')[0])
+    #if src not in contributor_pods:
+    #    return "You cannot rename pods that you have never made a contribution to."
     try:
         #src = src+'.u.'+contributor
+        print("SRC",src)
+        print("TARGET",target)
         p = db.session.query(Pods).filter_by(name=src).first()
 
         #Rename npz
@@ -140,7 +151,6 @@ def return_pod_rename(src, target):
             url.pod = target
             db.session.add(url)
             db.session.commit()
-
     except:
         return "Renaming failed. Contact your administrator."
     return "Moved pod "+src+" to "+target

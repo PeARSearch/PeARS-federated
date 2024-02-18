@@ -103,7 +103,14 @@ def pod_from_json(pod, url):
 
 
 def create_or_update_pod(contributor, name, lang, podsum):
-    name = name+'.u.'+contributor
+    '''If the pod does not exist, create it in the database.
+    Then get the urls corresponding to that pod and sum them.
+    If there is already a row in the podsum matrix for this pod 
+    ID, modify it. Otherwise, stack a new row. NB: if the pod has
+    been deleted, its row becomes stale and is set to zero.
+    '''
+    if contributor is not None:
+        name = name+'.u.'+contributor
     url = "http://localhost:8080/api/pods/" + name.replace(' ', '+')
     if not db.session.query(Pods).filter_by(url=url).all():
         p = Pods(url=url)
