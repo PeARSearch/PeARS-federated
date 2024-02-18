@@ -67,7 +67,7 @@ msgstr "Url"
 
 #: app/forms.py:26
 msgid "Theme"
-msgstr "Themen"
+msgstr "Thema"
 
 #: app/forms.py:27
 msgid "Optional trigger warning"
@@ -222,7 +222,7 @@ msgstr "Du hast noch kein Konto?"
 
 #: app/templates/auth/login.html:32 app/templates/auth/signup.html:33
 msgid "Sign up"
-msgstr "Einmelden"
+msgstr "Anmelden"
 
 #: app/templates/auth/password_change.html:11
 #, fuzzy
@@ -268,7 +268,7 @@ msgstr "Bis bald wieder auf unserer PeARS-Instanz!"
 #: app/templates/auth/signup.html:11
 #, fuzzy
 msgid "Signup"
-msgstr "Melde dich ein!"
+msgstr "Melde dich an!"
 
 #: app/templates/auth/signup.html:28
 #, fuzzy
@@ -361,7 +361,7 @@ msgstr "Mehr Seiten vorschlagen"
 #: app/templates/orchard/index.html:15
 #, fuzzy
 msgid "Theme:"
-msgstr "Themen"
+msgstr "Thema:"
 
 #: app/templates/orchard/index.html:17
 msgid "entries"
@@ -377,7 +377,7 @@ msgstr "Gib deine Suchanfrage ein."
 
 #: app/templates/search/index.html:23 app/templates/search/results.html:19
 msgid "Searching..."
-msgstr "Ein kleines Moment..."
+msgstr "Einen kleinen Moment..."
 
 #: app/templates/search/results.html:46
 msgid "Trigger warning"
