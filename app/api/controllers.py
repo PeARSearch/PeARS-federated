@@ -108,33 +108,31 @@ def return_url_delete(path):
 
 @api.route('/pods/move', methods=["GET","POST"])
 def return_pod_rename(src, target, contributor=None):
-    #if '.' in target:
-    #    return "Disallowed characters in new pod name. Please do not use punctuation."
-    #pods = db.session.query(Pods).all()
-    #contributor_pods = []
-    #for pod in pods:
-    #    if pod.name[-len(contributor)+3:] == '.u.'+contributor:
-    #        contributor_pods.append(pod.name.split('.u.')[0])
-    #if src not in contributor_pods:
-    #    return "You cannot rename pods that you have never made a contribution to."
+    if '.' in target:
+        return "Disallowed characters in new pod name. Please do not use punctuation."
+    pods = db.session.query(Pods).all()
+    contributor_pods = []
+    for pod in pods:
+        if pod.name[-len(contributor)-3:] == '.u.'+contributor:
+            contributor_pods.append(pod.name.split('.u.')[0])
+    #print(src,contributor_pods)
+    if src not in contributor_pods:
+        return "You cannot rename pods that you have never made a contribution to."
+    if target in contributor_pods:
+        return "You cannot use a pod name that you have already created in the past." #TODO: change this.
     try:
-        #src = src+'.u.'+contributor
-        print("SRC",src)
-        print("TARGET",target)
+        src = src+'.u.'+contributor
+        target = target+'.u.'+contributor
         p = db.session.query(Pods).filter_by(name=src).first()
 
         #Rename npz
         src_path = join(pod_dir,src+'.npz')
-        print(src_path)
         target_path = join(pod_dir,target+'.npz')
-        print(target_path)
         rename(src_path, target_path)
 
         #Rename pos
         src_path = join(pod_dir,src+'.pos')
-        print(src_path)
         target_path = join(pod_dir,target+'.pos')
-        print(target_path)
         rename(src_path, target_path)
         
         #Rename in DB
@@ -153,4 +151,4 @@ def return_pod_rename(src, target, contributor=None):
             db.session.commit()
     except:
         return "Renaming failed. Contact your administrator."
-    return "Moved pod "+src+" to "+target
+    return "Moved pod "+src.split('.u.')[0]+" to "+target.split('.u.')[0]

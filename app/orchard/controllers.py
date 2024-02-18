@@ -74,7 +74,8 @@ def download_file():
 def rename_pod():
     podname = request.args.get('oldname')
     newname = request.args.get('newname')
-    message = return_pod_rename(podname, newname)
+    username = current_user.username
+    message = return_pod_rename(podname, newname, username)
     flash(message)
     return redirect(url_for('orchard.index'))
 
