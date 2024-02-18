@@ -12,7 +12,7 @@ from app.utils_db import create_or_update_pod
 from app.api.models import Urls, Pods
 from app import db, vocab, LANG, VEC_SIZE
 from app.indexer.posix import load_posix, dump_posix
-from os import remove
+from os import remove, rename
 
 # Define the blueprint:
 api = Blueprint('api', __name__, url_prefix='/api')
@@ -103,22 +103,44 @@ def return_url_delete(path):
     return "Deleted document with vector id"+str(vid)
 
 
-@api.route('/urls/move', methods=["GET","POST"])
-def return_rename():
-    src = request.args.get('src')
-    target = request.args.get('target')
+@api.route('/pods/move', methods=["GET","POST"])
+def return_pod_rename(src, target):
+    #src = request.args.get('src')
+    #target = request.args.get('target')
+    contributor = request.args.get('contributor')
     try:
-        u = db.session.query(Urls).filter_by(url=src).first()
+        #src = src+'.u.'+contributor
+        p = db.session.query(Pods).filter_by(name=src).first()
 
+        #Rename npz
+        src_path = join(pod_dir,src+'.npz')
+        print(src_path)
+        target_path = join(pod_dir,target+'.npz')
+        print(target_path)
+        rename(src_path, target_path)
+
+        #Rename pos
+        src_path = join(pod_dir,src+'.pos')
+        print(src_path)
+        target_path = join(pod_dir,target+'.pos')
+        print(target_path)
+        rename(src_path, target_path)
+        
         #Rename in DB
-        src_name = basename(src)
-        target_name = basename(target)
-        u.url = target
-        if u.title == src_name:
-            u.title = target_name
-
-        db.session.add(u)
+        print(p.name)
+        p.name = target
+        p.description = target
+        p.url = join('http://localhost:8080/api/pods/',target.replace(' ','+'))
+        db.session.add(p)
         db.session.commit()
+
+        #Move all URLS
+        urls = db.session.query(Urls).filter_by(pod=src).all()
+        for url in urls:
+            url.pod = target
+            db.session.add(url)
+            db.session.commit()
+
     except:
-        return "Moving failed"
-    return "Moved file "+src+" to "+target
+        return "Renaming failed. Contact your administrator."
+    return "Moved pod "+src+" to "+target

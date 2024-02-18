@@ -3,10 +3,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 # Import flask dependencies
-from flask import Blueprint, request, render_template, send_from_directory, flash
+from flask import Blueprint, request, render_template, send_from_directory, flash, redirect, url_for
 from flask_login import login_required, current_user
 from os.path import dirname, realpath, join
 from app.api.models import Urls, Pods
+from app.api.controllers import return_pod_rename
 from app import db, OWN_BRAND
 from app.orchard.mk_urls_file import make_shareable_pod
 from app.auth.decorators import check_is_confirmed
@@ -32,15 +33,18 @@ def index():
     #keywords = [row.pod for row in query.all()]
     pods = db.session.query(Pods).all()
     themes = [p.name.split('.u.')[0] for p in pods]
+    pod_urls = [p.url for p in pods]
     pears = []
     recorded = []
-    for theme in themes:
+    for i in range(len(themes)):
+        theme = themes[i]
+        pod_sig = ''.join([char for char in pod_urls[i] if char.isalpha()]) #Make signature from pod url for collapse function
         if theme in recorded: #don't record same theme several times
             continue
-        pear_urls = []
+        urls = []
         for u in Urls.query.filter(Urls.pod.contains(theme)).all():
-            pear_urls.append(u)
-        pear = [theme, len(pear_urls)]
+            urls.append(u)
+        pear = [theme, len(urls), pod_sig]
         pears.append(pear)
         recorded.append(theme) 
     return render_template('orchard/index.html', pears=pears)
@@ -62,6 +66,18 @@ def download_file():
     filename = request.args.get('filename')
     print('>> orchard: download_file:',filename)
     return send_from_directory(join(dir_path,'static','pods'), filename, as_attachment=True)
+
+
+@orchard.route("/rename", methods=['GET'])
+@login_required
+@check_is_confirmed
+def rename_pod():
+    podname = request.args.get('oldname')
+    newname = request.args.get('newname')
+    message = return_pod_rename(podname, newname)
+    flash(message)
+    return redirect(url_for('orchard.index'))
+
 
 @orchard.route("/report", methods=['GET','POST'])
 @login_required
