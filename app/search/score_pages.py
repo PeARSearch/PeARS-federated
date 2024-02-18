@@ -83,7 +83,7 @@ def score_pods(query_vector, extended_q_vectors, lang):
     """
     print(">> SEARCH: SCORE PAGES: SCORE PODS")
 
-    max_pods = 3 # How many pods to return
+    max_pods = 6 # How many pods to return
     quality_threshold = 0.01 # Minimum score for a pod to be considered okay
     pod_scores = {}
 

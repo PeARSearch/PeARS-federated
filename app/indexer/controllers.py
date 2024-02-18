@@ -13,6 +13,7 @@ from pandas import read_csv
 from math import ceil, isnan
 from flask import Blueprint, flash, request, render_template, Response, stream_with_context, url_for
 from flask_login import login_required, current_user
+from app.auth.decorators import check_is_confirmed
 from app import VEC_SIZE, LANG, OWN_BRAND
 from app.api.models import Urls
 from app.indexer.neighbours import neighbour_urls
@@ -21,7 +22,6 @@ from app.utils import readDocs, readUrls, readBookmarks, parse_query, init_pod, 
 from app.utils_db import create_or_update_pod
 from app.indexer.access import request_url
 from app.indexer.posix import posix_doc
-from app.auth.decorators import check_is_confirmed
 from os.path import dirname, join, realpath, isfile
 from app.forms import IndexerForm, ManualEntryForm
 
