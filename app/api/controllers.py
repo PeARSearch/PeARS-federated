@@ -8,7 +8,6 @@ from flask import Blueprint, jsonify, request
 import numpy as np
 from scipy.sparse import csr_matrix, vstack, save_npz, load_npz
 from os.path import dirname, join, realpath, basename
-from app.utils_db import create_or_update_pod
 from app.api.models import Urls, Pods
 from app import db, vocab, LANG, VEC_SIZE
 from app.indexer.posix import load_posix, dump_posix
@@ -52,7 +51,6 @@ def return_pod_delete(pod_name):
     print("Removing positional index")
     remove(join(pod_dir,pod_name+'.pos'))
     print("Reverting summary to 0")
-    create_or_update_pod(contributor, theme, lang, np.zeros(VEC_SIZE))
     db.session.delete(pod)
     db.session.commit()
 
@@ -99,8 +97,6 @@ def return_url_delete(path):
     dump_posix(new_posindex,pod_name)
 
     #Recompute pod summary
-    podsum = np.sum(pod_m, axis=0)
-    create_or_update_pod(contributor, theme, LANG, podsum)
     db.session.delete(u)
     db.session.commit()
     return "Deleted document with vector id"+str(vid)

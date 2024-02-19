@@ -104,10 +104,6 @@ def pod_from_json(pod, url):
 
 def create_or_update_pod(contributor, name, lang, podsum):
     '''If the pod does not exist, create it in the database.
-    Then get the urls corresponding to that pod and sum them.
-    If there is already a row in the podsum matrix for this pod 
-    ID, modify it. Otherwise, stack a new row. NB: if the pod has
-    been deleted, its row becomes stale and is set to zero.
     '''
     if contributor is not None:
         name = name+'.u.'+contributor
@@ -118,24 +114,5 @@ def create_or_update_pod(contributor, name, lang, podsum):
         p.description = name
         p.language = lang
         p.registered = True
-        p.DS_vector = str(len(db.session.query(Pods).all()))
         db.session.add(p)
         db.session.commit()
-    print("UPDATING SUMMARY POD")
-    p = db.session.query(Pods).filter_by(url=url).first()
-    print(podsum)
-    print(np.sum(podsum))
-    if np.sum(podsum) != 0: # check necessary for cases where pod has been deleted before
-        p.registered = True
-    p_idx = int(p.DS_vector)
-    pod_m = load_npz(join(pod_dir,'podsum.npz'))
-    print("--- current shape",pod_m.shape)
-    if pod_m.shape[0] >= p_idx + 1:
-        pod_m[p_idx] = podsum
-    else:
-        pod_m = vstack((pod_m, csr_matrix(podsum)))
-    print("--- new shape",pod_m.shape)
-    save_npz(join(pod_dir,'podsum.npz'),pod_m)
-    db.session.commit()
-
-

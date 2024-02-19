@@ -33,6 +33,7 @@ def index():
     contributions = []
     for i in db.session.query(Urls).filter_by(contributor='@'+username).all():
         contributions.append([i.url, i.title])
+    contributions = contributions[::-1] #reverse from most recent
     num_contributions = len(contributions)
 
     return render_template("settings/index.html", username=username, email=email, num_contributions=num_contributions, contributions=contributions, form=form)
