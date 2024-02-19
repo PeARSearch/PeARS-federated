@@ -19,12 +19,11 @@ def make_shareable_pod(theme):
     hfile = join(dir_path, "static", "pods", url_theme + ".pears.txt")
     f_out = open(hfile,'w')
     for url in Urls.query.filter(Urls.pod.contains(theme+'.u.')).all():
-        if not u.pod.startswith(theme+'.u.'):
+        if not url.pod.startswith(theme+'.u.'):
             continue
         trigger = ''
         if url.trigger is not None:
             trigger = url.trigger
-            
         urls.append([url.url,trigger])
         f_out.write(url.url+';'+theme+';'+LANG+';'+trigger+';;'+'\n')
     f_out.close()
