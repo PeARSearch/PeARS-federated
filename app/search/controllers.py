@@ -57,7 +57,8 @@ def index():
                 internal_message = file.read().replace('\n', '<br>')
         results = score_pages.run_search(query)
         if not results:
-            results = [{'url':None, 'title':None, 'snippet':'No pages found', 'doctype':None, 'notes':None, 'img':None, 'trigger':None, 'contributor':None}]
+            results = None
+            return render_template('search/results.html', query=query, results=results, own_brand=OWN_BRAND)
         for r in results:
             if r['doctype'] != 'csv' and r['doctype'] != 'doc':
                 r['snippet'] = ' '.join(r['snippet'].split()[:11]) #11 to conform with EU regulations

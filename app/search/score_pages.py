@@ -42,7 +42,6 @@ def score_experts(doc_idx,kwd):
     urls = bestURLs(DS_scores)
     return output(urls, 'ind')
 
-@timer
 def score(query, query_vector, tokenized, kwd, posindex):
     URL_scores = {}
     snippet_scores = {}
@@ -63,7 +62,6 @@ def score(query, query_vector, tokenized, kwd, posindex):
         #print("SNIPPET SCORE",u.url,snippet_scores[u.url])
     return DS_scores, completeness_scores, snippet_scores, posix_scores
 
-@timer
 def score_pods(query_vector, extended_q_vectors, lang):
     """Score pods for a query.
 
@@ -83,7 +81,7 @@ def score_pods(query_vector, extended_q_vectors, lang):
     """
     print(">> SEARCH: SCORE PAGES: SCORE PODS")
 
-    max_pods = 6 # How many pods to return
+    max_pods = 3 # How many pods to return
     quality_threshold = 0.01 # Minimum score for a pod to be considered okay
     pod_scores = {}
 
@@ -109,7 +107,9 @@ def score_pods(query_vector, extended_q_vectors, lang):
 
     #If all scores are rubbish, search entire pod collection (we're desperate!)
     if max(pod_scores.values()) < quality_threshold:
-        return list(pod_scores.keys())
+        print("\t>> Pods contain little information on this topic")
+        #return list(pod_scores.keys())
+        return []
     else:
         best_pods = []
         for k in sorted(pod_scores, key=pod_scores.get, reverse=True):

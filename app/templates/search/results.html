@@ -27,6 +27,13 @@ SPDX-License-Identifier: AGPL-3.0-only
   <div class="container">
     <div class="row">
       <div class="col-md-10">
+	{% if results == None %}
+	  <p><img src="{{ url_for('static', filename='sad_pears.png')}}" width="50px"/></p>
+	  <p>{{gettext('<b>No results found.</b><br> The reason for this could be that the topic of this PeARS instance is not aligned with your query. 
+	  It could also be that its index is still too small! We would be happy if you contributed to the index by adding your favourite URLs
+	  on your topic.')}}</p>
+	  <br><p>{{gettext('No account yet?')}} <a href={{url_for('auth.signup')}}>{{gettext('Sign up')}}</a></p>
+	{% else %}
         {% for result in results %}
         <div class="card mt-2">
           <div class="card-body">
@@ -60,6 +67,8 @@ SPDX-License-Identifier: AGPL-3.0-only
           {% endif %}
         </div>
         {% endfor %}
+        {% endif %}
+        </div>
       </div>
       <div class="col-sm-2 d-none d-md-block">
         {% if internal_message %}

@@ -3,7 +3,6 @@ from os.path import join, dirname, realpath
 from app import vocab
 from app.utils import timer
 
-@timer
 def load_posix(pod_name):
     dir_path = dirname(dirname(realpath(__file__)))
     posix_path = join(dir_path,'static','pods')
