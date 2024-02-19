@@ -43,7 +43,8 @@ def index():
             continue
         urls = []
         for u in Urls.query.filter(Urls.pod.contains(theme+'.u.')).all():
-            urls.append(u)
+            if u.pod.startswith(theme+'.u.'):
+                urls.append(u)
         pear = [theme, len(urls), pod_sig]
         pears.append(pear)
         recorded.append(theme) 
