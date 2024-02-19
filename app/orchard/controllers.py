@@ -42,7 +42,7 @@ def index():
         if theme in recorded: #don't record same theme several times
             continue
         urls = []
-        for u in Urls.query.filter(Urls.pod.contains(theme)).all():
+        for u in Urls.query.filter(Urls.pod.contains(theme+'.u.')).all():
             urls.append(u)
         pear = [theme, len(urls), pod_sig]
         pears.append(pear)

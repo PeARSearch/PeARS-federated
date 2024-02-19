@@ -7,6 +7,7 @@ from joblib import Parallel, delayed
 from urllib.parse import urlparse
 import re
 import math
+from glob import glob
 from pandas import read_csv
 from app.api.models import Urls, Pods
 from app import db, LANG, VEC_SIZE
@@ -62,6 +63,7 @@ def score(query, query_vector, tokenized, kwd, posindex):
         #print("SNIPPET SCORE",u.url,snippet_scores[u.url])
     return DS_scores, completeness_scores, snippet_scores, posix_scores
 
+@timer
 def score_pods(query_vector, extended_q_vectors, lang):
     """Score pods for a query.
 
@@ -86,7 +88,19 @@ def score_pods(query_vector, extended_q_vectors, lang):
     pod_scores = {}
 
     # Compute similarity of query to all pods
-    podsum = load_npz(join(pod_dir,'podsum.npz'))
+    #podsum = load_npz(join(pod_dir,'podsum.npz'))
+    podnames = []
+    podsum = []
+    npzs = glob(join(pod_dir,'*.u.*npz'))
+    for npz in npzs:
+        podname = npz.split('/')[-1].replace('.npz','')
+        s = np.sum(load_npz(npz).toarray(), axis=0)
+        #print(podname, np.sum(s), s)
+        if np.sum(s) > 0:
+            podsum.append(s)
+            podnames.append(podname)
+    podsum = csr_matrix(podsum)
+
     m_cosines = 1 - distance.cdist(query_vector, podsum.todense(), 'cosine')
 
     # Compute similarity of each extended query element to all pods
@@ -97,12 +111,17 @@ def score_pods(query_vector, extended_q_vectors, lang):
     # For each pod, retrieve cosine to query as well as overlap to extended query
     pods = db.session.query(Pods).filter_by(language=lang).filter_by(registered=True).all()
     for p in pods:
-        cosine_score = m_cosines[0][int(p.DS_vector)]
+        if p.name == 'Tips':
+            continue
+        cosine_score = m_cosines[0][podnames.index(p.name)]
+        #print(">> Exact matches:", p.name, cosine_score)
         if math.isnan(cosine_score):
             cosine_score = 0
         extended_score = 0
-        for m in extended_m_cosines:
-            extended_score += m[0][int(p.DS_vector)]
+        if cosine_score < quality_threshold: #No need to compute extended score if quality is reached
+            for m in extended_m_cosines:
+                extended_score += m[0][podnames.index(p.name)]
+            #print(">> Extended matches:", p.name, extended_score)
         pod_scores[p.name] = cosine_score + extended_score
 
     #If all scores are rubbish, search entire pod collection (we're desperate!)
@@ -347,6 +366,7 @@ def run_search(q:str):
         scores = parallel(delayed_funcs)
     for dic in scores:
         document_scores.update(dic)
+    #print("DOCUMENT SCORES 1",document_scores)
 
     # Compute results for extended query
     extended_document_scores = {}
@@ -355,10 +375,10 @@ def run_search(q:str):
         scores = parallel(delayed_funcs)
     for dic in scores:
         extended_document_scores.update(dic)
+    #print("DOCUMENT SCORES 2",extended_document_scores)
+    #print(set(extended_document_scores.keys())-set(document_scores.keys()))
 
     # Merge
-    #print("DOCUMENT SCORES 1",document_scores)
-    #print("DOCUMENT SCORES 2",extended_document_scores)
     merged_scores = document_scores.copy()
     for k,v in extended_document_scores.items():
         if k in document_scores:
