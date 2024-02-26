@@ -96,7 +96,7 @@ def return_url_delete(path):
         new_posindex.append(tmp)
     dump_posix(new_posindex,pod_name)
 
-    #Recompute pod summary
+    #Delete from database
     db.session.delete(u)
     db.session.commit()
     return "Deleted document with vector id"+str(vid)
