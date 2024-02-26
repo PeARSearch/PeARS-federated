@@ -5,7 +5,7 @@
 import re
 import numpy as np
 import string
-from app import db, ftcos, VEC_SIZE, SPM_DEFAULT_MODEL_PATH
+from app import db, vocab, logprobs, ftcos, VEC_SIZE, SPM_DEFAULT_MODEL_PATH
 from app.api.models import Urls, installed_languages, sp
 from app.indexer.htmlparser import extract_html
 from app.indexer.pdfparser import extract_txt
@@ -22,7 +22,8 @@ def tokenize_text(lang, text):
     sp.load(SPM_DEFAULT_MODEL_PATH)
     tokens = [wp for wp in sp.encode_as_pieces(text.lower())]
     text = ' '.join([wp for wp in sp.encode_as_pieces(text.lower())])
-    #print("TOKENIZED",text)
+    print("TOKENIZED",text)
+    print([(t, logprobs[vocab[t]]) for t in text.split()])
     return text
 
 
