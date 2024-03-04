@@ -4,7 +4,6 @@
 
 from app import db
 from flask_login import UserMixin
-from app.utils import convert_to_array
 import numpy as np
 import configparser
 import joblib
