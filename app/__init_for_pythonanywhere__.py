@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2023 PeARS Project, <community@pearsproject.org> 
+# SPDX-FileCopyrightText: 2024 PeARS Project, <community@pearsproject.org> 
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
@@ -297,10 +297,13 @@ def set_admin(username):
     db.session.commit()
     print(username,"is now admin.")
 
-from app.indexer.controllers import progress_file
+
+from app.indexer.controllers import run_indexer_url
 @app.cli.command('index')
-def index():
-    '''Index from the app/urls_to_index.txt file'''
-    progress_file() 
+@click.argument('contributor')
+@click.argument('path')
+def index(contributor, filepath):
+    '''Index from a manual created url file'''
+    run_indexer_url(contributor, filepath) 
 
 from app import errors

@@ -44,8 +44,13 @@ def request_url(url):
     req = None
     errs = []
     headers = {'User-Agent': 'PeARSbot/0.1 (+https://www.pearsproject.org/)'}
-    #try:
-    req = requests.head(url, timeout=10, headers=headers)
+    try:
+        req = requests.head(url, timeout=30, headers=headers)
+    except:
+        error = "ERROR: request_url: request timed out."
+        print("\t>>",error)
+        errs.append(error)
+        return access, req, errs
     if req.status_code >= 400:
         error = "ERROR: request_url: status code is "+str(req.status_code)
         print("\t>>",error)

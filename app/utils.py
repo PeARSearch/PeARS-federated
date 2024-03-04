@@ -1,44 +1,49 @@
-# SPDX-FileCopyrightText: 2023 PeARS Project, <community@pearsproject.org> 
+# SPDX-FileCopyrightText: 2024 PeARS Project, <community@pearsproject.org> 
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-import joblib
-import logging
+from os.path import dirname, join, realpath
 import re
-import requests
-
 from time import time
-from bs4 import BeautifulSoup
 from math import sqrt
-import numpy as np
 from urllib.parse import urljoin
+import requests
+import numpy as np
 from scipy.spatial import distance
-from scipy.sparse import csr_matrix, save_npz
-from os.path import dirname, join, realpath, isfile
-from pathlib import Path
-from app import VEC_SIZE, LANG, vocab
+from app import LANG
 
 dir_path = dirname(realpath(__file__))
 
 def read_language_codes():
-    dir_path = dirname(dirname(realpath(__file__)))
-    ling_dir = join(dir_path,'app','static','ling')
-    LANGUAGE_CODES = {}
-    with open(join(ling_dir,'language_codes.txt'),'r') as f:
+    """ Read language code information from static/ling 
+    directory. This give mappings between actual language
+    codes and the language names used in stopword lists.
+    """
+    ling_dir = join(dir_path,'static','ling')
+    language_codes = {}
+    with open(join(ling_dir,'language_codes.txt'),'r', encoding="utf-8") as f:
         for l in f:
             fields = l.rstrip('\n').split(';')
-            LANGUAGE_CODES[fields[0]] = fields[1]
-    return LANGUAGE_CODES
+            language_codes[fields[0]] = fields[1]
+    return language_codes
+
 
 def read_stopwords(lang):
-    dir_path = dirname(dirname(realpath(__file__)))
-    ling_dir = join(dir_path,'app','static','ling','stopwords')
-    STOPWORDS = []
-    with open(join(ling_dir,lang),'r') as f:
-        STOPWORDS = f.read().splitlines()
-    return STOPWORDS
+    """ Read stopword list for a given language."""
+    ling_dir = join(dir_path,'static','ling','stopwords')
+    stopwords = []
+    with open(join(ling_dir,lang),'r', encoding="utf-8") as f:
+        stopwords = f.read().splitlines()
+    return stopwords
 
-def _extract_url_and_kwd(line):
+
+def _extract_url_info(line):
+    """ Helper function. Takes one line from
+    the .suggestions file, parse it and return all 
+    relevant info (url, theme, language, trigger, 
+    contributor). Throws an error if the file has 
+    the wrong format.
+    """
     try:
         url, kwd, lang, trigger, contributor = line.rstrip('\n').split(';')
         #In case keyword or lang is not given, go back to defaults
@@ -48,20 +53,25 @@ def _extract_url_and_kwd(line):
             lang = LANG
         return url, kwd, lang, trigger, contributor
     except:
-        print("ERROR: urls_to_index.txt does not have the right format.")
+        print(">> UTILS: _EXTRACT_URL_INFO: ERROR: .suggestions file does not have the right format.")
         return None
 
 
-def readUrls(url_file):
+def read_urls(url_file):
+    """Read .suggestions file from a particular user.
+    The file is located in static/userdata/ and contains
+    one URL per line. This parses the line and returns 
+    all relevant information for each URL.
+    """
     urls = []
     keywords = []
     langs = []
     triggers = []
     contributors = []
     errors = False
-    with open(url_file) as fd:
+    with open(url_file, 'r', encoding="utf-8") as fd:
         for line in fd:
-            matches = _extract_url_and_kwd(line)
+            matches = _extract_url_info(line)
             if matches:
                 urls.append(matches[0])
                 keywords.append(matches[1])
@@ -72,7 +82,11 @@ def readUrls(url_file):
                 errors = True
     return urls, keywords, langs, triggers, contributors, errors
 
-def readDocs(doc_file):
+def read_docs(doc_file):
+    """ Read document file in <doc></doc> format.
+    In PeARS Federated, used to index the information
+    provided by users (offline, not on the Web).
+    """
     urls = []
     with open(doc_file) as df:
         for l in df:
@@ -87,95 +101,11 @@ def readDocs(doc_file):
     return urls
 
 
-def readBookmarks(bookmark_file, keyword):
-    print("READING BOOKMARKS")
-    urls = []
-    bs_obj = BeautifulSoup(open(bookmark_file), "html.parser")
-    dt = bs_obj.find_all('dt')
-    tag =''
-    for i in dt:
-        n = i.find_next()
-        if n.name == 'h3':
-            tag = n.text
-            continue
-        else:
-            if tag.lower() == keyword.lower():
-                print(f'url = {n.get("href")}')
-                print(f'website name = {n.text}')
-                urls.append(n.get("href"))
-    return urls
-
-
-def readPods(pod_file):
-    pods = []
-    f = open(pod_file, 'r')
-    for line in f:
-        line = line.rstrip('\n')
-        pods.append(line)
-    f.close()
-    return pods
-
-
-def init_pod(contributor, theme):
-    dir_path = dirname(dirname(realpath(__file__)))
-    pod_dir = join(dir_path,'app', 'static','pods')
-    pod_path = join(pod_dir,theme+'.u.'+contributor)
-    if not isfile(pod_path+'.npz'):
-        print("Making 0 CSR matrix for new pod")
-        pod = np.zeros((1,VEC_SIZE))
-        pod = csr_matrix(pod)
-        save_npz(pod_path+'.npz', pod)
-    
-    if not isfile(pod_path+'.pos'):
-        print("Making empty positional index for new pod")
-        posindex = [{} for _ in range(len(vocab))]
-        joblib.dump(posindex, pod_path+'.pos')
-
-def init_podsum():
-    dir_path = dirname(dirname(realpath(__file__)))
-    pod_dir = join(dir_path,'app','static','pods')
-    Path(pod_dir).mkdir(exist_ok=True, parents=True)
-    print("Making 0 CSR matrix for pod summaries")
-    print("POD DIR",pod_dir)
-    pod_summaries = np.zeros((1,VEC_SIZE))
-    pod_summaries = csr_matrix(pod_summaries)
-    save_npz(join(pod_dir,"podsum.npz"), pod_summaries)
-
-
 def normalise(v):
     norm = np.linalg.norm(v)
     if norm == 0:
         return v
     return v / norm
-
-
-def convert_to_string(vector):
-    s = ' '.join(str(i) for i in vector)
-    return(s)
-
-
-def convert_to_array(vector):
-    # for i in vector.rstrip(' ').split(' '):
-    #    print('#',i,float(i))
-    return np.array([float(i) for i in vector.split()])
-
-
-def convert_dict_to_string(dic):
-    s = ""
-    for k, v in dic.items():
-        s += k + ':' + str(v) + ' '
-    return s
-
-
-def convert_string_to_dict(s):
-    d = {}
-    els = s.rstrip(' ').split()
-    for e in els:
-        if ':' in e:
-            pair = e.split(':')
-            if pair[0] != "" and pair[1] != "":
-                d[pair[0]] = pair[1]
-    return d
 
 
 def cosine_similarity(v1, v2):
@@ -213,7 +143,7 @@ def sim_to_matrix(dm_dict, vec, n):
             cos = cosine_similarity(vec, v)
             cosines[k] = cos
             c += 1
-        except Exception:
+        except:
             pass
     c = 0
     neighbours = []
@@ -231,11 +161,10 @@ def sim_to_matrix(dm_dict, vec, n):
 def sim_to_matrix_url(url_dict, vec, n):
     cosines = {}
     for k, v in url_dict.items():
-        logging.exception(v.url)
         try:
             cos = cosine_similarity(vec, v.vector)
             cosines[k] = cos
-        except Exception:
+        except:
             pass
     c = 0
     neighbours = []
@@ -284,7 +213,6 @@ def parse_query(query):
         doctype = 'doc'
     print(clean_query, doctype)
     return clean_query, doctype, lang
-
 
 
 def beautify_title(title, doctype):

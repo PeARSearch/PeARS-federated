@@ -1,118 +1,113 @@
-# SPDX-FileCopyrightText: 2023 PeARS Project, <community@pearsproject.org> 
+# SPDX-FileCopyrightText: 2024 PeARS Project, <community@pearsproject.org> 
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
+from os.path import dirname, realpath, join, isfile
 import joblib
-from app import db, VEC_SIZE
-from app.api.models import Urls, Pods
-from app.api.models import installed_languages
-from app.utils import convert_to_array, convert_string_to_dict, convert_to_string, normalise
-from app.indexer.mk_page_vector import compute_query_vectors
 import numpy as np
-from os.path import dirname, realpath, join
-from scipy.sparse import csr_matrix, vstack, save_npz, load_npz
+from scipy.sparse import csr_matrix, save_npz
+from app import db, vocab, VEC_SIZE
+from app.api.models import Urls, Pods
 
 dir_path = dirname(dirname(realpath(__file__)))
 pod_dir = join(dir_path,'app','static','pods')
 
-def get_db_url_vector(url):
-    url_vec = Urls.query.filter(Urls.url == url).first().vector
-    return url_vec
+
+def create_idx_to_url(contributor):
+    """ Doc ID to URL table initialisation.
+    This happens once when the user indexes
+    for the first time.
+    """
+    # One idx to url dictionary per user
+    user_path = join(pod_dir, contributor+'.idx')
+    if not isfile(user_path):
+        print("Making idx dictionaries for new user.")
+        idx_to_url = [[],[]]
+        joblib.dump(idx_to_url, user_path)
 
 
-def get_db_url_snippet(url):
-    url_snippet = Urls.query.filter(Urls.url == url).first().snippet
-    return url_snippet
+def create_pod_npz_pos(contributor, theme):
+    """ Pod npz and pos initialisation.
+    This happens when the user indexes for the 
+    first time under a specific theme.
+    """
+    pod_path = join(pod_dir, theme+'.u.'+contributor )
+    if not isfile(pod_path+'.npz'):
+        print("Making 0 CSR matrix for new pod")
+        pod = np.zeros((1,VEC_SIZE))
+        pod = csr_matrix(pod)
+        save_npz(pod_path+'.npz', pod)
+
+    if not isfile(pod_path+'.pos'):
+        print("Making empty positional index for new pod")
+        posindex = [{} for _ in range(len(vocab))]
+        joblib.dump(posindex, pod_path+'.pos')
+
+    if not isfile(pod_path+'.npz.idx'):
+        print("Making idx dictionaries for new pod")
+        # Lists of lists to make deletions easier
+        npz_to_idx = [[0],[-1]] # For row 0 of the matrix
+        joblib.dump(npz_to_idx, pod_path+'.npz.idx')
 
 
-def get_db_url_title(url):
-    url_title = Urls.query.filter(Urls.url == url).first().title
-    return url_title
-
-
-def get_db_url_doctype(url):
-    url_doctype = Urls.query.filter(Urls.url == url).first().doctype
-    return url_doctype
-
-
-def get_db_url_notes(url):
-    url_notes = Urls.query.filter(Urls.url == url).first().notes
-    return url_notes
-
-
-def get_db_pod_name(url):
-    pod_name = Pods.query.filter(Pods.url == url).first().name
-    return pod_name
-
-
-def get_db_url_pod(url):
-    url_pod = Urls.query.filter(Urls.url == url).first().pod
-    return url_pod
-
-
-def get_db_pod_description(url):
-    pod_description = Pods.query.filter(Pods.url == url).first().description
-    return pod_description
-
-
-def get_db_pod_language(url):
-    pod_language = Pods.query.filter(Pods.url == url).first().language
-    return pod_language
-
-
-def compute_pod_summary(name):
-    '''This function is very similar to 'self' in PeARS-pod'''
-    DS_vector = np.zeros(VEC_SIZE) 
-    #DS_vector = np.zeros(256) 
-    for u in db.session.query(Urls).filter_by(pod=name).all():
-        DS_vector += convert_to_array(u.vector)
-    DS_vector = convert_to_string(normalise(DS_vector))
-    c = 0
-    return DS_vector
-
-
-def url_from_json(url, pod):
-    # print(url)
-    if not db.session.query(Urls).filter_by(url=url['url']).all():
-        u = Urls(url=url['url'])
-        u.url = url['url']
-        u.title = url['title']
-        u.vector = url['vector']
-        u.freqs = url['freqs']
-        u.snippet = url['snippet']
-        u.doctype = url['doctype']
-        u.pod = pod
-        db.session.add(u)
-        db.session.commit()
-
-
-def pod_from_json(pod, url):
-    if not db.session.query(Pods).filter_by(url=url).all():
-        p = Pods(url=url)
-        db.session.add(p)
-        db.session.commit()
-    p = Pods.query.filter(Pods.url == url).first()
-    p.name = pod['name']
-    p.description = pod['description']
-    p.language = pod['language']
-    p.DS_vector = pod['DSvector']
-    p.word_vector = pod['wordvector']
-    if not p.registered:
-        p.registered = False
-    db.session.commit()
-
-
-def create_or_update_pod(contributor, name, lang, podsum):
+def create_pod_in_db(contributor, theme, lang):
     '''If the pod does not exist, create it in the database.
     '''
     if contributor is not None:
-        name = name+'.u.'+contributor
-    url = "http://localhost:8080/api/pods/" + name.replace(' ', '+')
+        theme = theme+'.u.'+contributor
+    url = "http://localhost:8080/api/pods/" + theme.replace(' ', '+')
     if not db.session.query(Pods).filter_by(url=url).all():
         p = Pods(url=url)
-        p.name = name
-        p.description = name
+        p.name = theme
+        p.description = theme
         p.language = lang
         p.registered = True
         db.session.add(p)
         db.session.commit()
+
+def add_to_idx_to_url(contributor, url):
+    """Add an entry to the IDX to URL map.
+    Arguments: username, url.
+    Return: the newly create IDX for this url.
+    """
+    pod_path = join(pod_dir, contributor+'.idx')
+    idx_to_url = joblib.load(pod_path)
+    idx = len(idx_to_url[0])
+    idx_to_url[0].append(idx)
+    idx_to_url[1].append(url)
+    joblib.dump(idx_to_url, pod_path)
+    return idx
+
+def add_to_npz_to_idx(pod_name, vid, idx):
+    """Record the ID of the document given
+    its position in the npz matrix.
+    NB: the lists do not have to be in the
+    order of the matrix.
+    """
+    pod_path = join(pod_dir, pod_name+'.npz.idx')
+    npz_to_idx = joblib.load(pod_path)
+    npz_to_idx[0].append(vid)
+    npz_to_idx[1].append(idx)
+    joblib.dump(npz_to_idx, pod_path)
+
+def create_or_replace_url_in_db(url, title, snippet, theme, lang, trigger, contributor, entry_type):
+    """Add a new URL to the database or update it.
+    Arguments: url, title, snippet, theme, language,
+    trigger warning, username, type (url or doc).
+    """
+    cc = False
+    entry = db.session.query(Urls).filter_by(url=url).first()
+    if entry:
+        u = db.session.query(Urls).filter_by(url=url).first()
+    else:
+        u = Urls(url=url)
+    u.title = title
+    u.snippet = snippet
+    u.pod = theme+'.u.'+contributor
+    u.language = lang
+    u.trigger = trigger
+    u.contributor = contributor
+    u.doctype = entry_type
+    u.cc = cc
+    db.session.add(u)
+    db.session.commit()

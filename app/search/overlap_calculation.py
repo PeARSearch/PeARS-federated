@@ -39,6 +39,17 @@ def generic_overlap(q, s):
     #print(list(set(q_words) & set(s_words)))
     return len(list(set(q_words) & set(s_words))) / len(set(q_words))
 
+def snippet_overlap(q, s):
+    '''Overlap between words in query and any part of snippet string'''
+    score = 0
+    q = "".join(l if l not in string.punctuation else ' ' for l in q.lower())
+    q_words = q.split()
+    for w in q_words:
+        if w in s:
+            score+=1
+    return score
+
+
 def dice_overlap(i1, i2):
     '''Dice coefficient between two strings'''
     i1 = "".join(l for l in i1 if l not in string.punctuation)
@@ -121,8 +132,7 @@ def posix_score_seq(posl, enforce_subwords=True):
     else:
         return np.max(scores)  # meaning: 1.0 if there is at least one pair of tokens that is consecutive both in the query and in the document. Otherwise a fraction of this. 
 
-def posix(q, pod_name, posindex):
-    #print(q.split())
+def posix(q, posindex):
     query_vocab_ids = [vocab.get(wp) for wp in q.split()]
     if any([i is None for i in query_vocab_ids]):
         print("WARNING: there were unknown tokens in the query")
@@ -157,16 +167,18 @@ def posix(q, pod_name, posindex):
     return doc_scores
 
 
-def posix_no_seq(q, pod_name, posindex):
-    #print(q.split())
+def posix_no_seq(q, posindex):
     query_vocab_ids = [vocab.get(wp) for wp in q.split()]
     if any([i is None for i in query_vocab_ids]):
         print("WARNING: there were unknown tokens in the query")
-        print(q.split(), query_vocab_ids)
+        #print(q.split(), query_vocab_ids)
         query_vocab_ids = [i for i in query_vocab_ids if i is not None]
 
     idx = []
     for w in query_vocab_ids:                      # for each token in query
-        idx.extend(list(set(posindex[w].keys())))        # get docs containing token, resulting in list of sets (one set per token)
-
+        docs = list(posindex[w].keys())
+        if len(docs) > 0:
+            idx.extend(docs)        # get docs containing token, resulting in list of sets (one set per token)
+            #print(inverted_vocab.get(w),list(set(posindex[w].keys())))
+    idx = list(set(idx))
     return idx

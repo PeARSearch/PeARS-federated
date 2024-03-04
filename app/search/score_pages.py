@@ -1,23 +1,21 @@
-# SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>, 
+# SPDX-FileCopyrightText: 2024 PeARS Project, <community@pearsproject.org>, 
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-import re
-import math
-import multiprocessing
-from glob import glob
-from urllib.parse import urlparse
 from os.path import dirname, join, realpath
+import math
+from itertools import islice
+from urllib.parse import urlparse
+from glob import glob
+import joblib
 from joblib import Parallel, delayed
-from pandas import read_csv
-from scipy.sparse import csr_matrix, load_npz
+from scipy.sparse import load_npz
 from scipy.spatial import distance
 import numpy as np
-from app.api.models import Urls, Pods
 from app import db
-
-from app.search.overlap_calculation import (generic_overlap, 
-        score_url_overlap, completeness, posix, posix_no_seq)
+from app.api.models import Urls
+from app.search.overlap_calculation import (snippet_overlap,
+        score_url_overlap, posix, posix_no_seq)
 from app.utils import parse_query, timer
 from app.indexer.mk_page_vector import compute_query_vectors
 from app.indexer.posix import load_posix
@@ -26,31 +24,130 @@ dir_path = dirname(dirname(realpath(__file__)))
 pod_dir = join(dir_path,'static','pods')
 raw_dir = join(dir_path,'static','userdata')
 
+def intersect_best_pods_lists(query_vectors, podsum, podnames):
+    """ Iterate through each word in the query (a vector of tokens)
+    and compute the best 5 pods for that word. Then intersect all
+    lists and return the best pods, together with their scores."""
+    tmp_best_pods = []
+    m_cosines = []
+    for query_vector in query_vectors:
+        cos = 1 - distance.cdist(query_vector, podsum, 'cosine')
+        idx = np.argsort(cos, axis=1)[:,-5:][0][::-1]
+        tmp_best_pods.append(idx)
+        m_cosines.append(cos[0])
+    m_cosines = np.array(m_cosines)
+    q_best_pods = set.intersection(*map(set,tmp_best_pods))
+    if len(q_best_pods) == 0:
+        q_best_pods = set.union(*map(set,tmp_best_pods))
+    best_pods = {}
+    for p in q_best_pods:
+        podname = podnames[p]
+        podscore = np.sum(m_cosines.T[p])
+        best_pods[podname] = podscore
+    best_pods = dict(sorted(best_pods.items(), key=lambda item: item[1], reverse=True))
+    best_pods = dict(islice(best_pods.items(), 3))
+    return best_pods
+
+
+def intersect_best_cos_lists(query_vectors, pod_m):
+    """ Iterate through each word in the query (a vector of tokens)
+    and compute the best 100 docs for that word using cosine distance. 
+    Then intersect all lists and return the best docs, together with 
+    their scores."""
+    tmp_best_docs = []
+    m_cosines = []
+    for query_vector in query_vectors:
+        cos = 1 - distance.cdist(query_vector, pod_m, 'cosine')
+        idx = np.argsort(cos, axis=1)[:,-100:][0][::-1]
+        tmp_best_docs.append(idx)
+        m_cosines.append(cos[0])
+    m_cosines = np.array(m_cosines)
+    q_best_docs = set.intersection(*map(set,tmp_best_docs))
+    if len(q_best_docs) == 0:
+        q_best_docs = set.union(*map(set,tmp_best_docs))
+    best_docs = {}
+    for d in q_best_docs:
+        docscore = np.mean(m_cosines.T[d])
+        best_docs[d] = docscore
+    return best_docs
+
+def intersect_best_posix_lists(query_tokenized, posindex):
+    tmp_best_docs = []
+    posix_scores = {}
+    # Loop throught the token list corresponding to each word
+    for word_tokens in query_tokenized:
+        scores = posix(' '.join(word_tokens), posindex)
+        tmp_best_docs.append(list(scores.keys()))
+        for k,v in scores.items():
+            if k in posix_scores:
+                posix_scores[k].append(v)
+            else:
+                posix_scores[k] = [v]
+    q_best_docs = set.intersection(*map(set,tmp_best_docs))
+    if len(q_best_docs) == 0:
+        q_best_docs = set.union(*map(set,tmp_best_docs))
+    best_docs = {}
+    for d in q_best_docs:
+        docscore = np.mean(posix_scores[d])
+        best_docs[d] = docscore
+    return best_docs
+
+
 
 @timer
-def compute_scores(query, query_vector, tokenized, theme, posindex):
+def compute_scores(query, query_vectors, query_tokenized, pod_name, posindex):
     """Compute different scores for a query
+    Arguments:
+    query: the original query
+    query_vectors: a list of vectors, one vector per word in the
+    query (because each word has several tokens)
+    query_tokenized: a list of lists of tokens, one list per word.
+    pod_name: the pod we are scoring against
+    posindex: the positional index for that pod
     """
-    url_scores = {}
-    snippet_scores = {}
     vec_scores = {}
-    completeness_scores = {}
-    posix_scores = posix(tokenized, theme, posindex)
+    pod_m = load_npz(join(pod_dir, pod_name+'.npz'))
 
-    pod_m = load_npz(join(pod_dir,theme+'.npz'))
-    m_cosines = 1 - distance.cdist(query_vector, pod_m.todense(), 'cosine')
-    m_completeness = completeness(query_vector, pod_m.todense())
+    # Compute score of each document for each word
+    best_cos_docs = intersect_best_cos_lists(query_vectors, pod_m.todense())
+    best_posix_docs = intersect_best_posix_lists(query_tokenized, posindex)
 
-    for u in db.session.query(Urls).filter_by(pod=theme).all():
-        vec_scores[u.url] = m_cosines[0][int(u.vector)]
-        completeness_scores[u.url] = m_completeness[0][int(u.vector)]
-        url_scores[u.url] = score_url_overlap(query, u.url)
-        snippet_scores[u.url] = generic_overlap(query, u.title+' '+u.snippet)
-        #snippet_scores[u.url] = generic_overlap(query, u.title)
-        #print("SNIPPET SCORE",u.url,snippet_scores[u.url])
-    return vec_scores, completeness_scores, snippet_scores, posix_scores
+    username = pod_name.split('.u.')[1]
+    idx_to_url = joblib.load(join(pod_dir, username+'.idx'))
+    npz_to_idx = joblib.load(join(pod_dir, pod_name+'.npz.idx'))
 
-def score_pods(query_vector, extended_q_vectors, lang):
+    for i in range(pod_m.shape[0]):
+        cos = best_cos_docs.get(i,0)
+        if  cos == 0 or math.isnan(cos):
+            continue
+        #Get doc idx for row i of the matrix
+        idx = npz_to_idx[1][i]
+        #Get list position of doc idx in idx_to_url
+        lspos = idx_to_url[0].index(idx)
+        #Retrieve corresponding URL
+        url = idx_to_url[1][lspos]
+        vec_scores[url] = cos
+
+    return vec_scores, best_posix_docs
+
+
+def mk_podsum_matrix():
+    """ Make the podsum matrix, i.e. a matrix
+    with each row corresponding to the sum of 
+    all documents in a given pod."""
+    podnames = []
+    podsum = []
+    npzs = glob(join(pod_dir,'*.u.*npz'))
+    for npz in npzs:
+        podname = npz.split('/')[-1].replace('.npz','')
+        s = np.sum(load_npz(npz).toarray(), axis=0)
+        #print(podname, np.sum(s), s)
+        if np.sum(s) > 0:
+            podsum.append(s)
+            podnames.append(podname)
+    return podnames, podsum
+
+def score_pods(query_vectors, extended_q_vectors, lang):
     """Score pods for a query.
 
     We score pods with respect to the original query as well as the extended
@@ -70,50 +167,19 @@ def score_pods(query_vector, extended_q_vectors, lang):
     print(">> SEARCH: SCORE PAGES: SCORE PODS")
 
     max_pods = 3 # How many pods to return
-    quality_threshold = 0.01 # Minimum score for a pod to be considered okay
+    quality_threshold = 0.05 # Minimum score for a pod to be considered okay
     pod_scores = {}
+    podnames, podsum = mk_podsum_matrix()
 
-    # Compute similarity of query to all pods
-    #podsum = load_npz(join(pod_dir,'podsum.npz'))
-    podnames = []
-    podsum = []
-    npzs = glob(join(pod_dir,'*.u.*npz'))
-    for npz in npzs:
-        podname = npz.split('/')[-1].replace('.npz','')
-        s = np.sum(load_npz(npz).toarray(), axis=0)
-        #print(podname, np.sum(s), s)
-        if np.sum(s) > 0:
-            podsum.append(s)
-            podnames.append(podname)
-    podsum = csr_matrix(podsum)
+    # For each word in the query, compute best pods
+    pod_scores = intersect_best_pods_lists(query_vectors, podsum, podnames)
+    print("MAX",max(pod_scores.values()))
 
-    m_cosines = 1 - distance.cdist(query_vector, podsum.todense(), 'cosine')
-
-    # Compute similarity of each extended query element to all pods
-    extended_m_cosines = []
-    for nns_vector in extended_q_vectors:
-        extended_m_cosines.append(1 - distance.cdist(nns_vector, podsum.todense(), 'cosine'))
-
-    # For each pod, retrieve cosine to query as well as overlap to extended query
-    pods = db.session.query(Pods).filter_by(language=lang).filter_by(registered=True).all()
-    for p in pods:
-        cosine_score = m_cosines[0][podnames.index(p.name)]
-        print(">> Exact matches:", p.name, cosine_score)
-        if math.isnan(cosine_score):
-            cosine_score = 0
-        extended_score = 0
-        #No need to compute extended score if quality is reached
-        if cosine_score < quality_threshold:
-            for m in extended_m_cosines:
-                extended_score += m[0][podnames.index(p.name)]
-            #print(">> Extended matches:", p.name, extended_score)
-        pod_scores[p.name] = cosine_score + extended_score
-
-    #If all scores are rubbish, search entire pod collection (we're desperate!)
     if max(pod_scores.values()) < quality_threshold:
-        print("\t>> Pods contain little information on this topic")
-        #return list(pod_scores.keys())
-        return []
+        # Compute similarity of each extended query element to all pods
+        pod_scores = intersect_best_pods_lists(extended_q_vectors, podsum, podnames)
+        print("MAX",max(pod_scores.values()))
+
     best_pods = []
     for k in sorted(pod_scores, key=pod_scores.get, reverse=True):
         if len(best_pods) < max_pods:
@@ -124,45 +190,57 @@ def score_pods(query_vector, extended_q_vectors, lang):
     return best_pods
 
 
-def score_docs(query, query_vector, tokenized, pod, posindex):
-    '''Score documents for a query'''
-    print(">> INFO: SEARCH: SCORE_PAGES: SCORES_DOCS",pod)
+def score_docs(query, query_vectors, query_tokenized, pod_name, posindex):
+    """Score documents for a query.
+    Arguments:
+    query: the original query
+    query_vectors: a list of lists of vectors, one list per word in the
+    query (because each word has several tokens)
+    query_tokenized: a list of lists of tokens, one list per word.
+    pod_name: the pod we are scoring against
+    posindex: the positional index for that pod
+    """
+    print(">> INFO: SEARCH: SCORE_PAGES: SCORES_DOCS", pod_name)
     document_scores = {}  # Document scores
-    vec_scores, completeness_scores, snippet_scores, posix_scores = \
-            compute_scores(query, query_vector, tokenized, pod, posindex)
-    #if len(posix_scores) != 0:
-    #    print("POSIX SCORES",posix_scores)
+    vec_scores, posix_scores = \
+            compute_scores(query, query_vectors, query_tokenized, pod_name, posindex)
+    username = pod_name.split('.u.')[1]
+    idx_to_url = joblib.load(join(pod_dir, username+'.idx'))
     for url in list(vec_scores.keys()):
-        document_score = 0.0
-        #We assume a url can only belong to one pod
-        idx = db.session.query(Urls).filter_by(url=url).first().vector
-        document_score = posix_scores.get(idx,0)
-        document_score = document_score + completeness_scores[url] + snippet_scores[url]
-        if snippet_scores[url] > 0:
-            document_score+=snippet_scores[url]*10 #bonus points
-        if math.isnan(document_score):
-            document_score = 0
-        if document_score > 0:
-            #print(url, vec_scores[url], completeness_scores[url], posix_scores.get(idx,0), snippet_scores[url])
-            document_scores[url] = document_score
+        i = idx_to_url[1].index(url)
+        idx = idx_to_url[0][i]
+        document_scores[url] = posix_scores.get(idx, 0)
+        print(">>>",url, "VEC", vec_scores[url], "POSIX",document_scores[url])
+        if math.isnan(document_scores[url]):
+            document_scores[url] = 0
+        else:
+            u = db.session.query(Urls).filter_by(url=url).first()
+            #print(url, u.title+' '+u.snippet)
+            snippet_score = snippet_overlap(query, u.title+' '+u.snippet)
+            if snippet_score > 0:
+                snippet_score = snippet_score*10 #push up the urls with matches in title or snippet
+            document_scores[url]+=snippet_score
+            print(url, vec_scores[url], posix_scores.get(idx,0), snippet_score, " ||| GRAND SCORE:", document_scores[url])
     return document_scores
 
-def score_docs_extended(extended_q_tokenized, pod, posindex):
+def score_docs_extended(extended_q_tokenized, pod_name, posindex):
     '''Score documents for an extended query, using posix scoring only'''
-    print(">> INFO: SEARCH: SCORE_PAGES: SCORES_DOCS_EXTENDED",pod)
+    print(">> INFO: SEARCH: SCORE_PAGES: SCORES_DOCS_EXTENDED",pod_name)
     document_scores = {}  # Document scores
+    username = pod_name.split('.u.')[1]
+    idx_to_url = joblib.load(join(pod_dir, username+'.idx'))
     for w_tokenized in extended_q_tokenized:
         #print("W TOKENIZED",w_tokenized)
         # Keep a list of urls already increment by 1, we don't want
         # to score several times within the same neighbourhood
         urls_incremented = []
-        matching_docs = posix_no_seq(' '.join(w_tokenized), pod, posindex)
+        matching_docs = posix_no_seq(' '.join(w_tokenized), posindex)
         #print("MATCHING DOCS", matching_docs)
         for v in matching_docs:
-            #We assume a url can only belong to one pod
-            url = db.session.query(Urls).filter_by(pod=pod).filter_by(vector=v).first()
-            if url:
-                url = url.url
+            i = idx_to_url[0].index(v)
+            url = idx_to_url[1][i]
+            u = db.session.query(Urls).filter_by(pod=pod_name).filter_by(url=url).first()
+            if u:
                 if url not in urls_incremented:
                     if url in document_scores:
                         document_scores[url] += 1
@@ -193,104 +271,6 @@ def return_best_urls(doc_scores):
             break
     #print("BEST URLS",best_urls)
     return best_urls
-
-
-def aggregate_csv(best_urls):
-    urls = list([u for u in best_urls if '.csv#' not in u])
-    print("AGGREGATE URLS:",urls)
-    csvs = []
-    csv_names = list([re.sub('#.*','',u) for u in best_urls if '.csv#' in u])
-    csv_names_set_preserved_order = []
-    for c in csv_names:
-        if c not in csv_names_set_preserved_order:
-            csv_names_set_preserved_order.append(c)
-    print("AGGREGATE CSV NAMES:",csv_names_set_preserved_order)
-    for csv_name in csv_names_set_preserved_order:
-        rows = [re.sub('.*\[','',u)[:-1] for u in best_urls if csv_name in u]
-        first_url = ''
-        for u in best_urls:
-            if csv_name in u:
-                first_url = u
-                break
-        csvs.append([csv_name, first_url, rows])
-        print(rows)
-    return urls, csvs
-
-
-def assemble_csv_table(csv_name,rows,doctype):
-    try:
-        df = read_csv(join(raw_dir,'csv',csv_name), delimiter=';', encoding='utf-8')
-    except:
-        df = read_csv(join(raw_dir,'csv',csv_name), delimiter=';', encoding='iso-8859-1')
-    df_slice = df.iloc[rows].to_numpy()
-    table = "<table class='table table-striped w-100'><thead><tr>"
-    if doctype == 'map':
-        table+="<th scope='col' style='word-wrap:break-word; max-width:500px'>www</th>"
-    for c in list(df.columns):
-        table+="<th scope='col' style='word-wrap:break-word; max-width:500px'>"+c+"</th>"
-    table+="</tr></thead>"
-    for r in df_slice[:10]:
-        #table+="""<tr class='w-100' onclick='document.location="https://en.wikipedia.org"' style='cursor: pointer'>"""
-        table+="<tr class='w-100'>"
-        if doctype == 'map':
-            link="https://www.openstreetmap.org/#map=19/"+str(r[0])+"/"+str(r[1])
-            #table+="<td><a href='https://www.openstreetmap.org/#map=19/"+str(r[0])+"/"+str(r[1])+"'>📍</a></td>"
-            table+="""<td><a href="#" onClick="console.log('"""+link+"""'); window.open('"""+link+"""', 'pagename', 'resizable,height=560,width=560,top=200,left=800');return false;">📍</a><noscript>You need Javascript to use the previous link or use <a href='"""+link+"""' target="_blank">📍</a></noscript></td>"""
-        for i in r:
-            table+="<td style='word-wrap:break-word; max-width:500px'>"+str(i)+"</td>"
-        table+="</tr>"
-    table+="</table>"
-    return table
-
-
-
-def output_with_csv(best_urls, doctype):
-    print("DOCTYPE",doctype)
-    results = []
-    pods = []
-    if len(best_urls) == 0:
-        return results, pods
-    urls, csvs = aggregate_csv(best_urls)
-
-    for csv in csvs:
-        rec = Urls.query.filter(Urls.url == csv[1]).first()
-        if doctype != None and rec.doctype != doctype:
-            continue
-        result = {}
-        result['id'] = rec.id
-        result['url'] = csv[0]
-        result['title'] = csv[0]
-        result['snippet'] = assemble_csv_table(csv[0],csv[2],rec.doctype)
-        result['doctype'] = rec.doctype
-        result['notes'] = None
-        result['idx'] = rec.vector
-        result['pod'] = rec.pod
-        result['img'] = None
-        result['trigger'] = rec.trigger
-        result['contributor'] = rec.contributor
-        results.append(result)
-
-    for u in urls:
-        rec = Urls.query.filter(Urls.url == u).first()
-        if doctype != None and rec.doctype != doctype:
-            continue
-        result = {}
-        result['id'] = rec.id
-        result['url'] = rec.url
-        result['title'] = rec.title
-        result['snippet'] = rec.snippet
-        result['doctype'] = rec.doctype
-        result['notes'] = rec.notes
-        result['idx'] = rec.vector
-        result['pod'] = rec.pod
-        result['img'] = rec.img
-        result['trigger'] = rec.trigger
-        result['contributor'] = rec.contributor
-        results.append(result)
-        pod = rec.pod
-        if pod not in pods:
-            pods.append(pod)
-    return results, pods
 
 
 def output(best_urls):
@@ -330,10 +310,11 @@ def run_search(q:str):
     """
 
     # Set up multithreading to use half of CPU count
-    max_thread = int(multiprocessing.cpu_count() * 0.75)
+    #max_thread = int(multiprocessing.cpu_count() * 0.75)
+    max_thread = 1
 
     # Get doctype and language from query in case they are there
-    query, doctype, lang = parse_query(q)
+    query, _, lang = parse_query(q)
 
     # Run tokenization and vectorization on query. We also get an extended query and its vector.
     q_tokenized, extended_q_tokenized, q_vectors, extended_q_vectors = compute_query_vectors(query, lang)
