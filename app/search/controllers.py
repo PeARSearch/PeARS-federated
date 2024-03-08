@@ -45,7 +45,7 @@ def index():
             internal_message = f.read().replace('\n', '<br>')
     
     displayresults = []
-    clean_query, results = get_search_results(query)
+    results = get_search_results(query)
     if not results:
         results = None
         return render_template('search/results.html', \
@@ -55,7 +55,7 @@ def index():
         if r['doctype'] != 'csv' and r['doctype'] != 'doc':
             r['snippet'] = ' '.join(r['snippet'].split()[:11]) #11 to conform with EU regulations
         r['title'] = beautify_title(r['title'], r['doctype'])
-        r['snippet'] = beautify_snippet(r['snippet'], r['img'], clean_query)
+        r['snippet'] = beautify_snippet(r['snippet'], r['img'], query)
         displayresults.append(list(r.values()))
     return render_template('search/results.html', query=query, results=displayresults, \
             internal_message=internal_message, own_brand=OWN_BRAND)
@@ -67,13 +67,13 @@ def get_search_results(query):
         languages = LANGS
     else:
         languages = [lang]
-    clean_query = ' '.join([w for w in query.split() if w not in models[lang]['stopwords']])
     for lang in languages:
+        clean_query = ' '.join([w for w in query.split() if w not in models[lang]['stopwords']])
         print("\n\n>>SEARCH:CONTROLLERS:get_search_results: searching in",lang)
         #try:
         r = score_pages.run_search(clean_query, lang)
         results.extend(r)
         #except:
         #    pass
-    return clean_query, results
+    return results
 
