@@ -45,7 +45,7 @@ def index():
             internal_message = f.read().replace('\n', '<br>')
     
     displayresults = []
-    results = get_search_results(query)
+    clean_query, results = get_search_results(query)
     if not results:
         results = None
         return render_template('search/results.html', \
@@ -75,5 +75,5 @@ def get_search_results(query):
         results.extend(r)
         #except:
         #    pass
-    return results
+    return clean_query, results
 
