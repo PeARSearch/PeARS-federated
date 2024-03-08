@@ -19,7 +19,7 @@ from flask_login import LoginManager, current_user
 
 # Global variables
 EXPERT_ADD_ON = False
-OWN_BRAND = True
+OWN_BRAND = False
 WALKTHROUGH = False
 
 
