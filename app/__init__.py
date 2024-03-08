@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 import os
-import click
 import logging
 from pathlib import Path
 
@@ -14,6 +13,7 @@ from flask_mail import Mail
 
 # Import SQLAlchemy and LoginManager
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from flask_login import LoginManager, current_user
 
 # Global variables
@@ -85,6 +85,7 @@ mail = Mail(app)
 # Define the database object which is imported
 # by modules and controllers
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 # Load static multilingual info
 from app.multilinguality import read_language_codes, read_stopwords
@@ -277,40 +278,6 @@ def serve_sw():
 def static_from_root():
  return send_from_directory(app.static_folder, request.path[1:])
 
-@app.cli.command('setadmin')
-@click.argument('username')
-def set_admin(username):
-    '''Use from CLI with flask setadmin <username>.'''
-    user = User.query.filter_by(username=username).first()
-    user.is_admin = True
-    db.session.commit()
-    print(username,"is now admin.")
 
-from app.indexer.controllers import run_indexer_url
-@app.cli.command('index')
-@click.argument('contributor')
-@click.argument('path')
-def index(contributor, filepath):
-    '''Index from a manual created url file'''
-    run_indexer_url(contributor, filepath) 
-
-
-from app.indexer.access import request_url
-from app.indexer.htmlparser import extract_links
-@app.cli.command('getlinks')
-@click.argument('url')
-def get_links(url):
-    access, req, request_errors = request_url(url)
-    if access:
-        try:
-            url_type = req.headers['Content-Type']
-        except:
-            print('ERROR: Content type could not be retrieved from header.')
-        links = extract_links(url)
-        for link in links:
-            print(link)
-    else:
-        print("Access denied.")
-
-
-from app import errors
+from app.cli.controllers import pears as pears_module
+app.register_blueprint(pears_module)

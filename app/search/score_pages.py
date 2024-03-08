@@ -285,7 +285,6 @@ def output(best_urls):
         result['snippet'] = rec.snippet
         result['doctype'] = rec.doctype
         result['notes'] = rec.notes
-        result['idx'] = rec.vector
         result['pod'] = rec.pod
         result['img'] = rec.img
         result['trigger'] = rec.trigger

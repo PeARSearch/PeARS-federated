@@ -49,8 +49,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 	    <p class="card-text small" style='margin: 0px 0px 10px 40px'><br>{{result[3]|safe}} ...</p>
 	    <p class="small" style='margin-left:40px;'>
 	    <a href="{{result[1]}}" class="card-link">{{result[1]}}</a> |
-            {% if result[9] != '' %}
-	    <a class="results-emoji" href="#" data-toggle="tooltip" title="{{gettext('Trigger warning')}}">🔥</a> {{result[9]}} | 
+            {% if result[8] != '' %}
+	    <a class="results-emoji" href="#" data-toggle="tooltip" title="{{gettext('Trigger warning')}}">🔥</a> {{result[8]}} | 
 	    {% endif %}
 	    <a class="p-2" href="{{url_for('orchard.report')}}?url={{result[1]}}">{{gettext('Report this entry')}}</a> | 
 	    {% if current_user.is_authenticated and current_user.is_confirmed %}

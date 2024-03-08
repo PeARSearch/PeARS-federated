@@ -2,14 +2,12 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-import sys
 import os
-import click
 import logging
 from pathlib import Path
 
 # Import flask and template operators
-from flask import Flask, flash, render_template, send_file, send_from_directory, request
+from flask import Flask, flash, send_file, send_from_directory, request
 from flask_admin import Admin, AdminIndexView
 from flask_mail import Mail
 
@@ -70,26 +68,27 @@ Path(os.path.join(DEFAULT_PATH,'static/userdata/pdf')).mkdir(parents=True, exist
 LANG = os.getenv('PEARS_LANG') #default language for the installation
 app.config['BABEL_DEFAULT_LOCALE'] = LANG
 
-# Get paths to SentencePiece model and vocab
-SPM_DEFAULT_VOCAB_PATH = f'/home/{USERNAME}/PeARS-federated/app/api/models/{LANG}/{LANG}wiki.lite.16k.vocab'
-spm_vocab_path = os.environ.get("SPM_VOCAB", SPM_DEFAULT_VOCAB_PATH)
-SPM_DEFAULT_MODEL_PATH = f'/home/{USERNAME}/PeARS-federated/app/api/models/{LANG}/{LANG}wiki.lite.16k.model'
-spm_model_path = os.environ.get("SPM_MODEL", SPM_DEFAULT_MODEL_PATH)
-
-# Define vector size
-#from app.indexer.vectorizer import read_vocab
+# Load pretrained models
 from app.readers import read_vocab, read_cosines
 from sklearn.feature_extraction.text import CountVectorizer
+  
+models = dict()
+for LANG in LANGS:
+    models[LANG] = {}
+    spm_vocab_path = f'app/api/models/{LANG}/{LANG}wiki.lite.16k.vocab'
+    ft_path = f'app/api/models/{LANG}/{LANG}wiki.lite.16k.cos'
+    vocab, inverted_vocab, logprobs = read_vocab(spm_vocab_path)
+    vectorizer = CountVectorizer(vocabulary=vocab, lowercase=True, token_pattern='[^ ]+')
+    ftcos = read_cosines(ft_path)
+    models[LANG]['vocab'] = vocab
+    models[LANG]['inverted_vocab'] = inverted_vocab
+    models[LANG]['logprobs'] = logprobs
+    models[LANG]['vectorizer'] = vectorizer
+    models[LANG]['nns'] = ftcos
+  
+# All vocabs have the same vector size
+VEC_SIZE = len(models[LANGS[0]]['vocab'])
 
-print(f"Loading SPM vocab from '{spm_vocab_path}' ...")
-vocab, inverted_vocab, logprobs = read_vocab(spm_vocab_path)
-vectorizer = CountVectorizer(vocabulary=vocab, lowercase=True, token_pattern='[^ ]+')
-VEC_SIZE = len(vocab)
-
-# Load ft cosines
-FT_DEFAULT_MODEL_PATH = f'/home/{USERNAME}/PeARS-federated/app/api/models/{LANG}/{LANG}wiki.lite.16k.cos'
-ft_path = os.environ.get("FT", FT_DEFAULT_MODEL_PATH)
-ftcos = read_cosines(ft_path)
 
 # Define the database object which is imported
 # by modules and controllers
@@ -288,22 +287,5 @@ def serve_sw():
 def static_from_root():
  return send_from_directory(app.static_folder, request.path[1:])
 
-@app.cli.command('setadmin')
-@click.argument('username')
-def set_admin(username):
-    '''Use from CLI with flask setadmin <username>.'''
-    user = User.query.filter_by(username=username).first()
-    user.is_admin = True
-    db.session.commit()
-    print(username,"is now admin.")
-
-
-from app.indexer.controllers import run_indexer_url
-@app.cli.command('index')
-@click.argument('contributor')
-@click.argument('path')
-def index(contributor, filepath):
-    '''Index from a manual created url file'''
-    run_indexer_url(contributor, filepath) 
-
-from app import errors
+from app.cli.controllers import pears as pears_module
+app.register_blueprint(pears_module)

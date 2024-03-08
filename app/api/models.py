@@ -45,7 +45,6 @@ class Urls(Base):
     id = db.Column(db.Integer, primary_key=True)
     url = db.Column(db.String(1000))
     title = db.Column(db.String(1000))
-    vector = db.Column(db.String(1000))
     snippet = db.Column(db.String(1000))
     doctype = db.Column(db.String(1000))
     pod = db.Column(db.String(1000))
@@ -57,7 +56,6 @@ class Urls(Base):
     def __init__(self,
                  url=None,
                  title=None,
-                 vector=None,
                  snippet=None,
                  doctype=None,
                  pod=None,
@@ -67,7 +65,6 @@ class Urls(Base):
                  contributor=None):
         self.url = url
         self.title = title
-        self.vector = vector
         self.snippet = snippet
         self.doctype = doctype
         self.pod = pod
@@ -85,7 +82,6 @@ class Urls(Base):
             'id': self.id,
             'url': self.url,
             'title': self.title,
-            'vector': self.vector,
             'snippet': self.snippet,
             'doctype': self.doctype,
             'pod': self.pod,
