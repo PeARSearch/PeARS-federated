@@ -77,8 +77,8 @@ LANGUAGE_CODES = read_language_codes()
 models = dict()
 for LANG in LANGS:
     models[LANG] = {}
-    spm_vocab_path = join(DEFAULT_PATH, f'app/api/models/{LANG}/{LANG}wiki.lite.16k.vocab')
-    ft_path = join(DEFAULT_PATH, f'app/api/models/{LANG}/{LANG}wiki.lite.16k.cos')
+    spm_vocab_path = join(DEFAULT_PATH, f'api/models/{LANG}/{LANG}wiki.lite.16k.vocab')
+    ft_path = join(DEFAULT_PATH, f'api/models/{LANG}/{LANG}wiki.lite.16k.cos')
     vocab, inverted_vocab, logprobs = read_vocab(spm_vocab_path)
     vectorizer = CountVectorizer(vocabulary=vocab, lowercase=True, token_pattern='[^ ]+')
     ftcos = read_cosines(ft_path)
@@ -97,11 +97,6 @@ VEC_SIZE = len(models[LANGS[0]]['vocab'])
 # by modules and controllers
 db = SQLAlchemy(app)
 
-# Load static multilingual info
-from app.multilinguality import read_language_codes, read_stopwords
-
-LANGUAGE_CODES = read_language_codes()
-STOPWORDS = read_stopwords(LANGUAGE_CODES[LANG].lower())
 
 # Import a module / component using its blueprint handler variable (mod_auth)
 from app.indexer.controllers import indexer as indexer_module
