@@ -2,29 +2,11 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-from app import vocab, inverted_vocab, logprobs, vectorizer
+from app import models
 import numpy as np
 from scipy.sparse import csr_matrix, vstack
 from sklearn import preprocessing
 
-def read_vocab(vocab_file):
-    c = 0
-    vocab = {}
-    reverse_vocab = {}
-    logprobs = []
-    with open(vocab_file) as f:
-        for l in f:
-            l = l.rstrip('\n')
-            wp = l.split('\t')[0]
-            logprob = -(float(l.split('\t')[1]))
-            #logprob = log(lp + 1.1)
-            if wp in vocab or wp == '':
-                continue
-            vocab[wp] = c
-            reverse_vocab[c] = wp
-            logprobs.append(logprob)
-            c+=1
-    return vocab, reverse_vocab, logprobs
 
 def wta_vectorized(feature_mat, k, percent=True):
     # thanks https://stackoverflow.com/a/59405060
@@ -63,12 +45,13 @@ def read_n_encode_dataset(doc=None, vectorizer=None, logprobs=None, power=None, 
             ks = [list(vectorizer.vocabulary.keys())[list(vectorizer.vocabulary.values()).index(k)] for k in np.squeeze(np.asarray(inds[i]))]
     return X
 
-
 def vectorize(lang, text, logprob_power, top_words):
-    '''Takes input file and return vectorized /scaled dataset'''
-    dataset = read_n_encode_dataset(text, vectorizer, logprobs, logprob_power, top_words)
-    dataset = dataset.todense()
-    return np.asarray(dataset)
+      '''Takes input file and return vectorized /scaled dataset'''
+      vectorizer = models[lang]['vectorizer']
+      logprobs = models[lang]['logprobs']
+      dataset = read_n_encode_dataset(text, vectorizer, logprobs, logprob_power, top_words)
+      dataset = dataset.todense()
+      return np.asarray(dataset)
 
 def scale(dataset):
     #scaler = preprocessing.MinMaxScaler().fit(dataset)

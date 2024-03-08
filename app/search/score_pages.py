@@ -22,7 +22,6 @@ from app.indexer.posix import load_posix
 
 dir_path = dirname(dirname(realpath(__file__)))
 pod_dir = join(dir_path,'static','pods')
-raw_dir = join(dir_path,'static','userdata')
 
 def intersect_best_pods_lists(query_vectors, podsum, podnames):
     """ Iterate through each word in the query (a vector of tokens)
@@ -71,12 +70,12 @@ def intersect_best_cos_lists(query_vectors, pod_m):
         best_docs[d] = docscore
     return best_docs
 
-def intersect_best_posix_lists(query_tokenized, posindex):
+def intersect_best_posix_lists(query_tokenized, posindex, lang):
     tmp_best_docs = []
     posix_scores = {}
     # Loop throught the token list corresponding to each word
     for word_tokens in query_tokenized:
-        scores = posix(' '.join(word_tokens), posindex)
+        scores = posix(' '.join(word_tokens), posindex, lang)
         tmp_best_docs.append(list(scores.keys()))
         for k,v in scores.items():
             if k in posix_scores:
@@ -95,7 +94,7 @@ def intersect_best_posix_lists(query_tokenized, posindex):
 
 
 @timer
-def compute_scores(query, query_vectors, query_tokenized, pod_name, posindex):
+def compute_scores(query, query_vectors, query_tokenized, pod_name, posindex, lang):
     """Compute different scores for a query
     Arguments:
     query: the original query
@@ -106,15 +105,16 @@ def compute_scores(query, query_vectors, query_tokenized, pod_name, posindex):
     posindex: the positional index for that pod
     """
     vec_scores = {}
-    pod_m = load_npz(join(pod_dir, pod_name+'.npz'))
+    username = pod_name.split('.u.')[1]
+    user_dir = join(pod_dir, username)
+    pod_m = load_npz(join(user_dir, lang, pod_name+'.npz'))
 
     # Compute score of each document for each word
     best_cos_docs = intersect_best_cos_lists(query_vectors, pod_m.todense())
-    best_posix_docs = intersect_best_posix_lists(query_tokenized, posindex)
+    best_posix_docs = intersect_best_posix_lists(query_tokenized, posindex, lang)
 
-    username = pod_name.split('.u.')[1]
-    idx_to_url = joblib.load(join(pod_dir, username+'.idx'))
-    npz_to_idx = joblib.load(join(pod_dir, pod_name+'.npz.idx'))
+    idx_to_url = joblib.load(join(user_dir, username+'.idx'))
+    npz_to_idx = joblib.load(join(user_dir, lang, pod_name+'.npz.idx'))
 
     for i in range(pod_m.shape[0]):
         cos = best_cos_docs.get(i,0)
@@ -131,13 +131,13 @@ def compute_scores(query, query_vectors, query_tokenized, pod_name, posindex):
     return vec_scores, best_posix_docs
 
 
-def mk_podsum_matrix():
+def mk_podsum_matrix(lang):
     """ Make the podsum matrix, i.e. a matrix
     with each row corresponding to the sum of 
     all documents in a given pod."""
     podnames = []
     podsum = []
-    npzs = glob(join(pod_dir,'*.u.*npz'))
+    npzs = glob(join(pod_dir,'*',lang,'*.u.*npz'))
     for npz in npzs:
         podname = npz.split('/')[-1].replace('.npz','')
         s = np.sum(load_npz(npz).toarray(), axis=0)
@@ -169,16 +169,14 @@ def score_pods(query_vectors, extended_q_vectors, lang):
     max_pods = 3 # How many pods to return
     quality_threshold = 0.05 # Minimum score for a pod to be considered okay
     pod_scores = {}
-    podnames, podsum = mk_podsum_matrix()
+    podnames, podsum = mk_podsum_matrix(lang)
 
     # For each word in the query, compute best pods
     pod_scores = intersect_best_pods_lists(query_vectors, podsum, podnames)
-    print("MAX",max(pod_scores.values()))
 
     if max(pod_scores.values()) < quality_threshold:
         # Compute similarity of each extended query element to all pods
         pod_scores = intersect_best_pods_lists(extended_q_vectors, podsum, podnames)
-        print("MAX",max(pod_scores.values()))
 
     best_pods = []
     for k in sorted(pod_scores, key=pod_scores.get, reverse=True):
@@ -190,7 +188,7 @@ def score_pods(query_vectors, extended_q_vectors, lang):
     return best_pods
 
 
-def score_docs(query, query_vectors, query_tokenized, pod_name, posindex):
+def score_docs(query, query_vectors, query_tokenized, pod_name, posindex, lang):
     """Score documents for a query.
     Arguments:
     query: the original query
@@ -203,9 +201,10 @@ def score_docs(query, query_vectors, query_tokenized, pod_name, posindex):
     print(">> INFO: SEARCH: SCORE_PAGES: SCORES_DOCS", pod_name)
     document_scores = {}  # Document scores
     vec_scores, posix_scores = \
-            compute_scores(query, query_vectors, query_tokenized, pod_name, posindex)
+            compute_scores(query, query_vectors, query_tokenized, pod_name, posindex, lang)
     username = pod_name.split('.u.')[1]
-    idx_to_url = joblib.load(join(pod_dir, username+'.idx'))
+    user_dir = join(pod_dir, username)
+    idx_to_url = joblib.load(join(user_dir, username+'.idx'))
     for url in list(vec_scores.keys()):
         i = idx_to_url[1].index(url)
         idx = idx_to_url[0][i]
@@ -223,18 +222,19 @@ def score_docs(query, query_vectors, query_tokenized, pod_name, posindex):
             print(url, vec_scores[url], posix_scores.get(idx,0), snippet_score, " ||| GRAND SCORE:", document_scores[url])
     return document_scores
 
-def score_docs_extended(extended_q_tokenized, pod_name, posindex):
+def score_docs_extended(extended_q_tokenized, pod_name, posindex, lang):
     '''Score documents for an extended query, using posix scoring only'''
     print(">> INFO: SEARCH: SCORE_PAGES: SCORES_DOCS_EXTENDED",pod_name)
     document_scores = {}  # Document scores
     username = pod_name.split('.u.')[1]
-    idx_to_url = joblib.load(join(pod_dir, username+'.idx'))
+    user_dir = join(pod_dir, username)
+    idx_to_url = joblib.load(join(user_dir, username+'.idx'))
     for w_tokenized in extended_q_tokenized:
         #print("W TOKENIZED",w_tokenized)
         # Keep a list of urls already increment by 1, we don't want
         # to score several times within the same neighbourhood
         urls_incremented = []
-        matching_docs = posix_no_seq(' '.join(w_tokenized), posindex)
+        matching_docs = posix_no_seq(' '.join(w_tokenized), posindex, lang)
         #print("MATCHING DOCS", matching_docs)
         for v in matching_docs:
             i = idx_to_url[0].index(v)
@@ -297,7 +297,7 @@ def output(best_urls):
     return results, pods
 
 
-def run_search(q:str):
+def run_search(query:str, lang):
     """Run search on query input by user
 
     Search happens in three steps. 1) We get the pods most likely
@@ -308,30 +308,29 @@ def run_search(q:str):
     Parameter: q, a query string.
     Returns: a list of documents. Each document is a dictionary. 
     """
+    document_scores = {}
 
     # Set up multithreading to use half of CPU count
     #max_thread = int(multiprocessing.cpu_count() * 0.75)
     max_thread = 1
-
-    # Get doctype and language from query in case they are there
-    query, _, lang = parse_query(q)
 
     # Run tokenization and vectorization on query. We also get an extended query and its vector.
     q_tokenized, extended_q_tokenized, q_vectors, extended_q_vectors = compute_query_vectors(query, lang)
 
     # Get best pods
     best_pods = score_pods(q_vectors, extended_q_vectors, lang)
-    print("Q:",query,"BEST PODS:",best_pods)
    
     # Load positional indices
     posindices = []
     for pod in best_pods:
-        posindices.append(load_posix(pod))
+        theme = pod.split('.u.')[0]
+        contributor = pod.split('.u.')[1]
+        posindices.append(load_posix(contributor, lang, theme))
 
     # Compute results for original query
-    document_scores = {}
+    print("BESTPODS",best_pods)
     with Parallel(n_jobs=max_thread, prefer="threads") as parallel:
-        delayed_funcs = [delayed(score_docs)(query, q_vectors, q_tokenized, best_pods[i], posindices[i]) for i in range(len(best_pods))]
+        delayed_funcs = [delayed(score_docs)(query, q_vectors, q_tokenized, best_pods[i], posindices[i], lang) for i in range(len(best_pods))]
         scores = parallel(delayed_funcs)
     for dic in scores:
         document_scores.update(dic)
@@ -340,7 +339,7 @@ def run_search(q:str):
     # Compute results for extended query
     extended_document_scores = {}
     with Parallel(n_jobs=max_thread, prefer="threads") as parallel:
-        delayed_funcs = [delayed(score_docs_extended)(extended_q_tokenized, best_pods[i], posindices[i]) for i in range(len(best_pods))]
+        delayed_funcs = [delayed(score_docs_extended)(extended_q_tokenized, best_pods[i], posindices[i], lang) for i in range(len(best_pods))]
         scores = parallel(delayed_funcs)
     for dic in scores:
         extended_document_scores.update(dic)

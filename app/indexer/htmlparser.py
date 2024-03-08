@@ -11,7 +11,7 @@ from langdetect import detect
 from app.indexer.access import request_url
 from app.indexer import detect_open
 from app.api.models import installed_languages
-from app import LANG, LANGUAGE_CODES
+from app import LANGS, LANGUAGE_CODES
 
 def remove_boilerplates(response, lang):
     text = ""
@@ -85,12 +85,12 @@ def extract_html(url):
     body_str = ""
     snippet = ""
     cc = False
-    language = LANG
+    language = LANGS[0]
     error = None
     bs_obj, req = BS_parse(url)
     if not bs_obj:
         error = "\t>> ERROR: extract_html: Failed to get BeautifulSoup object."
-        return title, body_str, snippet, cc, error
+        return title, body_str, language, snippet, cc, error
     if hasattr(bs_obj.title, 'string'):
         if url.startswith('http'):
             og_title = bs_obj.find("meta", property="og:title")
@@ -108,7 +108,8 @@ def extract_html(url):
             title = ' '.join(title.split()[:11]) #11 to conform with EU regulations
             
             # Get body string
-            body_str = remove_boilerplates(req, LANG)
+            body_str = remove_boilerplates(req, LANGS[0]) #Problematic...
+            print(body_str[:500])
             try:
                 language = detect(title + " " + body_str)
                 print("\t>> INFO: Language for", url, ":", language)
@@ -119,10 +120,10 @@ def extract_html(url):
             if language not in installed_languages:
                 error = "\t>> ERROR: extract_html: language is not supported."
                 title = ""
-                return title, body_str, snippet, cc, error
+                return title, body_str, language, snippet, cc, error
             # Process snippet
             if og_description:
                 snippet = og_description['content'][:1000]
             else:
                 snippet = ' '.join(body_str.split()[:11]) #11 to conform with EU regulations
-    return title, body_str, snippet, cc, error
+    return title, body_str, language, snippet, cc, error

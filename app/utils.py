@@ -10,7 +10,7 @@ from urllib.parse import urljoin
 import requests
 import numpy as np
 from scipy.spatial import distance
-from app import LANG
+from app import LANGS
 
 dir_path = dirname(realpath(__file__))
 
@@ -45,13 +45,11 @@ def _extract_url_info(line):
     the wrong format.
     """
     try:
-        url, kwd, lang, trigger, contributor = line.rstrip('\n').split(';')
+        url, kwd, trigger, contributor = line.rstrip('\n').split(';')
         #In case keyword or lang is not given, go back to defaults
         if kwd == '':
             kwd = 'home'
-        if lang == '':
-            lang = LANG
-        return url, kwd, lang, trigger, contributor
+        return url, kwd, trigger, contributor
     except:
         print(">> UTILS: _EXTRACT_URL_INFO: ERROR: .suggestions file does not have the right format.")
         return None
@@ -65,7 +63,6 @@ def read_urls(url_file):
     """
     urls = []
     keywords = []
-    langs = []
     triggers = []
     contributors = []
     errors = False
@@ -75,12 +72,11 @@ def read_urls(url_file):
             if matches:
                 urls.append(matches[0])
                 keywords.append(matches[1])
-                langs.append(matches[2])
-                triggers.append(matches[3])
-                contributors.append(matches[4])
+                triggers.append(matches[2])
+                contributors.append(matches[3])
             else:
                 errors = True
-    return urls, keywords, langs, triggers, contributors, errors
+    return urls, keywords, triggers, contributors, errors
 
 def read_docs(doc_file):
     """ Read document file in <doc></doc> format.
@@ -192,7 +188,7 @@ def get_pod_info(url):
 
 
 def parse_query(query):
-    lang = LANG #default
+    lang = None
     doctype = None
     clean_query = ""
     m = re.search('(.*) -(..\s*)$',query)
@@ -201,16 +197,11 @@ def parse_query(query):
         lang = m.group(2)
     words = query.split()
     for w in words:
-        if w[0] == '?':
-            doctype = 'ind'
-            clean_query+=w[1:]+' '
-        elif w[0] == '!':
+        if w[0] == '!':
             doctype = w[1:]
         else:
             clean_query+=w+' '
     clean_query = clean_query[:-1]
-    if query.strip() == '/': #FIX
-        doctype = 'doc'
     print(clean_query, doctype)
     return clean_query, doctype, lang
 
@@ -228,7 +219,7 @@ def beautify_title(title, doctype):
         title = '📍 '+title
     return title
 
-def beautify_snippet(snippet, img, query, expert):
+def beautify_snippet(snippet, img, query):
     snippet = snippet.replace('og desc:','')
     if snippet[-3:] != '...':
         snippet+='...'
@@ -237,10 +228,7 @@ def beautify_snippet(snippet, img, query, expert):
         tmp_snippet = tmp_snippet.replace(w,'<b>'+w+'</b>')
         tmp_snippet = tmp_snippet.replace(w.title(),'<b>'+w.title()+'</b>')
     if img:
-        if expert:
-            img = join('..','..','..','static','assets',img)
-        else:
-            img = join('static','assets',img)
+        img = join('static','assets',img)
         tmp_snippet = "<img src='"+img+"' style='float:left; width:150px; margin-right: 10px'/>"+tmp_snippet
     return tmp_snippet
 

@@ -31,7 +31,7 @@ def index():
     email = current_user.email
     form = ManualEntryForm()
     contributions = []
-    for i in db.session.query(Urls).filter_by(contributor='@'+username).all():
+    for i in db.session.query(Urls).filter_by(contributor=username).all():
         contributions.append([i.url, i.title])
     contributions = contributions[::-1] #reverse from most recent
     num_contributions = len(contributions)

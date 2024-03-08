@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 from os.path import dirname, realpath, join, isfile
+from pathlib import Path
 import joblib
 import numpy as np
 from scipy.sparse import csr_matrix, save_npz
@@ -19,19 +20,23 @@ def create_idx_to_url(contributor):
     for the first time.
     """
     # One idx to url dictionary per user
-    user_path = join(pod_dir, contributor+'.idx')
+    user_dir = join(pod_dir,contributor)
+    Path(user_dir).mkdir(parents=True, exist_ok=True)
+    user_path = join(user_dir, contributor+'.idx')
     if not isfile(user_path):
         print("Making idx dictionaries for new user.")
         idx_to_url = [[],[]]
         joblib.dump(idx_to_url, user_path)
 
 
-def create_pod_npz_pos(contributor, theme):
+def create_pod_npz_pos(contributor, theme, lang):
     """ Pod npz and pos initialisation.
     This happens when the user indexes for the 
     first time under a specific theme.
     """
-    pod_path = join(pod_dir, theme+'.u.'+contributor )
+    user_dir = join(pod_dir,contributor, lang)
+    Path(user_dir).mkdir(parents=True, exist_ok=True)
+    pod_path = join(user_dir, theme+'.u.'+contributor )
     if not isfile(pod_path+'.npz'):
         print("Making 0 CSR matrix for new pod")
         pod = np.zeros((1,VEC_SIZE))
@@ -55,7 +60,7 @@ def create_pod_in_db(contributor, theme, lang):
     '''
     if contributor is not None:
         theme = theme+'.u.'+contributor
-    url = "http://localhost:8080/api/pods/" + theme.replace(' ', '+')
+    url = join("http://localhost:8080/api/pods/",contributor,lang,theme.replace(' ', '+'))
     if not db.session.query(Pods).filter_by(url=url).all():
         p = Pods(url=url)
         p.name = theme
@@ -70,7 +75,8 @@ def add_to_idx_to_url(contributor, url):
     Arguments: username, url.
     Return: the newly create IDX for this url.
     """
-    pod_path = join(pod_dir, contributor+'.idx')
+    user_dir = join(pod_dir,contributor)
+    pod_path = join(user_dir, contributor+'.idx')
     idx_to_url = joblib.load(pod_path)
     idx = len(idx_to_url[0])
     idx_to_url[0].append(idx)
@@ -78,13 +84,15 @@ def add_to_idx_to_url(contributor, url):
     joblib.dump(idx_to_url, pod_path)
     return idx
 
-def add_to_npz_to_idx(pod_name, vid, idx):
+def add_to_npz_to_idx(pod_name, lang, vid, idx):
     """Record the ID of the document given
     its position in the npz matrix.
     NB: the lists do not have to be in the
     order of the matrix.
     """
-    pod_path = join(pod_dir, pod_name+'.npz.idx')
+    contributor = pod_name.split('.u.')[1]
+    user_dir = join(pod_dir,contributor)
+    pod_path = join(user_dir, lang, pod_name+'.npz.idx')
     npz_to_idx = joblib.load(pod_path)
     npz_to_idx[0].append(vid)
     npz_to_idx[1].append(idx)

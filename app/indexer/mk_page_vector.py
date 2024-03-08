@@ -4,24 +4,24 @@
 
 from os.path import dirname, join, realpath
 from scipy.sparse import csr_matrix, vstack, save_npz, load_npz
-from app import vocab, logprobs, ftcos, VEC_SIZE, SPM_DEFAULT_MODEL_PATH
+from app import models, VEC_SIZE
 from app.api.models import sp
 from app.indexer.htmlparser import extract_html
 from app.indexer.pdfparser import extract_txt
 from app.indexer.vectorizer import vectorize_scale
 from app.utils import timer
+from app.utils_db import create_pod_npz_pos
 
 dir_path = dirname(dirname(realpath(__file__)))
 pod_dir = join(dir_path,'static','pods')
 
-def tokenize_text(text, stringify = True):
+def tokenize_text(text, lang, stringify = True):
     """ Load the SentencePiece model included in the install
     and tokenize the given text.
 
     Arguments: the text to be tokenized.
-    TODO: prepare this for multilinguality.
     """
-    sp.load(SPM_DEFAULT_MODEL_PATH)
+    sp.load(f'app/api/models/{lang}/{lang}wiki.lite.16k.model')
     tokens = [wp for wp in sp.encode_as_pieces(text.lower())]
     if stringify:
         text = ' '.join([wp for wp in sp.encode_as_pieces(text.lower())])
@@ -40,33 +40,34 @@ def compute_and_stack_new_vec(lang, tokenized_text, pod_m):
     return pod_m
 
 
-def compute_vector(url, theme, lang, contributor, url_type):
+def compute_vector(url, theme, contributor, url_type):
     """ Compute vector for target URL. This includes retrieving the
     page, extracting the title and text from it, and adding the 
     document vector to the matrix for the user's chosen theme.
     """
-    print("Computing vector for", url, "(",theme,")",lang)
+    print("Computing vector for", url, "(",theme,")")
     messages = []
-    npz_path = join(pod_dir,theme+'.u.'+contributor+'.npz')
     print("CONTENT TYPE",url_type)
     if 'text/html' in url_type:
-        title, body_str, snippet, cc, error = extract_html(url)
+        title, body_str, lang, snippet, cc, error = extract_html(url)
     elif 'application/pdf' in url_type:
-        title, body_str, snippet, cc, error = extract_txt(url)
+        title, body_str, lang, snippet, cc, error = extract_txt(url)
     else:
         error = ">> INDEXER: MK_PAGE_VECTORS: ERROR: compute_vectors: No supported content type."
     if error is None:
         print("TITLE",title,"SNIPPET",snippet,"CC",cc,"ERROR",error)
+        create_pod_npz_pos(contributor, theme, lang)
+        user_dir = join(pod_dir, contributor, lang)
+        npz_path = join(user_dir,theme+'.u.'+contributor+'.npz')
         pod_m = load_npz(npz_path)
         text = title + " " + body_str
-        tokenized_text = tokenize_text(text)
+        tokenized_text = tokenize_text(text, lang)
         pod_m = compute_and_stack_new_vec(lang, tokenized_text, pod_m)
         save_npz(npz_path,pod_m)
         vid = pod_m.shape[0] - 1
-        return True, tokenized_text, title, snippet, vid, messages
-    else:
-        messages.append(">> INDEXER ERROR: compute_vectors: error during parsing -->",error)
-    return False, None, None, None, None, messages
+        return True, tokenized_text, lang, title, snippet, vid, messages
+    messages.append(">> INDEXER ERROR: compute_vectors: error during parsing -->",error)
+    return False, None, None, None, None, None, messages
 
 
 def compute_vector_local_docs(title, doc, theme, lang, contributor):
@@ -77,7 +78,7 @@ def compute_vector_local_docs(title, doc, theme, lang, contributor):
     pod_m = load_npz(npz_path)
     #print("Computing vectors for", target_url, "(",theme,")",lang)
     text = title + " " + doc
-    text = tokenize_text(text)
+    text = tokenize_text(text, lang)
     pod_m = compute_and_stack_new_vec(lang, text, pod_m)
     if doc != "":
         snippet = doc[:500]+'...'
@@ -95,22 +96,16 @@ def compute_query_vectors(query, lang):
     pre-computed wordpiece neighbours from a FastText 
     model and vectorizing.
     """
-    #query = query.rstrip('\n')
+    print("QUERY LANG",lang)
+    nns = models[lang]['nns']
     words = query.split()
     print("QUERY SPLIT:",words)
 
     # Individual words tokenized
     words_tokenized = []
     for w in words:
-        words_tokenized.append(tokenize_text(w, stringify=False))
+        words_tokenized.append(tokenize_text(w, lang, stringify=False))
     print("WORDS TOKENIZED:",words_tokenized)
-
-    # Entire query tokenize
-    #query_tokenized = []
-    #for sublist in words_tokenized:
-    #    query_tokenized.extend(sublist)
-    #query_tokenized = ' '.join(query_tokenized)
-    #print("QUERY TOKENIZED:",query_tokenized)
 
     # Add similar tokens
     words_tokenized_expanded = []
@@ -118,9 +113,9 @@ def compute_query_vectors(query, lang):
         sims = [i for i in w if len(i) > 1]
         for wtoken in w:
             if len(wtoken.replace('▁','')) > 3:
-                if wtoken not in ftcos:
+                if wtoken not in nns:
                     continue
-                neighbours = [n for n in ftcos[wtoken] if len(n) > 2]
+                neighbours = [n for n in nns[wtoken] if len(n) > 2]
                 sims.extend(neighbours)
         sims = list(set(sims))
         #print("SIMS",w,sims)

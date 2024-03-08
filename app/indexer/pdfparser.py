@@ -12,7 +12,7 @@ from langdetect import detect
 
 from app.indexer import detect_open
 from app.api.models import installed_languages
-from app import LANG
+from app import LANGS
 
 dir_path = dirname(dirname(realpath(__file__)))
 toindex_dir = join(dir_path,'static','toindex')
@@ -35,7 +35,7 @@ def extract_txt(url):
     body_str = ""
     snippet = ""
     cc = False
-    language = LANG
+    language = LANGS[0]
     error = None
     try:
         req = requests.get(url, allow_redirects=True, timeout=30)
@@ -44,13 +44,13 @@ def extract_txt(url):
             f_out.write(req.content)
     except Exception:
         print("ERROR accessing resource", url, "...")
-        return title, body_str, snippet, cc, error
+        return title, body_str, language, snippet, cc, error
     
     try:
         body_str = pdf_mine(join(toindex_dir,'tmp.pdf'))
     except Exception:
         print("ERROR extracting body text from pdf...")
-        return title, body_str, snippet, cc, error
+        return title, body_str, language, snippet, cc, error
 
     title = url.split('/')[-1]
     try:
@@ -59,11 +59,11 @@ def extract_txt(url):
     except Exception:
         title = ""
         error = "ERROR extract_html: Couldn't detect page language."
-        return title, body_str, snippet, cc, error
+        return title, body_str, language, snippet, cc, error
 
     if language not in installed_languages:
         error = "ERROR extract_html: language is not supported."
         title = ""
-        return title, body_str, snippet, cc, error
+        return title, body_str, language, snippet, cc, error
     snippet = body_str[:90]
-    return title, body_str, snippet, cc, error
+    return title, body_str, language, snippet, cc, error

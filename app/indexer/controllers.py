@@ -6,8 +6,9 @@
 from os.path import dirname, join, realpath
 from flask import Blueprint, request, render_template, url_for
 from flask_login import login_required, current_user
+from langdetect import detect
 from app.auth.decorators import check_is_confirmed
-from app import LANG, OWN_BRAND
+from app import LANGS, OWN_BRAND
 from app.api.models import Urls
 from app.indexer import mk_page_vector
 from app.utils import read_urls, parse_query
@@ -69,12 +70,11 @@ def index_from_url():
         url = request.form.get('url')
         theme = request.form.get('theme')
         trigger = request.form.get('trigger')
-        theme, _, lang = parse_query(theme)
         if trigger is None:
             trigger = ''
-        print(url, theme, lang, trigger, contributor)
+        print(url, theme, trigger, contributor)
         with open(user_url_file, 'w', encoding="utf-8") as f:
-            f.write(url + ";" + theme + ";" + lang + ";" + trigger + ";" + contributor + "\n")
+            f.write(url + ";" + theme + ";" + trigger + ";" + contributor + "\n")
         print("\t>> Indexer : progress_file")
         messages = run_indexer_url(contributor, user_url_file)
         return render_template('indexer/progress_file.html', messages = messages)
@@ -100,12 +100,16 @@ def index_from_manual():
     if form.validate_on_submit():
         title = request.form.get('title')
         snippet = request.form.get('description')
+        lang = detect(snippet)
+        # Hack if language of contribution is not recognized
+        if lang not in LANGS:
+            lang = LANGS[0]
         u = url_for('search.index',q=' '.join(snippet.split()[:4]))
         trigger = ''
         keyword = 'Tips'
-        print(u, keyword, LANG, trigger, contributor)
+        print(u, keyword, lang, trigger, contributor)
         print("\t>> Indexer : manual_progress_file")
-        messages = run_indexer_manual(u, title, snippet, keyword, LANG, trigger, contributor)
+        messages = run_indexer_manual(u, title, snippet, keyword, lang, trigger, contributor)
         return render_template('indexer/progress_file.html', messages=messages)
     return render_template('indexer/index.html', form1=IndexerForm(request.form), form2=form)
 
@@ -124,16 +128,14 @@ def run_indexer_url(contributor, user_url_file):
     """
     print(">> INDEXER: run_indexer_url: Running indexer over suggested URL.")
     messages = []
-    urls, themes, langs, triggers, contributors, errors = read_urls(user_url_file)
+    urls, themes, triggers, contributors, errors = read_urls(user_url_file)
     if errors:
         return errors
-    if not urls or not themes or not langs:
+    if not urls or not themes:
         messages.append('ERROR: Invalid file format.')
         return messages
     theme = themes[0]
-    create_pod_npz_pos(contributor, theme)
-    create_pod_in_db(contributor, theme, LANG)
-    for url, theme, lang, trigger, _ in zip(urls, themes, langs, triggers, contributors):
+    for url, theme, trigger, _ in zip(urls, themes, triggers, contributors):
         access, req, request_errors = request_url(url)
         if access:
             try:
@@ -142,11 +144,12 @@ def run_indexer_url(contributor, user_url_file):
                 messages.append('ERROR: Content type could not be retrieved from header.')
                 continue
             idx = add_to_idx_to_url(contributor, url)
-            success, text, title, snippet, vid, mgs = \
-                    mk_page_vector.compute_vector(url, theme, lang, contributor, url_type)
+            success, text, lang, title, snippet, vid, mgs = \
+                    mk_page_vector.compute_vector(url, theme, contributor, url_type)
             if success:
-                posix_doc(text, idx, contributor, theme)
-                add_to_npz_to_idx(theme+'.u.'+contributor, vid, idx)
+                create_pod_in_db(contributor, theme, lang)
+                posix_doc(text, idx, contributor, lang, theme)
+                add_to_npz_to_idx(theme+'.u.'+contributor, lang, vid, idx)
                 create_or_replace_url_in_db(\
                         url, title, snippet, theme, lang, trigger, contributor, 'url')
                 success_message = url+" was successfully indexed."
@@ -167,13 +170,13 @@ def run_indexer_manual(url, title, doc, theme, lang, trigger, contributor):
     """
     print(">> INDEXER: run_indexer_manual: Running indexer over manually added information.")
     messages = []
-    create_pod_npz_pos(contributor, theme)
-    create_pod_in_db(contributor, theme, LANG)
+    create_pod_npz_pos(contributor, theme, lang)
+    create_pod_in_db(contributor, theme, lang)
     idx = add_to_idx_to_url(contributor, url)
     text, snippet, vid = mk_page_vector.compute_vector_local_docs(\
             title, doc, theme, lang, contributor)
-    posix_doc(text, idx, contributor, theme)
-    add_to_npz_to_idx(theme+'.u.'+contributor, vid, idx)
+    posix_doc(text, idx, contributor, lang, theme)
+    add_to_npz_to_idx(theme+'.u.'+contributor, lang, vid, idx)
     create_or_replace_url_in_db(url, title, snippet, theme, lang, trigger, contributor, 'doc')
     success_message = url+" was successfully indexed."
     messages.append(success_message)
