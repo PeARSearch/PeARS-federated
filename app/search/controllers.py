@@ -62,7 +62,7 @@ def index():
 
 def get_search_results(query):
     results = []
-    query, _, lang = parse_query(clean_query.lower())
+    query, _, lang = parse_query(query.lower())
     if lang is None:
         languages = LANGS
     else:
