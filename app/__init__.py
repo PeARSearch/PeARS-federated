@@ -95,7 +95,7 @@ migrate = Migrate(app, db)
 from app.indexer.controllers import indexer as indexer_module
 from app.api.controllers import api as api_module
 from app.search.controllers import search as search_module
-from app.analysis.controllers import analysis as analysis_module
+#from app.analysis.controllers import analysis as analysis_module
 from app.orchard.controllers import orchard as orchard_module
 from app.pages.controllers import pages as pages_module
 from app.settings.controllers import settings as settings_module
@@ -105,7 +105,7 @@ from app.auth.controllers import auth as auth_module
 app.register_blueprint(indexer_module)
 app.register_blueprint(api_module)
 app.register_blueprint(search_module)
-app.register_blueprint(analysis_module)
+#app.register_blueprint(analysis_module)
 app.register_blueprint(orchard_module)
 app.register_blueprint(pages_module)
 app.register_blueprint(settings_module)

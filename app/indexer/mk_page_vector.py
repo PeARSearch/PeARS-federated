@@ -4,7 +4,7 @@
 
 from os.path import dirname, join, realpath
 from scipy.sparse import csr_matrix, vstack, save_npz, load_npz
-from app import models, VEC_SIZE
+from app import models, VEC_SIZE, DEFAULT_PATH
 from app.api.models import sp
 from app.indexer.htmlparser import extract_html
 from app.indexer.pdfparser import extract_txt
@@ -21,7 +21,7 @@ def tokenize_text(text, lang, stringify = True):
 
     Arguments: the text to be tokenized.
     """
-    sp.load(f'app/api/models/{lang}/{lang}wiki.lite.16k.model')
+    sp.load(join(DEFAULT_PATH, f'app/api/models/{lang}/{lang}wiki.lite.16k.model'))
     tokens = [wp for wp in sp.encode_as_pieces(text.lower())]
     if stringify:
         text = ' '.join([wp for wp in sp.encode_as_pieces(text.lower())])
