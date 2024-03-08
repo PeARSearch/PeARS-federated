@@ -37,7 +37,7 @@ from dotenv import load_dotenv
 app.config.from_object('config')
 
 load_dotenv()
-LANG = os.getenv('PEARS_LANG') #default language for the installation
+LANGS = os.getenv('PEARS_LANGS').split(',')
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv("MAIL_DEFAULT_SENDER")
 app.config['MAIL_SERVER'] = os.getenv("MAIL_SERVER")
 app.config['MAIL_PORT'] = os.getenv("MAIL_PORT")
@@ -49,36 +49,35 @@ app.config['MAIL_PASSWORD'] = os.getenv("EMAIL_PASSWORD")
 
 # Localization
 from flask_babel import Babel, gettext
-app.config['BABEL_DEFAULT_LOCALE'] = os.getenv("PEARS_LANG")
+app.config['BABEL_DEFAULT_LOCALE'] = LANGS[0]
 app.config['BABEL_TRANSLATION_DIRECTORIES'] = os.getenv("TRANSLATION_DIR")
 babel = Babel(app)
 
 # Make sure user data directories exist
 DEFAULT_PATH = f'app'
 Path(os.path.join(DEFAULT_PATH,'static/userdata')).mkdir(parents=True, exist_ok=True)
-Path(os.path.join(DEFAULT_PATH,'static/userdata/csv')).mkdir(parents=True, exist_ok=True)
-Path(os.path.join(DEFAULT_PATH,'static/userdata/pdf')).mkdir(parents=True, exist_ok=True)
 
-# Get paths to SentencePiece model and vocab
-SPM_DEFAULT_VOCAB_PATH = f'app/api/models/{LANG}/{LANG}wiki.lite.16k.vocab'
-spm_vocab_path = os.environ.get("SPM_VOCAB", SPM_DEFAULT_VOCAB_PATH)
-SPM_DEFAULT_MODEL_PATH = f'app/api/models/{LANG}/{LANG}wiki.lite.16k.model'
-spm_model_path = os.environ.get("SPM_MODEL", SPM_DEFAULT_MODEL_PATH)
-
-# Define vector size
-#from app.indexer.vectorizer import read_vocab
+# Load pretrained models
 from app.readers import read_vocab, read_cosines
 from sklearn.feature_extraction.text import CountVectorizer
 
-print(f"Loading SPM vocab from '{spm_vocab_path}' ...")
-vocab, inverted_vocab, logprobs = read_vocab(spm_vocab_path)
-vectorizer = CountVectorizer(vocabulary=vocab, lowercase=True, token_pattern='[^ ]+')
-VEC_SIZE = len(vocab)
+models = dict()
+for LANG in LANGS:
+    models[LANG] = {}
+    spm_vocab_path = f'app/api/models/{LANG}/{LANG}wiki.lite.16k.vocab'
+    ft_path = f'app/api/models/{LANG}/{LANG}wiki.lite.16k.cos'
+    vocab, inverted_vocab, logprobs = read_vocab(spm_vocab_path)
+    vectorizer = CountVectorizer(vocabulary=vocab, lowercase=True, token_pattern='[^ ]+')
+    ftcos = read_cosines(ft_path)
+    models[LANG]['vocab'] = vocab
+    models[LANG]['inverted_vocab'] = inverted_vocab
+    models[LANG]['logprobs'] = logprobs
+    models[LANG]['vectorizer'] = vectorizer
+    models[LANG]['nns'] = ftcos
 
-# Load ft cosines
-FT_DEFAULT_MODEL_PATH = f'app/api/models/{LANG}/{LANG}wiki.lite.16k.cos'
-ft_path = os.environ.get("FT", FT_DEFAULT_MODEL_PATH)
-ftcos = read_cosines(ft_path)
+# All vocabs have the same vector size
+VEC_SIZE = len(models[LANGS[0]]['vocab'])
+
 
 # Mail
 mail = Mail(app)

@@ -4,7 +4,7 @@
 
 import re
 import string
-from app import VEC_SIZE, vocab, inverted_vocab
+from app import models, VEC_SIZE
 from app.indexer.posix import load_posix
 import numpy as np
 from scipy.spatial.distance import cdist
@@ -132,7 +132,9 @@ def posix_score_seq(posl, enforce_subwords=True):
     else:
         return np.max(scores)  # meaning: 1.0 if there is at least one pair of tokens that is consecutive both in the query and in the document. Otherwise a fraction of this. 
 
-def posix(q, posindex):
+def posix(q, posindex, lang):
+    vocab = models[lang]['vocab']
+    inverted_vocab = models[lang]['inverted_vocab']
     query_vocab_ids = [vocab.get(wp) for wp in q.split()]
     if any([i is None for i in query_vocab_ids]):
         print("WARNING: there were unknown tokens in the query")
@@ -167,7 +169,8 @@ def posix(q, posindex):
     return doc_scores
 
 
-def posix_no_seq(q, posindex):
+def posix_no_seq(q, posindex, lang):
+    vocab = models[lang]['vocab']
     query_vocab_ids = [vocab.get(wp) for wp in q.split()]
     if any([i is None for i in query_vocab_ids]):
         print("WARNING: there were unknown tokens in the query")
