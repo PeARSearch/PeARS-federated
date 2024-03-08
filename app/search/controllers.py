@@ -6,7 +6,8 @@ from os.path import dirname, join, realpath
 from flask import Blueprint, request, render_template
 from app.search import score_pages
 from app.utils import parse_query, beautify_title, beautify_snippet
-from app import LANGS, OWN_BRAND, WALKTHROUGH, STOPWORDS
+from app import models
+from app import LANGS, OWN_BRAND, WALKTHROUGH
 
 # Define the blueprint:
 search = Blueprint('search', __name__, url_prefix='')
@@ -44,8 +45,7 @@ def index():
             internal_message = f.read().replace('\n', '<br>')
     
     displayresults = []
-    clean_query = ' '.join([w for w in query.split() if w not in STOPWORDS])
-    results = get_search_results(clean_query)
+    results = get_search_results(query)
     if not results:
         results = None
         return render_template('search/results.html', \
@@ -57,13 +57,13 @@ def index():
         r['title'] = beautify_title(r['title'], r['doctype'])
         r['snippet'] = beautify_snippet(r['snippet'], r['img'], clean_query)
         displayresults.append(list(r.values()))
-    query = query.replace(' ','&nbsp;')
     return render_template('search/results.html', query=query, results=displayresults, \
             internal_message=internal_message, own_brand=OWN_BRAND)
 
 def get_search_results(query):
     results = []
-    query, _, lang = parse_query(query.lower())
+    clean_query = ' '.join([w for w in query.split() if w not in models[lang]['stopwords'])
+    clean_query, _, lang = parse_query(clean_query.lower())
     if lang is None:
         languages = LANGS
     else:
@@ -71,7 +71,7 @@ def get_search_results(query):
     for lang in languages:
         print("\n\n>>SEARCH:CONTROLLERS:get_search_results: searching in",lang)
         #try:
-        r = score_pages.run_search(query, lang)
+        r = score_pages.run_search(clean_query, lang)
         results.extend(r)
         #except:
         #    pass

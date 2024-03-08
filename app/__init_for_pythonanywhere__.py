@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 import os
+from os.path import join
 import logging
 from pathlib import Path
 
@@ -34,6 +35,7 @@ app = Flask(__name__, static_folder='static')
 
 # Configurations
 USERNAME = os.getenv('PA_USERNAME') #default language for the installation
+LANGS = os.getenv('PEARS_LANGS').split(',')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////home/'+USERNAME+'/PeARS-federated/app.db'
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv("MAIL_DEFAULT_SENDER")
 app.config['MAIL_SERVER'] = os.getenv("MAIL_SERVER")
@@ -51,7 +53,7 @@ app.config['SECURITY_PASSWORD_SALT'] = os.getenv("SECURITY_PASSWORD_SALT") # set
 
 # Localization
 from flask_babel import Babel, gettext
-app.config['BABEL_DEFAULT_LOCALE'] = os.getenv("PEARS_LANG")
+app.config['BABEL_DEFAULT_LOCALE'] = LANGS[0]
 app.config['BABEL_TRANSLATION_DIRECTORIES'] = os.getenv("TRANSLATION_DIR")
 babel = Babel(app)
 
@@ -65,18 +67,18 @@ Path(os.path.join(DEFAULT_PATH,'static/userdata')).mkdir(parents=True, exist_ok=
 Path(os.path.join(DEFAULT_PATH,'static/userdata/csv')).mkdir(parents=True, exist_ok=True)
 Path(os.path.join(DEFAULT_PATH,'static/userdata/pdf')).mkdir(parents=True, exist_ok=True)
 
-LANG = os.getenv('PEARS_LANG') #default language for the installation
-app.config['BABEL_DEFAULT_LOCALE'] = LANG
 
 # Load pretrained models
 from app.readers import read_vocab, read_cosines
+from app.multilinguality import read_language_codes, read_stopwords
 from sklearn.feature_extraction.text import CountVectorizer
-  
+
+LANGUAGE_CODES = read_language_codes()
 models = dict()
 for LANG in LANGS:
     models[LANG] = {}
-    spm_vocab_path = f'app/api/models/{LANG}/{LANG}wiki.lite.16k.vocab'
-    ft_path = f'app/api/models/{LANG}/{LANG}wiki.lite.16k.cos'
+    spm_vocab_path = join(DEFAULT_PATH, f'app/api/models/{LANG}/{LANG}wiki.lite.16k.vocab')
+    ft_path = join(DEFAULT_PATH, f'app/api/models/{LANG}/{LANG}wiki.lite.16k.cos')
     vocab, inverted_vocab, logprobs = read_vocab(spm_vocab_path)
     vectorizer = CountVectorizer(vocabulary=vocab, lowercase=True, token_pattern='[^ ]+')
     ftcos = read_cosines(ft_path)
@@ -85,6 +87,7 @@ for LANG in LANGS:
     models[LANG]['logprobs'] = logprobs
     models[LANG]['vectorizer'] = vectorizer
     models[LANG]['nns'] = ftcos
+    models[LANG]['stopwords'] = read_stopwords(LANGUAGE_CODES[LANG].lower())
   
 # All vocabs have the same vector size
 VEC_SIZE = len(models[LANGS[0]]['vocab'])

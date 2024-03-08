@@ -59,8 +59,10 @@ Path(os.path.join(DEFAULT_PATH,'static/userdata')).mkdir(parents=True, exist_ok=
 
 # Load pretrained models
 from app.readers import read_vocab, read_cosines
+from app.multilinguality import read_language_codes, read_stopwords
 from sklearn.feature_extraction.text import CountVectorizer
 
+LANGUAGE_CODES = read_language_codes()
 models = dict()
 for LANG in LANGS:
     models[LANG] = {}
@@ -74,6 +76,7 @@ for LANG in LANGS:
     models[LANG]['logprobs'] = logprobs
     models[LANG]['vectorizer'] = vectorizer
     models[LANG]['nns'] = ftcos
+    models[LANG]['stopwords'] = read_stopwords(LANGUAGE_CODES[LANG].lower())
 
 # All vocabs have the same vector size
 VEC_SIZE = len(models[LANGS[0]]['vocab'])
@@ -87,11 +90,6 @@ mail = Mail(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-# Load static multilingual info
-from app.multilinguality import read_language_codes, read_stopwords
-
-LANGUAGE_CODES = read_language_codes()
-STOPWORDS = read_stopwords(LANGUAGE_CODES[LANG].lower())
 
 # Import a module / component using its blueprint handler variable (mod_auth)
 from app.indexer.controllers import indexer as indexer_module

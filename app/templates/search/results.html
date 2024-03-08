@@ -12,7 +12,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% block searchbox %}
 <form class="form-inline my-2 my-lg-0 mx-2" action="{{url_for('.index')}}" id="searchform">
   <div class="input-group group">
-    <input required class="form-control" type="search" value={{query|safe}} aria-label="Search" name="q">
+    <input required class="form-control" type="search" value="{{query|safe}}" aria-label="Search" name="q">
     <button class="btn btn-outline-success" type="submit" id="searchbutton">{{gettext('Search')}}</button>
     <button class="btn btn-outline-success" type="button" id="loadingbutton" style='display:none'>
       <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
