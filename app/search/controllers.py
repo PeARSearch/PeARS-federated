@@ -62,12 +62,12 @@ def index():
 
 def get_search_results(query):
     results = []
-    clean_query = ' '.join([w for w in query.split() if w not in models[lang]['stopwords']])
-    clean_query, _, lang = parse_query(clean_query.lower())
+    query, _, lang = parse_query(clean_query.lower())
     if lang is None:
         languages = LANGS
     else:
         languages = [lang]
+    clean_query = ' '.join([w for w in query.split() if w not in models[lang]['stopwords']])
     for lang in languages:
         print("\n\n>>SEARCH:CONTROLLERS:get_search_results: searching in",lang)
         #try:
