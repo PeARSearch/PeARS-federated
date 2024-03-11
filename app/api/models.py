@@ -91,6 +91,9 @@ class Urls(Base):
             'contributor': self.contributor
         }
 
+    def as_dict(self):
+        return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
+
 
 class Pods(Base):
     id = db.Column(db.Integer, primary_key=True)
