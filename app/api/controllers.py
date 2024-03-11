@@ -3,15 +3,18 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 # Import flask dependencies
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, render_template
 
+from os import remove, rename
+from os.path import dirname, join, realpath, basename
+from flask_login import login_required
 import numpy as np
 from scipy.sparse import csr_matrix, vstack, save_npz, load_npz
-from os.path import dirname, join, realpath, basename
 from app.api.models import Urls, Pods
-from app import db, vocab, LANG, VEC_SIZE
+from app.auth.decorators import check_is_confirmed
+from app import db, vocab, LANG, VEC_SIZE, OWN_BRAND
 from app.indexer.posix import load_posix, dump_posix
-from os import remove, rename
+from app.search.controllers import prepare_gui_results
 
 # Define the blueprint:
 api = Blueprint('api', __name__, url_prefix='/api')
@@ -20,16 +23,22 @@ dir_path = dirname(dirname(realpath(__file__)))
 pod_dir = join(dir_path,'static','pods')
 
 
+@login_required
+@check_is_confirmed
 @api.route('/pods/')
 def return_pods():
     return jsonify(json_list=[p.serialize for p in Pods.query.all()])
 
+@login_required
+@check_is_confirmed
 @api.route('/pods/<pod>/')
 def return_pod(pod):
     pod = pod.replace('+', ' ')
     p = db.session.query(Pods).filter_by(name=pod).first()
     return jsonify(p.serialize)
 
+@login_required
+@check_is_confirmed
 @api.route('/pods/delete', methods=["GET","POST"])
 def return_pod_delete(pod_name):
     print("Unsubscribing pod...", pod_name)
@@ -54,12 +63,24 @@ def return_pod_delete(pod_name):
     db.session.delete(pod)
     db.session.commit()
 
-
+@login_required
+@check_is_confirmed
 @api.route('/urls/')
 def return_urls():
     return jsonify(json_list=[i.serialize for i in Urls.query.all()])
 
+@api.route('/get', methods=["GET"])
+def return_specific_url():
+    internal_message = ""
+    u = request.args.get('url')
+    url = db.session.query(Urls).filter_by(url=u).first().as_dict()
+    displayresults = prepare_gui_results("",{u:url})
+    return render_template('search/results.html', query="", results=displayresults, \
+            internal_message=internal_message, own_brand=OWN_BRAND)
 
+
+@login_required
+@check_is_confirmed
 @api.route('/urls/delete', methods=["GET","POST"])
 def return_url_delete(path):
     u = db.session.query(Urls).filter_by(url=path).first()
@@ -102,6 +123,8 @@ def return_url_delete(path):
     return "Deleted document with vector id"+str(vid)
 
 
+@login_required
+@check_is_confirmed
 @api.route('/pods/move', methods=["GET","POST"])
 def return_pod_rename(src, target, contributor=None):
     if '.' in target:

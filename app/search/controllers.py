@@ -7,7 +7,7 @@ import numpy as np
 from flask import Blueprint, request, render_template
 from app.search import score_pages
 from app.utils import parse_query, beautify_title, beautify_snippet
-from app import models
+from app import models, db
 from app import LANGS, OWN_BRAND, WALKTHROUGH
 
 # Define the blueprint:

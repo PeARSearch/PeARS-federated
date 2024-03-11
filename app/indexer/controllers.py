@@ -76,7 +76,7 @@ def index_from_url():
         with open(user_url_file, 'w', encoding="utf-8") as f:
             f.write(url + ";" + theme + ";" + note + ";" + contributor + "\n")
         print("\t>> Indexer : progress_file")
-        messages = run_indexer_url(contributor, user_url_file)
+        messages = run_indexer_url(contributor, user_url_file, request.host_url)
         return render_template('indexer/progress_file.html', messages = messages)
     return render_template('indexer/index.html', form1=form, form2=ManualEntryForm(request.form))
 
@@ -109,13 +109,13 @@ def index_from_manual():
         keyword = 'Tips'
         print(u, keyword, lang, note, contributor)
         print("\t>> Indexer : manual_progress_file")
-        messages = run_indexer_manual(u, title, snippet, keyword, lang, note, contributor)
+        messages = run_indexer_manual(u, title, snippet, keyword, lang, note, contributor, request.host_url)
         return render_template('indexer/progress_file.html', messages=messages)
     return render_template('indexer/index.html', form1=IndexerForm(request.form), form2=form)
 
 
 
-def run_indexer_url(contributor, user_url_file):
+def run_indexer_url(contributor, user_url_file, host_url):
     """ Run the indexer over the suggested URL.
     This includes checking the robots.txt, and producing 
     representations that include entries in the positional
@@ -150,10 +150,13 @@ def run_indexer_url(contributor, user_url_file):
                 create_pod_in_db(contributor, theme, lang)
                 posix_doc(text, idx, contributor, lang, theme)
                 add_to_npz_to_idx(theme+'.u.'+contributor, lang, vid, idx)
+                share_url = host_url+"api/get?url="+url
                 create_or_replace_url_in_db(\
-                        url, title, snippet, theme, lang, note, contributor, 'url')
+                        url, title, snippet, theme, lang, note, share_url, contributor, 'url')
                 success_message = url+" was successfully indexed."
                 messages.append(success_message)
+                share_message = "You can share your contribution via this link: <a href='"+share_url+"'>"+share_url+"</a>"
+                messages.append(share_message)
             else:
                 messages.extend(mgs)
         else:
@@ -161,7 +164,7 @@ def run_indexer_url(contributor, user_url_file):
     return messages
 
 
-def run_indexer_manual(url, title, doc, theme, lang, note, contributor):
+def run_indexer_manual(url, title, doc, theme, lang, note, contributor, host_url):
     """ Run the indexer over manually contributed information.
     
     Arguments: a url (internal and bogus, constructed by 'index_from_manual'),
@@ -177,7 +180,8 @@ def run_indexer_manual(url, title, doc, theme, lang, note, contributor):
             title, doc, theme, lang, contributor)
     posix_doc(text, idx, contributor, lang, theme)
     add_to_npz_to_idx(theme+'.u.'+contributor, lang, vid, idx)
-    create_or_replace_url_in_db(url, title, snippet, theme, lang, note, contributor, 'doc')
+    share_url = host_url+"api/get?url="+url
+    create_or_replace_url_in_db(url, title, snippet, theme, lang, note, share_url, contributor, 'doc')
     success_message = url+" was successfully indexed."
     messages.append(success_message)
     return messages

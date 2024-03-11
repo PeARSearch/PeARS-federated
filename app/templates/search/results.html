@@ -10,7 +10,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 {%block navbar_links %}
 {% endblock %}
 {% block searchbox %}
-<form class="form-inline my-2 my-lg-0 mx-2" action="{{url_for('.index')}}" id="searchform">
+<form class="form-inline my-2 my-lg-0 mx-2" action="{{url_for('search.index')}}" id="searchform">
   <div class="input-group group">
     <input required class="form-control" type="search" value="{{query|safe}}" aria-label="Search" name="q">
     <button class="btn btn-outline-success" type="submit" id="searchbutton">{{gettext('Search')}}</button>
@@ -40,28 +40,24 @@ SPDX-License-Identifier: AGPL-3.0-only
 	  <!--<h4 class="card-title"><a href="{{result[1]}}">{{result[2]}}</a></h4>-->
 	    <a class="btn btn-light" href="{{result[1]}}"><b>{{result[2]}}</b></a>
 
+	    {% if current_user.is_authenticated and current_user.is_confirmed %}
+	    <a class="btn btn-link" href="{{url_for('orchard.annotate')}}?url={{result[1]}}" data-toggle="tooltip" title="{{gettext('Add a note to this entry')}}"><ion-icon name="chatbubble-outline"></ion-icon></a>  
+	    {% endif %}
+	    <button class="btn btn-link" data-toggle="tooltip" title="{{gettext('Share this entry')}}" onClick="copyToClipboard('{{result[8]}}')"><ion-icon name="share-outline"></ion-icon></button> 
+	    <a class="btn btn-link" href="{{url_for('orchard.report')}}?url={{result[1]}}"><ion-icon name="flag-outline"></ion-icon></a> 
+
+	    <p class="card-text small" style='margin-left:10px;'><a href="{{result[1]}}" class="card-link">{{result[1]}}</a></p>
+	    <p class="card-text small" style='margin: -10px 0px 10px 10px'><br>{{result[3]|safe}} ...</p>
             {% if result[6] != None %}
 	    <button class="btn btn-link collapsed" data-bs-toggle="collapse" data-bs-target="#collapse{{result[0]}}" aria-expanded="false" aria-controls="collapse{{result[0]}}">
-	    <img src="{{ url_for('static', filename='note.png')}}" width='30px' />
+	      <img src="{{ url_for('static', filename='note.png')}}" width='30px' />
             </button>
-	    {% endif %}
-
-	    <p class="card-text small" style='margin: 0px 0px 10px 40px'><br>{{result[3]|safe}} ...</p>
-	    <p class="small" style='margin-left:40px;'>
-	    <a href="{{result[1]}}" class="card-link">{{result[1]}}</a> |
-	    <a class="p-2" href="{{url_for('orchard.report')}}?url={{result[1]}}">{{gettext('Report this entry')}}</a> | 
-	    {% if current_user.is_authenticated and current_user.is_confirmed %}
-	    <a href="{{url_for('orchard.annotate')}}?url={{result[1]}}" data-toggle="tooltip" title="{{gettext('Add a note to this entry')}}"><span class="results-emoji">🖊️ </span></a> | 
-	    {% endif %}
-	    </p>
-          </div>
-          {% if result[5] != None %}
-            <div class="card card-body">
-              <div class="collapse" id="collapse{{result[0]}}">
-              {{result[6]|safe}}
-              </div>
+            <div class="collapse" id="collapse{{result[0]}}">
+               <p class="card-text small" style='margin-left:10px;'>{{result[6]|safe}}</p>
             </div>
-          {% endif %}
+	    {% endif %}
+	    <hr>
+          </div>
         </div>
         {% endfor %}
         {% endif %}
@@ -87,5 +83,10 @@ SPDX-License-Identifier: AGPL-3.0-only
 $(document).ready(function(){
   $('[data-toggle="tooltip"]').tooltip();
 });
+</script>
+<script>
+    function copyToClipboard(link) {
+        navigator.clipboard.writeText(link)
+    }
 </script>
 {% endblock %}

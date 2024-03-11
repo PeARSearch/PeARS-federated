@@ -11,7 +11,7 @@ SPDX-License-Identifier: AGPL-3.0-only
   <div class="row">
     <div class="col-md-10 p-3" style="padding-left: 20px; display:flex;  flex-direction: row;  flex-wrap: wrap;  margin-bottom: 45px;">
       {% for message in messages %}
-      <b>{{message}}</b><br>
+      <b>{{message|safe}}</b><br>
       {% endfor %}
     </div>
     <a class="btn btn-success" href="{{url_for('indexer.index')}}">{{gettext("Index more pages")}}</a>

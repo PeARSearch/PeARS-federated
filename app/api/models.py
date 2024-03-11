@@ -50,7 +50,7 @@ class Urls(Base):
     pod = db.Column(db.String(1000))
     notes = db.Column(db.String(1000))
     img = db.Column(db.String(1000))
-    trigger = db.Column(db.String(1000))
+    share = db.Column(db.String(1000))
     contributor = db.Column(db.String(1000))
 
     def __init__(self,
@@ -61,7 +61,7 @@ class Urls(Base):
                  pod=None,
                  notes=None,
                  img=None,
-                 trigger=None,
+                 share=None,
                  contributor=None):
         self.url = url
         self.title = title
@@ -70,7 +70,7 @@ class Urls(Base):
         self.pod = pod
         self.notes = notes
         self.img = img
-        self.trigger = trigger
+        self.share = share
         self.contributor = contributor
 
     def __repr__(self):
@@ -87,7 +87,7 @@ class Urls(Base):
             'pod': self.pod,
             'notes': self.notes,
             'img': self.img,
-            'trigger': self.trigger,
+            'share': self.share,
             'contributor': self.contributor
         }
 
