@@ -227,7 +227,7 @@ def beautify_snippet(snippet, img, query):
     for w in query.split():
         tmp_snippet = tmp_snippet.replace(w,'<b>'+w+'</b>')
         tmp_snippet = tmp_snippet.replace(w.title(),'<b>'+w.title()+'</b>')
-    if img:
+    if img != 'None': #None is str in database
         img = join('static','assets',img)
         tmp_snippet = "<img src='"+img+"' style='float:left; width:150px; margin-right: 10px'/>"+tmp_snippet
     return tmp_snippet

@@ -40,7 +40,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 	  <!--<h4 class="card-title"><a href="{{result[1]}}">{{result[2]}}</a></h4>-->
 	    <a class="btn btn-light" href="{{result[1]}}"><b>{{result[2]}}</b></a>
 
-            {% if result[5] != None %}
+            {% if result[6] != None %}
 	    <button class="btn btn-link collapsed" data-bs-toggle="collapse" data-bs-target="#collapse{{result[0]}}" aria-expanded="false" aria-controls="collapse{{result[0]}}">
 	    <img src="{{ url_for('static', filename='note.png')}}" width='30px' />
             </button>
@@ -61,7 +61,7 @@ SPDX-License-Identifier: AGPL-3.0-only
           {% if result[5] != None %}
             <div class="card card-body">
               <div class="collapse" id="collapse{{result[0]}}">
-              {{result[5]|safe}}
+              {{result[6]|safe}}
               </div>
             </div>
           {% endif %}

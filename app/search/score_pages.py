@@ -87,7 +87,9 @@ def intersect_best_posix_lists(query_tokenized, posindex, lang):
         q_best_docs = set.union(*map(set,tmp_best_docs))
     best_docs = {}
     for d in q_best_docs:
-        docscore = np.mean(posix_scores[d])
+        #Here we sum because we want as many words as possible
+        #to be covered by the document
+        docscore = np.sum(posix_scores[d])
         best_docs[d] = docscore
     return best_docs
 
@@ -208,9 +210,10 @@ def score_docs(query, query_vectors, query_tokenized, pod_name, posindex, lang):
     for url in list(vec_scores.keys()):
         i = idx_to_url[1].index(url)
         idx = idx_to_url[0][i]
-        document_scores[url] = posix_scores.get(idx, 0)
-        print(">>>",url, "VEC", vec_scores[url], "POSIX",document_scores[url])
-        if math.isnan(document_scores[url]):
+        document_scores[url] = vec_scores[url]
+        document_scores[url] += posix_scores.get(idx, 0)
+        #print(">>>",url, "VEC", vec_scores[url], "POSIX",document_scores[url])
+        if math.isnan(document_scores[url]) or document_scores[url] < 1:
             document_scores[url] = 0
         else:
             u = db.session.query(Urls).filter_by(url=url).first()
@@ -254,6 +257,7 @@ def score_docs_extended(extended_q_tokenized, pod_name, posindex, lang):
 
 def return_best_urls(doc_scores):
     best_urls = []
+    scores = []
     netlocs_used = []  # Don't return 100 pages from the same site
     c = 0
     for w in sorted(doc_scores, key=doc_scores.get, reverse=True):
@@ -263,6 +267,7 @@ def return_best_urls(doc_scores):
                 #if netlocs_used.count(loc) < 10:
                 #print("DOC SCORE",w,doc_scores[w])
                 best_urls.append(w)
+                scores.append(doc_scores[w])
                 netlocs_used.append(loc)
                 c += 1
             else:
@@ -270,30 +275,15 @@ def return_best_urls(doc_scores):
         else:
             break
     #print("BEST URLS",best_urls)
-    return best_urls
+    return best_urls, scores
 
 
 def output(best_urls):
-    results = []
-    pods = []
+    results = {}
     for u in best_urls:
-        rec = Urls.query.filter(Urls.url == u).first()
-        result = {}
-        result['id'] = rec.id
-        result['url'] = rec.url
-        result['title'] = rec.title
-        result['snippet'] = rec.snippet
-        result['doctype'] = rec.doctype
-        result['notes'] = rec.notes
-        result['pod'] = rec.pod
-        result['img'] = rec.img
-        result['trigger'] = rec.trigger
-        result['contributor'] = rec.contributor
-        results.append(result)
-        pod = rec.pod
-        if pod not in pods:
-            pods.append(pod)
-    return results, pods
+        url = db.session.query(Urls).filter_by(url=u).first().as_dict()
+        results[u] = url
+    return results
 
 
 def run_search(query:str, lang):
@@ -304,7 +294,7 @@ def run_search(query:str, lang):
     on the original query. 3) We run search on an 'extended' query
     consisting of distributional neighbours of the original words.
 
-    Parameter: q, a query string.
+    Parameter: query, a query string.
     Returns: a list of documents. Each document is a dictionary. 
     """
     document_scores = {}
@@ -354,6 +344,6 @@ def run_search(query:str, lang):
             merged_scores[k] = 0.5*extended_document_scores[k]
 
     #print("DOCUMENT SCORES MERGED",merged_scores)
-    best_urls = return_best_urls(merged_scores)
-    results, pods = output(best_urls)
-    return results
+    best_urls, scores = return_best_urls(merged_scores)
+    results = output(best_urls)
+    return results, scores

@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 from os.path import dirname, join, realpath
+import numpy as np
 from flask import Blueprint, request, render_template
 from app.search import score_pages
 from app.utils import parse_query, beautify_title, beautify_snippet
@@ -44,24 +45,29 @@ def index():
         with open(join(static_dir,'walkthrough.txt'), 'r', encoding="utf-8") as f:
             internal_message = f.read().replace('\n', '<br>')
     
-    displayresults = []
     results = get_search_results(query)
-    if not results:
-        results = None
-        return render_template('search/results.html', \
-                query=query, results=results, own_brand=OWN_BRAND)
-    print(results) 
-    for r in results:
-        if r['doctype'] != 'csv' and r['doctype'] != 'doc':
-            r['snippet'] = ' '.join(r['snippet'].split()[:11]) #11 to conform with EU regulations
-        r['title'] = beautify_title(r['title'], r['doctype'])
-        r['snippet'] = beautify_snippet(r['snippet'], r['img'], query)
-        displayresults.append(list(r.values()))
+    displayresults = prepare_gui_results(query, results)
     return render_template('search/results.html', query=query, results=displayresults, \
             internal_message=internal_message, own_brand=OWN_BRAND)
 
+def prepare_gui_results(query, results):
+    if results is None:
+        return None
+    displayresults = []
+    for url, r in results.items():
+        r['title'] = r['title'][:70]
+        r['snippet'] = beautify_snippet(r['snippet'], r['img'], query)
+        r['snippet'] = ' '.join(r['snippet'].split()[:11]) #11 to conform with EU regulations
+        if r['notes'] == 'None':
+            r['notes'] = None
+        values = list(r.values())
+        displayresults.append(values[2:])
+    return displayresults
+
+
 def get_search_results(query):
-    results = []
+    results = {}
+    scores = []
     query, _, lang = parse_query(query.lower())
     if lang is None:
         languages = LANGS
@@ -71,9 +77,18 @@ def get_search_results(query):
         clean_query = ' '.join([w for w in query.split() if w not in models[lang]['stopwords']])
         print("\n\n>>SEARCH:CONTROLLERS:get_search_results: searching in",lang)
         #try:
-        r = score_pages.run_search(clean_query, lang)
-        results.extend(r)
+        r, s = score_pages.run_search(clean_query, lang)
+        results.update(r)
+        scores.extend(s)
         #except:
         #    pass
-    return results
+    print(results.keys())
+    print(scores)
+    sorted_scores = np.argsort(scores)[::-1]
+    sorted_results = {}
+    print(sorted_scores)
+    for i in sorted_scores:
+        url = list(results.keys())[i]
+        sorted_results[url] = results[url]
+    return sorted_results
 

@@ -173,7 +173,7 @@ def posix_no_seq(q, posindex, lang):
     vocab = models[lang]['vocab']
     query_vocab_ids = [vocab.get(wp) for wp in q.split()]
     if any([i is None for i in query_vocab_ids]):
-        print("WARNING: there were unknown tokens in the query")
+        print("WARNING: there were unknown tokens in the query. This can happen while computing the extended query because the FastText neighbours may not be in the vocabulary.")
         #print(q.split(), query_vocab_ids)
         query_vocab_ids = [i for i in query_vocab_ids if i is not None]
 
