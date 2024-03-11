@@ -24,7 +24,7 @@ class PasswordChangeForm(FlaskForm):
 class IndexerForm(FlaskForm):
     url = StringField(lazy_gettext('The url to index'), [DataRequired(), url()])
     theme = TextField(lazy_gettext('Theme'), [DataRequired(), Length(max=50)])
-    trigger_warning = TextField(lazy_gettext('Optional trigger warning'), [Length(max=100)])
+    note = TextField(lazy_gettext('Optional note'), [Length(max=100)])
     accept_tos = BooleanField(lazy_gettext('I confirm that my suggestion does not contravene the Terms of Service'), [DataRequired()])
 
 class ManualEntryForm(FlaskForm):

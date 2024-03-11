@@ -32,7 +32,7 @@ SPDX-License-Identifier: AGPL-3.0-only
         {{ form1.hidden_tag() }}
         <p>{{ render_field(form1.url) }}</p>
         <p>{{ render_field(form1.theme) }}</p>
-        <p>{{ render_field(form1.trigger_warning) }}</p>
+        <p>{{ render_field(form1.note) }}</p>
         <div class="form-check">
           {{ form1.accept_tos(class_="form-check-input") }}
           <label class="form-check-label" for="legal">{{gettext("I confirm that my entry does not contravene the <a href='../terms-of-service'>terms of service</a> of this site.")}}</label>

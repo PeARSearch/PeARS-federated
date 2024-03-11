@@ -98,10 +98,10 @@ def add_to_npz_to_idx(pod_name, lang, vid, idx):
     npz_to_idx[1].append(idx)
     joblib.dump(npz_to_idx, pod_path)
 
-def create_or_replace_url_in_db(url, title, snippet, theme, lang, trigger, contributor, entry_type):
+def create_or_replace_url_in_db(url, title, snippet, theme, lang, note, contributor, entry_type):
     """Add a new URL to the database or update it.
     Arguments: url, title, snippet, theme, language,
-    trigger warning, username, type (url or doc).
+    note warning, username, type (url or doc).
     """
     cc = False
     entry = db.session.query(Urls).filter_by(url=url).first()
@@ -113,9 +113,13 @@ def create_or_replace_url_in_db(url, title, snippet, theme, lang, trigger, contr
     u.snippet = snippet
     u.pod = theme+'.u.'+contributor
     u.language = lang
-    u.trigger = trigger
     u.contributor = contributor
     u.doctype = entry_type
     u.cc = cc
+    note = '@'+contributor+' >> '+note
+    if u.notes is not None:
+        u.notes = u.notes+'<br>'+note
+    else:
+        u.notes = note
     db.session.add(u)
     db.session.commit()

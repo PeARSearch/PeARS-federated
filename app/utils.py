@@ -63,7 +63,7 @@ def read_urls(url_file):
     """
     urls = []
     keywords = []
-    triggers = []
+    notes = []
     contributors = []
     errors = False
     with open(url_file, 'r', encoding="utf-8") as fd:
@@ -72,11 +72,11 @@ def read_urls(url_file):
             if matches:
                 urls.append(matches[0])
                 keywords.append(matches[1])
-                triggers.append(matches[2])
+                notes.append(matches[2])
                 contributors.append(matches[3])
             else:
                 errors = True
-    return urls, keywords, triggers, contributors, errors
+    return urls, keywords, notes, contributors, errors
 
 def read_docs(doc_file):
     """ Read document file in <doc></doc> format.

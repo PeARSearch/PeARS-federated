@@ -69,12 +69,12 @@ def index_from_url():
         user_url_file = join(suggestions_dir_path, contributor+".suggestions")
         url = request.form.get('url')
         theme = request.form.get('theme')
-        trigger = request.form.get('trigger')
-        if trigger is None:
-            trigger = ''
-        print(url, theme, trigger, contributor)
+        note = request.form.get('note')
+        if note is None:
+            note = ''
+        print(url, theme, note, contributor)
         with open(user_url_file, 'w', encoding="utf-8") as f:
-            f.write(url + ";" + theme + ";" + trigger + ";" + contributor + "\n")
+            f.write(url + ";" + theme + ";" + note + ";" + contributor + "\n")
         print("\t>> Indexer : progress_file")
         messages = run_indexer_url(contributor, user_url_file)
         return render_template('indexer/progress_file.html', messages = messages)
@@ -105,11 +105,11 @@ def index_from_manual():
         if lang not in LANGS:
             lang = LANGS[0]
         u = url_for('search.index',q=' '.join(snippet.split()[:4]))
-        trigger = ''
+        note = ''
         keyword = 'Tips'
-        print(u, keyword, lang, trigger, contributor)
+        print(u, keyword, lang, note, contributor)
         print("\t>> Indexer : manual_progress_file")
-        messages = run_indexer_manual(u, title, snippet, keyword, lang, trigger, contributor)
+        messages = run_indexer_manual(u, title, snippet, keyword, lang, note, contributor)
         return render_template('indexer/progress_file.html', messages=messages)
     return render_template('indexer/index.html', form1=IndexerForm(request.form), form2=form)
 
@@ -128,14 +128,14 @@ def run_indexer_url(contributor, user_url_file):
     """
     print(">> INDEXER: run_indexer_url: Running indexer over suggested URL.")
     messages = []
-    urls, themes, triggers, contributors, errors = read_urls(user_url_file)
+    urls, themes, notes, contributors, errors = read_urls(user_url_file)
     if errors:
         return errors
     if not urls or not themes:
         messages.append('ERROR: Invalid file format.')
         return messages
     theme = themes[0]
-    for url, theme, trigger, _ in zip(urls, themes, triggers, contributors):
+    for url, theme, note, _ in zip(urls, themes, notes, contributors):
         access, req, request_errors = request_url(url)
         if access:
             try:
@@ -151,7 +151,7 @@ def run_indexer_url(contributor, user_url_file):
                 posix_doc(text, idx, contributor, lang, theme)
                 add_to_npz_to_idx(theme+'.u.'+contributor, lang, vid, idx)
                 create_or_replace_url_in_db(\
-                        url, title, snippet, theme, lang, trigger, contributor, 'url')
+                        url, title, snippet, theme, lang, note, contributor, 'url')
                 success_message = url+" was successfully indexed."
                 messages.append(success_message)
             else:
@@ -161,11 +161,11 @@ def run_indexer_url(contributor, user_url_file):
     return messages
 
 
-def run_indexer_manual(url, title, doc, theme, lang, trigger, contributor):
+def run_indexer_manual(url, title, doc, theme, lang, note, contributor):
     """ Run the indexer over manually contributed information.
     
     Arguments: a url (internal and bogus, constructed by 'index_from_manual'),
-    the title and content of the added document, a topic, language, trigger 
+    the title and content of the added document, a topic, language, note 
     information, as well as the username of the contributor.
     """
     print(">> INDEXER: run_indexer_manual: Running indexer over manually added information.")
@@ -177,7 +177,7 @@ def run_indexer_manual(url, title, doc, theme, lang, trigger, contributor):
             title, doc, theme, lang, contributor)
     posix_doc(text, idx, contributor, lang, theme)
     add_to_npz_to_idx(theme+'.u.'+contributor, lang, vid, idx)
-    create_or_replace_url_in_db(url, title, snippet, theme, lang, trigger, contributor, 'doc')
+    create_or_replace_url_in_db(url, title, snippet, theme, lang, note, contributor, 'doc')
     success_message = url+" was successfully indexed."
     messages.append(success_message)
     return messages
