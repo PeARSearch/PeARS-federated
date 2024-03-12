@@ -73,7 +73,7 @@ def export_urls():
     for pod in pods:
         name = pod.name.split('.u.')[0]
         urls.extend(get_reindexable_pod_for_admin(name))
-    with open(filepath, 'W', encoding='utf-8') as f:
+    with open(filepath, 'w', encoding='utf-8') as f:
         for url in urls:
             f.write(url+'\n')
 
