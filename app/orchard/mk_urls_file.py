@@ -34,6 +34,7 @@ def get_reindexable_pod_for_admin(theme):
         if not url.pod.startswith(theme+'.u.'):
             continue
         user = url.contributor
+        user = user.replace('@','') #legacy fix
         note = ''
         if url.notes is not None:
             note = '"'+url.notes+'"'
