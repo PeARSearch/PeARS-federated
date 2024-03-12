@@ -9,7 +9,7 @@ from os.path import dirname, realpath, join
 from app.api.models import Urls, Pods
 from app.api.controllers import return_pod_rename
 from app import db, OWN_BRAND
-from app.orchard.mk_urls_file import make_shareable_pod
+from app.orchard.mk_urls_file import get_url_list_for_users
 from app.auth.decorators import check_is_confirmed
 from app.auth.token import send_email
 from app.forms import ReportingForm, AnnotationForm
@@ -56,7 +56,7 @@ def index():
 @check_is_confirmed
 def get_a_pod():
     query = request.args.get('pod')
-    filename, urls = make_shareable_pod(query)
+    filename, urls = get_url_list_for_users(query)
     print("\t>> Orchard: get_a_pod: generated", filename)
     return render_template('orchard/get-a-pod.html', urls=urls, query=query, location=filename)
 

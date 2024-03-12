@@ -7,11 +7,12 @@ from shutil import copy2, copytree
 from os.path import dirname, realpath, join, isfile
 from datetime import datetime
 from pathlib import Path
-from flask import Blueprint
+from flask import Blueprint, request
 from app.indexer.controllers import run_indexer_url
 from app.indexer.access import request_url
 from app.indexer.htmlparser import extract_links
-from app import db, User, Urls
+from app.orchard.mk_urls_file import get_reindexable_pod_for_admin
+from app import db, User, Urls, Pods
 
 pears = Blueprint('pears', __name__)
 
@@ -28,16 +29,17 @@ def set_admin(username):
 @pears.cli.command('index')
 @click.argument('contributor')
 @click.argument('path')
-def index(contributor, filepath):
+def index(filepath):
     '''
     Index from a manual created URL file.
     The file should have the following information,
     separated by semi-colons:
-    url; theme; trigger; contributor
+    url; theme; lang; note; contributor
     with one url per line.
     Use from CLI with flask pears index <contributor> <path>
     '''
-    run_indexer_url(contributor, filepath) 
+    host_url = request.host_url
+    run_indexer_url(filepath, host_url) 
 
 
 @pears.cli.command('getlinks')
@@ -56,10 +58,14 @@ def get_links(url):
 @pears.cli.command('exporturls')
 def export_urls():
     '''Get all URLs on this instance'''
-    urls = Urls.query.all()
-    for u in urls:
-        theme = u.pod.split('.u.')[0]
-        print(u.url+';'+theme+';'+u.trigger+';'+u.contributor)
+    urls = []
+    pods = Pods.query.all()
+    for pod in pods:
+        name = pod.name.split('.u.')[0]
+        urls.extend(get_reindexable_pod_for_admin(name))
+    for url in urls:
+        print(url)
+
 
 @pears.cli.command('backup')
 @click.argument('backupdir')

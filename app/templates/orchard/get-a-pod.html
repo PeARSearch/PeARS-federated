@@ -13,10 +13,7 @@ SPDX-License-Identifier: AGPL-3.0-only
          <div class="card-body">
          <a href={{url_for('orchard.download_file', filename=location)}} target='_blank' class="btn btn-success" role="button">Download</a><hr>
 	 {% for url in urls %}
-	 <a href='{{url[0]}}'>{{url[0]}}</a>
-	 {% if url[1] != '' %}
-	  | <span class="results-emoji">🔥</span>{{url[1]}}
-	 {% endif %}
+	 <a href='{{url}}'>{{url}}</a>
 	 <br>
 	 {% endfor %}
          </div>
