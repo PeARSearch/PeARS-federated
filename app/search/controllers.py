@@ -50,6 +50,7 @@ def index():
     return render_template('search/results.html', query=query, results=displayresults, \
             internal_message=internal_message, own_brand=OWN_BRAND)
 
+
 def prepare_gui_results(query, results):
     if results is None:
         return None
@@ -76,19 +77,15 @@ def get_search_results(query):
     for lang in languages:
         clean_query = ' '.join([w for w in query.split() if w not in models[lang]['stopwords']])
         print("\n\n>>SEARCH:CONTROLLERS:get_search_results: searching in",lang)
-        #try:
-        r, s = score_pages.run_search(clean_query, lang)
-        results.update(r)
-        scores.extend(s)
-        #except:
-        #    pass
-    print(results.keys())
-    print(scores)
+        try:
+            r, s = score_pages.run_search(clean_query, lang)
+            results.update(r)
+            scores.extend(s)
+        except:
+            pass
     sorted_scores = np.argsort(scores)[::-1]
     sorted_results = {}
-    print(sorted_scores)
     for i in sorted_scores:
         url = list(results.keys())[i]
         sorted_results[url] = results[url]
     return sorted_results
-

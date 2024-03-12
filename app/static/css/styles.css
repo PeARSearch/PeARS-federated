@@ -88,6 +88,11 @@ a:hover {
   --bs-btn-hover-border-color: #F8F8F8;
 }
 
+.btn-link {
+  color: black;
+  --bs-btn-hover-color: red;
+}
+
 .submit-color-button {
   height: 30px;
   width: 30px;
