@@ -4,7 +4,9 @@
 
 from os.path import dirname, join, realpath
 import numpy as np
-from flask import Blueprint, request, render_template
+from flask import Blueprint, Markup, request, render_template, flash, url_for
+from flask_login import current_user
+from flask_babel import gettext
 from app.search import score_pages
 from app.utils import parse_query, beautify_title, beautify_snippet
 from app import models, db
@@ -35,6 +37,12 @@ def index():
     query = request.args.get('q')
     
     if not query:
+        if not current_user.is_confirmed:
+            message = Markup(gettext("You have not confirmed your account.<br>\
+                    Please use the link in the email that was sent to you, \
+                    or request a new link by clicking <a href='"+url_for('auth.resend_confirmation')+"'>here</a>."))
+            print(message)
+            flash(message)
         if OWN_BRAND:
             with open(join(static_dir,'intro.txt'), 'r', encoding="utf-8") as f:
                 internal_message = f.read().replace('\n', '<br>')
