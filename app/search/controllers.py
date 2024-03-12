@@ -37,11 +37,10 @@ def index():
     query = request.args.get('q')
     
     if not query:
-        if not current_user.is_confirmed:
+        if current_user.is_authenticated and not current_user.is_confirmed:
             message = Markup(gettext("You have not confirmed your account.<br>\
                     Please use the link in the email that was sent to you, \
                     or request a new link by clicking <a href='"+url_for('auth.resend_confirmation')+"'>here</a>."))
-            print(message)
             flash(message)
         if OWN_BRAND:
             with open(join(static_dir,'intro.txt'), 'r', encoding="utf-8") as f:
