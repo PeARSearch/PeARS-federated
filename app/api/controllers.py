@@ -2,19 +2,18 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-# Import flask dependencies
-from flask import Blueprint, jsonify, request, render_template
-
+import joblib
 from os import remove, rename
-from os.path import dirname, join, realpath, basename
+from os.path import dirname, join, realpath, isfile
+from flask import Blueprint, jsonify, request, render_template
 from flask_login import login_required
-import numpy as np
-from scipy.sparse import csr_matrix, vstack, save_npz, load_npz
+from scipy.sparse import vstack, save_npz, load_npz
 from app.api.models import Urls, Pods
 from app.auth.decorators import check_is_confirmed
-from app import db, vocab, LANG, VEC_SIZE, OWN_BRAND
+from app import db, models, OWN_BRAND
 from app.indexer.posix import load_posix, dump_posix
 from app.search.controllers import prepare_gui_results
+from app.utils_db import load_idx_to_url, load_npz_to_idx, rm_from_idx_to_url
 
 # Define the blueprint:
 api = Blueprint('api', __name__, url_prefix='/api')
@@ -53,13 +52,19 @@ def return_pod_delete(pod_name):
     urls = db.session.query(Urls).filter_by(pod=pod_name).all()
     if urls is not None:
         for u in urls:
+            #This is going to be slow for many urls...
+            rm_from_idx_to_url(contributor, u.url)
             db.session.delete(u)
             db.session.commit()
-    print("Removing CSR matrix")
-    remove(join(pod_dir,pod_name+'.npz'))
-    print("Removing positional index")
-    remove(join(pod_dir,pod_name+'.pos'))
-    print("Reverting summary to 0")
+    npz_path = join(pod_dir, contributor, lang, pod_name+'.npz')
+    if isfile(npz_path):
+        remove(npz_path)
+    npz_idx_path = join(pod_dir, contributor, lang, pod_name+'.npz.idx')
+    if isfile(npz_idx_path):
+        remove(npz_idx_path)
+    pos_path = join(pod_dir, contributor, lang, pod_name+'.pos')
+    if isfile(pos_path):
+        remove(pos_path)
     db.session.delete(pod)
     db.session.commit()
 
@@ -85,28 +90,45 @@ def return_specific_url():
 def return_url_delete(path):
     u = db.session.query(Urls).filter_by(url=path).first()
     pod_name = u.pod
-    vid = int(u.vector)
     theme, contributor = pod_name.split('.u.')
+    pod = db.session.query(Pods).filter_by(name=pod_name).first()
+    lang = pod.language
+    vocab = models[lang]['vocab']
+
+    #Remove document from main .idx file
+    idx = delete_url_from_url_to_idx(path, contributor)
+
+    #Find out index of url
+    npz_to_idx, npz_to_idx_path = load_npz_to_idx(contributor, lang, theme)
+    print("NPZ_TO_IDX")
+    print(npz_to_idx)
+    j = npz_to_idx[1].index(idx)
+    vid = npz_to_idx[0].index(j)
     print(theme, contributor)
     print(path, vid, pod_name)
 
     #Remove document row from .npz matrix
-    pod_m = load_npz(join(pod_dir,pod_name+'.npz'))
+    pod_m = load_npz(join(pod_dir, contributor, lang, pod_name+'.npz'))
+    print("pod_m",pod_m.shape)
+    print("vid",vid)
     m1 = pod_m[:vid]
     m2 = pod_m[vid+1:]
-    pod_m = vstack((m1,m2)) 
-    save_npz(join(pod_dir,pod_name+'.npz'),pod_m)
+    print("m1",m1.shape)
+    print("m2",m2.shape)
+    pod_m = vstack((m1,m2))
+    print("pod_m",pod_m.shape)
+    save_npz(join(pod_dir, contributor, lang, pod_name+'.npz'),pod_m)
 
-    #Correct indices in DB
-    urls = db.session.query(Urls).filter_by(pod=pod_name).all()
-    for url in urls:
-        if int(url.vector) > vid:
-            url.vector = str(int(url.vector)-1) #Decrease ID now that matrix row has gone
-        db.session.add(url)
-        db.session.commit()
-   
+    #Remove document from .npz.idx mapping
+    new_npz = npz_to_idx[0][:j]+npz_to_idx[0][j+1:]
+    new_idx = npz_to_idx[1][:j]+npz_to_idx[1][j+1:]
+    npz_to_idx = [new_npz,new_idx]
+    joblib.dump(npz_to_idx, npz_to_idx_path)
+    print("NPZ_TO_IDX")
+    print(npz_to_idx)
+
     #Remove doc from positional index
-    posindex = load_posix(pod_name)
+    posindex = load_posix(contributor, lang, theme)
     new_posindex = []
     for token in vocab:
         token_id = vocab[token]
@@ -115,11 +137,16 @@ def return_url_delete(path):
             if doc_id != str(vid):
                 tmp[doc_id] = posidx
         new_posindex.append(tmp)
-    dump_posix(new_posindex,pod_name)
+    dump_posix(new_posindex, contributor, lang, theme)
 
     #Delete from database
     db.session.delete(u)
     db.session.commit()
+
+    #If pod is now empty, delete it
+    print(pod_m.shape)
+    if pod_m.shape[0] == 1:
+        return_pod_delete(pod_name)
     return "Deleted document with vector id"+str(vid)
 
 

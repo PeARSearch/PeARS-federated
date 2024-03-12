@@ -129,7 +129,8 @@ with app.app_context():
 
 from flask_admin.contrib.sqla import ModelView
 from app.api.models import Pods, Urls
-from app.api.controllers import return_url_delete, return_pod_delete
+from app.api.controllers import return_pod_delete
+from app.utils_db import delete_url_representations
 
 
 
@@ -188,9 +189,9 @@ class UrlsModelView(ModelView):
     def delete_model(self, model):
         try:
             self.on_model_delete(model)
-            print("DELETING",model.url,model.vector)
+            print("DELETING",model.url)
             # Add your custom logic here and don't forget to commit any changes e.g.
-            print(return_url_delete(model.url))
+            print(delete_url_representations(model.url))
             self.session.commit()
         except Exception as ex:
             if not self.handle_view_exception(ex):

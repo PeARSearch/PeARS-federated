@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 from os.path import dirname, join, realpath
+from glob import glob
 import numpy as np
 from flask import Blueprint, Markup, request, render_template, flash, url_for
 from flask_login import current_user
@@ -82,6 +83,8 @@ def get_search_results(query):
     else:
         languages = [lang]
     for lang in languages:
+        if glob(join(pod_dir,'*',lang)) == []:
+            continue
         clean_query = ' '.join([w for w in query.split() if w not in models[lang]['stopwords']])
         print("\n\n>>SEARCH:CONTROLLERS:get_search_results: searching in",lang)
         try:

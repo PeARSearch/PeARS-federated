@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 from os.path import dirname, join, realpath
+import numpy as np
 from scipy.sparse import csr_matrix, vstack, save_npz, load_npz
 from app import models, VEC_SIZE, DEFAULT_PATH
 from app.api.models import sp
@@ -36,8 +37,12 @@ def compute_and_stack_new_vec(lang, tokenized_text, pod_m):
     and stack it onto the existing matrix for that pod.
     """
     v = vectorize_scale(lang, tokenized_text, 5, VEC_SIZE) #log prob power 5
-    pod_m = vstack((pod_m,csr_matrix(v)))
-    return pod_m
+    if np.sum(v) != 0:
+        print("compute_and_stack_new_vec 1",pod_m.shape[0])
+        pod_m = vstack((pod_m,csr_matrix(v)))
+        print("compute_and_stack_new_vec 2",pod_m.shape[0])
+        return pod_m, True
+    return pod_m, False
 
 
 def compute_vector(url, theme, contributor, url_type):
@@ -62,11 +67,12 @@ def compute_vector(url, theme, contributor, url_type):
         pod_m = load_npz(npz_path)
         text = title + " " + body_str
         tokenized_text = tokenize_text(text, lang)
-        pod_m = compute_and_stack_new_vec(lang, tokenized_text, pod_m)
-        save_npz(npz_path,pod_m)
-        vid = pod_m.shape[0] - 1
-        return True, tokenized_text, lang, title, snippet, vid, messages
-    messages.append(">> INDEXER ERROR: compute_vectors: error during parsing -->",error)
+        pod_m, success = compute_and_stack_new_vec(lang, tokenized_text, pod_m)
+        if success:
+            save_npz(npz_path,pod_m)
+            vid = pod_m.shape[0]
+            return True, tokenized_text, lang, title, snippet, vid, messages
+    messages.append(">> INDEXER ERROR: compute_vectors: error during parsing")
     return False, None, None, None, None, None, messages
 
 
@@ -79,12 +85,12 @@ def compute_vector_local_docs(title, doc, theme, lang, contributor):
     #print("Computing vectors for", target_url, "(",theme,")",lang)
     text = title + " " + doc
     text = tokenize_text(text, lang)
-    pod_m = compute_and_stack_new_vec(lang, text, pod_m)
+    pod_m, success = compute_and_stack_new_vec(lang, text, pod_m)
     if doc != "":
         snippet = doc[:500]+'...'
     else:
         snippet = title
-    vid = pod_m.shape[0] - 1
+    vid = pod_m.shape[0]
     save_npz(npz_path,pod_m)
     return text, snippet, vid
 
