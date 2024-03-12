@@ -12,6 +12,7 @@ from app.indexer.controllers import run_indexer_url
 from app.indexer.access import request_url
 from app.indexer.htmlparser import extract_links
 from app.orchard.mk_urls_file import get_reindexable_pod_for_admin
+from app.utils_db import create_idx_to_url
 from app import db, User, Urls, Pods
 
 pears = Blueprint('pears', __name__)
@@ -27,9 +28,9 @@ def set_admin(username):
 
 
 @pears.cli.command('index')
-@click.argument('contributor')
-@click.argument('path')
-def index(filepath):
+@click.argument('host_url')
+@click.argument('filepath')
+def index(host_url, filepath):
     '''
     Index from a manual created URL file.
     The file should have the following information,
@@ -38,7 +39,12 @@ def index(filepath):
     with one url per line.
     Use from CLI with flask pears index <contributor> <path>
     '''
-    host_url = request.host_url
+    dir_path = dirname(dirname(dirname(realpath(__file__))))
+    pod_dir = join(dir_path,'app','static','pods')
+    users = User.query.all()
+    for user in users:
+        Path(join(pod_dir,user.username)).mkdir(parents=True, exist_ok=True)
+        create_idx_to_url(user.username)
     run_indexer_url(filepath, host_url) 
 
 
@@ -58,13 +64,18 @@ def get_links(url):
 @pears.cli.command('exporturls')
 def export_urls():
     '''Get all URLs on this instance'''
+    dir_path = dirname(dirname(dirname(realpath(__file__))))
+    user_dir = join(dir_path,'app','static','userdata')
+    date = datetime.now().strftime('%Y-%m-%d-%Hh%Mm')
+    filepath = join(user_dir,"admin."+date+".pears.txt")
     urls = []
     pods = Pods.query.all()
     for pod in pods:
         name = pod.name.split('.u.')[0]
         urls.extend(get_reindexable_pod_for_admin(name))
-    for url in urls:
-        print(url)
+    with open(filepath, 'W', encoding='utf-8') as f:
+        for url in urls:
+            f.write(url+'\n')
 
 
 @pears.cli.command('backup')

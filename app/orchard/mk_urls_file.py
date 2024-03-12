@@ -37,5 +37,5 @@ def get_reindexable_pod_for_admin(theme):
         note = ''
         if url.notes is not None:
             note = '"'+url.notes+'"'
-        urls.append(url.url+';'+theme+';'+note+';'+user+';')
+        urls.append(url.url+';'+theme+';'+note+';'+user)
     return urls

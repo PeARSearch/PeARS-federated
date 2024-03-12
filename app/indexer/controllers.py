@@ -4,6 +4,7 @@
 
 # Import flask dependencies
 from os.path import dirname, join, realpath
+from time import sleep
 from flask import Blueprint, request, render_template, url_for
 from flask_login import login_required, current_user
 from langdetect import detect
@@ -160,6 +161,9 @@ def run_indexer_url(user_url_file, host_url):
                 messages.extend(mgs)
         else:
             messages.extend(request_errors)
+        #Only sleep if we are indexing many pages at the same time
+        if url != urls[-1]:
+            sleep(2)
     return messages
 
 
