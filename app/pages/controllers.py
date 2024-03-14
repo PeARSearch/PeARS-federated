@@ -36,3 +36,9 @@ def return_tos():
 @pages.route('/contact/')
 def return_contact():
     return render_template("pages/contact.html")
+
+
+@pages.route('/maintenance/')
+def return_maintenance():
+    return render_template("pages/maintenance.html")
+
