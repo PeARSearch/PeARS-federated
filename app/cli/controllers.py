@@ -2,12 +2,14 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-import click
 from shutil import copy2, copytree
-from os.path import dirname, realpath, join, isfile
+from os.path import dirname, realpath, join
 from datetime import datetime
 from pathlib import Path
-from flask import Blueprint, request
+from urllib.parse import urlparse
+from random import shuffle
+from flask import Blueprint
+import click
 from app.indexer.controllers import run_indexer_url
 from app.indexer.access import request_url
 from app.indexer.htmlparser import extract_links
@@ -45,7 +47,7 @@ def index(host_url, filepath):
     for user in users:
         Path(join(pod_dir,user.username)).mkdir(parents=True, exist_ok=True)
         create_idx_to_url(user.username)
-    run_indexer_url(filepath, host_url) 
+    run_indexer_url(filepath, host_url)
 
 
 @pears.cli.command('getlinks')
@@ -77,6 +79,13 @@ def export_urls():
         for url in urls:
             f.write(url+'\n')
 
+@pears.cli.command('legacyexporturls')
+@click.argument('user')
+def legacy_export_urls(user):
+    '''Get all URLs on this instance'''
+    urls = Urls.query.all()
+    for u in urls:
+        print(u.url+';'+u.pod+';;'+user)
 
 @pears.cli.command('backup')
 @click.argument('backupdir')
@@ -94,3 +103,28 @@ def backup(backupdir):
     copy2('app.db',dirpath)
     #Copy pods folder
     copytree(pod_dir, join(dirpath,'pods'))
+
+@pears.cli.command('randomcrawl')
+@click.argument('n')
+@click.argument('username')
+def random_crawl(n, username):
+    '''Randomly crawl n documents'''
+    exceptions = ["wikipedia", "youtube", "imdb"]
+    n = int(n)
+    urls = Urls.query.all()
+    urls = [(u.url, u.pod.split('.u.')[0]) for u in urls]
+    shuffle(urls)
+    for pair in urls[:n]:
+        url = pair[0]
+        if any(e in url for e in exceptions):
+            continue
+        pod = pair[1]
+        parse = urlparse(url)
+        domain = parse.scheme+'://'+parse.netloc
+        print(url, pod)
+        access, _, _ = request_url(url)
+        if access:
+            links = extract_links(url)
+        for link in links:
+            if domain in link:
+                print(link+';'+pod+';;'+username)

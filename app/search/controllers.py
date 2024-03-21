@@ -5,7 +5,7 @@
 from os.path import dirname, join, realpath
 from glob import glob
 import numpy as np
-from flask import Blueprint, Markup, request, render_template, flash, url_for
+from flask import Blueprint, Markup, request, render_template, flash, url_for, redirect
 from flask_login import current_user
 from flask_babel import gettext
 from app.search import score_pages
