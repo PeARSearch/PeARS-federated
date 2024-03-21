@@ -10,7 +10,7 @@ from flask_login import login_required, current_user
 from langdetect import detect
 from app.auth.decorators import check_is_confirmed
 from app import LANGS, OWN_BRAND
-from app.api.models import Urls
+from app.api.models import Urls, Pods
 from app.indexer import mk_page_vector
 from app.utils import read_urls, parse_query
 from app.utils_db import (create_idx_to_url, create_pod_in_db, create_pod_npz_pos,
@@ -46,8 +46,10 @@ def index():
     num_db_entries = len(Urls.query.all())
     form1 = IndexerForm(request.form)
     form2 = ManualEntryForm(request.form)
+    pods = Pods.query.all()
+    themes = [p.name.split('.u.')[0] for p in pods]
     return render_template("indexer/index.html", \
-            num_entries=num_db_entries, form1=form1, form2=form2)
+            num_entries=num_db_entries, form1=form1, form2=form2, themes=themes)
 
 
 
@@ -64,6 +66,8 @@ def index_from_url():
     print("\t>> Indexer : from_url")
     contributor = current_user.username
     create_idx_to_url(contributor)
+    pods = Pods.query.all()
+    themes = [p.name.split('.u.')[0] for p in pods]
 
     form = IndexerForm(request.form)
     if form.validate_on_submit():
@@ -79,7 +83,7 @@ def index_from_url():
         print("\t>> Indexer : progress_file")
         messages = run_indexer_url(user_url_file, request.host_url)
         return render_template('indexer/progress_file.html', messages = messages)
-    return render_template('indexer/index.html', form1=form, form2=ManualEntryForm(request.form))
+    return render_template('indexer/index.html', form1=form, form2=ManualEntryForm(request.form), themes=themes)
 
 
 

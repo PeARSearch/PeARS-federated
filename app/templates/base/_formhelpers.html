@@ -27,3 +27,18 @@
   {% endif %}
 </dd>
 {% endmacro %}
+	
+{% macro render_autocomplete_field(field) %}
+<div class="form-group">
+{{ field.label }}
+{{ field(class_="form-control input-s", type="search", list="themes", size=32) }}
+</div>
+<dd>{% if field.errors %}
+    <ul class=errors>
+    {% for error in field.errors %}
+    <li><b>{{ error }}</b></li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+</dd>
+{% endmacro %}

@@ -1,11 +1,12 @@
 <!--
-SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>, 
+SPDX-FileCopyrightText: 2024 PeARS Project, <community@pearsproject.org>, 
 
 SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 {% extends "base/base.html" %}
 {% from "base/_formhelpers.html" import render_field %}
+{% from "base/_formhelpers.html" import render_autocomplete_field %}
 {% block body %}
 <div class="container">
   <div class="row">
@@ -28,10 +29,11 @@ SPDX-License-Identifier: AGPL-3.0-only
             </div>
         {% endif %}
         {% endwith %}
-	<form method="POST" accept-charset="UTF-8" action="{{url_for('indexer.index_from_url')}}" enctype="multipart/form-data">
+	<form method="POST" accept-charset="UTF-8" action="{{url_for('indexer.index_from_url')}}" enctype="multipart/form-data" autocomplete="off">
+	<datalist id="themes"></datalist>
         {{ form1.hidden_tag() }}
         <p>{{ render_field(form1.url) }}</p>
-        <p>{{ render_field(form1.theme) }}</p>
+        <p>{{ render_autocomplete_field(form1.theme) }}</p>
         <p>{{ render_field(form1.note) }}</p>
         <div class="form-check">
           {{ form1.accept_tos(class_="form-check-input") }}
@@ -75,6 +77,13 @@ SPDX-License-Identifier: AGPL-3.0-only
     </div>
  </div>
 </div><!-- /.container -->
-<script src="{{ url_for('static', filename='js/loading.js')}}"></script>
+<script>
+  let themes = {{themes|safe}};
+  let str = "";
+  for (theme of themes) {
+    str += "<option value=" + theme + " />";
+  }
+  document.getElementById("themes").innerHTML = str;
+</script>
 
 {% endblock %}
