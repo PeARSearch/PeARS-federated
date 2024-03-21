@@ -7,8 +7,8 @@ from flask import Blueprint, request, render_template, send_from_directory, flas
 from flask_login import login_required, current_user
 from os.path import dirname, realpath, join
 from app.api.models import Urls, Pods
-from app.api.controllers import return_pod_rename
-from app import db, OWN_BRAND
+from app.utils_db import mv_pod
+from app import app, db, OWN_BRAND
 from app.orchard.mk_urls_file import get_url_list_for_users
 from app.auth.decorators import check_is_confirmed
 from app.auth.token import send_email
@@ -76,7 +76,7 @@ def rename_pod():
     podname = request.args.get('oldname')
     newname = request.args.get('newname')
     username = current_user.username
-    message = return_pod_rename(podname, newname, username)
+    message = mv_pod(podname, newname, username)
     flash(message)
     return redirect(url_for('orchard.index'))
 
@@ -92,13 +92,13 @@ def report():
         form.url.data=request.args.get('url')
     if form.validate_on_submit():
         url = request.form.get('url')
-        report = request.form.get('report')
-        print(url,report)
-        send_email('aurelie@possible-worlds.xyz','URL report',url+'<br>'+report)
+        user_report = request.form.get('report')
+        print(url,user_report)
+        mail_address = app.config['MAIL_USERNAME']
+        send_email(mail_address,'URL report',url+'<br>'+user_report)
         flash("Your report has been sent. Thank you!", "success")
         return render_template('search/index.html')
-    else:
-        return render_template('orchard/report.html', form=form, email=email)
+    return render_template('orchard/report.html', form=form, email=email)
 
 @orchard.route("/annotate", methods=['GET','POST'])
 @login_required

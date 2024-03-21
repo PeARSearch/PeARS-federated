@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 import joblib
-from os import remove, rename
+from os import remove
 from os.path import dirname, join, realpath, isfile
 from flask import Blueprint, jsonify, request, render_template
 from flask_login import login_required
@@ -150,51 +150,3 @@ def return_url_delete(path):
     return "Deleted document with vector id"+str(vid)
 
 
-@login_required
-@check_is_confirmed
-@api.route('/pods/move', methods=["GET","POST"])
-def return_pod_rename(src, target, contributor=None):
-    if '.' in target:
-        return "Disallowed characters in new pod name. Please do not use punctuation."
-    pods = db.session.query(Pods).all()
-    contributor_pods = []
-    for pod in pods:
-        if pod.name[-len(contributor)-3:] == '.u.'+contributor:
-            contributor_pods.append(pod.name.split('.u.')[0])
-    #print(src,contributor_pods)
-    if src not in contributor_pods:
-        return "You cannot rename pods that you have never made a contribution to."
-    if target in contributor_pods:
-        return "You cannot use a pod name that you have already created in the past." #TODO: change this.
-    try:
-        src = src+'.u.'+contributor
-        target = target+'.u.'+contributor
-        p = db.session.query(Pods).filter_by(name=src).first()
-
-        #Rename npz
-        src_path = join(pod_dir,src+'.npz')
-        target_path = join(pod_dir,target+'.npz')
-        rename(src_path, target_path)
-
-        #Rename pos
-        src_path = join(pod_dir,src+'.pos')
-        target_path = join(pod_dir,target+'.pos')
-        rename(src_path, target_path)
-        
-        #Rename in DB
-        print(p.name)
-        p.name = target
-        p.description = target
-        p.url = join('http://localhost:8080/api/pods/',target.replace(' ','+'))
-        db.session.add(p)
-        db.session.commit()
-
-        #Move all URLS
-        urls = db.session.query(Urls).filter_by(pod=src).all()
-        for url in urls:
-            url.pod = target
-            db.session.add(url)
-            db.session.commit()
-    except:
-        return "Renaming failed. Contact your administrator."
-    return "Moved pod "+src.split('.u.')[0]+" to "+target.split('.u.')[0]

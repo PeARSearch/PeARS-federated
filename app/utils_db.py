@@ -2,9 +2,11 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
+from os import rename
 from os.path import dirname, realpath, join, isfile
 from pathlib import Path
 import joblib
+from string import punctuation
 import numpy as np
 from scipy.sparse import csr_matrix, load_npz, vstack, save_npz
 from app import db, models, VEC_SIZE
@@ -285,3 +287,60 @@ def rm_doc_from_pos(vid, pod):
     dump_posix(remaining_posindex, contributor, lang, theme)
     return deleted_posindex
 
+##########
+# Renaming
+##########
+
+
+def mv_pod(src, target, contributor=None):
+    if any(x in punctuation for x in target):
+        return "Disallowed characters in new pod name. Please do not use punctuation."
+    pods = db.session.query(Pods).all()
+    contributor_pods = []
+    for pod in pods:
+        if pod.name[-len(contributor)-3:] == '.u.'+contributor:
+            contributor_pods.append(pod.name.split('.u.')[0])
+    #print(src,contributor_pods)
+    if src not in contributor_pods:
+        return "You cannot rename pods that you have never made a contribution to."
+    if target in contributor_pods:
+        return "You cannot use a pod name that you have already created in the past." #TODO: change this.
+    lang = Pods.query.filter_by(name=src+'.u.'+contributor).first().language
+    pod_path = join(pod_dir, contributor, lang)
+    try:
+        src = src+'.u.'+contributor
+        target = target+'.u.'+contributor
+        p = db.session.query(Pods).filter_by(name=src).first()
+
+        #Rename npz
+        src_path = join(pod_path,src+'.npz')
+        target_path = join(pod_path,target+'.npz')
+        rename(src_path, target_path)
+
+        #Rename npz to idx
+        src_path = join(pod_path,src+'.npz.idx')
+        target_path = join(pod_path,target+'.npz.idx')
+        rename(src_path, target_path)
+
+        #Rename pos
+        src_path = join(pod_path,src+'.pos')
+        target_path = join(pod_path,target+'.pos')
+        rename(src_path, target_path)
+        
+        #Rename in DB
+        print(p.name)
+        p.name = target
+        p.description = target
+        p.url = join('http://localhost:8080/api/pods/',target.replace(' ','+'))
+        db.session.add(p)
+        db.session.commit()
+
+        #Move all URLS
+        urls = db.session.query(Urls).filter_by(pod=src).all()
+        for url in urls:
+            url.pod = target
+            db.session.add(url)
+            db.session.commit()
+    except:
+        return "Renaming failed. Contact your administrator."
+    return "Moved pod "+src.split('.u.')[0]+" to "+target.split('.u.')[0]
