@@ -5,7 +5,8 @@
 from os.path import dirname, join, realpath
 from glob import glob
 import numpy as np
-from flask import Blueprint, Markup, request, render_template, flash, url_for, redirect
+from markupsafe import Markup
+from flask import Blueprint, request, render_template, flash, url_for, redirect
 from flask_login import current_user
 from flask_babel import gettext
 from app.search import score_pages
@@ -36,6 +37,8 @@ def index():
     results = []
     internal_message = ""
     query = request.args.get('q')
+    if query:
+        query = query.strip()
     
     if not query:
         if current_user.is_authenticated and not current_user.is_confirmed:
@@ -70,7 +73,7 @@ def prepare_gui_results(query, results):
         if r['notes'] == 'None':
             r['notes'] = None
         values = list(r.values())
-        displayresults.append(values[2:])
+        displayresults.append(values)
     return displayresults
 
 

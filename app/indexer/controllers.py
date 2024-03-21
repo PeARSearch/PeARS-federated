@@ -72,9 +72,9 @@ def index_from_url():
     form = IndexerForm(request.form)
     if form.validate_on_submit():
         user_url_file = join(suggestions_dir_path, contributor+".suggestions")
-        url = request.form.get('url')
-        theme = request.form.get('theme')
-        note = request.form.get('note')
+        url = request.form.get('url').strip()
+        theme = request.form.get('theme').strip()
+        note = request.form.get('note').strip()
         if note is None:
             note = ''
         print(url, theme, note, contributor)
@@ -103,8 +103,8 @@ def index_from_manual():
 
     form = ManualEntryForm(request.form)
     if form.validate_on_submit():
-        title = request.form.get('title')
-        snippet = request.form.get('description')
+        title = request.form.get('title').strip()
+        snippet = request.form.get('description').strip()
         lang = detect(snippet)
         # Hack if language of contribution is not recognized
         if lang not in LANGS:
