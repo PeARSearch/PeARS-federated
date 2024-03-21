@@ -5,28 +5,26 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 {% extends "base/base.html" %}
-{% block navbar_toggler %}
-{% endblock %}
-{%block navbar_links %}
-{% endblock %}
-{% block searchbox %}
-<form class="form-inline my-2 my-lg-0 mx-2" action="{{url_for('search.index')}}" id="searchform">
-  <div class="input-group group">
-    <input required class="form-control" type="search" value="{{query|safe}}" aria-label="Search" name="q">
-    <button class="btn btn-outline-success" type="submit" id="searchbutton">{{gettext('Search')}}</button>
-    <button class="btn btn-outline-success" type="button" id="loadingbutton" style='display:none'>
-      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        {{gettext('Searching...')}}
-    </button>
-  </div>
-</form>
-{% endblock %}
 {% block body %}
 <!-- Page Content -->
 <div id="page-content-wrapper">
   <div class="container">
     <div class="row">
-      <div class="col-md-10">
+      <div class="col-md-10 mb-5">
+      <form  action="{{url_for('search.index')}}" id='searchform'>
+        <div class="input-group group mt-4" >
+	  <input class="form-control" title="Enter your search query." placeholder="{{gettext('Enter your search query')}}"  type="search" name='q' required>
+	  <button class="btn btn-lg btn-success" type="submit" id='searchbutton'><ion-icon name="search-outline"></ion-icon></button>
+          <button class="btn btn-lg btn-success" type="button" id='loadingbutton' style='display:none'>
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          </button>
+        </div>
+      </form>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-8">
+      <h3>Search results:</h3>
 	{% if results == None %}
 	  <p><img src="{{ url_for('static', filename='sad_pears.png')}}" width="50px"/></p>
 	  <p>{{gettext('<b>No results found.</b><br> The reason for this could be that the topic of this PeARS instance is not aligned with your query. 
@@ -36,24 +34,27 @@ SPDX-License-Identifier: AGPL-3.0-only
 	{% else %}
         {% for result in results %}
         <div class="card mt-2">
-          <div class="card-body">
-	  <!--<h4 class="card-title"><a href="{{result[1]}}">{{result[2]}}</a></h4>-->
-	    <a class="btn btn-light" href="{{result[1]}}"><b>{{result[2]}}</b></a>
+          <div class="card-body" style="padding: 20px 0px 20px 0px">
+	    <div class="d-flex justify-content-between">
+		    <div><ion-icon name="globe"></ion-icon> <a href="{{result[1]}}" style="text-decoration: none; font-size: large"><b>{{result[2]}}</b></a></div>
 
+	    <div>
 	    {% if current_user.is_authenticated and current_user.is_confirmed %}
-	    <a class="btn btn-link" href="{{url_for('orchard.annotate')}}?url={{result[1]}}" data-toggle="tooltip" title="{{gettext('Add a note to this entry')}}"><ion-icon name="chatbubble-outline"></ion-icon></a>  
-	    {% endif %}
-	    <button class="btn btn-link" data-toggle="tooltip" title="{{gettext('Share this entry')}}" onClick="copyToClipboard('{{result[8]}}')"><ion-icon name="share-outline"></ion-icon></button> 
-	    <a class="btn btn-link" href="{{url_for('orchard.report')}}?url={{result[1]}}"><ion-icon name="flag-outline"></ion-icon></a> 
-
-	    <p class="card-text small" style='margin-left:10px;'><a href="{{result[1]}}" class="card-link">{{result[1]}}</a></p>
-	    <p class="card-text small" style='margin: -10px 0px 10px 10px'><br>{{result[3]|safe}} ...</p>
+	      <a class="btn btn-link" href="{{url_for('orchard.annotate')}}?url={{result[1]}}" data-toggle="tooltip" title="{{gettext('Add a note to this entry')}}"><ion-icon name="chatbubble-outline"></ion-icon></a>  
+	      {% endif %}
+	      <a class="btn btn-link" href="{{url_for('orchard.report')}}?url={{result[1]}}"><ion-icon name="flag-outline"></ion-icon></a> 
+	      <button class="btn btn-link" data-toggle="tooltip" title="{{gettext('Share this entry')}}" onClick="copyToClipboard('{{result[8]}}', 'copy{{result[0]}}')" id="copy{{result[0]}}"><ion-icon name="share-outline"></ion-icon></button> 
+	    </div>
+            </div>
+	    <p class="card-text small"><a href="{{result[1]}}" class="card-link">{{result[1]}}</a></p>
+	    <p class="card-text small" style="margin-top:-10px"><br>{{result[3]|safe}}
             {% if result[6] != None %}
 	    <button class="btn btn-link collapsed" data-bs-toggle="collapse" data-bs-target="#collapse{{result[0]}}" aria-expanded="false" aria-controls="collapse{{result[0]}}">
 	      <img src="{{ url_for('static', filename='note.png')}}" width='30px' />
             </button>
+	    </p>
             <div class="collapse" id="collapse{{result[0]}}">
-               <p class="card-text small" style='margin-left:10px;'>{{result[6]|safe}}</p>
+               <p class="card-text small">{{result[6]|safe}}</p>
             </div>
 	    {% endif %}
 	    <hr>
@@ -85,8 +86,16 @@ $(document).ready(function(){
 });
 </script>
 <script>
-    function copyToClipboard(link) {
-        navigator.clipboard.writeText(link)
+    function copyToClipboard(link, idx) {
+	console.log(link, idx)
+        navigator.clipboard.writeText(link);
+	el = document.getElementById(idx);
+	console.log(el);
+	el.innerHTML = "<ion-icon name='checkmark-done-outline'></ion-icon>";
+	setTimeout( function() {
+	el.innerHTML = "<ion-icon name='share-outline'></ion-icon>";
+    }, 3000);
+
     }
 </script>
 {% endblock %}

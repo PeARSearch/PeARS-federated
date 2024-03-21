@@ -12,17 +12,24 @@ function initColor() {
   if (localSecondaryColor != null) {
     document.body.style.setProperty("--secondary-color", localSecondaryColor);
   }
+  
+  localTextColor = localStorage.getItem("--text-color")
+  if (localSecondaryColor != null) {
+    document.body.style.setProperty("--text-color", localTextColor);
+  }
 }
 
 function changeColor() {
   const target = event.target;
   var primaryColor = getComputedStyle(target).getPropertyValue("--theme-primary");
   var secondaryColor = getComputedStyle(target).getPropertyValue("--theme-secondary");
+  var textColor = getComputedStyle(target).getPropertyValue("--theme-text");
   colors.forEach((color) => color.classList.remove("active"));
   target.classList.add("active");
   document.body.style.setProperty("--primary-color", primaryColor);
   localStorage.setItem("--primary-color", primaryColor);
   localStorage.setItem("--secondary-color", secondaryColor);
+  localStorage.setItem("--text-color", textColor);
   initColor()
 }
 
