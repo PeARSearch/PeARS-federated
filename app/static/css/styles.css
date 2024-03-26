@@ -53,7 +53,7 @@ ion-icon {
 }
 
 .card {
-  --bs-card-border-width: 1px;
+  --bs-card-border-width: 0px;
   color: var(--secondary-color);
   background-color: var(--background-color);
 }
