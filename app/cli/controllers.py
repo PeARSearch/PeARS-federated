@@ -128,3 +128,12 @@ def random_crawl(n, username):
         for link in links:
             if domain in link:
                 print(link+';'+pod+';;'+username)
+
+@pears.cli.command('deletedbonly')
+def deletedbonly():
+    pods = Pods.query.all()
+    for pod in pods:
+        urls = Urls.query.filter_by(pod=pod.name).all()
+        for u in urls:
+            db.session.delete(u)
+            db.session.commit()
