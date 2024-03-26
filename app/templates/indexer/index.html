@@ -16,8 +16,12 @@ SPDX-License-Identifier: AGPL-3.0-only
       </div>
     </div>
   </div>
-  
-  <div class="row p-3">
+
+  {% if default_screen == 'url' %}
+  <div class="row p-3" style="display:block; visibility: visible;" id="url_indexing">
+  {% else %}
+  <div class="row p-3" style="display:none; visibility: hidden;" id="url_indexing">
+  {% endif %}
     <div class="card-group">
       <div class="card indexer">
         <div class="card-header text-center"><b>{{gettext("Index a single URL")}}</b></div>
@@ -47,11 +51,16 @@ SPDX-License-Identifier: AGPL-3.0-only
     </form>
     </div>
    </div>
+   <button class="btn btn-link" onclick="toggle()">Or add a manual resource</button>
   </div>
 
-  <div class="row p-3">
+  {% if default_screen == 'manual' %}
+  <div class="row p-3" style="display:block; visibility: visible;" id="manual_indexing">
+  {% else %}
+  <div class="row p-3" style="display:none; visibility: hidden;" id="manual_indexing">
+  {% endif %}
     <div class="card indexer">
-	    <div class="card-header text-center"><b>{{gettext("Add an offline resource")}}</b></div>
+    <div class="card-header text-center"><b>{{gettext("Add an offline resource")}}</b></div>
       <div class="card-body">
         {% with messages = get_flashed_messages(category_filter=["offline"]) %}
         {% if messages %}
@@ -75,8 +84,11 @@ SPDX-License-Identifier: AGPL-3.0-only
       </div><!-- card footer -->
     </form>
     </div>
+ <button class="btn btn-link" onclick="toggle()">Or index a URL</button>
  </div>
 </div><!-- /.container -->
+
+
 <script>
   let themes = {{themes|safe}};
   let str = "";
@@ -84,6 +96,24 @@ SPDX-License-Identifier: AGPL-3.0-only
     str += "<option value=" + theme + " />";
   }
   document.getElementById("themes").innerHTML = str;
+</script>
+
+<script>
+function toggle() {
+  url = document.getElementById("url_indexing");
+  manual = document.getElementById("manual_indexing");
+  if (url.style.display === "none") {
+    url.style.display = "block";
+    url.style.visibility = "visible";
+    manual.style.display = "none";
+    manual.style.visibility = "hidden";
+  } else {
+    url.style.display = "none";
+    url.style.visibility = "hidden";
+    manual.style.display = "block";
+    manual.style.visibility = "visible";
+  }
+}
 </script>
 
 {% endblock %}
