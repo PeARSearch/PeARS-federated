@@ -1,0 +1,30 @@
+<!--
+SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>, 
+
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
+{% extends "base/base.html" %}
+{% block body %}
+<div class="container-full">
+  <br><br>
+  <div class="row">
+    <div class="col-md-10 p-3" style="padding-left: 20px; display:flex;  flex-direction: row;  flex-wrap: wrap;  margin-bottom: 45px;">
+      {% for message in messages %}
+      <b>{{message}}</b><br>
+      {% endfor %}
+    </div>
+      <p>Your URL has been successfully indexed! Here is a summary of your contribution:</p>
+      {% if url %}
+      <p><ion-icon name="globe-outline"></ion-icon><b> WWW Link: </b> <a href={{url}}>{{url}}</a><br></p>
+      {% endif %}
+      <p><ion-icon name="search-circle-outline"></ion-icon><b> PeARS Link: </b> <a href={{share_url}}>{{share_url}}</a><br></p>
+      <p><ion-icon name="file-tray-stacked-outline"></ion-icon><b> Category: </b> {{theme}}<br></p>
+      <p><ion-icon name="chatbubble-ellipses-outline"></ion-icon><b> Note: </b> {{note}}<br></p>
+      <br>
+      <p>Made a mistake? No problem, <a href="{{url_for('indexer.correct_entry')}}" onclick="return confirm('Are you sure you want to amend your contribution? Clicking on this link will delete the resource you have just indexed and send you back to the indexing form, prefilled with your previous entries.')">try again</a></p>
+      <a class="btn btn-primary" href="{{url_for('indexer.index')}}">{{gettext("Index more pages")}}</a>
+  </div>
+</div>
+{% endblock %}
+

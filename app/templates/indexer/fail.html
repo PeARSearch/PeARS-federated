@@ -1,0 +1,24 @@
+<!--
+SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>, 
+
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
+{% extends "base/base.html" %}
+{% block body %}
+<div class="container-full">
+  <br><br>
+  <div class="row">
+    <div class="col-md-10 p-3" style="padding-left: 20px; display:flex;  flex-direction: row;  flex-wrap: wrap;  margin-bottom: 45px;">
+      <p>Unfortunately, an error occurred while we were trying to index the suggested URL. This could have various reasons. For instance, the website owner disallows automatic access
+      to their content, or the server refused our request. Please also check that the URL still exists, and that you have not mistyped it.</p>
+      <hr>
+      {% for message in messages %}
+      <b>{{message|safe}}</b><br>
+      {% endfor %}
+    </div>
+    <a class="btn btn-primary" href="{{url_for('indexer.index')}}">{{gettext("Index more pages")}}</a>
+  </div>
+</div>
+{% endblock %}
+
