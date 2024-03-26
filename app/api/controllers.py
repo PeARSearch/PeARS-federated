@@ -5,7 +5,7 @@
 import joblib
 from os import remove
 from os.path import dirname, join, realpath, isfile
-from flask import Blueprint, jsonify, request, render_template
+from flask import Blueprint, jsonify, request, render_template, url_for
 from flask_login import login_required
 from scipy.sparse import vstack, save_npz, load_npz
 from app.api.models import Urls, Pods
@@ -13,7 +13,7 @@ from app.auth.decorators import check_is_confirmed
 from app import db, models, OWN_BRAND
 from app.indexer.posix import load_posix, dump_posix
 from app.search.controllers import prepare_gui_results
-from app.utils_db import load_idx_to_url, load_npz_to_idx, rm_from_idx_to_url
+from app.utils_db import load_idx_to_url, load_npz_to_idx, rm_from_idx_to_url, delete_pod_representations
 
 # Define the blueprint:
 api = Blueprint('api', __name__, url_prefix='/api')
@@ -41,32 +41,7 @@ def return_pod(pod):
 @api.route('/pods/delete', methods=["GET","POST"])
 def return_pod_delete(pod_name):
     print("Unsubscribing pod...", pod_name)
-    if '.u.' in pod_name:
-        theme, contributor = pod_name.split('.u.')
-        print(theme, contributor)
-    else:
-        theme = pod_name
-        contributor = None
-    pod = db.session.query(Pods).filter_by(name=pod_name).first()
-    lang = pod.language
-    urls = db.session.query(Urls).filter_by(pod=pod_name).all()
-    if urls is not None:
-        for u in urls:
-            #This is going to be slow for many urls...
-            rm_from_idx_to_url(contributor, u.url)
-            db.session.delete(u)
-            db.session.commit()
-    npz_path = join(pod_dir, contributor, lang, pod_name+'.npz')
-    if isfile(npz_path):
-        remove(npz_path)
-    npz_idx_path = join(pod_dir, contributor, lang, pod_name+'.npz.idx')
-    if isfile(npz_idx_path):
-        remove(npz_idx_path)
-    pos_path = join(pod_dir, contributor, lang, pod_name+'.pos')
-    if isfile(pos_path):
-        remove(pos_path)
-    db.session.delete(pod)
-    db.session.commit()
+    delete_pod_representations(pod_name)
 
 @login_required
 @check_is_confirmed
@@ -74,11 +49,15 @@ def return_pod_delete(pod_name):
 def return_urls():
     return jsonify(json_list=[i.serialize for i in Urls.query.all()])
 
+
 @api.route('/get', methods=["GET"])
 def return_specific_url():
     internal_message = ""
     u = request.args.get('url')
     url = db.session.query(Urls).filter_by(url=u).first().as_dict()
+    if u.startswith('pearslocal'):
+        u = url_for('api.return_specific_url')+'?url='+u
+        url['url'] = u
     displayresults = prepare_gui_results("",{u:url})
     return render_template('search/results.html', query="", results=displayresults, \
             internal_message=internal_message, own_brand=OWN_BRAND)

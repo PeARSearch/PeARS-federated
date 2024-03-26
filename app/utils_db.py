@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-from os import rename
+from os import remove, rename
 from os.path import dirname, realpath, join, isfile
 from pathlib import Path
 import joblib
@@ -186,6 +186,35 @@ def add_to_npz_to_idx(pod_name, lang, vid, idx):
 # Deleting
 ############
 
+def delete_pod_representations(pod_name):
+    if '.u.' in pod_name:
+        theme, contributor = pod_name.split('.u.')
+        print(theme, contributor)
+    else:
+        theme = pod_name
+        contributor = None
+    pod = db.session.query(Pods).filter_by(name=pod_name).first()
+    lang = pod.language
+    urls = db.session.query(Urls).filter_by(pod=pod_name).all()
+    if urls is not None:
+        for u in urls:
+            #This is going to be slow for many urls...
+            rm_from_idx_to_url(contributor, u.url)
+            db.session.delete(u)
+            db.session.commit()
+    npz_path = join(pod_dir, contributor, lang, pod_name+'.npz')
+    if isfile(npz_path):
+        remove(npz_path)
+    npz_idx_path = join(pod_dir, contributor, lang, pod_name+'.npz.idx')
+    if isfile(npz_idx_path):
+        remove(npz_idx_path)
+    pos_path = join(pod_dir, contributor, lang, pod_name+'.pos')
+    if isfile(pos_path):
+        remove(pos_path)
+    db.session.delete(pod)
+    db.session.commit()
+
+
 def delete_url_representations(url):
     """ Delete url with some url on some pod.
     """
@@ -205,6 +234,11 @@ def delete_url_representations(url):
     #Delete from database
     db.session.delete(u)
     db.session.commit()
+
+    #If pod empty, delete
+    if len(db.session.query(Urls).filter_by(pod=pod).all()) == 0:
+        delete_pod_representations(pod)
+    
     return "Deleted document with url "+url
 
 
