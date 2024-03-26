@@ -6,6 +6,7 @@ from os.path import dirname, join, realpath
 import math
 from itertools import islice
 from urllib.parse import urlparse
+from flask import url_for
 from glob import glob
 import joblib
 from joblib import Parallel, delayed
@@ -140,7 +141,6 @@ def compute_scores(query, query_vectors, query_tokenized, pod_name, posindex, la
         url = idx_to_url[1][lspos]
         #print("URL",url)
         vec_scores[url] = cos
-    print("VEC SCORES", vec_scores)
     return vec_scores, best_posix_docs
 
 
@@ -280,7 +280,7 @@ def return_best_urls(doc_scores):
     for w in sorted(doc_scores, key=doc_scores.get, reverse=True):
         loc = urlparse(w).netloc
         if c < 50:
-            if doc_scores[w] > 1:
+            if doc_scores[w] >= 0.5:
                 #if netlocs_used.count(loc) < 10:
                 #print("DOC SCORE",w,doc_scores[w])
                 best_urls.append(w)
@@ -291,7 +291,6 @@ def return_best_urls(doc_scores):
                 break
         else:
             break
-    #print("BEST URLS",best_urls)
     return best_urls, scores
 
 
@@ -299,11 +298,14 @@ def output(best_urls):
     results = {}
     for u in best_urls:
         url = db.session.query(Urls).filter_by(url=u).first().as_dict()
+        if u.startswith('pearslocal'):
+            u = url_for('api.return_specific_url')+'?url='+u
+        url['url'] = u
         results[u] = url
     return results
 
 
-def run_search(query:str, lang):
+def run_search(query:str, lang:str):
     """Run search on query input by user
 
     Search happens in three steps. 1) We get the pods most likely
