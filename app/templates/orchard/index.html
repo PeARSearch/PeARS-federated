@@ -22,9 +22,9 @@ SPDX-License-Identifier: AGPL-3.0-only
 	      <div class="card-header"><b>{{gettext("Theme:")}} {{p[0]}}</b></div>
                 <div class="card-body">
 	          <p class="card-text">{{p[1]}} {{gettext("entries")}}.</p>
-		  <a href="{{url_for('orchard.get_a_pod')}}?pod={{p[0]}}" class="btn btn-primary">{{gettext("View")}}</a>
+		  <a href="{{url_for('orchard.get_a_pod')}}?pod={{p[0]}}" class="btn btn-success">{{gettext("View")}}</a>
 		  {% if p[0] != 'Tips' %}
-	          <button class="btn btn-link collapsed" data-bs-toggle="collapse" data-bs-target="#collapse{{p[2]}}" aria-expanded="false" aria-controls="collapse{{p[2]}}"><span class="results-emoji">🖊️  </span></button>
+	          <button class="btn btn-link collapsed" data-bs-toggle="collapse" data-bs-target="#collapse{{p[2]}}" aria-expanded="false" aria-controls="collapse{{p[2]}}"><ion-icon name="pencil-outline"></ion-icon></button>
 		  {% endif %}
               </div>
             <div class="card card-body">
@@ -33,7 +33,7 @@ SPDX-License-Identifier: AGPL-3.0-only
                   <div class="input-group group mt-4" >
 		  <input type="hidden" value="{{p[0]}}" name="oldname" />
 	          <input class="form-control" title="Rename theme" placeholder="{{gettext('Rename theme')}}"  type="search" name='newname' required>
-         	  <button class="btn btn-lg btn-primary" type="submit" id='searchbutton'>{{gettext('Rename')}}</button>
+         	  <button class="btn btn-lg btn-success" type="submit" id='searchbutton'>{{gettext('Rename')}}</button>
                   </div>
                 </form>
               </div>

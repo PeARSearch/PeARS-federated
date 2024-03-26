@@ -6,7 +6,7 @@
 # Import flask dependencies
 import logging
 from os.path import join
-from flask import Blueprint, flash, request, render_template, redirect, url_for
+from flask import Blueprint, flash, request, render_template, redirect, url_for, session
 from flask_login import login_required, current_user
 from app import db, OWN_BRAND
 from app.api.models import Urls
@@ -48,10 +48,21 @@ def index():
     for i in db.session.query(Urls).filter(Urls.notes.isnot(None)).all():
         url = join(request.host_url,'api','get?url='+i.url)
         notes = ['@'+note.replace('<br>','') for note in i.notes.split('@') if note.startswith(username)]
-        print("NOTES",notes)
         note = ' | '.join(notes)
         comments.append([url, note])
     return render_template("settings/index.html", username=username, email=email, num_contributions=num_contributions, contributions=contributions, tips=tips, comments=comments, form=form)
+
+
+@settings.route("/toggle-theme")
+def toggle_theme():
+    current_theme = session.get("theme")
+    print(current_theme, request.args.get('current_page'))
+    if current_theme == "dark":
+        session["theme"] = "light"
+    else:
+        session["theme"] = "dark"
+    return redirect(request.args.get('current_page'))
+
 
 @settings.route('/delete', methods=['GET'])
 @login_required
@@ -81,7 +92,6 @@ def delete_comment():
     url = db.session.query(Urls).filter_by(url=u).first()
     notes = ['@'+note for note in url.notes.split('@') if not note.startswith(username)]
     notes = [note for note in notes if note !='@']
-    print("NOTES",notes)
     if len(notes) > 0:
         url.notes = '<br>'.join(notes)
     else:

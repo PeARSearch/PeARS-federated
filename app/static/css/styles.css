@@ -7,15 +7,26 @@
 
 :root {
     --primary-color: orange;
-    --secondary-color: green;
+    --secondary-color: #2d3250;
+    --background-color: white;
     --link-color: #414141;
     --hover-color: black;
     --text-color: black;
  } 
 
+:root.dark {
+    --primary-color: orange;
+    --secondary-color: #2d3250;
+    --background-color: #2d3250;
+    --link-color: orange;
+    --hover-color: #f6b17a;
+    --text-color: #fbf2f2;
+ }
+
+
 body {
-	color: var(--primary-color);
-	background-color: var(--secondary-color);
+	color: var(--text-color);
+	background-color: var(--background-color);
 }
 
 a {
@@ -33,15 +44,28 @@ h2, h3 {
   color: black;
  }
 
+ion-icon {
+  font-size: 20px;
+}
+
 .navbar-light {
   background-color: var(--primary-color);
 }
 
 .card {
-  --bs-card-border-width: 0px;
+  --bs-card-border-width: 1px;
+  color: var(--secondary-color);
+  background-color: var(--background-color);
+}
+
+.card-body {
   color: var(--text-color);
-  background-color: var(--secondary-color);
-  border-width: 0px 0px 0px 0px;
+  background-color: var(--background-color);
+}
+
+.card-header {
+  color: var(--text-color);
+  background-color: var(--background-color);
 }
 
 .card.indexer {
@@ -56,9 +80,9 @@ h2, h3 {
 }
 
 .alert-info {
-    --bs-alert-color: #636464;
-    --bs-alert-bg: #ffffff;
-    --bs-alert-border-color: #111111;
+    --bs-alert-color: var(--text-color);
+    --bs-alert-bg: var(--background-color);
+    --bs-alert-border-color: var(--primary-color);
 }
 
 .navbar {
@@ -66,7 +90,7 @@ h2, h3 {
 }
 
 .nav-link {
-  color: var(--text-color);
+  color: var(--secondary-color);
 }
 
 .nav-pills .nav-link.active {
@@ -77,24 +101,26 @@ h2, h3 {
 }
 
 .btn-success {
-  --bs-btn-bg: black;
-  --bs-btn-border-color: black;
-  --bs-btn-hover-bg: var(--primary-color);
-  --bs-btn-hover-border-color: var(--primary-color);
+  --bs-btn-color: var(--secondary-color);
+  --bs-btn-bg: var(--primary-color);
+  --bs-btn-border-color: var(--primary-color);
+  --bs-btn-hover-bg: var(--hover-color);
+  --bs-btn-hover-border-color: var(--hover-color);
 }
 
 .btn-outline-success {
   --bs-btn-color: black;
   --bs-btn-border-color: black;
   --bs-btn-hover-bg: var(--primary-color);
+  --bs-btn-hover-color: var(--primary-color);
   --bs-btn-hover-border-color: var(--primary-color);
 }
 
 .btn-primary {
   --bs-btn-bg: var(--primary-color);
   --bs-btn-border-color: var(--primary-color);
-  --bs-btn-hover-bg: var(--secondary-color);
-  --bs-btn-hover-border-color: var(--secondary-color);
+  --bs-btn-hover-bg: grey;
+  --bs-btn-hover-border-color: grey;
 }
 
 .btn-info {
@@ -105,8 +131,8 @@ h2, h3 {
 }
 
 .btn-link {
-  color: black;
-  --bs-btn-hover-color: red;
+  color: var(--link-color);
+  --bs-btn-hover-color: var(--hover-color);
 }
 
 .submit-color-button {

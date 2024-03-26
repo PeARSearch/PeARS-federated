@@ -15,8 +15,12 @@ SPDX-License-Identifier: AGPL-3.0-only
         <div id="sidebar-wrapper">
           <div class="alert alert-info alert-dismissible">
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-	    <div class="d-flex justify-content-start"><img src="{{ url_for('static', filename='happy_pears.png')}}" width="40px" style="margin-right:10px">
-             {{internal_message|safe}}
+	    {% if session.get('theme') == 'dark' %}
+	      <div class="d-flex justify-content-start"><img src="{{ url_for('static', filename='happy_pears_dark.png')}}" width="40px" style="margin-right:10px">
+	    {% else %}
+	      <div class="d-flex justify-content-start"><img src="{{ url_for('static', filename='happy_pears.png')}}" width="40px" style="margin-right:10px">
+            {% endif %}
+	    {{internal_message|safe}}
 	    </div>
           </div>
         </div>
@@ -35,7 +39,6 @@ SPDX-License-Identifier: AGPL-3.0-only
     <div class="row">
       <div class="col-md-8">
 	{% if results == None %}
-	  <p><img src="{{ url_for('static', filename='sad_pears.png')}}" width="50px"/></p>
 	  <p>{{gettext('<b>No results found.</b><br> The reason for this could be that the topic of this PeARS instance is not aligned with your query. 
 	  It could also be that its index is still too small! We would be happy if you contributed to the index by adding your favourite URLs
 	  on your topic.')}}</p>
