@@ -10,7 +10,11 @@ SPDX-License-Identifier: AGPL-3.0-only
     <div class="col-lg-2"></div>
     <div class="col-lg-8 text-center mt-5">
       {% if own_brand %}
-      <a href="{{ url_for('search.index')}}"><img width=350px; src="{{ url_for('static', filename='assets/logo.png')}}"></a>
+	{% if session.get('theme') == 'dark' %}
+          <a href="{{ url_for('search.index')}}"><img width=350px; src="{{ url_for('static', filename='assets/logo-dark.png')}}"></a>
+	{% else %}
+          <a href="{{ url_for('search.index')}}"><img width=350px; src="{{ url_for('static', filename='assets/logo.png')}}"></a>
+	{% endif %}
       {% else %}
 	{% if session.get('theme') == 'dark' %}
           <a href="{{ url_for('search.index')}}"><img width=350px; src="{{ url_for('static', filename='pears-logo-dark.png')}}"></a>
