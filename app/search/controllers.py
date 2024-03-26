@@ -5,6 +5,7 @@
 from os.path import dirname, join, realpath
 from glob import glob
 import numpy as np
+from random import shuffle
 from markupsafe import Markup
 from flask import Blueprint, request, render_template, flash, url_for, redirect
 from flask_login import current_user
@@ -52,9 +53,10 @@ def index():
         return render_template("search/index.html", internal_message=internal_message, \
                 own_brand=OWN_BRAND)
     
-    if WALKTHROUGH:
-        with open(join(static_dir,'walkthrough.txt'), 'r', encoding="utf-8") as f:
-            internal_message = f.read().replace('\n', '<br>')
+    with open(join(static_dir,'did_you_know.txt'), 'r', encoding="utf-8") as f:
+        messages = f.read().splitlines()
+        shuffle(messages)
+        internal_message = messages[0]
     
     results = get_search_results(query)
     displayresults = prepare_gui_results(query, results)
@@ -63,7 +65,7 @@ def index():
 
 
 def prepare_gui_results(query, results):
-    if results is None:
+    if results is None or len(results) == 0:
         return None
     displayresults = []
     for url, r in results.items():
