@@ -41,9 +41,13 @@ def login():
 
         # check if the user actually exists
         # take the user-supplied password, hash it, and compare it to the hashed password in the database
-        if not user or not check_password_hash(user.password, password):
-            flash(gettext('Please check your login details and try again.'))
-            return redirect(url_for('auth.login')) # if the user doesn't exist or password is wrong, reload the page
+        try:
+            if not user or not check_password_hash(user.password, password):
+                flash(gettext('Please check your login details and try again.'))
+                return redirect(url_for('auth.login')) # if the user doesn't exist or password is wrong, reload the page
+        except: #the check_password_hash method has failed
+            flash("We have moved to a more secure authentification method. Please request a password change.")
+            return redirect(url_for('auth.password_forgotten'))
 
         # if the above check passes, then we know the user has the right credentials
         login_user(user)
@@ -82,7 +86,7 @@ def signup():
         print("Signup form correctly validated.")
 
         # create a new user with the form data. Hash the password so the plaintext version isn't saved.
-        new_user = User(email=email, username=username, password=generate_password_hash(password, method='sha256'))
+        new_user = User(email=email, username=username, password=generate_password_hash(password, method='scrypt'))
 
         # generate confirmation email
         token = generate_token(new_user.email)
@@ -182,7 +186,7 @@ def password_change():
     if form.validate_on_submit():
         user = User.query.filter_by(email=current_user.email).first_or_404()
         password = request.form.get('password')
-        user.password=generate_password_hash(password, method='sha256')
+        user.password=generate_password_hash(password, method='scrypt')
         db.session.commit()
         flash(gettext("Your password has been successfully changed."), "success")
         return redirect(url_for("search.index"))
