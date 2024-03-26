@@ -80,7 +80,7 @@ def compute_vector_local_docs(title, doc, theme, lang, contributor):
     """ Compute vector for manual document and add it to the matrix
     for the user's chosen theme.
     """
-    npz_path = join(pod_dir,theme+'.u.'+contributor+'.npz')
+    npz_path = join(pod_dir,contributor, lang, theme+'.u.'+contributor+'.npz')
     pod_m = load_npz(npz_path)
     #print("Computing vectors for", target_url, "(",theme,")",lang)
     text = title + " " + doc
@@ -90,11 +90,12 @@ def compute_vector_local_docs(title, doc, theme, lang, contributor):
         snippet = doc[:500]+'...'
     else:
         snippet = title
-    vid = pod_m.shape[0]
-    save_npz(npz_path,pod_m)
-    return text, snippet, vid
+    if success:
+        save_npz(npz_path,pod_m)
+        vid = pod_m.shape[0]
+        return True, text, snippet, vid
+    return False, text, snippet, None
 
-@timer
 def compute_query_vectors(query, lang):
     """ Make query vectors: the vector for the original
     query as well as the vector for the expanded query.
