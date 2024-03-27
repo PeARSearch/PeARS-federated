@@ -7,7 +7,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.api.models import User
 from app.forms import RegistrationForm, LoginForm, PasswordForgottenForm, PasswordChangeForm
-from app import db, OWN_BRAND
+from app import app, db, OWN_BRAND
 
 from flask import (Blueprint, flash, request, render_template, Response, redirect, url_for)
 from app.auth.token import send_email, send_reset_password_email, generate_token, confirm_token
@@ -24,7 +24,8 @@ auth = Blueprint('auth', __name__, url_prefix='/auth')
 def logout():
     logout_user()
     flash("You have successfully logged out.", "success")
-    return render_template('search/index.html')
+    placeholder = app.config['SEARCH_PLACEHOLDER']
+    return render_template('search/index.html', own_brand=OWN_BRAND, placeholder=placeholder)
 
 ''' LOGGING IN '''
 
@@ -52,7 +53,8 @@ def login():
         # if the above check passes, then we know the user has the right credentials
         login_user(user)
         welcome = "<b>"+gettext('Welcome')+", "+current_user.username+"!</b>"
-        return render_template('search/index.html', internal_message=welcome, own_brand = OWN_BRAND)
+        placeholder = app.config['SEARCH_PLACEHOLDER']
+        return render_template('search/index.html', internal_message=welcome, own_brand = OWN_BRAND, placeholder=placeholder)
     else:
         print(form.errors)
         return render_template('auth/login.html', own_brand = OWN_BRAND, form=form)
