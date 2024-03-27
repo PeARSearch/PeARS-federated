@@ -58,6 +58,10 @@ ion-icon {
   background-color: var(--background-color);
 }
 
+.themes {
+  --bs-card-border-width: 1px;
+}
+
 .card-body {
   color: var(--text-color);
   background-color: var(--background-color);
@@ -67,6 +71,7 @@ ion-icon {
   color: var(--text-color);
   background-color: var(--background-color);
 }
+
 
 .card.indexer {
   --bs-card-border-width: 0px;

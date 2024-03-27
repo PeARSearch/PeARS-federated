@@ -18,9 +18,9 @@ SPDX-License-Identifier: AGPL-3.0-only
     {% endwith %}
     <div class="col-md-12 p-3" style="padding-left: 20px; display:flex;  flex-direction: row;  flex-wrap: wrap;  margin-bottom: 45px;">
       {% for p in pears %}
-      <div class="card bg-light mb-3" style="width: 18rem; margin:20px">
-	      <div class="card-header"><b>{{gettext("Theme:")}} {{p[0]}}</b></div>
-                <div class="card-body">
+      <div class="card bg-light mb-3 themes" style="width: 18rem; margin:20px;">
+	      <div class="card-header" style="border-bottom: var(--bs-card-border-width) solid var(--text-color);"><b>{{gettext("Theme:")}} {{p[0]}}</b></div>
+                <div class="card-body" style="border-bottom: var(--bs-card-border-width) solid var(--text-color);">
 	          <p class="card-text">{{p[1]}} {{gettext("entries")}}.</p>
 		  <a href="{{url_for('orchard.get_a_pod')}}?pod={{p[0]}}" class="btn btn-success">{{gettext("View")}}</a>
 		  {% if p[0] != 'Tips' %}
