@@ -24,7 +24,7 @@ SPDX-License-Identifier: AGPL-3.0-only
       {% endif %}
       <form  action="{{url_for('search.index')}}" id='searchform'>
         <div class="input-group group mt-4" >
-	  <input class="form-control" title="Enter your search query." placeholder="{{gettext('Enter your search query')}}"  type="search" name='q' required>
+	  <input class="form-control" title="Enter your search query." placeholder="{{placeholder}}"  type="search" name='q' required>
 	  <button class="btn btn-lg btn-success" type="submit" id='searchbutton'><ion-icon name="search-outline"></ion-icon></button>
           <button class="btn btn-lg btn-success" type="button" id='loadingbutton' style='display:none'>
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>

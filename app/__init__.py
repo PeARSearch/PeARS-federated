@@ -48,6 +48,7 @@ app.config['MAIL_USERNAME'] = os.getenv("EMAIL_USER")
 app.config['MAIL_PASSWORD'] = os.getenv("EMAIL_PASSWORD")
 app.config['SITENAME'] = os.getenv("SITENAME")
 app.config['SITE_TOPIC'] = os.getenv("SITE_TOPIC")
+app.config['SEARCH_PLACEHOLDER'] = os.getenv("SEARCH_PLACEHOLDER")
 
 # Localization
 from flask_babel import Babel, gettext

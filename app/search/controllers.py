@@ -12,7 +12,7 @@ from flask_login import current_user
 from flask_babel import gettext
 from app.search import score_pages
 from app.utils import parse_query, beautify_title, beautify_snippet
-from app import models, db
+from app import app, models, db
 from app import LANGS, OWN_BRAND, WALKTHROUGH
 
 # Define the blueprint:
@@ -42,6 +42,7 @@ def index():
         query = query.strip()
     
     if not query:
+        placeholder = app.config['SEARCH_PLACEHOLDER']
         if current_user.is_authenticated and not current_user.is_confirmed:
             message = Markup(gettext("You have not confirmed your account.<br>\
                     Please use the link in the email that was sent to you, \
@@ -51,7 +52,7 @@ def index():
             with open(join(static_dir,'intro.txt'), 'r', encoding="utf-8") as f:
                 internal_message = f.read().replace('\n', '<br>')
         return render_template("search/index.html", internal_message=internal_message, \
-                own_brand=OWN_BRAND)
+                own_brand=OWN_BRAND, placeholder=placeholder)
     
     with open(join(static_dir,'did_you_know.txt'), 'r', encoding="utf-8") as f:
         messages = f.read().splitlines()
