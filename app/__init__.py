@@ -46,6 +46,7 @@ app.config['MAIL_USE_SSL'] = False
 app.config['MAIL_DEBUG'] = False
 app.config['MAIL_USERNAME'] = os.getenv("EMAIL_USER")
 app.config['MAIL_PASSWORD'] = os.getenv("EMAIL_PASSWORD")
+app.config['SITENAME'] = os.getenv("SITENAME")
 
 # Localization
 from flask_babel import Babel, gettext

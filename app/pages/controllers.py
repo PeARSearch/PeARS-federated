@@ -6,7 +6,7 @@
 from flask import Blueprint, render_template
 
 from app.api.models import Pods
-from app import OWN_BRAND
+from app import app, OWN_BRAND
 
 # Define the blueprint:
 pages = Blueprint('pages', __name__, url_prefix='')
@@ -27,15 +27,19 @@ def return_acknowledgements():
 
 @pages.route('/privacy/')
 def return_privacy():
-    return render_template("pages/privacy.html")
+    sitename = app.config["SITENAME"]
+    return render_template("pages/privacy.html", sitename=sitename)
 
 @pages.route('/terms-of-service/')
 def return_tos():
-    return render_template("pages/tos.html")
+    sitename = app.config["SITENAME"]
+    return render_template("pages/tos.html", sitename=sitename)
 
 @pages.route('/contact/')
 def return_contact():
-    return render_template("pages/contact.html")
+    sitename = app.config["SITENAME"]
+    email = app.config["MAIL_DEFAULT_SENDER"].replace('@',' AT ')
+    return render_template("pages/contact.html", email=email)
 
 
 @pages.route('/maintenance/')
