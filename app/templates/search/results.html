@@ -52,9 +52,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 		    <div><ion-icon name="globe"></ion-icon> <a href="{{result[1]}}" style="text-decoration: none; font-size: large"><b>{{result[2]}}</b></a></div>
 
 	    <div>
-	    {% if current_user.is_authenticated and current_user.is_confirmed %}
 	      <a class="btn btn-link" href="{{url_for('orchard.annotate')}}?url={{result[1]}}" data-toggle="tooltip" title="{{gettext('Add a note to this entry')}}"><ion-icon name="chatbubble-outline"></ion-icon></a>  
-	      {% endif %}
 	      <a class="btn btn-link" href="{{url_for('orchard.report')}}?url={{result[1]}}"><ion-icon name="flag-outline"></ion-icon></a> 
 	      <button class="btn btn-link" data-toggle="tooltip" title="{{gettext('Share this entry')}}" onClick="copyToClipboard('{{result[8]}}', 'copy{{result[0]}}')" id="copy{{result[0]}}"><ion-icon name="share-outline"></ion-icon></button> 
 	    </div>

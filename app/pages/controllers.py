@@ -1,9 +1,9 @@
-# SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>, 
+# SPDX-FileCopyrightText: 2024 PeARS Project, <community@pearsproject.org>, 
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
 # Import flask dependencies
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request
 
 from app.api.models import Pods
 from app import app, OWN_BRAND
@@ -18,7 +18,10 @@ def inject_brand():
 
 @pages.route('/faq/')
 def return_faq():
-    return render_template("pages/faq.html")
+    siteurl = request.host_url
+    sitename = app.config["SITENAME"]
+    topic = app.config["SITE_TOPIC"]
+    return render_template("pages/faq.html", sitename=sitename, siteurl=siteurl, topic=topic)
 
 
 @pages.route('/acknowledgements/')

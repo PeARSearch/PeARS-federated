@@ -14,18 +14,22 @@ SPDX-License-Identifier: AGPL-3.0-only
        <p><a href="#firsttime">What is this?</a><br>
        <a href="#indexurl">How do I contribute?</a><br>
        <a href="#newpods">What is a pod?</a><br>
+       <a href="#tips">What are 'manual resources'?</a><br>
+       <a href="#otherfeatures">What else can I do?</a><br>
+       <a href="#mistakes">Help! I made a mistake while indexing!</a><br>
        <a href="#contribute">How do I contribute to the code?</a><br>
-       <a href="#copyright">What is your approach to copyright?</a><br>
+       <a href="#copyright">What is your approach to crawling?</a><br>
        <br><br>
 
        <p id="firsttime"><b>What is this?</b></p>
-       <p>Welcome, stranger! You are on an instance of 'PeARS Federated', a decentralised search engine. Every instance of PeARS can be considered a mini search engine for a single topic of interest. The focus of <a href="YOUR SITE URL">YOUR SITE</a> is Big Tech and AI. Other instances deal with different topics.</p>
+       <p>Welcome, stranger! You are on an instance of 'PeARS Federated', a decentralised search engine. Every instance of PeARS can be considered a mini search engine for a single topic of interest. The focus of <a href={{siteurl}}>{{sitename}}</a> is {{topic}}. Other instances deal with different topics.</p>
        <p>The idea behind PeARS is that each instance is populated via crowdsourcing. That means that if you sign up for an account, you can contribute to the content of the search index by sharing interesting URLs. This ensures that the index is of particularly high quality, as it has been vetted by human contributors.</p>
 
        <br><br>
        <p id="indexurl"><b>How do I help?</b></p>
-       <p>First, <a href="{{url_for('auth.signup')}}">sign up</a> for an account on this instance. We are happy to have you onboard!</a>
-       <p>Every PeARS instance includes an <a href="{{url_for('indexer.index')}}">indexing page</a> which helps you with the hard work of converting documents into searchable representations. You can index in several ways but we will start with the simplest one, which consists in typing a single URL in the 'Index a single URL' box -- this will index just that page. You should also enter a keyword under the URL, telling PeARS the topic of the page you want to index. Over time, this will contribute to the creation of <a href="#newpods">pods</a>, which you can manage individually. Finally, add an optional trigger warning (if the page contains elements that you feel might be upsetting for others), and tell us whether you would like your username to appear next to your contribution in the search results. (By default, that box is ticked, so untick it if you prefer to stay anonymous.)</p>
+       <p>First, <a href="{{url_for('auth.signup')}}">sign up</a> for an account on this instance. We are happy to have you onboard!</p>
+       <p>Every PeARS instance includes an <a href="{{url_for('indexer.index')}}">indexing page</a> which helps you with the hard work of converting documents into searchable representations. You can index in several ways but we will start with the simplest one, which consists in typing a single URL in the 'Index a single URL' box -- this will index just that page. You should also enter a keyword under the URL, telling PeARS the topic of the page you want to index. Over time, this will contribute to the creation of <a href="#newpods">pods</a>, which you can manage individually. Finally, add an optional note, if you feel like adding a comment about this resource that could be useful to others.</p>
+       <p><img src="{{url_for('static', filename='assets/faq/indexing_page.png')}}" width=70% /></p>
 
        <br><br>
        <p id="newpods"><b>What is a pod?</b></p>
@@ -33,12 +37,27 @@ SPDX-License-Identifier: AGPL-3.0-only
        <p>If needed, you can go and check which pages have been indexed for a particular subtopic. Head over to <a href="{{url_for('orchard.index')}}">Pods</a>. There, you will find a pod for each keyword that has ever been used in the indexer. Each pod in the making shows you its current size. You can check the content of the pod by clicking on it. It is also possible to download the information contained in that pod.</p> 
 
        <br><br>
+       <p id="tips"><b>What are 'manual resources'?</b></p>
+       <p>Believe it or not, but not everything is on the Internet. Is there a little restaurant you love that doesn't have an online presence? No problem, add a manual resource from the <a href="{{url_for('indexer.index')}}">indexing page</a> recommending your favorite chef.</p>
+       <p>You may also want to use the manual function when automatic indexing of a page has failed for any reason (typically, the website owner does not allow crawling). You can then mention that website in your manual entry. But please make sure not to use any material from the page you are citing, to avoid copyright violations.</p> 
+       <p><img src="{{url_for('static', filename='assets/faq/manual_tips_page.png')}}" width=70% /></p>
+
+       <br><br>
+       <p id="otherfeatures"><b>What else can I do?</b></p>
+       <p>When you search, you will notice that each URL on the results page is accompanied by a set of three icons. These icons let you comment, share or report resources. The comment icon (<ion-icon name="chatbubble-outline"></ion-icon>) opens a new page which lets you add some useful information to the indexed page. Comments will appear together with a URL and can be accessed by clicking on the little speech bubble next to a snippet (URLs without comments do not show the bubble). The share icon (<ion-icon name="share-outline"></ion-icon>) copies the PeARS entry for the URL in your clipboard, so that you can share the link as well as any associated comments in one go. The flag icon (<ion-icon name="flag-outline"></ion-icon>) opens a new dialogue which you can use to tell the admins if you feel that the inclusion of a particular resource is problematic.</p>
+       <p><img src="{{url_for('static', filename='assets/faq/search_result.png')}}" width=70% /></p>
+
+       <br><br>
+       <p id="mistakes"><b>Help! I made a mistake while indexing!</b></p>
+       <p>No worries! First, whenever you index a new URL, the indexer will display a summary of your contribution. If you spot the mistake straight away, click on 'try again' and correct the information. Second, you can at any time delete any of your contributions (indexed URLs, manual resources and/or comments) by going to your profile page and clicking on the trash can next to an entry.</p>
+
+       <br><br>
        <p id="contribute"><b>How do I contribute to the PeARS code?</b></p>
        <p>We'd love to see you on our GitHub repos! Come and join the discussion <a href="https://github.com/orgs/PeARSearch/discussions">here</a>.</p>
 
        <br><br>
-       <p id="indexurl"><b>What is your approach to copyright?</b></p>
-       <p>Copyright is a big topic at the moment, as Big Tech companies are often accused of indiscriminately crawling Web content to train AI models, and by extension, AI-based search.</p>
+       <p id="indexurl"><b>What is your approach to crawling?</b></p>
+       <p>Crawling is a big topic at the moment, as Big Tech companies are often accused of indiscriminately crawling Web content to train AI models, and by extension, AI-based search.</p>
        <p>PeARS always respects copyright holders. It automatically checks constraints set by robots.txt files and it only displays minimal snippets in search results. If you wish for your site to be removed from the the index, simply contact the admin for this instance, and we will delete your content.</p>
        
        <br><br>
