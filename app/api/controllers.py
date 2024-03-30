@@ -3,6 +3,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 import joblib
+import json
+import numpy as np
 from os import remove
 from os.path import dirname, join, realpath, isfile
 from flask import Blueprint, jsonify, request, render_template, url_for
@@ -10,9 +12,11 @@ from flask_login import login_required
 from scipy.sparse import vstack, save_npz, load_npz
 from app.api.models import Urls, Pods
 from app.auth.decorators import check_is_confirmed
-from app import db, models, OWN_BRAND
+from app import db, models, LANGS, OWN_BRAND
 from app.indexer.posix import load_posix, dump_posix
-from app.search.controllers import prepare_gui_results
+from app.indexer.vectorizer import scale
+from app.search.controllers import get_search_results, prepare_gui_results
+from app.search.score_pages import mk_podsum_matrix
 from app.utils_db import load_idx_to_url, load_npz_to_idx, rm_from_idx_to_url, delete_pod_representations
 
 # Define the blueprint:
@@ -21,6 +25,29 @@ api = Blueprint('api', __name__, url_prefix='/api')
 dir_path = dirname(dirname(realpath(__file__)))
 pod_dir = join(dir_path,'static','pods')
 
+@api.route('/languages/', methods=["GET", "POST"])
+def return_instance_languages():
+    """Returns the languages of this instance.
+    For use by other PeARS instances."""
+    return jsonify(json_list=LANGS)
+
+@api.route('/signature/<lang>/', methods=["GET", "POST"])
+def return_instance_signature(lang):
+    """Returns the signature of this instance for a language.
+    For use by other PeARS instances."""
+    _, podsum = mk_podsum_matrix(lang)
+    podsum = np.array(podsum)
+    podsum = scale(podsum) #L2 normalization
+    signature = np.sum(podsum, axis=0)
+    return json.dumps(signature.tolist())
+
+@api.route('/search', methods=["GET"])
+def return_query_results():
+    """Returns the results for a query in a json format.
+    For use by other PeARS instances."""
+    query = request.args.get('q')
+    results = get_search_results(query)
+    return jsonify(json_list=results)
 
 @login_required
 @check_is_confirmed
