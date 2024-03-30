@@ -57,17 +57,17 @@ def request_url(url):
         errs.append(error)
         return access, req, errs
     else:
-        if robotcheck(url):
-            access = True
-        else:
-            error = "ERROR: request_url: robot.txt disallows the url "+url+"."
+        try:
+            if robotcheck(url):
+                access = True
+            else:
+                error = "ERROR: request_url: robot.txt disallows the url "+url+"."
+                print("\t>>",error)
+                errs.append(error)
+        except:
+            error = "ERROR: issues reading the robots.txt file for this site."
             print("\t>>",error)
             errs.append(error)
-    #except Exception:
-    #    error = "ERROR: request_url: request.head failed trying to access"+url+"."
-    #    print("\t>>",error)
-    #    errs.append(error)
-    #    return access, req, errs
     return access, req, errs
 
 
