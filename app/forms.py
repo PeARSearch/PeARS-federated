@@ -29,7 +29,7 @@ class IndexerForm(FlaskForm):
 
 class ManualEntryForm(FlaskForm):
     title = StringField(lazy_gettext('A title for your entry'), [DataRequired(), Length(min=8, max=100, message=lazy_gettext("The title of your entry should have between 4 and 100 characters."))])
-    description = TextAreaField(lazy_gettext('Description'), [DataRequired(), Length(max=200)])
+    description = TextAreaField(lazy_gettext('Description'), [DataRequired(), Length(max=500)])
     accept_tos = BooleanField(lazy_gettext('I confirm that my entry does not contravene the Terms of Service'), [DataRequired()])
 
 class ReportingForm(FlaskForm):
