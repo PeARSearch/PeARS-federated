@@ -31,7 +31,6 @@ def inject_brand():
     return dict(own_brand=OWN_BRAND)
 
 @search.route('/')
-@search.route('/index')
 def index():
     """ Route for the main search page.
     """
@@ -58,7 +57,8 @@ def index():
         messages = f.read().splitlines()
         shuffle(messages)
         internal_message = messages[0]
-    
+   
+    get_decentralized_search_results(query)
     results = get_search_results(query)
     displayresults = prepare_gui_results(query, results)
     return render_template('search/results.html', query=query, results=displayresults, \
@@ -72,7 +72,9 @@ def prepare_gui_results(query, results):
     for url, r in results.items():
         r['title'] = r['title'][:70]
         r['snippet'] = beautify_snippet(r['snippet'], r['img'], query)
-        r['snippet'] = ' '.join(r['snippet'].split()[:11]) #11 to conform with EU regulations
+        print("URL",url)
+        if 'url=pearslocal' not in url:
+            r['snippet'] = ' '.join(r['snippet'].split()[:11]) #11 to conform with EU regulations
         if r['notes'] == 'None':
             r['notes'] = None
         values = list(r.values())
@@ -105,3 +107,12 @@ def get_search_results(query):
         url = list(results.keys())[i]
         sorted_results[url] = results[url]
     return sorted_results
+
+
+def get_decentralized_search_results(query):
+    query, _, lang = parse_query(query.lower())
+    if lang is None:
+        languages = LANGS
+    else:
+        languages = [lang]
+     
