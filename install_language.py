@@ -8,7 +8,7 @@ from pathlib import Path
 from os.path import dirname, realpath, join
 
 if len(sys.argv) != 2:
-    print("Please specify the language you want to install. English is pre-installed. The following other languages are supported: [de]")
+    print("Please specify the language you want to install. English is pre-installed. The following other languages are supported: [de,fr]")
     sys.exit()
 
 lang = sys.argv[1]
@@ -21,13 +21,14 @@ dir_path = dirname(realpath(__file__))
 local_dir = join(dir_path, "app", "api", "models", lang)
 Path(local_dir).mkdir(exist_ok=True, parents=True)
 
-repo_path = 'https://github.com/PeARSearch/PeARS-public-pods-'+lang+'/blob/main/models/'
+repo_path = 'https://github.com/possible-worlds-research/pretrained-tokenizers/blob/main/'
 
-paths = [lang+'wiki.lite.16k.model', lang+'wiki.lite.16k.vocab']
+paths = ['models/'+lang+'wiki.16k.2023-11-17.model', 'vocabs/'+lang+'wiki.16k.2023-11-17.vocab', 'nns/'+lang+'wiki.16k.2023-11-17.cos']
 
 for p in paths:
     path = join(repo_path, p+'?raw=true')
-    local_file = join(local_dir,p)
+    filename = p.split('/')[-1].replace('2023-11-17.','').replace('16k','lite.16k')
+    local_file = join(local_dir,filename)
     print("Downloading",path,"to",local_file,"...")
     try:
         with open(local_file,'wb') as f:
