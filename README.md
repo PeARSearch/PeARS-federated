@@ -47,7 +47,7 @@ Then run:
 
 ##### 3. Install the build dependencies:
 
-From the PeARS-orchard directory, run:
+From the PeARS-federated directory, run:
 
     pip install -r requirements.txt
 
@@ -62,13 +62,39 @@ If you want to search and index in several languages at the same time, you can a
 where you should replace lc with a language code of your choice. For now, we are only supporting English (en) and German (de), but more languages are coming!
 
 
-##### 5. Run your pear!
+##### 5. Set up your .env
+
+There is a .env template file at *.env-template* in the root directory of the repository. You should copy it to *.env* and fill in the information for your setup.
+
+
+##### 6. Run your pear!
 
 While on your local machine, in the root of the repo, run:
 
-    python3 run.py en
+    python3 run.py
 
-(The argument to *run.py* should be the code of your installation's default language. E.g. *en* for English, *de* for German, etc.)
 
 Now, go to your browser at *localhost:8080*. You should see the search page for PeARS. You don't have any pages indexed yet, so go to the F.A.Q. page (link at the top of the page) and follow the short instructions to get you going!
 
+
+##### 6. Admin only: Be set up for database migrations
+
+From the command line, go to your PeARS directory and run: 
+
+```
+flask db init
+```
+
+to set up a migration directory.
+
+Then, whenever the models have changed, first generate a migration script:
+
+```
+flask db migrate -m "Your message describing the change."
+```
+
+And apply the migration script to your database:
+
+```
+flask db upgrade
+```
