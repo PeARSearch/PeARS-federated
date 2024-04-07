@@ -22,9 +22,9 @@ class PasswordChangeForm(FlaskForm):
     confirm = PasswordField(lazy_gettext('Repeat Password'))
 
 class IndexerForm(FlaskForm):
-    url = StringField(lazy_gettext('The url to index'), [DataRequired(), url()], render_kw={"placeholder": "The URL you would like to index."})
-    theme = StringField(lazy_gettext('Theme'), [DataRequired(), Length(max=50)],  render_kw={"placeholder": "A category for your URL. Start typing and suggestions will appear, but you can also write your own."})
-    note = StringField(lazy_gettext('Optional note*'), [Length(max=100)],  render_kw={"placeholder": "Anything extra you would like people to know about this resource."})
+    url = StringField(lazy_gettext('The url to index'), [DataRequired(), url()], render_kw={"placeholder": lazy_gettext("The URL you would like to index.")})
+    theme = StringField(lazy_gettext('Theme'), [DataRequired(), Length(max=50)],  render_kw={"placeholder": lazy_gettext("A category for your URL. Start typing and suggestions will appear, but you can also write your own.")})
+    note = StringField(lazy_gettext('Optional note*'), [Length(max=100)],  render_kw={"placeholder": lazy_gettext("Anything extra you would like people to know about this resource.")})
     accept_tos = BooleanField(lazy_gettext('I confirm that my suggestion does not contravene the Terms of Service'), [DataRequired()])
 
 class ManualEntryForm(FlaskForm):

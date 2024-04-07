@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-04-07 15:07+0200\n"
+"POT-Creation-Date: 2024-04-07 20:18+0200\n"
 "PO-Revision-Date: 2024-02-12 16:51+0100\n"
 "Last-Translator: Aurelie Herbelot\n"
 "Language: de\n"
@@ -65,13 +65,27 @@ msgstr "Passwort"
 msgid "The url to index"
 msgstr "Url"
 
+#: app/forms.py:25
+msgid "The URL you would like to index."
+msgstr "Die URL, die Du indexieren möchtest"
+
 #: app/forms.py:26 app/templates/orchard/get-a-pod.html:12
 msgid "Theme"
 msgstr "Thema"
 
+#: app/forms.py:26
+msgid ""
+"A category for your URL. Start typing and suggestions will appear, but "
+"you can also write your own."
+msgstr "Eine Kategorie für Deine URL. Fang an zu tippen und es erscheinen Vorschläge, aber Du kannst auch Deine eigenen schreiben."
+
 #: app/forms.py:27
 msgid "Optional note*"
 msgstr "Optionaler Kommentar*"
+
+#: app/forms.py:27
+msgid "Anything extra you would like people to know about this resource."
+msgstr "Alles, was Du über diese Ressource mitteilen möchtest."
 
 #: app/forms.py:28
 msgid "I confirm that my suggestion does not contravene the Terms of Service"
@@ -223,11 +237,17 @@ msgstr "Deine Meldung wurde abgeschickt. Wir danken Dir!"
 
 #: app/orchard/controllers.py:123
 msgid "Your note has been saved. Thank you!"
-msgstr "Dein Kommentar	 wurde gespeichert. Wir danken Dir!"
+msgstr "Dein Kommentar\t wurde gespeichert. Wir danken Dir!"
 
 #: app/search/controllers.py:48
-msgid "You have not confirmed your account.<br>Please use the link in the email that was sent to you, or request a new link by clicking <a href=''>here</a>."
-msgstr "Du hast Dein Konto nicht bestätigt.<br>Bitte verwende den Link in der E-Mail, die dir zugeschickt wurde, oder fordere einen neuen Link an, indem du <a href=''>hier</a> klickst."
+msgid ""
+"You have not confirmed your account.<br>                    Please use "
+"the link in the email that was sent to you,                     or "
+"request a new link by clicking <a href=''>here</a>."
+msgstr ""
+"Du hast Dein Konto nicht bestätigt.<br>Bitte verwende den Link in der "
+"E-Mail, die dir zugeschickt wurde, oder fordere einen neuen Link an, "
+"indem du <a href=''>hier</a> klickst."
 
 #: app/settings/controllers.py:78
 msgid "URL does not belong to you and cannot be deleted."
@@ -260,7 +280,13 @@ msgid ""
 "pages, or modify a keyword, this is the place to do so. You can also view"
 " and search the entire list of available pods, as registered by your "
 "pear."
-msgstr "Diese Seite ermöglicht es Dir, Deine Benutzer, Pods und indizierten URLs manuell zu verwalten. Wenn Du z.B. eine einzelne URL aus Deinen indizierten Seiten löschen oder ein Schlüsselwort ändern möchtest, ist dies der richtige Ort dafür. Du kannst auch die gesamte Liste der verfügbaren Pods, die von deiner PeARS Instanz registriert wurden, einsehen und durchsuchen."
+msgstr ""
+"Diese Seite ermöglicht es Dir, Deine Benutzer, Pods und indizierten URLs "
+"manuell zu verwalten. Wenn Du z.B. eine einzelne URL aus Deinen "
+"indizierten Seiten löschen oder ein Schlüsselwort ändern möchtest, ist "
+"dies der richtige Ort dafür. Du kannst auch die gesamte Liste der "
+"verfügbaren Pods, die von deiner PeARS Instanz registriert wurden, "
+"einsehen und durchsuchen."
 
 #: app/templates/admin/index.html:17
 msgid "See/modify your URL list"
@@ -443,7 +469,9 @@ msgstr "Es ist ein unerwarteter Fehler aufgetreten."
 
 #: app/templates/base/500.html:5
 msgid "The administrator has been notified. Sorry for the inconvenience!"
-msgstr "Dein:e Administrator:in wurde benachrichtigt. Entschuldigung für die Unannehmlichkeiten!"
+msgstr ""
+"Dein:e Administrator:in wurde benachrichtigt. Entschuldigung für die "
+"Unannehmlichkeiten!"
 
 #: app/templates/base/_formhelpers.html:18
 msgid "Password forgotten?"
@@ -484,7 +512,13 @@ msgid ""
 " owner disallows automatic access\n"
 "      to their content, or the server refused our request. Please also "
 "check that the URL still exists, and that you have not mistyped it."
-msgstr "Leider ist ein Fehler aufgetreten, während wir versucht haben, die vorgeschlagene URL zu indizieren. Dies kann verschiedene Gründe haben. Zum Beispiel verbietet der/die Eigentümer:in der Website den automatischen Zugriff auf seine/ihre Inhalte, oder der Server hat unsere Anfrage abgelehnt. Bitte prüfe auch, ob die URL noch existiert und ob Du Dich nicht vertippt hast."
+msgstr ""
+"Leider ist ein Fehler aufgetreten, während wir versucht haben, die "
+"vorgeschlagene URL zu indizieren. Dies kann verschiedene Gründe haben. "
+"Zum Beispiel verbietet der/die Eigentümer:in der Website den "
+"automatischen Zugriff auf seine/ihre Inhalte, oder der Server hat unsere "
+"Anfrage abgelehnt. Bitte prüfe auch, ob die URL noch existiert und ob Du "
+"Dich nicht vertippt hast."
 
 #: app/templates/indexer/fail.html:20
 #: app/templates/indexer/progress_file.html:17
@@ -528,7 +562,9 @@ msgstr "Url vorschlagen"
 msgid ""
 "Your URL has been successfully indexed! Here is a summary of your "
 "contribution:"
-msgstr "Deine URL wurde erfolgreich indiziert! Hier ist eine Zusammenfassung Deines Beitrags."
+msgstr ""
+"Deine URL wurde erfolgreich indiziert! Hier ist eine Zusammenfassung "
+"Deines Beitrags."
 
 #: app/templates/indexer/success.html:22
 msgid "Category:"
@@ -543,13 +579,6 @@ msgid "Made a mistake? No problem"
 msgstr "Einen Fehler gemacht? Kein Problem"
 
 #: app/templates/indexer/success.html:25
-msgid ""
-"Are you sure you want to amend your contribution? Clicking on this link "
-"will delete the resource you have just indexed and send you back to the "
-"indexing form, prefilled with your previous entries."
-msgstr "Bist Du sicher, dass Du Deinen Beitrag ändern möchtest? Wenn Du auf diesen Link klickst, wird die Ressource, die Du gerade indiziert hast, gelöscht und Du kehrst zum Indizierungsformular zurück, das mit Deinen vorherigen Einträgen vorausgefüllt ist."
-
-#: app/templates/indexer/success.html:25
 msgid "try again"
 msgstr "versuche nochmal"
 
@@ -562,13 +591,19 @@ msgid ""
 "You can add here a comment on this URL for the benefit of the community. "
 "Your comment will appear <i>with your username</i> under the URL in the "
 "search results."
-msgstr "Du kannst hier einen Kommentar zu dieser URL zum Nutzen der Gemeinschaft hinzufügen. Dein Kommentar wird <i>mit Deinem Benutzernamen</i> unter der URL in den Suchergebnissen erscheinen."
+msgstr ""
+"Du kannst hier einen Kommentar zu dieser URL zum Nutzen der Gemeinschaft "
+"hinzufügen. Dein Kommentar wird <i>mit Deinem Benutzernamen</i> unter der"
+" URL in den Suchergebnissen erscheinen."
 
 #: app/templates/orchard/annotate.html:31
 msgid ""
 "I agree for my comment to be included in the public notes for this url, "
 "together with my username."
-msgstr "Ich bin damit einverstanden, dass mein Kommentar zusammen mit meinem Benutzernamen in die öffentlichen Beiträgen für diese Url aufgenommen wird."
+msgstr ""
+"Ich bin damit einverstanden, dass mein Kommentar zusammen mit meinem "
+"Benutzernamen in die öffentlichen Beiträgen für diese Url aufgenommen "
+"wird."
 
 #: app/templates/orchard/get-a-pod.html:14
 msgid "Download"
@@ -606,7 +641,15 @@ msgid ""
 "database. Whatever your concern is, please give us as much detail as "
 "possible, so that we can resolve the problem quickly. We may contact you "
 "at your registered email address if we need further details from you."
-msgstr "Du kannst uns eine Url aus verschiedenen Gründen melden. Zum Beispiel, wenn die URL auf schädliche Inhalte verweist, die Deiner Meinung nach nicht in unseren Index aufgenommen werden sollten. Oder Du bist der/die Eigentümer:in einer Website, die nicht in unserer Datenbank aufgeführt werden soll. Was auch immer Dein Anliegen ist, gib uns bitte so viele Details wie möglich, damit wir das Problem schnell lösen können. Wir können Dich unter Deiner registrierten E-Mail-Adresse kontaktieren, wenn wir weitere Details von Dir benötigen."
+msgstr ""
+"Du kannst uns eine Url aus verschiedenen Gründen melden. Zum Beispiel, "
+"wenn die URL auf schädliche Inhalte verweist, die Deiner Meinung nach "
+"nicht in unseren Index aufgenommen werden sollten. Oder Du bist der/die "
+"Eigentümer:in einer Website, die nicht in unserer Datenbank aufgeführt "
+"werden soll. Was auch immer Dein Anliegen ist, gib uns bitte so viele "
+"Details wie möglich, damit wir das Problem schnell lösen können. Wir "
+"können Dich unter Deiner registrierten E-Mail-Adresse kontaktieren, wenn "
+"wir weitere Details von Dir benötigen."
 
 #: app/templates/orchard/report.html:31
 msgid ""
@@ -623,7 +666,12 @@ msgid ""
 "\t  It could also be that its index is still too small! We would be happy"
 " if you contributed to the index by adding your favourite URLs\n"
 "\t  on your topic."
-msgstr "<b>Keine Ergebnisse gefunden.</b><br> Der Grund dafür könnte sein, dass das Thema dieser PeARS-Instanz nicht mit Deiner Anfrage übereinstimmt.\n Es könnte auch sein, dass sein Index noch zu klein ist! Wir würden uns freuen wenn Du zum Index beiträgst, indem Du Deine Lieblings-URLs zu Deinem Thema hinzufügen würdest."
+msgstr ""
+"<b>Keine Ergebnisse gefunden.</b><br> Der Grund dafür könnte sein, dass "
+"das Thema dieser PeARS-Instanz nicht mit Deiner Anfrage übereinstimmt.\n"
+" Es könnte auch sein, dass sein Index noch zu klein ist! Wir würden uns "
+"freuen wenn Du zum Index beiträgst, indem Du Deine Lieblings-URLs zu "
+"Deinem Thema hinzufügen würdest."
 
 #: app/templates/search/results.html:47
 msgid "Search results:"
@@ -669,10 +717,6 @@ msgstr "Webinhalte"
 msgid "Delete this URL"
 msgstr "Lösche diese URL"
 
-#: app/templates/settings/index.html:44 app/templates/settings/index.html:54
-msgid "Are you sure you want to delete this resource?"
-msgstr "Bist Du sicher, dass Du diese Ressource löschen willst?"
-
 #: app/templates/settings/index.html:49 app/templates/settings/index.html:51
 msgid "Tips"
 msgstr "Tipps"
@@ -688,10 +732,6 @@ msgstr "Kommentare"
 #: app/templates/settings/index.html:64
 msgid "Delete comments for this URL"
 msgstr "Lösche Deine Kommentare für diese URL"
-
-#: app/templates/settings/index.html:64
-msgid "Are you sure you want to delete all your comments for this URL?"
-msgstr "Bist Du sicher, dass Du alle Deine Kommentare zu dieser URL löschen möchtest?"
 
 #~ msgid "Optional trigger warning"
 #~ msgstr "Optionale Triggerwarnung"
@@ -710,4 +750,29 @@ msgstr "Bist Du sicher, dass Du alle Deine Kommentare zu dieser URL löschen mö
 #~ "Ändere die Farben dieser Oberfläche, "
 #~ "indem du auf die unten stehenden "
 #~ "Optionen klickst."
+
+#~ msgid ""
+#~ "Are you sure you want to amend "
+#~ "your contribution? Clicking on this link"
+#~ " will delete the resource you have"
+#~ " just indexed and send you back "
+#~ "to the indexing form, prefilled with "
+#~ "your previous entries."
+#~ msgstr ""
+#~ "Bist Du sicher, dass Du Deinen "
+#~ "Beitrag ändern möchtest? Wenn Du auf "
+#~ "diesen Link klickst, wird die Ressource,"
+#~ " die Du gerade indiziert hast, "
+#~ "gelöscht und Du kehrst zum "
+#~ "Indizierungsformular zurück, das mit Deinen"
+#~ " vorherigen Einträgen vorausgefüllt ist."
+
+#~ msgid "Are you sure you want to delete this resource?"
+#~ msgstr "Bist Du sicher, dass Du diese Ressource löschen willst?"
+
+#~ msgid "Are you sure you want to delete all your comments for this URL?"
+#~ msgstr ""
+#~ "Bist Du sicher, dass Du alle Deine"
+#~ " Kommentare zu dieser URL löschen "
+#~ "möchtest?"
 
