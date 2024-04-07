@@ -44,7 +44,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 	  on your topic.')}}</p>
 	  <br><p>{{gettext('No account yet?')}} <a href={{url_for('auth.signup')}}>{{gettext('Sign up')}}</a></p>
 	{% else %}
-        <h3>Search results:</h3>
+	<h3>{{gettext('Search results:')}}</h3>
         {% for result in results %}
         <div class="card mt-2">
           <div class="card-body" style="padding: 20px 0px 20px 0px">
@@ -53,7 +53,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 	    <div>
 	      <a class="btn btn-link" href="{{url_for('orchard.annotate')}}?url={{result[1]}}" data-toggle="tooltip" title="{{gettext('Add a note to this entry')}}"><ion-icon name="chatbubble-outline"></ion-icon></a>  
-	      <a class="btn btn-link" href="{{url_for('orchard.report')}}?url={{result[1]}}"><ion-icon name="flag-outline"></ion-icon></a> 
+	      <a class="btn btn-link" href="{{url_for('orchard.report')}}?url={{result[1]}}"  data-toggle="tooltip" title="{{gettext('Report this entry')}}"><ion-icon name="flag-outline"></ion-icon></a> 
 	      <button class="btn btn-link" data-toggle="tooltip" title="{{gettext('Share this entry')}}" onClick="copyToClipboard('{{result[8]}}', 'copy{{result[0]}}')" id="copy{{result[0]}}"><ion-icon name="share-outline"></ion-icon></button> 
 	    </div>
             </div>

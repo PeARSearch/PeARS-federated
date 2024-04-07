@@ -29,14 +29,14 @@ SPDX-License-Identifier: AGPL-3.0-only
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
-        <li><a href="{{url_for('search.index')}}">Search</a></li>
-        <li><a href="{{url_for('indexer.index')}}">Indexer</a></li>
-        <li><a href="{{url_for('orchard.index')}}">Themes</a></li>
-        <li><a href="{{url_for('admin.index')}}">DB admin</a></li>
+	      <li><a href="{{url_for('search.index')}}">{{gettext('Search')}}</a></li>
+	      <li><a href="{{url_for('indexer.index')}}">{{gettext('Indexer')}}</a></li>
+	      <li><a href="{{url_for('orchard.index')}}">{{gettext('Themes')}}</a></li>
+	      <li><a href="{{url_for('admin.index')}}">{{gettext('DB admin')}}</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li><a href="{{url_for('settings.index')}}">Profile</a></li>
-        <li><a href="{{url_for('pages.return_faq')}}">F.A.Q.</a></li>
+	      <li><a href="{{url_for('settings.index')}}">{{gettext('Profile')}}</a></li>
+	      <li><a href="{{url_for('pages.return_faq')}}">{{gettext('F.A.Q.')}}</a></li>
       </ul>
     </div><!-- /.navbar-collapse -->
     </div><!-- /.container-fluid -->

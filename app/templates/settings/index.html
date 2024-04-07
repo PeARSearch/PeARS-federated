@@ -36,32 +36,32 @@ SPDX-License-Identifier: AGPL-3.0-only
          <hr>
         
 	 {% if session.get('theme') == 'dark' %}
-	   <div class="d-flex justify-content-start"><img src="{{ url_for('static', filename='happy_pears_dark.png')}}" width="30px"><h5>Web content</h5></div><hr>
+	 <div class="d-flex justify-content-start"><img src="{{ url_for('static', filename='happy_pears_dark.png')}}" width="30px"><h5>{{gettext('Web content')}}</h5></div><hr>
 	 {% else %}
-	   <div class="d-flex justify-content-start"><img src="{{ url_for('static', filename='happy_pears.png')}}" width="30px"><h5>Web content</h5></div><hr>
+	 <div class="d-flex justify-content-start"><img src="{{ url_for('static', filename='happy_pears.png')}}" width="30px"><h5>{{gettext('Web content')}}</h5></div><hr>
          {% endif %}
 	 {% for url in contributions %}
-	 <a href='{{url[0]}}'>{{url[0]}}</a><a href='{{url_for('settings.delete_url')}}?url={{url[0]}}' data-toggle="tooltip" title="{{gettext('Delete this URL')}}" onclick="return confirm('Are you sure you want to delete this resource?')"> <ion-icon name="trash-outline"></ion-icon></a><br>
+	 <a href='{{url[0]}}'>{{url[0]}}</a><a href='{{url_for('settings.delete_url')}}?url={{url[0]}}' data-toggle="tooltip" title="{{gettext('Delete this URL')}}" onclick="return confirm({{gettext('Are you sure you want to delete this resource?')}})"> <ion-icon name="trash-outline"></ion-icon></a><br>
          {% endfor %}
          <hr>
 
 	 {% if session.get('theme') == 'dark' %}
-	   <div class="d-flex justify-content-start"><img src="{{ url_for('static', filename='happy_pears_dark.png')}}" width="30px"><h5>Tips</h5></div><hr>
+	 <div class="d-flex justify-content-start"><img src="{{ url_for('static', filename='happy_pears_dark.png')}}" width="30px"><h5>{{gettext('Tips')}}</h5></div><hr>
 	 {% else %}
-	   <div class="d-flex justify-content-start"><img src="{{ url_for('static', filename='happy_pears.png')}}" width="30px"><h5>Tips</h5></div><hr>
+	 <div class="d-flex justify-content-start"><img src="{{ url_for('static', filename='happy_pears.png')}}" width="30px"><h5>{{gettext('Tips')}}</h5></div><hr>
          {% endif %}
 	 {% for url in tips %}
-	 <a href='{{url[0]}}'>{{url[0]}}</a><a href='{{url_for('settings.delete_url')}}?url={{url[0]}}' data-toggle="tooltip" title="{{gettext('Delete this tip')}}" onclick="return confirm('Are you sure you want to delete this resource?')"> <ion-icon name="trash-outline"></ion-icon></a><br>
+	 <a href='{{url[0]}}'>{{url[0]}}</a><a href='{{url_for('settings.delete_url')}}?url={{url[0]}}' data-toggle="tooltip" title="{{gettext('Delete this tip')}}" onclick="return confirm({{gettext('Are you sure you want to delete this resource?')}})"> <ion-icon name="trash-outline"></ion-icon></a><br>
          {% endfor %}
          <hr>
 
 	 {% if session.get('theme') == 'dark' %}
-	   <div class="d-flex justify-content-start"><img src="{{ url_for('static', filename='happy_pears_dark.png')}}" width="30px"><h5>Comments</h5></div><hr>
+	 <div class="d-flex justify-content-start"><img src="{{ url_for('static', filename='happy_pears_dark.png')}}" width="30px"><h5>{{gettext('Comments')}}</h5></div><hr>
 	 {% else %}
-	   <div class="d-flex justify-content-start"><img src="{{ url_for('static', filename='happy_pears.png')}}" width="30px"><h5>Comments</h5></div><hr>
+	 <div class="d-flex justify-content-start"><img src="{{ url_for('static', filename='happy_pears.png')}}" width="30px"><h5>{{gettext('Comments')}}</h5></div><hr>
          {% endif %}
 	 {% for url in comments %}
-	 {{url[1]}}<br> <a href='{{url[0]}}'>{{url[0]}}</a><a href='{{url_for('settings.delete_comment')}}?url={{url[0]}}' data-toggle="tooltip" title="{{gettext('Delete comments for this URL')}}" onclick="return confirm('Are you sure you want to delete all your comments for this URL?')"> <ion-icon name="trash-outline"></ion-icon></a><br><br>
+	 {{url[1]}}<br> <a href='{{url[0]}}'>{{url[0]}}</a><a href='{{url_for('settings.delete_comment')}}?url={{url[0]}}' data-toggle="tooltip" title="{{gettext('Delete comments for this URL')}}" onclick="return confirm({{gettext('Are you sure you want to delete all your comments for this URL?')}})"> <ion-icon name="trash-outline"></ion-icon></a><br><br>
          {% endfor %}
          </div>
        </div>

@@ -11,7 +11,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
   <div class="row p-3">
     <div class="card">
-      <div class="card-header text-center"><b>Add a note to a URL</b></div>
+	    <div class="card-header text-center"><b>{{gettext('Add a note to a URL')}}</b></div>
       <div class="card-body">
         {% with messages = get_flashed_messages() %}
         {% if messages %}
@@ -20,7 +20,7 @@ SPDX-License-Identifier: AGPL-3.0-only
             </div>
         {% endif %}
         {% endwith %}
-	<p>You can add here a comment on this URL for the benefit of the community. Your comment will appear <i>with your username</i> under the URL in the search results.</p>
+	<p>{{gettext('You can add here a comment on this URL for the benefit of the community. Your comment will appear <i>with your username</i> under the URL in the search results.')}}</p>
 	<br>
       <form method="POST" action="/orchard/annotate" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
@@ -28,7 +28,7 @@ SPDX-License-Identifier: AGPL-3.0-only
         <p>{{ render_field(form.note) }}</p>
 	<div class="form-check">
 	  {{ form.accept_tos(class_="form-check-input") }}
-	  <label class="form-check-label" for="legal">I agree for my comment to be included in the public notes for this url, together with my username.</label>
+	  <label class="form-check-label" for="legal">{{gettext('I agree for my comment to be included in the public notes for this url, together with my username.')}}</label>
         </div>
       </div><!-- card body -->
       <div class="card-footer clearfix">

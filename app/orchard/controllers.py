@@ -96,7 +96,7 @@ def report():
         print(url,user_report)
         mail_address = app.config['MAIL_USERNAME']
         send_email(mail_address,'URL report',url+'<br>'+user_report)
-        flash("Your report has been sent. Thank you!", "success")
+        flash(gettext("Your report has been sent. Thank you!"), "success")
         return render_template('search/index.html')
     return render_template('orchard/report.html', form=form, email=email)
 
@@ -120,7 +120,7 @@ def annotate():
             u.notes = note
         db.session.add(u)
         db.session.commit()
-        flash("Your note has been saved. Thank you!", "success")
+        flash(gettext("Your note has been saved. Thank you!"), "success")
         return render_template('search/index.html')
     else:
         return render_template('orchard/annotate.html', form=form)

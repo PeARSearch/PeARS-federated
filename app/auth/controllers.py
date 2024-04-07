@@ -23,7 +23,7 @@ auth = Blueprint('auth', __name__, url_prefix='/auth')
 @login_required
 def logout():
     logout_user()
-    flash("You have successfully logged out.", "success")
+    flash(gettext("You have successfully logged out."), "success")
     placeholder = app.config['SEARCH_PLACEHOLDER']
     return render_template('search/index.html', own_brand=OWN_BRAND, placeholder=placeholder)
 
@@ -47,7 +47,7 @@ def login():
                 flash(gettext('Please check your login details and try again.'))
                 return redirect(url_for('auth.login')) # if the user doesn't exist or password is wrong, reload the page
         except: #the check_password_hash method has failed
-            flash("We have moved to a more secure authentification method. Please request a password change.")
+            flash(gettext("We have moved to a more secure authentification method. Please request a password change."))
             return redirect(url_for('auth.password_forgotten'))
 
         # if the above check passes, then we know the user has the right credentials
@@ -113,7 +113,7 @@ def signup():
 @login_required
 def confirm_email(token):
     if current_user.is_confirmed:
-        flash("Account already confirmed.", "success")
+        flash(gettext("Account already confirmed."), "success")
         return redirect(url_for("search.index"))
     email = confirm_token(token)
     user = User.query.filter_by(email=current_user.email).first_or_404()
@@ -158,7 +158,7 @@ def password_forgotten():
         token = generate_token(user.email)
         confirm_url = url_for("auth.password_reset", token=token, _external=True)
         html = render_template("auth/password_reset_email.html", confirm_url=confirm_url)
-        subject = "You have requested a password reset"
+        subject = gettext("You have requested a password reset.")
         send_reset_password_email(user.email, subject, html)
 
         flash(gettext("A link has been sent via email to reset your password."), "success")

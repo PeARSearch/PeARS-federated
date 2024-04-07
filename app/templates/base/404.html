@@ -1,7 +1,7 @@
 {% extends "base/base.html" %}
 
 {% block body %}
-    <h2>Oops! The address you were looking for was not found</h2>
-    <p>We are sorry for this inconvenience.</p>
-    <p><a href="{{ url_for('search.index') }}">Go back to the main page.</a></p>
+<h2>{{gettext('Oops! The address you were looking for was not found.')}}</h2>
+<p>{{gettext('We are sorry for this inconvenience.')}}</p>
+<p><a href="{{ url_for('search.index') }}">{{gettext('Go back to the main page.')}}</a></p>
 {% endblock %}

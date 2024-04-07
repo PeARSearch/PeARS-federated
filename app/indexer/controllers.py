@@ -70,7 +70,7 @@ def correct_entry():
     default_screen = "url"
     
     if not session['index_url']:
-        flash("Nothing to amend.")
+        flash(gettext("Nothing to amend."))
         return render_template("indexer/index.html", \
             num_entries=num_db_entries, form1=form1, form2=form2, themes=themes)
 
@@ -185,7 +185,7 @@ def run_indexer_url(user_url_file, host_url):
     if errors:
         return indexed, errors, share_url
     if not urls or not themes:
-        messages.append('ERROR: Invalid file format.')
+        messages.append(gettext('ERROR: Invalid file format.'))
         return indexed, messages, share_url
     for url, theme, note, contributor in zip(urls, themes, notes, contributors):
         access, req, request_errors = request_url(url)
@@ -193,7 +193,7 @@ def run_indexer_url(user_url_file, host_url):
             try:
                 url_type = req.headers['Content-Type']
             except:
-                messages.append('ERROR: Content type could not be retrieved from header.')
+                messages.append(gettext('ERROR: Content type could not be retrieved from header.'))
                 continue
             idx = add_to_idx_to_url(contributor, url)
             success, text, lang, title, snippet, vid, mgs = \
@@ -238,7 +238,7 @@ def run_indexer_manual(url, title, doc, theme, lang, note, contributor, host_url
         create_or_replace_url_in_db(url, title, snippet, theme, lang, note, share_url, contributor, 'doc')
         indexed = True
     else:
-        messages.append("There was a problem indexing your entry. Please check the submitted data.")
-        messages.append("Your entry:", doc)
+        messages.append(gettext("There was a problem indexing your entry. Please check the submitted data."))
+        messages.append(gettext("Your entry:"), doc)
         indexed = False
     return indexed, messages, share_url

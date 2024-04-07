@@ -11,7 +11,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
   <div class="row p-3">
     <div class="card">
-      <div class="card-header text-center"><b>Report a URL</b></div>
+	    <div class="card-header text-center"><b>{{gettext('Report a URL')}}</b></div>
       <div class="card-body">
         {% with messages = get_flashed_messages() %}
         {% if messages %}
@@ -20,7 +20,7 @@ SPDX-License-Identifier: AGPL-3.0-only
             </div>
         {% endif %}
         {% endwith %}
-	<p>You may want to report a url to us for various reasons. For instance, the url links to harmful content that you think should not be in our index. Or you are the owner of a site who would rather not be listed in our database. Whatever your concern is, please give us as much detail as possible, so that we can resolve the problem quickly. We may contact you at your registered email address if we need further details from you.</p>
+	<p>{{gettext('You may want to report a url to us for various reasons. For instance, the url links to harmful content that you think should not be in our index. Or you are the owner of a site who would rather not be listed in our database. Whatever your concern is, please give us as much detail as possible, so that we can resolve the problem quickly. We may contact you at your registered email address if we need further details from you.')}}</p>
 	<br><br>
       <form method="POST" action="/orchard/report" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
@@ -28,7 +28,7 @@ SPDX-License-Identifier: AGPL-3.0-only
         <p>{{ render_field(form.report) }}</p>
 	<div class="form-check">
 	  {{ form.accept_tos(class_="form-check-input") }}
-	  <label class="form-check-label" for="legal">I confirm that I may be contacted in relation to my report and that my email address is {{email}}.</label>
+	  <label class="form-check-label" for="legal">{{gettext('I confirm that I may be contacted in relation to my report and that my email address is')}} {{email}}.</label>
         </div>
       </div><!-- card body -->
       <div class="card-footer clearfix">

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-02-14 17:13+0100\n"
+"POT-Creation-Date: 2024-04-07 15:07+0200\n"
 "PO-Revision-Date: 2024-02-12 16:51+0100\n"
 "Last-Translator: Aurelie Herbelot\n"
 "Language: de\n"
@@ -18,12 +18,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.14.0\n"
 
-#: app/__init__.py:192 app/__init__.py:232
-#: app/__init_for_pythonanywhere__.py:196
-#: app/__init_for_pythonanywhere__.py:236
+#: app/__init__.py:200 app/__init__.py:239
+#: app/__init_for_pythonanywhere__.py:212
+#: app/__init_for_pythonanywhere__.py:251
 #, python-format
 msgid "Failed to delete record. %(error)s"
-msgstr "Eintrag konnte nicht gelöscht werden."
+msgstr "Eintrag konnte nicht gelöscht werden. %(error)s"
 
 #: app/forms.py:7
 msgid "Username"
@@ -43,7 +43,7 @@ msgstr "Neues Passwort"
 
 #: app/forms.py:9 app/forms.py:15 app/forms.py:21
 msgid "Your password should have between 6 and 20 characters."
-msgstr "Dein Passwort sollte zwischen 4 und 25 Zeichen lang sein."
+msgstr "Dein Passwort sollte zwischen 6 und 25 Zeichen lang sein."
 
 #: app/forms.py:9 app/forms.py:21
 msgid "Passwords must match"
@@ -65,13 +65,13 @@ msgstr "Passwort"
 msgid "The url to index"
 msgstr "Url"
 
-#: app/forms.py:26
+#: app/forms.py:26 app/templates/orchard/get-a-pod.html:12
 msgid "Theme"
 msgstr "Thema"
 
 #: app/forms.py:27
-msgid "Optional trigger warning"
-msgstr "Optionale Triggerwarnung"
+msgid "Optional note*"
+msgstr "Optionaler Kommentar*"
 
 #: app/forms.py:28
 msgid "I confirm that my suggestion does not contravene the Terms of Service"
@@ -85,7 +85,7 @@ msgstr "Ein Titel für Deinen Beitrag"
 
 #: app/forms.py:31
 msgid "The title of your entry should have between 4 and 100 characters."
-msgstr "Der Titel Deines Beitrags sollte zwischen 4 und 25 Zeichen lang sein."
+msgstr "Der Titel Deines Beitrags sollte zwischen 4 und 100 Zeichen lang sein."
 
 #: app/forms.py:32
 msgid "Description"
@@ -123,54 +123,201 @@ msgstr "Dein Kommentar"
 msgid "I confirm that my comment can be openly published."
 msgstr "Ich bestätige, dass mein Kommentar öffentlich veröffentlicht werden kann."
 
-#: app/auth/controllers.py:45
+#: app/auth/controllers.py:26
+msgid "You have successfully logged out."
+msgstr "Du hast Dich erfolgreich abgemeldet."
+
+#: app/auth/controllers.py:47
 msgid "Please check your login details and try again."
 msgstr "Bitte überprüfe deine Anmeldedaten und versuche es erneut."
 
 #: app/auth/controllers.py:50
+msgid ""
+"We have moved to a more secure authentification method. Please request a "
+"password change."
+msgstr ""
+"Wir sind zu einer sichereren Authentifizierungsmethode übergegangen. "
+"Bitte fordere eine Passwortänderung."
+
+#: app/auth/controllers.py:55 app/templates/auth/profile.html:5
 msgid "Welcome"
 msgstr "Willkommen"
 
-#: app/auth/controllers.py:75
-#, fuzzy
+#: app/auth/controllers.py:81
 msgid "Email address already exists."
 msgstr "Diese E-Mail Adresse existiert schon."
 
-#: app/auth/controllers.py:79
+#: app/auth/controllers.py:85
 msgid "Username already exists."
 msgstr "Dieser Benutzername existiert schon."
 
-#: app/auth/controllers.py:91 app/auth/controllers.py:133
+#: app/auth/controllers.py:97 app/auth/controllers.py:139
 msgid "Please confirm your email."
 msgstr "Bitte Deine E-Mail bestätigen."
 
-#: app/auth/controllers.py:100
+#: app/auth/controllers.py:106
 msgid "A confirmation has been sent via email."
-msgstr "Ein Bestätigungslink wurde geschickt an deine Adresse."
+msgstr "Ein Bestätigungslink wurde an Deine Adresse geschickt."
 
-#: app/auth/controllers.py:119
+#: app/auth/controllers.py:116
+msgid "Account already confirmed."
+msgstr "Dein Konto wurde bereits bestätigt."
+
+#: app/auth/controllers.py:125
 msgid "You have confirmed your account. Thanks!"
 msgstr "Du hast dein Konto bestätigt. Danke!"
 
-#: app/auth/controllers.py:121 app/auth/controllers.py:174
+#: app/auth/controllers.py:127 app/auth/controllers.py:180
 msgid "The confirmation link is invalid or has expired."
 msgstr "Der Bestätigungslink ist ungültig oder abgelaufen."
 
-#: app/auth/controllers.py:128
+#: app/auth/controllers.py:134
 msgid "Your account has already been confirmed."
 msgstr "Dein Konto wurde bereits bestätigt."
 
-#: app/auth/controllers.py:135
+#: app/auth/controllers.py:141
 msgid "A new confirmation email has been sent."
 msgstr "Ein neuer Bestätigungslink wurde geschickt."
 
-#: app/auth/controllers.py:158
+#: app/auth/controllers.py:161
+msgid "You have requested a password reset."
+msgstr "Du hast ein neues Passwort beantragt."
+
+#: app/auth/controllers.py:164
 msgid "A link has been sent via email to reset your password."
 msgstr "Du hast per E-Mail einen Link erhalten, um dein Passwort zurückzusetzen."
 
-#: app/auth/controllers.py:187
+#: app/auth/controllers.py:193
 msgid "Your password has been successfully changed."
 msgstr "Dein Passwort wurde erfolgreich geändert."
+
+#: app/auth/decorators.py:8
+msgid "Please confirm your account!"
+msgstr "Bitte Deine E-Mail bestätigen."
+
+#: app/indexer/controllers.py:73
+msgid "Nothing to amend."
+msgstr "Es gibt nichts zu ändern."
+
+#: app/indexer/controllers.py:188
+msgid "ERROR: Invalid file format."
+msgstr "ERROR: Ungültiges Dateiformat."
+
+#: app/indexer/controllers.py:196
+msgid "ERROR: Content type could not be retrieved from header."
+msgstr "ERROR: Der Inhaltstyp konnte nicht aus dem Header abgerufen werden."
+
+#: app/indexer/controllers.py:241
+msgid "There was a problem indexing your entry. Please check the submitted data."
+msgstr ""
+"Bei der Indizierung Deines Eintrags ist ein Problem aufgetreten. Bitte "
+"überprüfe die übermittelten Daten."
+
+#: app/indexer/controllers.py:242
+msgid "Your entry:"
+msgstr "Dein Kommentar"
+
+#: app/orchard/controllers.py:99
+msgid "Your report has been sent. Thank you!"
+msgstr "Deine Meldung wurde abgeschickt. Wir danken Dir!"
+
+#: app/orchard/controllers.py:123
+msgid "Your note has been saved. Thank you!"
+msgstr "Dein Kommentar	 wurde gespeichert. Wir danken Dir!"
+
+#: app/search/controllers.py:48
+msgid "You have not confirmed your account.<br>Please use the link in the email that was sent to you, or request a new link by clicking <a href=''>here</a>."
+msgstr "Du hast Dein Konto nicht bestätigt.<br>Bitte verwende den Link in der E-Mail, die dir zugeschickt wurde, oder fordere einen neuen Link an, indem du <a href=''>hier</a> klickst."
+
+#: app/settings/controllers.py:78
+msgid "URL does not belong to you and cannot be deleted."
+msgstr "Die URL gehört Dir nicht und kann nicht gelöscht werden."
+
+#: app/settings/controllers.py:82
+msgid " was successfully deleted."
+msgstr " wurde erfolgreich gelöscht."
+
+#: app/settings/controllers.py:84
+msgid "There was a problem deleting URL "
+msgstr "Es gab ein Problem beim Löschen der URL "
+
+#: app/settings/controllers.py:84
+msgid " Please contact your administrator."
+msgstr "Bitte wende Dich an Deinen Admin."
+
+#: app/settings/controllers.py:101
+msgid "Your comments for "
+msgstr "Deine Kommentare für "
+
+#: app/settings/controllers.py:101
+msgid " were successfully deleted."
+msgstr " wurden erfolgreich gelöscht."
+
+#: app/templates/admin/index.html:14
+msgid ""
+"This page allows you to manually administer your users, pods and indexed "
+"URLs. If you ever need to e.g. delete a single URL from your indexed "
+"pages, or modify a keyword, this is the place to do so. You can also view"
+" and search the entire list of available pods, as registered by your "
+"pear."
+msgstr "Diese Seite ermöglicht es Dir, Deine Benutzer, Pods und indizierten URLs manuell zu verwalten. Wenn Du z.B. eine einzelne URL aus Deinen indizierten Seiten löschen oder ein Schlüsselwort ändern möchtest, ist dies der richtige Ort dafür. Du kannst auch die gesamte Liste der verfügbaren Pods, die von deiner PeARS Instanz registriert wurden, einsehen und durchsuchen."
+
+#: app/templates/admin/index.html:17
+msgid "See/modify your URL list"
+msgstr "URL-Liste anzeigen"
+
+#: app/templates/admin/index.html:20
+msgid "See/modify your Pods list"
+msgstr "Themen-Liste anzeigen"
+
+#: app/templates/admin/index.html:23
+msgid "See/modify your Users list"
+msgstr "Benutzer-Liste anzeigen"
+
+#: app/templates/admin/pears_list.html:32 app/templates/analysis/index.html:41
+#: app/templates/base/base.html:68
+msgid "Search"
+msgstr "Suchen"
+
+#: app/templates/admin/pears_list.html:33
+msgid "Indexer"
+msgstr "Indexieren"
+
+#: app/templates/admin/pears_list.html:34 app/templates/base/base.html:73
+msgid "Themes"
+msgstr "Themen"
+
+#: app/templates/admin/pears_list.html:35
+msgid "DB admin"
+msgstr "DB Admin"
+
+#: app/templates/admin/pears_list.html:38 app/templates/base/base.html:81
+msgid "Profile"
+msgstr "Profil"
+
+#: app/templates/admin/pears_list.html:39 app/templates/base/base.html:83
+msgid "F.A.Q."
+msgstr "F.A.Q."
+
+#: app/templates/analysis/index.html:13
+msgid "Run association analysis"
+msgstr "Assoziationsanalyse durchführen"
+
+#: app/templates/analysis/index.html:16
+msgid "Analyse"
+msgstr "Analyse"
+
+#: app/templates/analysis/index.html:19
+msgid "Analysing..."
+msgstr "Analyse..."
+
+#: app/templates/analysis/index.html:36
+msgid "Search associations"
+msgstr "Suchen"
+
+#: app/templates/analysis/index.html:40 app/templates/search/results.html:30
+msgid "Enter your search query"
+msgstr "Gib deine Suchanfrage ein."
 
 #: app/templates/auth/confirm_email.html:2
 msgid ""
@@ -185,7 +332,6 @@ msgid "We are looking forward to seeing you on this PeARS instance!"
 msgstr "Wir freuen uns darauf, dich auf dieser PeARS-Instanz zu sehen!"
 
 #: app/templates/auth/inactive.html:6
-#, fuzzy
 msgid "Welcome!"
 msgstr "Willkommen!"
 
@@ -207,30 +353,28 @@ msgstr "Hast du die E-Mail nicht bekommen?"
 msgid "Resend"
 msgstr "Schicke die E-Mail erneut."
 
-#: app/templates/auth/login.html:12 app/templates/base/base.html:115
+#: app/templates/auth/login.html:12 app/templates/base/base.html:97
 msgid "Login"
 msgstr "Einloggen"
 
 #: app/templates/auth/login.html:28 app/templates/auth/signup.html:37
-#, fuzzy
 msgid "Log in"
 msgstr "Einloggen"
 
-#: app/templates/auth/login.html:32
+#: app/templates/auth/login.html:32 app/templates/search/results.html:45
 msgid "No account yet?"
 msgstr "Du hast noch kein Konto?"
 
 #: app/templates/auth/login.html:32 app/templates/auth/signup.html:33
+#: app/templates/search/results.html:45
 msgid "Sign up"
 msgstr "Anmelden"
 
 #: app/templates/auth/password_change.html:11
-#, fuzzy
 msgid "Enter a new password"
 msgstr "Neues Passwort"
 
 #: app/templates/auth/password_change.html:27
-#, fuzzy
 msgid "Change password"
 msgstr "Neues Passwort"
 
@@ -266,12 +410,10 @@ msgid "See you soon on our PeARS instance again!"
 msgstr "Bis bald wieder auf unserer PeARS-Instanz!"
 
 #: app/templates/auth/signup.html:11
-#, fuzzy
 msgid "Signup"
 msgstr "Melde dich an!"
 
 #: app/templates/auth/signup.html:28
-#, fuzzy
 msgid ""
 "I agree to the <a href='../../privacy/'>privacy policy</a> and <a href"
 "='../../terms-of-service/'>terms of service</a> of this site."
@@ -283,121 +425,227 @@ msgstr ""
 msgid "Do you already have an account?"
 msgstr "Hast du schon ein Konto?"
 
+#: app/templates/base/404.html:4
+msgid "Oops! The address you were looking for was not found."
+msgstr "Huch! Die von Dir gesuchte Adresse wurde nicht gefunden."
+
+#: app/templates/base/404.html:5
+msgid "We are sorry for this inconvenience."
+msgstr "Wir entschuldigen uns für diese Unannehmlichkeiten."
+
+#: app/templates/base/404.html:6 app/templates/base/500.html:6
+msgid "Go back to the main page."
+msgstr "Zurück zur Hauptseite."
+
+#: app/templates/base/500.html:4
+msgid "An unexpected error has occurred."
+msgstr "Es ist ein unerwarteter Fehler aufgetreten."
+
+#: app/templates/base/500.html:5
+msgid "The administrator has been notified. Sorry for the inconvenience!"
+msgstr "Dein:e Administrator:in wurde benachrichtigt. Entschuldigung für die Unannehmlichkeiten!"
+
 #: app/templates/base/_formhelpers.html:18
 msgid "Password forgotten?"
 msgstr "Passwort vergessen?"
-
-#: app/templates/base/base.html:68 app/templates/search/index.html:20
-#: app/templates/search/results.html:16
-msgid "Search"
-msgstr "Suchen"
 
 #: app/templates/base/base.html:70
 msgid "Index"
 msgstr "Indexieren"
 
-#: app/templates/base/base.html:73
-msgid "Themes"
-msgstr "Themen"
-
 #: app/templates/base/base.html:76
 msgid "DB Admin"
 msgstr "DB Admin"
 
-#: app/templates/base/base.html:81
-msgid "Profile"
-msgstr "Profil"
-
-#: app/templates/base/base.html:83
-msgid "F.A.Q."
-msgstr "F.A.Q."
-
-#: app/templates/base/base.html:84
-msgid "Acknowledgments"
-msgstr "Danksagung"
-
-#: app/templates/base/base.html:118
+#: app/templates/base/base.html:100
 msgid "Logout"
 msgstr "Ausloggen"
 
-#: app/templates/base/base.html:131
+#: app/templates/base/base.html:113
 msgid "Privacy policy"
 msgstr "Datenschutz"
 
-#: app/templates/base/base.html:131
+#: app/templates/base/base.html:113
 msgid "Terms of service"
 msgstr "AGB"
 
-#: app/templates/base/base.html:131
+#: app/templates/base/base.html:113
 msgid "Contact"
 msgstr "Impressum"
 
-#: app/templates/indexer/index.html:14
-msgid "pages recorded"
-msgstr "Beiträge im Index"
+#: app/templates/base/base.html:113
+msgid "Acknowledgments"
+msgstr "Danksagung"
 
-#: app/templates/indexer/index.html:22
-msgid "Index a single URL"
-msgstr "Url vorschlagen"
-
-#: app/templates/indexer/index.html:38 app/templates/indexer/index.html:67
+#: app/templates/indexer/fail.html:13
 msgid ""
-"I confirm that my entry does not contravene the <a href='../terms-of-"
-"service'>terms of service</a> of this site."
-msgstr "Ich bestätige, dass mein Eintrag nicht gegen die <a href='../terms-of-service'>Nutzungsbedingungen</a> verstößt."
+"Unfortunately, an error occurred while we were trying to index the "
+"suggested URL. This could have various reasons. For instance, the website"
+" owner disallows automatic access\n"
+"      to their content, or the server refused our request. Please also "
+"check that the URL still exists, and that you have not mistyped it."
+msgstr "Leider ist ein Fehler aufgetreten, während wir versucht haben, die vorgeschlagene URL zu indizieren. Dies kann verschiedene Gründe haben. Zum Beispiel verbietet der/die Eigentümer:in der Website den automatischen Zugriff auf seine/ihre Inhalte, oder der Server hat unsere Anfrage abgelehnt. Bitte prüfe auch, ob die URL noch existiert und ob Du Dich nicht vertippt hast."
 
-#: app/templates/indexer/index.html:43 app/templates/indexer/index.html:72
-msgid "Add"
-msgstr "Vorschlagen"
-
-#: app/templates/indexer/index.html:52
-msgid "Add an offline resource"
-msgstr "Einen Offline-Tipp hinzufügen"
-
+#: app/templates/indexer/fail.html:20
 #: app/templates/indexer/progress_file.html:17
+#: app/templates/indexer/success.html:26
 msgid "Index more pages"
 msgstr "Mehr Seiten vorschlagen"
 
-#: app/templates/orchard/index.html:15
-#, fuzzy
+#: app/templates/indexer/index.html:15
+msgid "pages recorded"
+msgstr "Beiträge im Index"
+
+#: app/templates/indexer/index.html:27
+msgid "Index a single URL"
+msgstr "Url vorschlagen"
+
+#: app/templates/indexer/index.html:44 app/templates/indexer/index.html:78
+msgid ""
+"I confirm that my entry does not contravene the <a href='../terms-of-"
+"service'>terms of service</a> of this site."
+msgstr ""
+"Ich bestätige, dass mein Eintrag nicht gegen die <a href='../terms-of-"
+"service'>Nutzungsbedingungen</a> verstößt."
+
+#: app/templates/indexer/index.html:49 app/templates/indexer/index.html:83
+msgid "Add"
+msgstr "Vorschlagen"
+
+#: app/templates/indexer/index.html:54
+msgid "Or add a manual resource"
+msgstr "Einen Offline-Tipp hinzufügen"
+
+#: app/templates/indexer/index.html:63
+msgid "Add an offline resource"
+msgstr "Einen Offline-Tipp hinzufügen"
+
+#: app/templates/indexer/index.html:87
+msgid "Or index a URL"
+msgstr "Url vorschlagen"
+
+#: app/templates/indexer/success.html:17
+msgid ""
+"Your URL has been successfully indexed! Here is a summary of your "
+"contribution:"
+msgstr "Deine URL wurde erfolgreich indiziert! Hier ist eine Zusammenfassung Deines Beitrags."
+
+#: app/templates/indexer/success.html:22
+msgid "Category:"
+msgstr "Thema:"
+
+#: app/templates/indexer/success.html:23
+msgid "Note:"
+msgstr "Kommentar:"
+
+#: app/templates/indexer/success.html:25
+msgid "Made a mistake? No problem"
+msgstr "Einen Fehler gemacht? Kein Problem"
+
+#: app/templates/indexer/success.html:25
+msgid ""
+"Are you sure you want to amend your contribution? Clicking on this link "
+"will delete the resource you have just indexed and send you back to the "
+"indexing form, prefilled with your previous entries."
+msgstr "Bist Du sicher, dass Du Deinen Beitrag ändern möchtest? Wenn Du auf diesen Link klickst, wird die Ressource, die Du gerade indiziert hast, gelöscht und Du kehrst zum Indizierungsformular zurück, das mit Deinen vorherigen Einträgen vorausgefüllt ist."
+
+#: app/templates/indexer/success.html:25
+msgid "try again"
+msgstr "versuche nochmal"
+
+#: app/templates/orchard/annotate.html:14
+msgid "Add a note to a URL"
+msgstr "Diesen Beitrag kommentieren"
+
+#: app/templates/orchard/annotate.html:23
+msgid ""
+"You can add here a comment on this URL for the benefit of the community. "
+"Your comment will appear <i>with your username</i> under the URL in the "
+"search results."
+msgstr "Du kannst hier einen Kommentar zu dieser URL zum Nutzen der Gemeinschaft hinzufügen. Dein Kommentar wird <i>mit Deinem Benutzernamen</i> unter der URL in den Suchergebnissen erscheinen."
+
+#: app/templates/orchard/annotate.html:31
+msgid ""
+"I agree for my comment to be included in the public notes for this url, "
+"together with my username."
+msgstr "Ich bin damit einverstanden, dass mein Kommentar zusammen mit meinem Benutzernamen in die öffentlichen Beiträgen für diese Url aufgenommen wird."
+
+#: app/templates/orchard/get-a-pod.html:14
+msgid "Download"
+msgstr "Runterladen"
+
+#: app/templates/orchard/index.html:22
 msgid "Theme:"
 msgstr "Thema:"
 
-#: app/templates/orchard/index.html:17
+#: app/templates/orchard/index.html:24
 msgid "entries"
 msgstr "Beiträge"
 
-#: app/templates/orchard/index.html:18
+#: app/templates/orchard/index.html:25
 msgid "View"
 msgstr "Ansehen"
 
-#: app/templates/search/index.html:19
-msgid "Enter your search query"
-msgstr "Gib deine Suchanfrage ein."
+#: app/templates/orchard/index.html:35
+msgid "Rename theme"
+msgstr "Thema umbennenen"
 
-#: app/templates/search/index.html:23 app/templates/search/results.html:19
-msgid "Searching..."
-msgstr "Suche..."
+#: app/templates/orchard/index.html:36
+msgid "Rename"
+msgstr "Umbenennen"
 
-#: app/templates/search/results.html:46
-msgid "Trigger warning"
-msgstr "Triggerwarnung"
+#: app/templates/orchard/report.html:14
+msgid "Report a URL"
+msgstr "URL melden"
 
-#: app/templates/search/results.html:48
-msgid "Report this entry"
-msgstr "Diesen Beitrag melden"
+#: app/templates/orchard/report.html:23
+msgid ""
+"You may want to report a url to us for various reasons. For instance, the"
+" url links to harmful content that you think should not be in our index. "
+"Or you are the owner of a site who would rather not be listed in our "
+"database. Whatever your concern is, please give us as much detail as "
+"possible, so that we can resolve the problem quickly. We may contact you "
+"at your registered email address if we need further details from you."
+msgstr "Du kannst uns eine Url aus verschiedenen Gründen melden. Zum Beispiel, wenn die URL auf schädliche Inhalte verweist, die Deiner Meinung nach nicht in unseren Index aufgenommen werden sollten. Oder Du bist der/die Eigentümer:in einer Website, die nicht in unserer Datenbank aufgeführt werden soll. Was auch immer Dein Anliegen ist, gib uns bitte so viele Details wie möglich, damit wir das Problem schnell lösen können. Wir können Dich unter Deiner registrierten E-Mail-Adresse kontaktieren, wenn wir weitere Details von Dir benötigen."
 
-#: app/templates/search/results.html:50
+#: app/templates/orchard/report.html:31
+msgid ""
+"I confirm that I may be contacted in relation to my report and that my "
+"email address is"
+msgstr ""
+"Ich bestätige, dass ich im Zusammenhang mit meiner Meldung kontaktiert "
+"werden kann."
+
+#: app/templates/search/results.html:42
+msgid ""
+"<b>No results found.</b><br> The reason for this could be that the topic "
+"of this PeARS instance is not aligned with your query. \n"
+"\t  It could also be that its index is still too small! We would be happy"
+" if you contributed to the index by adding your favourite URLs\n"
+"\t  on your topic."
+msgstr "<b>Keine Ergebnisse gefunden.</b><br> Der Grund dafür könnte sein, dass das Thema dieser PeARS-Instanz nicht mit Deiner Anfrage übereinstimmt.\n Es könnte auch sein, dass sein Index noch zu klein ist! Wir würden uns freuen wenn Du zum Index beiträgst, indem Du Deine Lieblings-URLs zu Deinem Thema hinzufügen würdest."
+
+#: app/templates/search/results.html:47
+msgid "Search results:"
+msgstr "Suchergebnisse"
+
+#: app/templates/search/results.html:55
 msgid "Add a note to this entry"
 msgstr "Diesen Beitrag kommentieren"
 
+#: app/templates/search/results.html:56
+msgid "Report this entry"
+msgstr "Diesen Beitrag melden"
+
+#: app/templates/search/results.html:57
+msgid "Share this entry"
+msgstr "Diesen Beitrag melden"
+
 #: app/templates/settings/index.html:13
-#, fuzzy
 msgid "Your profile"
 msgstr "Profil"
 
 #: app/templates/settings/index.html:15
-#, fuzzy
 msgid "Username:"
 msgstr "Benutzername"
 
@@ -409,17 +657,57 @@ msgstr "E-Mail:"
 msgid "#Contributions:"
 msgstr "#Beiträge:"
 
-#: app/templates/settings/index.html:25
-msgid "Color scheme"
-msgstr "Farbauswahl"
-
-#: app/templates/settings/index.html:27
-msgid "Change your color scheme by clicking on the options below."
-msgstr ""
-"Ändere die Farben dieser Oberfläche, indem du auf die unten stehenden "
-"Optionen klickst."
-
-#: app/templates/settings/index.html:43
+#: app/templates/settings/index.html:28
 msgid "Your contributions"
 msgstr "Deine Beiträge"
+
+#: app/templates/settings/index.html:39 app/templates/settings/index.html:41
+msgid "Web content"
+msgstr "Webinhalte"
+
+#: app/templates/settings/index.html:44
+msgid "Delete this URL"
+msgstr "Lösche diese URL"
+
+#: app/templates/settings/index.html:44 app/templates/settings/index.html:54
+msgid "Are you sure you want to delete this resource?"
+msgstr "Bist Du sicher, dass Du diese Ressource löschen willst?"
+
+#: app/templates/settings/index.html:49 app/templates/settings/index.html:51
+msgid "Tips"
+msgstr "Tipps"
+
+#: app/templates/settings/index.html:54
+msgid "Delete this tip"
+msgstr "Lösche diesen Beitrag"
+
+#: app/templates/settings/index.html:59 app/templates/settings/index.html:61
+msgid "Comments"
+msgstr "Kommentare"
+
+#: app/templates/settings/index.html:64
+msgid "Delete comments for this URL"
+msgstr "Lösche Deine Kommentare für diese URL"
+
+#: app/templates/settings/index.html:64
+msgid "Are you sure you want to delete all your comments for this URL?"
+msgstr "Bist Du sicher, dass Du alle Deine Kommentare zu dieser URL löschen möchtest?"
+
+#~ msgid "Optional trigger warning"
+#~ msgstr "Optionale Triggerwarnung"
+
+#~ msgid "Searching..."
+#~ msgstr "Suche..."
+
+#~ msgid "Trigger warning"
+#~ msgstr "Triggerwarnung"
+
+#~ msgid "Color scheme"
+#~ msgstr "Farbauswahl"
+
+#~ msgid "Change your color scheme by clicking on the options below."
+#~ msgstr ""
+#~ "Ändere die Farben dieser Oberfläche, "
+#~ "indem du auf die unten stehenden "
+#~ "Optionen klickst."
 

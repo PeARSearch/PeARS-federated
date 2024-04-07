@@ -8,6 +8,7 @@ import logging
 from os.path import join
 from flask import Blueprint, flash, request, render_template, redirect, url_for, session
 from flask_login import login_required, current_user
+from flask_babel import gettext
 from app import db, OWN_BRAND
 from app.api.models import Urls
 from app.forms import ManualEntryForm
@@ -74,13 +75,13 @@ def delete_url():
     # Double check url belongs to the user
     contributor = pod.split('.u.')[1]
     if contributor != username:
-        flash("URL does not belong to you and cannot be deleted.")
+        flash(gettext("URL does not belong to you and cannot be deleted."))
         return redirect(url_for("settings.index"))
     try:
         delete_url_representations(url)
-        flash("URL "+url+" was successfully deleted.")
+        flash("URL "+url+gettext(" was successfully deleted."))
     except:
-        flash("There was a problem deleting URL "+url+" Please contact your administrator.")
+        flash(gettext("There was a problem deleting URL ")+url+gettext(" Please contact your administrator."))
     return redirect(url_for("settings.index"))
 
 @settings.route('/delcomment', methods=['GET'])
@@ -97,5 +98,5 @@ def delete_comment():
     else:
         url.notes = None
     db.session.commit()
-    flash("Your comments for "+u+" were successfully deleted.")
+    flash(gettext("Your comments for ")+u+gettext(" were successfully deleted."))
     return redirect(url_for("settings.index"))
