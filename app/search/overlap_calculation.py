@@ -156,12 +156,12 @@ def posix(q, posindex, lang):
         for w in query_vocab_ids:
             token_str = inverted_vocab[w]
             token_positions = posindex[w][doc]
-            print("DOC",doc,"TOKEN STR",token_str)
+            #print("DOC",doc,"TOKEN STR",token_str)
             if token_str.startswith("▁") or len(positions) == 0:
                 positions.append((token_positions,))
             else:
                 positions[-1] += (token_positions,)
-            print("\tDOC",doc,"Q WORD", token_str, token_positions)
+            #print("\tDOC",doc,"Q WORD", token_str, token_positions)
 
         final_score = posix_score_seq(positions)
         doc_scores[doc] = final_score
