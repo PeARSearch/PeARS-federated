@@ -114,7 +114,6 @@ def compute_scores(query, query_vectors, query_tokenized, pod_name, posindex, la
     posindex: the positional index for that pod
     """
     print("\n>> SEARCH:SCORE_PAGES:compute_scores on pod", pod_name)
-    print(">> SEARCH:SCORE_PAGES:compute_scores starting at", time())
     vec_scores = {}
     theme = pod_name.split('.u.')[0]
     username = pod_name.split('.u.')[1]
@@ -144,7 +143,6 @@ def compute_scores(query, query_vectors, query_tokenized, pod_name, posindex, la
         url = idx_to_url[1][lspos]
         #print("URL",url)
         vec_scores[url] = cos
-    print(">> SEARCH:SCORE_PAGES:compute_scores finishing at", time())
     return vec_scores, best_posix_docs
 
 
@@ -164,6 +162,7 @@ def mk_podsum_matrix(lang):
             podnames.append(podname)
     return podnames, podsum
 
+@timer
 def score_pods(query_vectors, extended_q_vectors, lang):
     """Score pods for a query.
 
@@ -204,7 +203,7 @@ def score_pods(query_vectors, extended_q_vectors, lang):
             break
     return best_pods
 
-
+@timer
 def score_docs(query, query_vectors, query_tokenized, pod_name, posindex, lang):
     """Score documents for a query.
     Arguments:
@@ -215,7 +214,8 @@ def score_docs(query, query_vectors, query_tokenized, pod_name, posindex, lang):
     pod_name: the pod we are scoring against
     posindex: the positional index for that pod
     """
-    print("\n>> INFO: SEARCH: SCORE_PAGES: SCORES_DOCS", pod_name)
+    print("\n>> INFO: SEARCH: SCORE_PAGES: SCORE_DOCS", pod_name)
+    print(">> SEARCH:SCORE_PAGES:score_docs starting at", time())
     document_scores = {}  # Document scores
     vec_scores, posix_scores = \
             compute_scores(query, query_vectors, query_tokenized, pod_name, posindex, lang)
@@ -240,9 +240,11 @@ def score_docs(query, query_vectors, query_tokenized, pod_name, posindex, lang):
             logging.debug(f"url: {url}, vec_score: {vec_scores[url]}, posix_score: {posix_scores.get(idx,0)}, snippet_score: {snippet_score} ||| GRAND SCORE: {document_scores[url]}")
     return document_scores
 
+@timer
 def score_docs_extended(extended_q_tokenized, pod_name, posindex, lang):
     '''Score documents for an extended query, using posix scoring only'''
-    print(">> INFO: SEARCH: SCORE_PAGES: SCORES_DOCS_EXTENDED",pod_name)
+    print(">> INFO: SEARCH: SCORE_PAGES: SCORE_DOCS_EXTENDED",pod_name)
+    print(">> SEARCH:SCORE_PAGES:score_docs_extended starting at", time())
     document_scores = {}  # Document scores
     theme = pod_name.split('.u.')[0]
     username = pod_name.split('.u.')[1]
@@ -271,7 +273,7 @@ def score_docs_extended(extended_q_tokenized, pod_name, posindex, lang):
                     urls_incremented.append(url)
             else:
                 print(">> ERROR: SCORE PAGES: score_docs_extended: url not found")
-    logging.info("DOCUMENT SCORES: {document_scores}")
+    logging.info(f"DOCUMENT SCORES: {document_scores}")
     return document_scores
 
 def return_best_urls(doc_scores):
@@ -338,13 +340,13 @@ def run_search(query:str, lang:str):
         posindices.append(load_posix(contributor, lang, theme))
 
     # Compute results for original query
-    logging.info("BEST PODS: {best_pods}")
+    logging.info(f"BEST PODS: {best_pods}")
     with Parallel(n_jobs=max_thread, prefer="threads") as parallel:
         delayed_funcs = [delayed(score_docs)(query, q_vectors, q_tokenized, best_pods[i], posindices[i], lang) for i in range(len(best_pods))]
         scores = parallel(delayed_funcs)
     for dic in scores:
         document_scores.update(dic)
-    logging.debug("DOCUMENT SCORES 1: {document_scores}")
+    logging.debug(f"DOCUMENT SCORES 1: {document_scores}")
 
     # Compute results for extended query
     extended_document_scores = {}
@@ -353,7 +355,7 @@ def run_search(query:str, lang:str):
         scores = parallel(delayed_funcs)
     for dic in scores:
         extended_document_scores.update(dic)
-    logging.debug("DOCUMENT SCORES 2: {extended_document_scores}")
+    logging.debug(f"DOCUMENT SCORES 2: {extended_document_scores}")
     #print(set(extended_document_scores.keys())-set(document_scores.keys()))
 
     # Merge
@@ -364,7 +366,7 @@ def run_search(query:str, lang:str):
         else:
             merged_scores[k] = 0.5*extended_document_scores[k]
 
-    logging.debug("DOCUMENT SCORES MERGED: {merged_scores}")
+    logging.debug(f"DOCUMENT SCORES MERGED: {merged_scores}")
     best_urls, scores = return_best_urls(merged_scores)
     results = output(best_urls)
     return results, scores
