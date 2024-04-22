@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-04-07 20:18+0200\n"
+"POT-Creation-Date: 2024-04-22 15:31+0200\n"
 "PO-Revision-Date: 2024-02-12 16:51+0100\n"
 "Last-Translator: Aurelie Herbelot\n"
 "Language: de\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.14.0\n"
 
-#: app/__init__.py:200 app/__init__.py:239
+#: app/__init__.py:205 app/__init__.py:244
 #: app/__init_for_pythonanywhere__.py:212
 #: app/__init_for_pythonanywhere__.py:251
 #, python-format
@@ -33,119 +33,129 @@ msgstr "Benutzername"
 msgid "Your username should have between 4 and 25 characters."
 msgstr "Dein Benutzername sollte zwischen 4 und 25 Zeichen lang sein."
 
-#: app/forms.py:8 app/forms.py:14 app/forms.py:18
+#: app/forms.py:8 app/forms.py:16 app/forms.py:20
 msgid "Email Address"
 msgstr "E-Mail Adresse"
 
-#: app/forms.py:9 app/forms.py:21
+#: app/forms.py:9 app/forms.py:23
 msgid "New Password"
 msgstr "Neues Passwort"
 
-#: app/forms.py:9 app/forms.py:15 app/forms.py:21
+#: app/forms.py:9 app/forms.py:17 app/forms.py:23
 msgid "Your password should have between 6 and 20 characters."
 msgstr "Dein Passwort sollte zwischen 6 und 25 Zeichen lang sein."
 
-#: app/forms.py:9 app/forms.py:21
+#: app/forms.py:9 app/forms.py:23
 msgid "Passwords must match"
 msgstr "Die Passwörter müssen übereinstimmen."
 
-#: app/forms.py:10 app/forms.py:22
+#: app/forms.py:10 app/forms.py:24
 msgid "Repeat Password"
 msgstr "Passwort wiederholen"
 
-#: app/forms.py:11
+#: app/forms.py:13
 msgid "I accept the TOS and Privacy statement"
 msgstr "Ich akzeptiere die AGB und die Datenschutzerklärung"
 
-#: app/forms.py:15
+#: app/forms.py:17
 msgid "Password"
 msgstr "Passwort"
 
-#: app/forms.py:25
+#: app/forms.py:27
 msgid "The url to index"
 msgstr "Url"
 
-#: app/forms.py:25
+#: app/forms.py:27
 msgid "The URL you would like to index."
 msgstr "Die URL, die Du indexieren möchtest"
 
-#: app/forms.py:26 app/templates/orchard/get-a-pod.html:12
+#: app/forms.py:28 app/templates/orchard/get-a-pod.html:12
 msgid "Theme"
 msgstr "Thema"
 
-#: app/forms.py:26
+#: app/forms.py:28
 msgid ""
 "A category for your URL. Start typing and suggestions will appear, but "
 "you can also write your own."
-msgstr "Eine Kategorie für Deine URL. Fang an zu tippen und es erscheinen Vorschläge, aber Du kannst auch Deine eigenen schreiben."
+msgstr ""
+"Eine Kategorie für Deine URL. Fang an zu tippen und es erscheinen "
+"Vorschläge, aber Du kannst auch Deine eigenen schreiben."
 
-#: app/forms.py:27
+#: app/forms.py:29
 msgid "Optional note*"
 msgstr "Optionaler Kommentar*"
 
-#: app/forms.py:27
+#: app/forms.py:29
 msgid "Anything extra you would like people to know about this resource."
 msgstr "Alles, was Du über diese Ressource mitteilen möchtest."
 
-#: app/forms.py:28
+#: app/forms.py:30
 msgid "I confirm that my suggestion does not contravene the Terms of Service"
 msgstr ""
 "Ich bestätige, dass mein Eintrag nicht gegen die Nutzungsbedingungen "
 "verstößt"
 
-#: app/forms.py:31
+#: app/forms.py:33
 msgid "A title for your entry"
 msgstr "Ein Titel für Deinen Beitrag"
 
-#: app/forms.py:31
+#: app/forms.py:33
 msgid "The title of your entry should have between 4 and 100 characters."
 msgstr "Der Titel Deines Beitrags sollte zwischen 4 und 100 Zeichen lang sein."
 
-#: app/forms.py:32
+#: app/forms.py:34
 msgid "Description"
 msgstr "Beschreibung"
 
-#: app/forms.py:33
+#: app/forms.py:35
 msgid "I confirm that my entry does not contravene the Terms of Service"
 msgstr ""
 "Ich bestätige, dass mein Eintrag nicht gegen die Nutzungsbedingungen "
 "verstößt"
 
-#: app/forms.py:36
+#: app/forms.py:38
 msgid "The url you are reporting"
 msgstr "Die Url, die Du meldest."
 
-#: app/forms.py:37
+#: app/forms.py:39
 msgid "Description of the issue"
 msgstr "Beschreibung des Problems"
 
-#: app/forms.py:38
+#: app/forms.py:40
 msgid "I confirm that I may be contacted in relation to my report."
 msgstr ""
 "Ich bestätige, dass ich im Zusammenhang mit meiner Meldung kontaktiert "
 "werden kann."
 
-#: app/forms.py:41
+#: app/forms.py:43
 msgid "The url you wish to annotate"
 msgstr "Die Url, die Du kommentieren möchtest"
 
-#: app/forms.py:42
+#: app/forms.py:44
 msgid "Your note"
 msgstr "Dein Kommentar"
 
-#: app/forms.py:43
+#: app/forms.py:45
 msgid "I confirm that my comment can be openly published."
 msgstr "Ich bestätige, dass mein Kommentar öffentlich veröffentlicht werden kann."
 
-#: app/auth/controllers.py:26
+#: app/auth/captcha.py:9
+msgid "Captcha: write down the last "
+msgstr "Captcha: schreib die letzten "
+
+#: app/auth/captcha.py:9
+msgid " characters of the following string: "
+msgstr " Zeichen  der folgenden Buchstabenkette auf: "
+
+#: app/auth/controllers.py:27
 msgid "You have successfully logged out."
 msgstr "Du hast Dich erfolgreich abgemeldet."
 
-#: app/auth/controllers.py:47
+#: app/auth/controllers.py:49
 msgid "Please check your login details and try again."
 msgstr "Bitte überprüfe deine Anmeldedaten und versuche es erneut."
 
-#: app/auth/controllers.py:50
+#: app/auth/controllers.py:52
 msgid ""
 "We have moved to a more secure authentification method. Please request a "
 "password change."
@@ -153,55 +163,59 @@ msgstr ""
 "Wir sind zu einer sichereren Authentifizierungsmethode übergegangen. "
 "Bitte fordere eine Passwortänderung."
 
-#: app/auth/controllers.py:55 app/templates/auth/profile.html:5
+#: app/auth/controllers.py:57 app/templates/auth/profile.html:5
 msgid "Welcome"
 msgstr "Willkommen"
 
-#: app/auth/controllers.py:81
+#: app/auth/controllers.py:84
 msgid "Email address already exists."
 msgstr "Diese E-Mail Adresse existiert schon."
 
-#: app/auth/controllers.py:85
+#: app/auth/controllers.py:88
 msgid "Username already exists."
 msgstr "Dieser Benutzername existiert schon."
 
-#: app/auth/controllers.py:97 app/auth/controllers.py:139
+#: app/auth/controllers.py:92
+msgid "The captcha was incorrectly answered."
+msgstr "Das Captcha wurde falsch beantwortet."
+
+#: app/auth/controllers.py:104 app/auth/controllers.py:150
 msgid "Please confirm your email."
 msgstr "Bitte Deine E-Mail bestätigen."
 
-#: app/auth/controllers.py:106
+#: app/auth/controllers.py:113
 msgid "A confirmation has been sent via email."
 msgstr "Ein Bestätigungslink wurde an Deine Adresse geschickt."
 
-#: app/auth/controllers.py:116
+#: app/auth/controllers.py:127
 msgid "Account already confirmed."
 msgstr "Dein Konto wurde bereits bestätigt."
 
-#: app/auth/controllers.py:125
+#: app/auth/controllers.py:136
 msgid "You have confirmed your account. Thanks!"
 msgstr "Du hast dein Konto bestätigt. Danke!"
 
-#: app/auth/controllers.py:127 app/auth/controllers.py:180
+#: app/auth/controllers.py:138 app/auth/controllers.py:191
 msgid "The confirmation link is invalid or has expired."
 msgstr "Der Bestätigungslink ist ungültig oder abgelaufen."
 
-#: app/auth/controllers.py:134
+#: app/auth/controllers.py:145
 msgid "Your account has already been confirmed."
 msgstr "Dein Konto wurde bereits bestätigt."
 
-#: app/auth/controllers.py:141
+#: app/auth/controllers.py:152
 msgid "A new confirmation email has been sent."
 msgstr "Ein neuer Bestätigungslink wurde geschickt."
 
-#: app/auth/controllers.py:161
+#: app/auth/controllers.py:172
 msgid "You have requested a password reset."
 msgstr "Du hast ein neues Passwort beantragt."
 
-#: app/auth/controllers.py:164
+#: app/auth/controllers.py:175
 msgid "A link has been sent via email to reset your password."
 msgstr "Du hast per E-Mail einen Link erhalten, um dein Passwort zurückzusetzen."
 
-#: app/auth/controllers.py:193
+#: app/auth/controllers.py:204
 msgid "Your password has been successfully changed."
 msgstr "Dein Passwort wurde erfolgreich geändert."
 
@@ -243,11 +257,11 @@ msgstr "Dein Kommentar\t wurde gespeichert. Wir danken Dir!"
 msgid ""
 "You have not confirmed your account.<br>                    Please use "
 "the link in the email that was sent to you,                     or "
-"request a new link by clicking <a href=''>here</a>."
+"request a new link by clicking <a href='../auth/resend'>here</a>."
 msgstr ""
 "Du hast Dein Konto nicht bestätigt.<br>Bitte verwende den Link in der "
-"E-Mail, die dir zugeschickt wurde, oder fordere einen neuen Link an, "
-"indem du <a href=''>hier</a> klickst."
+"E-Mail,<br> die dir zugeschickt wurde, oder<br> fordere einen neuen Link an, "
+"indem du <a href='../auth/resend'>hier</a> klickst."
 
 #: app/settings/controllers.py:78
 msgid "URL does not belong to you and cannot be deleted."
@@ -377,13 +391,13 @@ msgstr "Hast du die E-Mail nicht bekommen?"
 
 #: app/templates/auth/inactive.html:20
 msgid "Resend"
-msgstr "Schicke die E-Mail erneut."
+msgstr "Schicke die E-Mail erneut"
 
 #: app/templates/auth/login.html:12 app/templates/base/base.html:97
 msgid "Login"
 msgstr "Einloggen"
 
-#: app/templates/auth/login.html:28 app/templates/auth/signup.html:37
+#: app/templates/auth/login.html:28 app/templates/auth/signup.html:38
 msgid "Log in"
 msgstr "Einloggen"
 
@@ -391,7 +405,7 @@ msgstr "Einloggen"
 msgid "No account yet?"
 msgstr "Du hast noch kein Konto?"
 
-#: app/templates/auth/login.html:32 app/templates/auth/signup.html:33
+#: app/templates/auth/login.html:32 app/templates/auth/signup.html:34
 #: app/templates/search/results.html:45
 msgid "Sign up"
 msgstr "Anmelden"
@@ -439,7 +453,7 @@ msgstr "Bis bald wieder auf unserer PeARS-Instanz!"
 msgid "Signup"
 msgstr "Melde dich an!"
 
-#: app/templates/auth/signup.html:28
+#: app/templates/auth/signup.html:29
 msgid ""
 "I agree to the <a href='../../privacy/'>privacy policy</a> and <a href"
 "='../../terms-of-service/'>terms of service</a> of this site."
@@ -447,7 +461,7 @@ msgstr ""
 "Ich stimme den <a href='../../privacy'>Datenschutzrichtlinien</a> und <a "
 "href='../../terms-of-service'>Nutzungsbedingungen</a> dieser Website zu."
 
-#: app/templates/auth/signup.html:37
+#: app/templates/auth/signup.html:38
 msgid "Do you already have an account?"
 msgstr "Hast du schon ein Konto?"
 

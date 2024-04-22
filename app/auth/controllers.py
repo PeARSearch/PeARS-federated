@@ -10,9 +10,10 @@ from app.forms import RegistrationForm, LoginForm, PasswordForgottenForm, Passwo
 from app import app, db, OWN_BRAND
 
 from flask import (Blueprint, flash, request, render_template, Response, redirect, url_for)
-from app.auth.token import send_email, send_reset_password_email, generate_token, confirm_token
 from flask_babel import gettext
 from datetime import datetime
+from app.auth.token import send_email, send_reset_password_email, generate_token, confirm_token
+from app.auth.captcha import mk_captcha, check_captcha
 
 # Define the blueprint:
 auth = Blueprint('auth', __name__, url_prefix='/auth')
@@ -26,6 +27,7 @@ def logout():
     flash(gettext("You have successfully logged out."), "success")
     placeholder = app.config['SEARCH_PLACEHOLDER']
     return render_template('search/index.html', own_brand=OWN_BRAND, placeholder=placeholder)
+
 
 ''' LOGGING IN '''
 
@@ -72,7 +74,8 @@ def signup():
         email = request.form.get('email')
         username = request.form.get('username')
         password = request.form.get('password')
-        print(email, username)
+        captcha = request.form.get('captcha')
+        captcha_answer = request.form.get('captcha_answer')
 
         user1 = User.query.filter_by(email=email).first() # if this returns a user, then the email already exists in database
         user2 = User.query.filter_by(username=username).first() # if this returns a user, then the username already exists in database
@@ -83,6 +86,10 @@ def signup():
 
         if user2 : # if a user is found, we want to redirect back to signup page so user can try again
             flash(gettext('Username already exists.'))
+            return redirect(url_for('auth.signup'))
+
+        if not check_captcha(captcha, captcha_answer):
+            flash(gettext('The captcha was incorrectly answered.'))
             return redirect(url_for('auth.signup'))
 
         print("Signup form correctly validated.")
@@ -106,7 +113,11 @@ def signup():
         flash(gettext("A confirmation has been sent via email."), "success")
         return redirect(url_for("auth.inactive"))
     else:
-        print(form.errors)
+        print("FORM ERRORS:", form.errors)
+        captcha = mk_captcha()
+        form = RegistrationForm(request.form)
+        form.captcha.data = captcha
+        form.captcha_answer.label = captcha
         return render_template('auth/signup.html', own_brand = OWN_BRAND, form=form)
 
 @auth.route("/registration-confirm/<token>")

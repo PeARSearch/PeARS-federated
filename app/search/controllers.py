@@ -45,7 +45,7 @@ def index():
         if current_user.is_authenticated and not current_user.is_confirmed:
             message = Markup(gettext("You have not confirmed your account.<br>\
                     Please use the link in the email that was sent to you, \
-                    or request a new link by clicking <a href='"+url_for('auth.resend_confirmation')+"'>here</a>."))
+                    or request a new link by clicking <a href='../auth/resend'>here</a>."))
             flash(message)
         if OWN_BRAND:
             with open(join(static_dir,'intro.txt'), 'r', encoding="utf-8") as f:
@@ -58,7 +58,6 @@ def index():
         shuffle(messages)
         internal_message = messages[0]
    
-    get_decentralized_search_results(query)
     results = get_search_results(query)
     displayresults = prepare_gui_results(query, results)
     return render_template('search/results.html', query=query, results=displayresults, \
@@ -97,6 +96,7 @@ def get_search_results(query):
         print("\n\n>>SEARCH:CONTROLLERS:get_search_results: searching in",lang)
         try:
             r, s = score_pages.run_search(clean_query, lang)
+            #r, s = score_pages.run_search_decentralized(clean_query, lang)
             results.update(r)
             scores.extend(s)
         except:
@@ -106,13 +106,6 @@ def get_search_results(query):
     for i in sorted_scores:
         url = list(results.keys())[i]
         sorted_results[url] = results[url]
+    print(sorted_results)
     return sorted_results
 
-
-def get_decentralized_search_results(query):
-    query, _, lang = parse_query(query.lower())
-    if lang is None:
-        languages = LANGS
-    else:
-        languages = [lang]
-     

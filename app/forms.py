@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, StringField, TextAreaField, PasswordField
+from wtforms import BooleanField, StringField, TextAreaField, PasswordField, HiddenField
 from wtforms.validators import Length, DataRequired, InputRequired, EqualTo, Email, url
 from flask_babel import lazy_gettext
 
@@ -8,6 +8,8 @@ class RegistrationForm(FlaskForm):
     email = StringField(lazy_gettext('Email Address'), [DataRequired(), Email()])
     password = PasswordField(lazy_gettext('New Password'), [DataRequired(), Length(min=6, max=20, message=lazy_gettext("Your password should have between 6 and 20 characters.")), EqualTo('confirm', message=lazy_gettext('Passwords must match'))])
     confirm = PasswordField(lazy_gettext('Repeat Password'))
+    captcha = HiddenField()
+    captcha_answer = StringField('', [DataRequired()])
     accept_tos = BooleanField(lazy_gettext('I accept the TOS and Privacy statement'), [DataRequired()])
 
 class LoginForm(FlaskForm):

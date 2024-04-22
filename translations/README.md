@@ -18,7 +18,7 @@ or
 pybabel update -i messages.pot -d translations
 ```
 
-* Manually change the translations in *app/translations/de/LC_MESSAGES/messages.mo* (or whatever path for your language code).
+* Manually change the translations in *app/translations/de/LC_MESSAGES/messages.po* (or whatever path for your language code).
 
 * Compile with:
 
