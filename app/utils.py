@@ -239,6 +239,6 @@ def timer(func):
         t1 = time()
         result = func(*args, **kwargs)
         t2 = time()
-        print(f'\n>>TIMER: Function {func.__name__!r} executed in {(t2-t1):.4f}s')
+        print(f'>> TIMER: Function {func.__name__!r} executed in {(t2-t1):.4f}s')
         return result
     return wrap_func

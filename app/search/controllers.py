@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
+import logging
 from os.path import dirname, join, realpath
 from glob import glob
 import numpy as np
@@ -71,7 +72,7 @@ def prepare_gui_results(query, results):
     for url, r in results.items():
         r['title'] = r['title'][:70]
         r['snippet'] = beautify_snippet(r['snippet'], r['img'], query)
-        print("URL",url)
+        logging.debug(f"RESULT URL {url}")
         if 'url=pearslocal' not in url:
             r['snippet'] = ' '.join(r['snippet'].split()[:11]) #11 to conform with EU regulations
         if r['notes'] == 'None':
@@ -93,7 +94,9 @@ def get_search_results(query):
         if glob(join(pod_dir,'*',lang)) == []:
             continue
         clean_query = ' '.join([w for w in query.split() if w not in models[lang]['stopwords']])
-        print("\n\n>>SEARCH:CONTROLLERS:get_search_results: searching in",lang)
+        print("\n\n>>>>>>>>>>>>>>>>>>>>>>")
+        print(">> SEARCH:CONTROLLERS:get_search_results: searching in",lang)
+        print(">>>>>>>>>>>>>>>>>>>>>>")
         try:
             r, s = score_pages.run_search(clean_query, lang)
             #r, s = score_pages.run_search_decentralized(clean_query, lang)
@@ -106,6 +109,6 @@ def get_search_results(query):
     for i in sorted_scores:
         url = list(results.keys())[i]
         sorted_results[url] = results[url]
-    print(sorted_results)
+    logging.debug(f"SORTED RESULTS: {sorted_results}")
     return sorted_results
 

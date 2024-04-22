@@ -3,7 +3,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 from os.path import dirname, join, realpath
+import logging
 import math
+from time import time
 from itertools import islice
 from urllib.parse import urlparse
 from flask import url_for
@@ -70,7 +72,7 @@ def intersect_best_cos_lists(query_vectors, pod_m):
     for d in q_best_docs:
         docscore = np.mean(m_cosines.T[d])
         best_docs[d] = docscore
-    print("BEST DOCS COS", best_docs)
+    logging.info(f"BEST DOCS FROM COSINES: {best_docs}")
     return best_docs
 
 def intersect_best_posix_lists(query_tokenized, posindex, lang):
@@ -79,7 +81,7 @@ def intersect_best_posix_lists(query_tokenized, posindex, lang):
     # Loop throught the token list corresponding to each word
     for word_tokens in query_tokenized:
         scores = posix(' '.join(word_tokens), posindex, lang)
-        print("POSIX SCORES",scores)
+        logging.debug(f"POSIX SCORES: {scores}")
         tmp_best_docs.append(list(scores.keys()))
         for k,v in scores.items():
             if k in posix_scores:
@@ -95,7 +97,7 @@ def intersect_best_posix_lists(query_tokenized, posindex, lang):
         #to be covered by the document
         docscore = np.sum(posix_scores[d])
         best_docs[d] = docscore
-    print("BEST DOCS POS", best_docs)
+    logging.info(f"BEST DOCS FROM POS INDEX: {best_docs}")
     return best_docs
 
 
@@ -112,6 +114,7 @@ def compute_scores(query, query_vectors, query_tokenized, pod_name, posindex, la
     posindex: the positional index for that pod
     """
     print("\n>> SEARCH:SCORE_PAGES:compute_scores on pod", pod_name)
+    print(">> SEARCH:SCORE_PAGES:compute_scores starting at", time())
     vec_scores = {}
     theme = pod_name.split('.u.')[0]
     username = pod_name.split('.u.')[1]
@@ -124,8 +127,8 @@ def compute_scores(query, query_vectors, query_tokenized, pod_name, posindex, la
 
     idx_to_url, _ = load_idx_to_url(username)
     npz_to_idx, _ = load_npz_to_idx(username, lang, theme) 
-    print("idx_to_url",idx_to_url)
-    print("npz_to_idx",npz_to_idx)
+    logging.debug(f"idx_to_url {idx_to_url}")
+    logging.debug(f"npz_to_idx {npz_to_idx}")
 
     for i in range(pod_m.shape[0]):
         cos = best_cos_docs.get(i,0)
@@ -141,6 +144,7 @@ def compute_scores(query, query_vectors, query_tokenized, pod_name, posindex, la
         url = idx_to_url[1][lspos]
         #print("URL",url)
         vec_scores[url] = cos
+    print(">> SEARCH:SCORE_PAGES:compute_scores finishing at", time())
     return vec_scores, best_posix_docs
 
 
@@ -194,7 +198,7 @@ def score_pods(query_vectors, extended_q_vectors, lang):
     best_pods = []
     for k in sorted(pod_scores, key=pod_scores.get, reverse=True):
         if len(best_pods) < max_pods:
-            print("\t>> Appending best pod",k, pod_scores[k])
+            logging.info(f"\t>> Appending best pod {k}, score {pod_scores[k]}")
             best_pods.append(k)
         else:
             break
@@ -211,7 +215,7 @@ def score_docs(query, query_vectors, query_tokenized, pod_name, posindex, lang):
     pod_name: the pod we are scoring against
     posindex: the positional index for that pod
     """
-    print(">> INFO: SEARCH: SCORE_PAGES: SCORES_DOCS", pod_name)
+    print("\n>> INFO: SEARCH: SCORE_PAGES: SCORES_DOCS", pod_name)
     document_scores = {}  # Document scores
     vec_scores, posix_scores = \
             compute_scores(query, query_vectors, query_tokenized, pod_name, posindex, lang)
@@ -233,7 +237,7 @@ def score_docs(query, query_vectors, query_tokenized, pod_name, posindex, lang):
             if snippet_score > 0:
                 snippet_score = snippet_score*10 #push up the urls with matches in title or snippet
             document_scores[url]+=snippet_score
-            print(url, vec_scores[url], posix_scores.get(idx,0), snippet_score, " ||| GRAND SCORE:", document_scores[url])
+            logging.debug(f"url: {url}, vec_score: {vec_scores[url]}, posix_score: {posix_scores.get(idx,0)}, snippet_score: {snippet_score} ||| GRAND SCORE: {document_scores[url]}")
     return document_scores
 
 def score_docs_extended(extended_q_tokenized, pod_name, posindex, lang):
@@ -246,18 +250,17 @@ def score_docs_extended(extended_q_tokenized, pod_name, posindex, lang):
     idx_to_url = joblib.load(join(user_dir, username+'.idx'))
     npz_to_idx = load_npz_to_idx(username, lang, theme) 
     for w_tokenized in extended_q_tokenized:
-        print("W TOKENIZED",w_tokenized)
+        logging.debug(f"WORD-TOKENIZED: {w_tokenized}")
         # Keep a list of urls already increment by 1, we don't want
         # to score several times within the same neighbourhood
         urls_incremented = []
         matching_docs = posix_no_seq(' '.join(w_tokenized), posindex, lang)
-        print("MATCHING DOCS", matching_docs)
+        logging.debug(f"MATCHING DOCS: {matching_docs}")
         for v in matching_docs:
-            print("MATCHING DOC", v, urls_incremented)
-            print("idx_to_url",idx_to_url)
+            logging.debug(f"MATCHING DOC: {v}, {urls_incremented}")
+            logging.debug(f"idx_to_url {idx_to_url}")
             i = idx_to_url[0].index(v)
             url = idx_to_url[1][i]
-            print(i,url)
             u = db.session.query(Urls).filter_by(pod=pod_name).filter_by(url=url).first()
             if u:
                 if url not in urls_incremented:
@@ -266,10 +269,9 @@ def score_docs_extended(extended_q_tokenized, pod_name, posindex, lang):
                     else:
                         document_scores[url] = 1
                     urls_incremented.append(url)
-                    print(v,document_scores[url])
             else:
                 print(">> ERROR: SCORE PAGES: score_docs_extended: url not found")
-    print(document_scores)
+    logging.info("DOCUMENT SCORES: {document_scores}")
     return document_scores
 
 def return_best_urls(doc_scores):
@@ -336,13 +338,13 @@ def run_search(query:str, lang:str):
         posindices.append(load_posix(contributor, lang, theme))
 
     # Compute results for original query
-    print("BESTPODS",best_pods)
+    logging.info("BEST PODS: {best_pods}")
     with Parallel(n_jobs=max_thread, prefer="threads") as parallel:
         delayed_funcs = [delayed(score_docs)(query, q_vectors, q_tokenized, best_pods[i], posindices[i], lang) for i in range(len(best_pods))]
         scores = parallel(delayed_funcs)
     for dic in scores:
         document_scores.update(dic)
-    print("DOCUMENT SCORES 1",document_scores)
+    logging.debug("DOCUMENT SCORES 1: {document_scores}")
 
     # Compute results for extended query
     extended_document_scores = {}
@@ -351,7 +353,7 @@ def run_search(query:str, lang:str):
         scores = parallel(delayed_funcs)
     for dic in scores:
         extended_document_scores.update(dic)
-    print("DOCUMENT SCORES 2",extended_document_scores)
+    logging.debug("DOCUMENT SCORES 2: {extended_document_scores}")
     #print(set(extended_document_scores.keys())-set(document_scores.keys()))
 
     # Merge
@@ -362,7 +364,7 @@ def run_search(query:str, lang:str):
         else:
             merged_scores[k] = 0.5*extended_document_scores[k]
 
-    print("DOCUMENT SCORES MERGED",merged_scores)
+    logging.debug("DOCUMENT SCORES MERGED: {merged_scores}")
     best_urls, scores = return_best_urls(merged_scores)
     results = output(best_urls)
     return results, scores
