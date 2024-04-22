@@ -6,18 +6,25 @@ from shutil import copy2, copytree
 from os.path import dirname, realpath, join
 from datetime import datetime
 from pathlib import Path
+import joblib
 from urllib.parse import urlparse
 from random import shuffle
 from flask import Blueprint
 import click
+from scipy.sparse import load_npz
 from app.indexer.controllers import run_indexer_url
 from app.indexer.access import request_url
+from app.indexer.posix import load_posix
 from app.indexer.htmlparser import extract_links
 from app.orchard.mk_urls_file import get_reindexable_pod_for_admin
 from app.utils_db import create_idx_to_url
 from app import db, User, Urls, Pods
 
 pears = Blueprint('pears', __name__)
+
+dir_path = dirname(dirname(dirname(realpath(__file__))))
+pod_dir = join(dir_path,'app','static','pods')
+
 
 @pears.cli.command('setadmin')
 @click.argument('username')
@@ -137,3 +144,137 @@ def deletedbonly():
         for u in urls:
             db.session.delete(u)
             db.session.commit()
+
+
+#####################
+# UNIT TESTS
+#####################
+
+@pears.cli.command('unittest')
+@click.argument('username')
+def checkconsistency(username):
+    print("\n>> CLI: UNITTEST: CONSISTENCY CHECKS")
+    pods = Pods.query.all()
+    usernames = [p.name.split('.u.')[1] for p in pods]
+    if username not in usernames:
+        print("\t> ERROR: no username",username)
+        return 0
+    check_idx_to_url(username)
+    check_missing_docs_in_npz(username)
+    check_duplicates_idx_to_url(username)
+    check_db_vs_idx_to_url(username)
+    print("\n")
+    pods = [p for p in pods if p.name.split('.u.')[1] == username]
+    for pod in pods:
+        print(">> CLI: UNITTEST: CONSISTENCY: CHECKING POD:", pod.name)
+        check_npz_to_idx(pod.name, username, pod.language)
+        check_npz_to_idx_vs_idx_to_url(pod.name, username, pod.language)
+        check_npz_vs_npz_to_idx(pod.name, username, pod.language)
+        check_pos_vs_npz_to_idx(pod.name, username, pod.language)
+
+
+def check_idx_to_url(username):
+    print("\t>> CHECKING IDX_TO_URL")
+    pod_path = join(pod_dir, username, username+'.idx')
+    idx_to_url = joblib.load(pod_path)
+    if len(idx_to_url[0]) != len(idx_to_url[1]):
+        print("\t\t> ERROR: the two lists in idx_to_url do not match in length", len(idx_to_url[0]), len(idx_to_url[1]))
+    return idx_to_url
+
+
+def check_db_vs_idx_to_url(username):
+    print("\t>> CHECKING DB VS IDX_TO_URL")
+    urls = []
+    pods = Pods.query.all()
+    pods = [p for p in pods if p.name.split('.u.')[1] == username]
+    for pod in pods:
+        urls.extend(Urls.query.filter_by(pod=pod.name).all())
+    urls = [url.url for url in urls]
+    pod_path = join(pod_dir, username, username+'.idx')
+    idx_to_url = joblib.load(pod_path)
+    if len(set(urls)) != len(set(idx_to_url[1])):
+        print("\t\t> ERROR: Length of URL set in DB != len(set(idx)) in idx_to_url", len(urls), len(idx_to_url[0]))
+        return list(set(urls)-set(idx_to_url[1]))
+    return []
+
+
+def check_duplicates_idx_to_url(username):
+    print("\t>> CHECKING DUPLICATES IN IDX_TO_URL")
+    pod_path = join(pod_dir, username, username+'.idx')
+    idx_to_url = joblib.load(pod_path)
+    if len(idx_to_url[0]) > len(list(set(idx_to_url[0]))):
+        print("\t\t> ERROR: Duplicates in idx_to_url (idx)")
+    if len(idx_to_url[1]) > len(list(set(idx_to_url[1]))):
+        print("\t\t> ERROR: Duplicates in idx_to_url (urls)")
+
+
+def check_missing_docs_in_npz(username):
+    print("\t>> CHECKING DOCS IN IDX_TO_URL WITHOUT A VECTOR")
+    pod_path = join(pod_dir, username, username+'.idx')
+    idx_to_url = joblib.load(pod_path)
+    all_npz_idx = []
+    pods = Pods.query.all()
+    pods = [p for p in pods if p.name.split('.u.')[1] == username]
+    for pod in pods:
+        pod_path = join(pod_dir, username, pod.language, pod.name+'.npz.idx')
+        npz_to_idx = joblib.load(pod_path)
+        all_npz_idx.extend(npz_to_idx[1][1:])
+    #A URL can be in two pods (home+shared)
+    if set(all_npz_idx) != set(idx_to_url[0]):
+        diff = list(set(idx_to_url[0])-set(all_npz_idx))
+        print("\t\t> ERROR: Some documents in idx_to_url do not have a vector associated with them.")
+        print("\t\t>      :", diff)
+        return diff
+    return []
+
+
+def check_npz_to_idx(pod, username, language):
+    print("\t>> CHECKING NPZ_TO_IDX")
+    pod_path = join(pod_dir, username, language, pod+'.npz.idx')
+    npz_to_idx = joblib.load(pod_path)
+    if len(npz_to_idx[0]) != len(npz_to_idx[1]):
+        print("\t\t> ERROR: the two lists in npz_to_idx do not match in length", len(npz_to_idx[0]), len(npz_to_idx[1]))
+    if len(npz_to_idx[0]) > len(list(set(npz_to_idx[0]))):
+        print("\t\t> ERROR: Duplicates in npz_to_idx (npz)")
+    if len(npz_to_idx[1]) > len(list(set(npz_to_idx[1]))):
+        print("\t\t> ERROR: Duplicates in npz_to_idx (idx)")
+
+
+def check_npz_to_idx_vs_idx_to_url(pod, username, language):
+    print("\t>> CHECKING NPZ_TO_IDX VS IDX_TO_URL")
+    pod_path = join(pod_dir, username, username+'.idx')
+    idx_to_url = joblib.load(pod_path)
+    pod_path = join(pod_dir, username, language, pod+'.npz.idx')
+    npz_to_idx = joblib.load(pod_path)
+    idx1 = idx_to_url[0]
+    idx2 = npz_to_idx[1][1:] #Ignore first value, which is -1
+    if not set(idx2) <= set(idx1):
+        print("\t\t> ERROR: idx in npz_to_idx is not a subset of idx in idx_to_url")
+
+
+def check_npz_vs_npz_to_idx(pod, username, language):
+    print("\t>> CHECKING NPZ_TO_IDX VS IDX_TO_URL")
+    pod_path = join(pod_dir, username, language, pod+'.npz')
+    pod_m = load_npz(pod_path)
+    pod_path = join(pod_dir, username, language, pod+'.npz.idx')
+    npz_to_idx = joblib.load(pod_path)
+    if pod_m.shape[0] != len(npz_to_idx[0]):
+        print("\t\t> ERROR: the npz matrix has shape[0]="+str(pod_m.shape[0])+" but npz_to_idx has length "+str(len(npz_to_idx[0])))
+
+
+def check_pos_vs_npz_to_idx(pod, username, language):
+    print("\t>> CHECKING POS VS NPZ_TO_IDX")
+    pod_path = join(pod_dir, username, language, pod+'.npz.idx')
+    npz_to_idx = joblib.load(pod_path)
+    posindex = load_posix(username, language, pod.split(".")[0])
+    idx = []
+    for token_id in posindex:
+        for doc_id, _ in token_id.items():
+            idx.append(doc_id)
+    idx1 = list(set(idx))
+    idx2 = npz_to_idx[1][1:] #Ignore first value, which is -1
+    if set(idx2) != set(idx1):
+        print("\t\t> ERROR: idx in npz_to_idx do not match doc list in positional index")
+        print("\t\t> idx  :", set(idx1))
+        print("\t\t> posix:", set(idx2))
+    return set(idx1), set(idx2)
