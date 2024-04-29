@@ -49,6 +49,7 @@ app.config['MAIL_PASSWORD'] = os.getenv("EMAIL_PASSWORD")
 app.config['SITENAME'] = os.getenv("SITENAME")
 app.config['SITE_TOPIC'] = os.getenv("SITE_TOPIC")
 app.config['SEARCH_PLACEHOLDER'] = os.getenv("SEARCH_PLACEHOLDER")
+app.config['USER-AGENT'] = "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; PeARSbot/0.1; +https://www.pearsproject.org/) Chrome/W.X.Y.Z Safari/537.36"
 
 # Secrets
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")                         # set in .env file

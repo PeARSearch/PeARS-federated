@@ -11,7 +11,7 @@ from langdetect import detect
 from app.indexer.access import request_url
 from app.indexer import detect_open
 from app.api.models import installed_languages
-from app import LANGS, LANGUAGE_CODES
+from app import app, LANGS, LANGUAGE_CODES
 
 def remove_boilerplates(response, lang):
     text = ""
@@ -33,7 +33,7 @@ def remove_boilerplates(response, lang):
 def BS_parse(url):
     bs_obj = None
     req = None
-    headers = {'User-Agent': 'PeARS User Agent'}
+    headers = {'User-Agent': app.config['USER-AGENT']}
     try:
         req = requests.head(url, timeout=30, headers=headers)
     except Exception:
@@ -54,7 +54,7 @@ def BS_parse(url):
 
 def extract_links(url):
     links = []
-    headers = {'User-Agent': 'PeARS User Agent'}
+    headers = {'User-Agent': app.config['USER-AGENT']}
     try:
         req = requests.head(url, timeout=30, headers=headers)
         if req.status_code >= 400:
