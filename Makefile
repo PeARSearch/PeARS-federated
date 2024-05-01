@@ -17,4 +17,7 @@ check-%: # detection of required software.
 
 ## build: Build the container image
 build: check-docker
-	@docker buildx build --no-cache --pull -f deployment/Dockerfile -t ${PROJECTNAME}:local-build .
+	@docker buildx build --pull -f deployment/Dockerfile -t ${PROJECTNAME}:local-build .
+
+build-prod: check-docker
+	@docker buildx build -t pearsproject/${PROJECTNAME}:latest -f deployment/Dockerfile .
