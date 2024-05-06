@@ -1,8 +1,8 @@
 from urllib.parse import urlparse
 from os.path import join
-import requests
-import sys
 import re
+import requests
+from app import app
 
 def robotcheck(url):
     scheme = urlparse(url).scheme
@@ -10,18 +10,18 @@ def robotcheck(url):
     robot_url = join(domain,"robots.txt")
 
     disallowed = []
-    r = requests.head(robot_url)
+    r = requests.head(robot_url, timeout=30)
     if r.status_code < 400:
         parse = False
         content = requests.get(robot_url).text.splitlines()
         for l in content:
             if 'User-agent: *' in l:
                 parse = True
-            elif 'User-agent' in l and parse == True:
+            elif 'User-agent' in l and parse is True:
                 parse = False
-            elif l == 'Disallow: /' and parse == True:
+            elif l == 'Disallow: /' and parse is True:
                 disallowed.append(domain)
-            elif 'Disallow:' in l and parse == True:
+            elif 'Disallow:' in l and parse is True:
                 m = re.search('Disallow:\s*(.+)',l)
                 if m:
                     u = m.group(1)
@@ -43,7 +43,7 @@ def request_url(url):
     access = None
     req = None
     errs = []
-    headers = {'User-Agent': 'PeARSbot/0.1 (+https://www.pearsproject.org/)'}
+    headers = {'User-Agent': app.config['USER-AGENT']}
     try:
         req = requests.head(url, timeout=30, headers=headers)
     except:

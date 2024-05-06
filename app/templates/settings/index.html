@@ -5,23 +5,50 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 {% extends "base/base.html" %}
+{% from "base/_formhelpers.html" import render_field %}
+
 {% block body %}
 <div class="container">
   <div class="row p-3">
     <div class="card-group">
       <div class="card">
-	      <div class="card-header text-center"><b>{{gettext("Your profile")}}</b></div>
-        <div class="card-body">
-		<p>{{gettext("Username:")}} {{username}}</p>
-		<p>{{gettext("Email:")}} {{email}}</p>
-		<p>{{gettext("#Contributions:")}} {{num_contributions}}</p>
-        </div>
-        <div class="card-footer clearfix" style="height:38px">
-        </div>
-        </form>
+        <div class="card-header text-center"><b>{{gettext("Your profile")}}</b></div>
+          <div class="card-body">
+	    <p>{{gettext("Username:")}} {{username}}</p>
+	    <p>{{gettext("Email:")}} {{email}}</p>
+	    <p>{{gettext("#Contributions:")}} {{num_contributions}}</p>
+	    <p><a href='{{url_for('settings.delete_account')}}' class='btn btn-warning' onclick="return confirm('DANGER: Are you sure you want to delete your account completely?')">Delete account</a></p>
+          </div>
+          <div class="card-footer clearfix" style="height:38px"></div>
       </div>
+    <div class="card">
+      <div class="card-header text-center"><b>{{gettext("Change your personal data")}}</b></div>
+      <div class="card-body">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="notification is-danger">
+            {{ messages[0] }}</a>
+            </div>
+        {% endif %}
+        {% endwith %}
+      <form method="POST" action="/settings/change_email" enctype="multipart/form-data">
+        {{ emailform.hidden_tag() }}
+        <p>{{ render_field(emailform.email) }}</p>
+        <span class="input-group-btn">
+        <input id="submit_button" type="submit" class="btn btn-success" value="{{gettext('Change email')}}">
+      </form>
+      <form method="POST" action="/settings/change_username" enctype="multipart/form-data">
+        {{ usernameform.hidden_tag() }}
+        <p>{{ render_field(usernameform.username) }}</p>
+        <span class="input-group-btn">
+        <input id="submit_button" type="submit" class="btn btn-success" value="{{gettext('Change username')}}">
+      </form>
+      </div><!-- card body -->
+      <div class="card-footer clearfix" style="height:38px"></div>
+      </div><!-- card -->
+    </div><!-- card group -->
+  </div><!-- row -->
 
-    </div>
 
   <div class="row p-3">
   <div class="card">

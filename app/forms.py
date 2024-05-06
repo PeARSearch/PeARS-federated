@@ -23,6 +23,12 @@ class PasswordChangeForm(FlaskForm):
     password = PasswordField(lazy_gettext('New Password'), [DataRequired(), Length(min=6, max=20, message=lazy_gettext("Your password should have between 6 and 20 characters.")), EqualTo('confirm', message=lazy_gettext('Passwords must match'))])
     confirm = PasswordField(lazy_gettext('Repeat Password'))
 
+class EmailChangeForm(FlaskForm):
+    email = StringField(lazy_gettext('New Email'), [DataRequired(), Email()])
+
+class UsernameChangeForm(FlaskForm):
+    username = StringField(lazy_gettext('New Username'), [Length(min=4, max=25, message=lazy_gettext("Your username should have between 4 and 25 characters."))])
+
 class IndexerForm(FlaskForm):
     url = StringField(lazy_gettext('The url to index'), [DataRequired(), url()], render_kw={"placeholder": lazy_gettext("The URL you would like to index.")})
     theme = StringField(lazy_gettext('Theme'), [DataRequired(), Length(max=50)],  render_kw={"placeholder": lazy_gettext("A category for your URL. Start typing and suggestions will appear, but you can also write your own.")})

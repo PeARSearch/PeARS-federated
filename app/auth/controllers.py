@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 import logging
+from markupsafe import Markup
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.api.models import User
@@ -54,8 +55,16 @@ def login():
 
         # if the above check passes, then we know the user has the right credentials
         login_user(user)
-        welcome = "<b>"+gettext('Welcome')+", "+current_user.username+"!</b>"
         placeholder = app.config['SEARCH_PLACEHOLDER']
+        print(current_user.is_confirmed)
+        welcome = None
+        if current_user.is_authenticated and not current_user.is_confirmed:
+            msg = Markup(gettext("You have not confirmed your account.<br>\
+                    Please use the link in the email that was sent to you, \
+                    or request a new link by clicking <a href='../auth/resend'>here</a>."))
+            flash(msg)
+        else:
+            welcome = "<b>"+gettext('Welcome')+", "+current_user.username+"!</b>"
         return render_template('search/index.html', internal_message=welcome, own_brand = OWN_BRAND, placeholder=placeholder)
     else:
         print(form.errors)
