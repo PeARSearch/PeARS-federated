@@ -135,6 +135,14 @@ ion-icon {
   --bs-btn-hover-border-color: #F8F8F8;
 }
 
+.btn-warning {
+  --bs-btn-bg: red;
+  --bs-btn-border-color:red;
+  --bs-btn-hover-bg: orange;
+  --bs-btn-hover-border-color: orange;
+}
+
+
 .btn-link {
   color: var(--link-color);
   --bs-btn-hover-color: var(--hover-color);
