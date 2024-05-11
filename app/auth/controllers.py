@@ -113,6 +113,13 @@ def signup():
         subject = gettext("Please confirm your email.")
         send_email(new_user.email, subject, html)
 
+        # alert admin (assume for now the admin's address is the default sender)
+        admin_mail = app.config["MAIL_DEFAULT_SENDER"]
+        sitename = app.config["SITENAME"]
+        subject = f"New signup on your PeARS instance: {sitename}"
+        html = f"User: {username}, email: {email}"
+        send_email(admin_mail, subject, html)
+
         # add the new user to the database
         db.session.add(new_user)
         db.session.commit()
