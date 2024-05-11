@@ -16,29 +16,60 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager, current_user
 
-# Global variables
-EXPERT_ADD_ON = False
-OWN_BRAND = False
-WALKTHROUGH = False
-
+#########
 # Logging
-def configure_logging():
-    # register root logging
-    #logging.basicConfig(filename='pears.log', filemode='w', level=logging.INFO)
-    logging.basicConfig(level=logging.ERROR)
-    logging.getLogger('werkzeug').setLevel(logging.ERROR)
+#########
 
-configure_logging()
+# Set up basic logging configuration for the root logger
+formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+logging.basicConfig(level=logging.ERROR, filename="errors.log", format='%(asctime)s | %(levelname)s : %(message)s')
+logging.getLogger('werkzeug').setLevel(logging.ERROR)
+logging.error("Checking error logs on init.")
 
+# Define a custom log level
+MAILING = 55
+logging.MAILING = MAILING
+logging.addLevelName(logging.MAILING, 'MAILING')
+
+# Define a custom logging method for the new level
+def mailing(self, message, *args, **kwargs):
+    if self.isEnabledFor(logging.MAILING):
+        self._log(logging.MAILING, message, args, **kwargs)
+
+# Add the custom logging method to the logger class
+logging.Logger.mailing = mailing
+
+# Set up logger
+def setup_logger(name, log_file, level=logging.INFO):
+    """To setup as many loggers as you want"""
+
+    handler = logging.FileHandler(log_file)        
+    handler.setFormatter(formatter)
+
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+    logger.addHandler(handler)
+
+    return logger
+
+mail_logger = setup_logger('mailing_logger', 'mailing.log', level=logging.MAILING)
+mail_logger.mailing("Checking mailing logs on init.")
+
+####################################
 # Define the WSGI application object
+####################################
+
 app = Flask(__name__, static_folder='static')
 
+################
 # Configurations
+################
 from dotenv import load_dotenv
 app.config.from_object('config')
 
 load_dotenv()
 LANGS = os.getenv('PEARS_LANGS').split(',')
+OWN_BRAND = True if os.getenv('OWN_BRAND') == 'true' else False
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv("MAIL_DEFAULT_SENDER")
 app.config['MAIL_SERVER'] = os.getenv("MAIL_SERVER")
 app.config['MAIL_PORT'] = os.getenv("MAIL_PORT")
@@ -62,7 +93,13 @@ babel = Babel(app)
 DEFAULT_PATH = f'app'
 Path(os.path.join(DEFAULT_PATH,'static/userdata')).mkdir(parents=True, exist_ok=True)
 
+# Mail
+mail = Mail(app)
+
+########################
 # Load pretrained models
+########################
+
 from app.readers import read_vocab, read_cosines
 from app.multilinguality import read_language_codes, read_stopwords
 from sklearn.feature_extraction.text import CountVectorizer
@@ -86,15 +123,17 @@ for LANG in LANGS:
 # All vocabs have the same vector size
 VEC_SIZE = len(models[LANGS[0]]['vocab'])
 
+##########
+# Database
+##########
 
-# Mail
-mail = Mail(app)
-
-# Define the database object which is imported
-# by modules and controllers
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+
+#########
+# Modules
+#########
 
 # Import a module / component using its blueprint handler variable (mod_auth)
 from app.indexer.controllers import indexer as indexer_module
@@ -122,6 +161,11 @@ app.register_blueprint(auth_module)
 # db.drop_all()
 with app.app_context():
     db.create_all()
+
+
+#######
+# Admin
+#######
 
 from flask_admin.contrib.sqla import ModelView
 from app.api.models import Pods, Urls, User

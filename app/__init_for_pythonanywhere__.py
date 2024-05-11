@@ -17,26 +17,59 @@ from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user
 
-# Global variables
-EXPERT_ADD_ON = False
-OWN_BRAND = False
-WALKTHROUGH = False
 
-
+#########
 # Logging
-def configure_logging():
-    # register root logging
-    logging.basicConfig(level=logging.ERROR)
-    logging.getLogger('werkzeug').setLevel(logging.ERROR)
+#########
 
-configure_logging()
+# Set up basic logging configuration for the root logger
+formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+logging.basicConfig(level=logging.ERROR, filename="errors.log")
+#logging.getLogger('werkzeug').setLevel(logging.INFO)
+logging.error("Checking error logs on init.")
 
+# Define a custom log level
+MAILING = 55
+logging.MAILING = MAILING
+logging.addLevelName(logging.MAILING, 'MAILING')
+
+# Define a custom logging method for the new level
+def mailing(self, message, *args, **kwargs):
+    if self.isEnabledFor(logging.MAILING):
+        self._log(logging.MAILING, message, args, **kwargs)
+
+# Add the custom logging method to the logger class
+logging.Logger.mailing = mailing
+
+# Set up logger
+def setup_logger(name, log_file, level=logging.INFO):
+    """To setup as many loggers as you want"""
+
+    handler = logging.FileHandler(log_file)        
+    handler.setFormatter(formatter)
+
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+    logger.addHandler(handler)
+
+    return logger
+
+mail_logger = setup_logger('mailing_logger', 'mailing.log', level=logging.MAILING)
+mail_logger.mailing("Checking mailing logs on init.")
+
+####################################
 # Define the WSGI application object
+####################################
+
 app = Flask(__name__, static_folder='static')
 
+################
 # Configurations
+################
+
 USERNAME = os.getenv('PA_USERNAME') #default language for the installation
 LANGS = os.getenv('PEARS_LANGS').split(',')
+OWN_BRAND = True if os.getenv('OWN_BRAND') == 'true' else False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////home/'+USERNAME+'/PeARS-federated/app.db'
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv("MAIL_DEFAULT_SENDER")
 app.config['MAIL_SERVER'] = os.getenv("MAIL_SERVER")
@@ -55,13 +88,11 @@ app.config['USER-AGENT'] = "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; c
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")                         # set in .env file
 app.config['SECURITY_PASSWORD_SALT'] = os.getenv("SECURITY_PASSWORD_SALT") # set in .env file
 
-
 # Localization
 from flask_babel import Babel, gettext
 app.config['BABEL_DEFAULT_LOCALE'] = LANGS[0]
 app.config['BABEL_TRANSLATION_DIRECTORIES'] = os.getenv("TRANSLATION_DIR")
 babel = Babel(app)
-
 
 # Mail
 mail = Mail(app)
@@ -73,7 +104,9 @@ Path(os.path.join(DEFAULT_PATH,'static/userdata/csv')).mkdir(parents=True, exist
 Path(os.path.join(DEFAULT_PATH,'static/userdata/pdf')).mkdir(parents=True, exist_ok=True)
 
 
+########################
 # Load pretrained models
+########################
 from app.readers import read_vocab, read_cosines
 from app.multilinguality import read_language_codes, read_stopwords
 from sklearn.feature_extraction.text import CountVectorizer
@@ -98,11 +131,16 @@ for LANG in LANGS:
 VEC_SIZE = len(models[LANGS[0]]['vocab'])
 
 
-# Define the database object which is imported
-# by modules and controllers
+##########
+# Database
+##########
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+
+#########
+# Modules
+#########
 
 # Import a module / component using its blueprint handler variable (mod_auth)
 from app.indexer.controllers import indexer as indexer_module
@@ -131,12 +169,15 @@ app.register_blueprint(auth_module)
 with app.app_context():
     db.create_all()
 
+
+#######
+# Admin
+#######
+
 from flask_admin.contrib.sqla import ModelView
 from app.api.models import Pods, Urls
 from app.api.controllers import return_pod_delete
 from app.utils_db import delete_url_representations
-
-
 
 from flask_admin import expose
 from flask_admin.contrib.sqla.view import ModelView
