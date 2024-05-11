@@ -5,6 +5,7 @@
 # Import flask dependencies
 from flask import Blueprint, request, render_template, send_from_directory, flash, redirect, url_for
 from flask_login import login_required, current_user
+from flask_babel import gettext
 from os.path import dirname, realpath, join
 from app.api.models import Urls, Pods
 from app.utils_db import mv_pod
@@ -12,7 +13,7 @@ from app import app, db, OWN_BRAND
 from app.orchard.mk_urls_file import get_url_list_for_users
 from app.auth.decorators import check_is_confirmed
 from app.auth.token import send_email
-from app.forms import ReportingForm, AnnotationForm
+from app.forms import ReportingForm, AnnotationForm, FeedbackForm
 
 dir_path = dirname(dirname(realpath(__file__)))
 
@@ -95,10 +96,30 @@ def report():
         user_report = request.form.get('report')
         print(url,user_report)
         mail_address = app.config['MAIL_USERNAME']
-        send_email(mail_address,'URL report',url+'<br>'+user_report)
+        send_email(mail_address,'URL report','Report from user '+email+'<br>'+url+'<br>'+user_report)
         flash(gettext("Your report has been sent. Thank you!"), "success")
         return render_template('search/index.html')
     return render_template('orchard/report.html', form=form, email=email)
+
+
+
+@orchard.route("/feedback", methods=['GET','POST'])
+@login_required
+@check_is_confirmed
+def feedback():
+    username = current_user.username
+    email = current_user.email
+    form = FeedbackForm()
+    if form.validate_on_submit():
+        user_report = request.form.get('report')
+        print(user_report)
+        mail_address = app.config['MAIL_USERNAME']
+        send_email(mail_address,'Feedback report', 'Feedback from user '+email+'<br>'+user_report)
+        flash(gettext("Your feedback has been sent. Thank you!"), "success")
+        return render_template('search/index.html')
+    return render_template('orchard/feedback.html', form=form, email=email)
+
+
 
 @orchard.route("/annotate", methods=['GET','POST'])
 @login_required
