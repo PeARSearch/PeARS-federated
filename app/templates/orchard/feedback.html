@@ -1,0 +1,52 @@
+<!--
+SPDX-FileCopyrightText: 2024 PeARS Project, <community@pearsproject.org>, 
+
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
+{% extends "base/base.html" %}
+{% from "base/_formhelpers.html" import render_field %}
+{% block body %}
+<div class="container">
+
+  <div class="row p-3">
+    <div class="card">
+	    <div class="card-header text-center"><b>{{gettext('Send us feedback')}}</b><br>
+	    {% if session.get('theme') == 'dark' %}
+	      <img src="{{ url_for('static', filename='sad_pears_dark.png')}}" width="40px" style="margin-right:10px">
+		      <img src="{{ url_for('static', filename='happy_pears_dark.png')}}" width="40px" style="margin-right:10px">
+		      <img src="{{ url_for('static', filename='happy_pears_dark.png')}}" width="40px" style="margin-right:10px">
+	    {% else %}
+	      <img src="{{ url_for('static', filename='sad_pears.png')}}" width="40px" style="margin-right:10px">
+		      <img src="{{ url_for('static', filename='happy_pears.png')}}" width="40px" style="margin-right:10px">
+		      <img src="{{ url_for('static', filename='happy_pears.png')}}" width="40px" style="margin-right:10px">
+            {% endif %}
+	    </div>
+      <div class="card-body">
+	<p>{{gettext("This instance is undergoing alpha testing. We expect that there are still many issues to fix here. You will help us greatly by telling us what worked or didn't work for you.")}}</p>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="notification is-danger">
+            {{ messages[0] }}</a>
+            </div>
+        {% endif %}
+        {% endwith %}
+	<br><br>
+      <form method="POST" action="/orchard/feedback" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <p>{{ render_field(form.report) }}</p>
+	<div class="form-check">
+	  {{ form.accept_tos(class_="form-check-input") }}
+	  <label class="form-check-label" for="legal">{{gettext('I confirm that I may be contacted in relation to my feedback and that my email address is')}} {{email}}.</label>
+        </div>
+      </div><!-- card body -->
+      <div class="card-footer clearfix">
+        <span class="input-group-btn">
+        <input id="submit_button" type="submit" class="btn btn-success" value="Send report">
+      </div><!-- card footer -->
+    </form>
+    </div>
+ </div>
+
+</div><!-- /.container -->
+{% endblock %}
