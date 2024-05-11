@@ -14,7 +14,7 @@ from flask_babel import gettext
 from app.search import score_pages
 from app.utils import parse_query, beautify_title, beautify_snippet
 from app import app, models, db
-from app import LANGS, OWN_BRAND, WALKTHROUGH
+from app import LANGS, OWN_BRAND
 
 # Define the blueprint:
 search = Blueprint('search', __name__, url_prefix='')
