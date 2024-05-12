@@ -7,6 +7,7 @@ from os.path import dirname, realpath, join
 from datetime import datetime
 from pathlib import Path
 import joblib
+import os
 from urllib.parse import urlparse
 from random import shuffle
 from flask import Blueprint
@@ -23,8 +24,7 @@ from app import db, User, Urls, Pods
 pears = Blueprint('pears', __name__)
 
 dir_path = dirname(dirname(dirname(realpath(__file__))))
-pod_dir = join(dir_path,'app','static','pods')
-
+pod_dir = os.getenv("PODS_DIR", os.path.join(dir_path, 'app','static','pods'))
 
 @pears.cli.command('setadmin')
 @click.argument('username')
@@ -48,8 +48,6 @@ def index(host_url, filepath):
     with one url per line.
     Use from CLI with flask pears index <contributor> <path>
     '''
-    dir_path = dirname(dirname(dirname(realpath(__file__))))
-    pod_dir = join(dir_path,'app','static','pods')
     users = User.query.all()
     for user in users:
         Path(join(pod_dir,user.username)).mkdir(parents=True, exist_ok=True)
@@ -98,8 +96,6 @@ def legacy_export_urls(user):
 @click.argument('backupdir')
 def backup(backupdir):
     '''Backup database and pods to specified directory'''
-    dir_path = dirname(dirname(dirname(realpath(__file__))))
-    pod_dir = join(dir_path,'app','static','pods')
     #Check if directory exists, otherwise create it
     Path(backupdir).mkdir(parents=True, exist_ok=True)
     #Get today's date
