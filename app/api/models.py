@@ -165,3 +165,5 @@ class User(UserMixin, db.Model):
             'is_confirmed': self.is_confirmed,
             'confirmed_on': self.confirmed_on
         }
+    def remove(self):
+        db.session.delete(self)

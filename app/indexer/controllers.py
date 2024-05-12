@@ -2,12 +2,13 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-# Import flask dependencies
+import logging
 from os.path import dirname, join, realpath
 from time import sleep
 import hashlib
 from flask import session, Blueprint, request, render_template, url_for, flash
 from flask_login import login_required, current_user
+from flask_babel import gettext
 from langdetect import detect
 from app.auth.decorators import check_is_confirmed
 from app import LANGS, OWN_BRAND
@@ -115,10 +116,9 @@ def index_from_url():
         session['index_note'] = note
         if note is None:
             note = ''
-        print(url, theme, note, contributor)
+        logging.debug(f"INDEXING URL: {url} THEME: {theme} NOTE: {note} CONTRIBUTOR: {contributor}")
         with open(user_url_file, 'w', encoding="utf-8") as f:
             f.write(url + ";" + theme + ";" + note + ";" + contributor + "\n")
-        print("\t>> Indexer : progress_file")
         success, messages, share_url = run_indexer_url(user_url_file, request.host_url)
         if success:
             return render_template('indexer/success.html', messages=messages, share_url=share_url, url=url, theme=theme, note=note)
@@ -157,7 +157,6 @@ def index_from_manual():
         session['index_url'] = url
         session['index_title'] = title
         session['index_description'] = snippet
-        print("\t>> Indexer : manual_progress_file")
         success, messages, share_url = run_indexer_manual(url, title, snippet, theme, lang, note, contributor, request.host_url)
         if success:
             return render_template('indexer/success.html', messages=messages, share_url=share_url,  theme=theme, note=snippet)

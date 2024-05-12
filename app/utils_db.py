@@ -2,11 +2,12 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
+import logging
 from os import remove, rename
 from os.path import dirname, realpath, join, isfile
 from pathlib import Path
-import joblib
 from string import punctuation
+import joblib
 import numpy as np
 from scipy.sparse import csr_matrix, load_npz, vstack, save_npz
 from app import db, models, VEC_SIZE
@@ -17,7 +18,7 @@ dir_path = dirname(dirname(realpath(__file__)))
 pod_dir = join(dir_path,'app','static','pods')
 
 def parse_pod_name(pod_name):
-    print(pod_name)
+    logging.debug(f">> UTILS_DB: parse_pod_name: {pod_name}")
     theme = pod_name.split('.u.')[0]
     contributor = pod_name.split('.u.')[1]
     lang = Pods.query.filter_by(name=pod_name).first().language
@@ -38,7 +39,7 @@ def create_idx_to_url(contributor):
     Path(user_dir).mkdir(parents=True, exist_ok=True)
     user_path = join(user_dir, contributor+'.idx')
     if not isfile(user_path):
-        print("Making idx dictionaries for new user.")
+        logging.debug(f">> UTILS_DB: create_idx_to_url: Making idx dictionaries for new user.")
         idx_to_url = [[],[]]
         joblib.dump(idx_to_url, user_path)
 
@@ -53,19 +54,19 @@ def create_pod_npz_pos(contributor, theme, lang):
     pod_path = join(user_dir, theme+'.u.'+contributor )
     vocab = models[lang]['vocab']
     if not isfile(pod_path+'.npz'):
-        print("Making 0 CSR matrix for new pod")
+        logging.debug(">> UTILS_DB: create_pod_npz_pos: Making 0 CSR matrix for new pod")
         pod = np.zeros((1,VEC_SIZE))
         pod = csr_matrix(pod)
         save_npz(pod_path+'.npz', pod)
-        print("create_pod_npz_pos", pod.shape[0])
+        logging.debug(f">> UTILS_DB: create_pod_npz_pos: {pod.shape[0]}")
 
     if not isfile(pod_path+'.pos'):
-        print("Making empty positional index for new pod")
+        logging.debug(">> UTILS_DB: create_pod_npz_pos: Making empty positional index for new pod")
         posindex = [{} for _ in range(len(vocab))]
         joblib.dump(posindex, pod_path+'.pos')
 
     if not isfile(pod_path+'.npz.idx'):
-        print("Making idx dictionaries for new pod")
+        logging.debug(">> UTILS_DB: create_pod_npz_pos: Making idx dictionaries for new pod")
         # Lists of lists to make deletions easier
         npz_to_idx = [[0],[-1]] # For row 0 of the matrix
         joblib.dump(npz_to_idx, pod_path+'.npz.idx')
@@ -189,7 +190,7 @@ def add_to_npz_to_idx(pod_name, lang, vid, idx):
 def delete_pod_representations(pod_name):
     if '.u.' in pod_name:
         theme, contributor = pod_name.split('.u.')
-        print(theme, contributor)
+        logging.debug(theme, contributor)
     else:
         theme = pod_name
         contributor = None
@@ -221,7 +222,7 @@ def delete_url_representations(url):
     u = db.session.query(Urls).filter_by(url=url).first()
     pod = u.pod
     username = pod.split('.u.')[1]
-    print("POD",pod,"USER",username)
+    logging.debug(f">> UTILS_DB: delete_url_representations: POD {pod}, USER {username}")
     idx = rm_from_idx_to_url(username, url)
     vid = rm_from_npz_to_idx(pod, idx)
 
@@ -244,13 +245,13 @@ def delete_url_representations(url):
 
 def rm_from_idx_to_url(contributor, url):
     idx_to_url, path = load_idx_to_url(contributor)
-    print("IDX_TO_URL BEFORE RM",idx_to_url)
+    logging.debug(f">> UTILS_DB: rm_from_idx_to_url: IDX_TO_URL BEFORE RM {idx_to_url}")
     i = idx_to_url[1].index(url)
     idx = idx_to_url[0][i]
     idx_to_url[0].pop(i)
     idx_to_url[1].pop(i)
-    print("IDX_TO_URL AFTER RM",idx_to_url)
-    print("INDEX OF REMOVED ITEM",idx)
+    logging.debug(f">> UTILS_DB: rm_from_idx_to_url: IDX_TO_URL AFTER RM {idx_to_url}")
+    logging.debug(f">> UTILS_DB: rm_from_idx_to_url: INDEX OF REMOVED ITEM {idx}")
     joblib.dump(idx_to_url, path)
     return idx
 
@@ -261,12 +262,12 @@ def rm_from_npz_to_idx(pod_name, idx):
     """
     contributor, theme, lang = parse_pod_name(pod_name)
     npz_to_idx, pod_path = load_npz_to_idx(contributor, lang, theme)
-    print("NPZ_TO_IDX BEFORE RM:",npz_to_idx)
+    logging.debug(f">> UTILS_DB: rm_from_npz_to_idx: NPZ_TO_IDX BEFORE RM: {npz_to_idx}")
     i = npz_to_idx[1].index(idx)
     npz_to_idx[1].pop(i)
     npz_to_idx[0] = list(range(len(npz_to_idx[1])))
-    print("NPZ_TO_IDX AFTER RM:",npz_to_idx)
-    print("INDEX OF REMOVED ITEM",i)
+    logging.debug(f">> UTILS_DB: rm_from_npz_to_idx: NPZ_TO_IDX AFTER RM: {npz_to_idx}")
+    logging.debug(f">> UTILS_DB: rm_from_npz_to_idx: INDEX OF REMOVED ITEM {i}")
     joblib.dump(npz_to_idx, pod_path)
     return i
 
@@ -282,13 +283,13 @@ def rm_from_npz(vid, pod_name):
     contributor, _, lang = parse_pod_name(pod_name)
     pod_path = join(pod_dir, contributor, lang, pod_name+'.npz')
     pod_m = load_npz(pod_path)
-    print("SHAPE OF NPZ MATRIX BEFORE RM:",pod_m.shape)
+    logging.debug(f">> UTILS_DB: rm_from_npz: SHAPE OF NPZ MATRIX BEFORE RM: {pod_m.shape}")
     v = pod_m[vid]
-    print("CHECKING SHAPE OF DELETED VEC:",pod_m.shape)
+    logging.debug(f">> UTILS_DB: rm_from_npz: CHECKING SHAPE OF DELETED VEC: {pod_m.shape}")
     m1 = pod_m[:vid]
     m2 = pod_m[vid+1:]
     pod_m = vstack((m1,m2))
-    print("SHAPE OF NPZ MATRIX AFTER RM:",pod_m.shape)
+    logging.debug(f">> UTILS_DB: rm_from_npz: SHAPE OF NPZ MATRIX AFTER RM: {pod_m.shape}")
     save_npz(pod_path, pod_m)
     return v
 
@@ -306,7 +307,7 @@ def rm_doc_from_pos(vid, pod):
     posindex = load_posix(contributor, lang, theme)
     remaining_posindex = []
     deleted_posindex = []
-    print("DELETING DOC ID",vid)
+    logging.debug(f">> UTILS_DB: rm_from_npz: DELETING DOC ID {vid}")
     for token in vocab:
         token_id = vocab[token]
         tmp_remaining = {}
@@ -334,7 +335,7 @@ def mv_pod(src, target, contributor=None):
     for pod in pods:
         if pod.name[-len(contributor)-3:] == '.u.'+contributor:
             contributor_pods.append(pod.name.split('.u.')[0])
-    #print(src,contributor_pods)
+    #logging.debug(src,contributor_pods)
     if src not in contributor_pods:
         return "You cannot rename pods that you have never made a contribution to."
     if target in contributor_pods:
@@ -362,7 +363,7 @@ def mv_pod(src, target, contributor=None):
         rename(src_path, target_path)
         
         #Rename in DB
-        print(p.name)
+        logging.debug(p.name)
         p.name = target
         p.description = target
         p.url = join('http://localhost:8080/api/pods/',target.replace(' ','+'))

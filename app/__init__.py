@@ -24,6 +24,7 @@ WALKTHROUGH = False
 # Logging
 def configure_logging():
     # register root logging
+    #logging.basicConfig(filename='pears.log', filemode='w', level=logging.INFO)
     logging.basicConfig(level=logging.ERROR)
     logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
@@ -50,6 +51,7 @@ app.config['SITENAME'] = os.getenv("SITENAME")
 app.config['SITE_TOPIC'] = os.getenv("SITE_TOPIC")
 app.config['SEARCH_PLACEHOLDER'] = os.getenv("SEARCH_PLACEHOLDER")
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("SQLALCHEMY_DATABASE_URI", app.config.get("SQLALCHEMY_DATABASE_URI"))
+app.config['USER-AGENT'] = "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; PeARSbot/0.1; +https://www.pearsproject.org/) Chrome/W.X.Y.Z Safari/537.36"
 
 # Localization
 from flask_babel import Babel, gettext

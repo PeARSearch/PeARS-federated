@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
+import logging
 from os.path import dirname, join, realpath
 import numpy as np
 from scipy.sparse import csr_matrix, vstack, save_npz, load_npz
@@ -38,9 +39,9 @@ def compute_and_stack_new_vec(lang, tokenized_text, pod_m):
     """
     v = vectorize_scale(lang, tokenized_text, 5, VEC_SIZE) #log prob power 5
     if np.sum(v) != 0:
-        print("compute_and_stack_new_vec 1",pod_m.shape[0])
+        logging.debug(f"compute_and_stack_new_vec 1 {pod_m.shape[0]}")
         pod_m = vstack((pod_m,csr_matrix(v)))
-        print("compute_and_stack_new_vec 2",pod_m.shape[0])
+        logging.debug(f"compute_and_stack_new_vec 2 {pod_m.shape[0]}")
         return pod_m, True
     return pod_m, False
 
@@ -60,7 +61,7 @@ def compute_vector(url, theme, contributor, url_type):
     else:
         error = ">> INDEXER: MK_PAGE_VECTORS: ERROR: compute_vectors: No supported content type."
     if error is None:
-        print("TITLE",title,"SNIPPET",snippet,"CC",cc,"ERROR",error)
+        logging.info(f"TITLE {title} SNIPPET {snippet} CC {cc} ERROR {error}")
         create_pod_npz_pos(contributor, theme, lang)
         user_dir = join(pod_dir, contributor, lang)
         npz_path = join(user_dir,theme+'.u.'+contributor+'.npz')
@@ -127,7 +128,7 @@ def compute_query_vectors(query, lang):
         sims = list(set(sims))
         #print("SIMS",w,sims)
         words_tokenized_expanded.append(sims)
-    print("WORDS TOKENIZED EXPANDED",words_tokenized_expanded)
+    logging.debug(f"WORDS TOKENIZED EXPANDED {words_tokenized_expanded}")
 
     v_query = []
     for w in words_tokenized:

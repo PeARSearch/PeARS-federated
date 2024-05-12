@@ -11,7 +11,7 @@ from langdetect import detect
 from app.indexer.access import request_url
 from app.indexer import detect_open
 from app.api.models import installed_languages
-from app import LANGS, LANGUAGE_CODES
+from app import app, LANGS, LANGUAGE_CODES
 
 def remove_boilerplates(response, lang):
     text = ""
@@ -33,20 +33,20 @@ def remove_boilerplates(response, lang):
 def BS_parse(url):
     bs_obj = None
     req = None
-    headers = {'User-Agent': 'PeARS User Agent'}
+    headers = {'User-Agent': app.config['USER-AGENT']}
     try:
         req = requests.head(url, timeout=30, headers=headers)
     except Exception:
-        print("\t>> ERROR: BS_parse: request.head failed trying to access", url, "...")
+        logging.eror(f"\t>> ERROR: BS_parse: request.head failed trying to access {url}...")
         pass
     if "text/html" not in req.headers["content-type"]:
-        print("\t>> ERROR: BS_parse: Not a HTML document...")
+        logging.error(f"\t>> ERROR: BS_parse: Not a HTML document...")
         return bs_obj, req
     try:
         req = requests.get(url, allow_redirects=True, timeout=30, headers=headers)
         req.encoding = 'utf-8'
     except Exception:
-        print("\t>> ERROR: BS_parse: request failed trying to access", url, "...")
+        logging.error(f"\t>> ERROR: BS_parse: request failed trying to access {url}...")
         return bs_obj, req
     bs_obj = BeautifulSoup(req.text, "lxml")
     return bs_obj, req
@@ -54,17 +54,17 @@ def BS_parse(url):
 
 def extract_links(url):
     links = []
-    headers = {'User-Agent': 'PeARS User Agent'}
+    headers = {'User-Agent': app.config['USER-AGENT']}
     try:
         req = requests.head(url, timeout=30, headers=headers)
         if req.status_code >= 400:
-            print("\t>> ERROR: extract_links: status code is",req.status_code)
+            logging.error(f"\t>> ERROR: extract_links: status code is {req.status_code}")
             return links
         if "text/html" not in req.headers["content-type"]:
-            print("\t>> ERROR: Not a HTML document...")
+            logging.error(f"\t>> ERROR: Not a HTML document...")
             return links
     except Exception:
-        print("\t>> ERROR: extract_links: request.head failed trying to access", url, "...")
+        logging.error(f"\t>> ERROR: extract_links: request.head failed trying to access {url}...")
         return links
     bs_obj, req = BS_parse(url)
     if not bs_obj:
@@ -95,8 +95,8 @@ def extract_html(url):
         if url.startswith('http'):
             og_title = bs_obj.find("meta", property="og:title")
             og_description = bs_obj.find("meta", property="og:description")
-            print("OG TITLE",og_title)
-            print("OG DESC",og_description)
+            logging.info(f"OG TITLE: {og_title}")
+            logging.info(f"OG DESC: {og_description}")
 
             # Process title
             if not og_title:
@@ -105,14 +105,14 @@ def extract_html(url):
                     title = ""
             else:
                 title = og_title['content']
-            title = ' '.join(title.split()[:11]) #11 to conform with EU regulations
+            title = ' '.join(title.split()[:10]) #10 to conform with EU regulations
             
             # Get body string
             body_str = remove_boilerplates(req, LANGS[0]) #Problematic...
-            print(body_str[:500])
+            logging.debug(body_str[:500])
             try:
                 language = detect(title + " " + body_str)
-                print("\t>> INFO: Language for", url, ":", language)
+                logging.info(f"\t>> INFO: Language for {url}: {language}")
             except Exception:
                 title = ""
                 error = "\t>> ERROR: extract_html: Couldn't detect page language."
@@ -125,5 +125,5 @@ def extract_html(url):
             if og_description:
                 snippet = og_description['content'][:1000]
             else:
-                snippet = ' '.join(body_str.split()[:11]) #11 to conform with EU regulations
+                snippet = ' '.join(body_str.split()[:10]) #10 to conform with EU regulations
     return title, body_str, language, snippet, cc, error
