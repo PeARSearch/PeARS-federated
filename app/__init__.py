@@ -68,7 +68,7 @@ from dotenv import load_dotenv
 app.config.from_object('config')
 
 load_dotenv()
-LANGS = os.getenv('PEARS_LANGS').split(',')
+LANGS = os.getenv('PEARS_LANGS', "en").split(',')
 OWN_BRAND = True if os.getenv('OWN_BRAND') == 'true' else False
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv("MAIL_DEFAULT_SENDER")
 app.config['MAIL_SERVER'] = os.getenv("MAIL_SERVER")
@@ -81,6 +81,7 @@ app.config['MAIL_PASSWORD'] = os.getenv("EMAIL_PASSWORD")
 app.config['SITENAME'] = os.getenv("SITENAME")
 app.config['SITE_TOPIC'] = os.getenv("SITE_TOPIC")
 app.config['SEARCH_PLACEHOLDER'] = os.getenv("SEARCH_PLACEHOLDER")
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("SQLALCHEMY_DATABASE_URI", app.config.get("SQLALCHEMY_DATABASE_URI"))
 app.config['USER-AGENT'] = "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; PeARSbot/0.1; +https://www.pearsproject.org/) Chrome/W.X.Y.Z Safari/537.36"
 
 # Localization
