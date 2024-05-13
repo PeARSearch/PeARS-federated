@@ -7,7 +7,7 @@
 import logging
 from glob import glob
 from os import rename
-from os.path import dirname, realpath, join
+from os.path import dirname, realpath, join, isdir, exists
 from flask import Blueprint, flash, request, render_template, redirect, url_for, session
 from flask_login import login_required, current_user, logout_user
 from flask_babel import gettext
@@ -114,8 +114,12 @@ def rename_user_files(username, new_user):
     for url in db.session.query(Urls).filter_by(contributor = username).all():
         url.contributor = new_user
         url.pod = url.pod.replace(username, new_user)
-    rename(join(pod_dir, username), join(pod_dir, new_user))
-    rename(join(pod_dir, new_user, username+'.idx'), join(pod_dir, new_user, new_user+'.idx'))
+    d = join(pod_dir, username)
+    idxf = join(pod_dir, new_user, username+'.idx')
+    if isdir(d):
+        rename(d, join(pod_dir, new_user))
+    if exists(idxf):
+        rename(idxf, join(pod_dir, new_user, new_user+'.idx'))
     files = glob(join(pod_dir, new_user, '*', '*'))
     for f in files:
         fpath = '/'.join(f.split('/')[:-1])
