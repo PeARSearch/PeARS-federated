@@ -1,3 +1,4 @@
+import logging
 from urllib.parse import urlparse
 from os.path import join
 import re
@@ -34,12 +35,12 @@ def robotcheck(url):
         m = re.search(u.replace('*','.*'),url)
         if m:
             error = "ERROR: robotcheck: "+url+" is disallowed because of "+u
-            print("\t>>",error)
+            logging.error(error)
             getpage = False
     return getpage
 
 def request_url(url):
-    print("\n> CHECKING URL CAN BE REQUESTED")
+    logging.info(">> CHECKING URL CAN BE REQUESTED")
     access = None
     req = None
     errs = []
@@ -48,12 +49,12 @@ def request_url(url):
         req = requests.head(url, timeout=30, headers=headers)
     except:
         error = "ERROR: request_url: request timed out."
-        print("\t>>",error)
+        logging.error(error)
         errs.append(error)
         return access, req, errs
     if req.status_code >= 400:
         error = "ERROR: request_url: status code is "+str(req.status_code)
-        print("\t>>",error)
+        logging.error(error)
         errs.append(error)
         return access, req, errs
     else:
@@ -62,11 +63,11 @@ def request_url(url):
                 access = True
             else:
                 error = "ERROR: request_url: robot.txt disallows the url "+url+"."
-                print("\t>>",error)
+                logging.error(error)
                 errs.append(error)
         except:
             error = "ERROR: issues reading the robots.txt file for this site."
-            print("\t>>",error)
+            logging.error(error)
             errs.append(error)
     return access, req, errs
 

@@ -45,6 +45,10 @@ class ReportingForm(FlaskForm):
     report = TextAreaField(lazy_gettext('Description of the issue'), [DataRequired(), Length(max=300)])
     accept_tos = BooleanField(lazy_gettext('I confirm that I may be contacted in relation to my report.'), [DataRequired()])
 
+class FeedbackForm(FlaskForm):
+    report = TextAreaField(lazy_gettext('Your feedback'), [DataRequired(), Length(max=1000)])
+    accept_tos = BooleanField(lazy_gettext('I confirm that I may be contacted in relation to my report.'), [DataRequired()])
+
 class AnnotationForm(FlaskForm):
     url = StringField(lazy_gettext('The url you wish to annotate'), [DataRequired(), url()])
     note = TextAreaField(lazy_gettext('Your note'), [DataRequired(), Length(max=300)])
