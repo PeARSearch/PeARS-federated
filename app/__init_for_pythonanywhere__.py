@@ -89,6 +89,13 @@ app.config['USER-AGENT'] = "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; c
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")                         # set in .env file
 app.config['SECURITY_PASSWORD_SALT'] = os.getenv("SECURITY_PASSWORD_SALT") # set in .env file
 
+# Legal
+app.config['ORG_NAME'] = os.getenv("ORG_NAME")
+app.config['ORG_ADDRESS'] = os.getenv("ORG_ADDRESS")
+app.config['ORG_EMAIL'] = os.getenv("ORG_EMAIL")
+app.config['APPLICABLE_LAW'] = os.getenv("APPLICABLE_LAW")
+app.config['EU_SPECIFIC'] = True if os.getenv("EU_SPECIFIC").lower() == 'true' else False
+
 # Localization
 from flask_babel import Babel, gettext
 app.config['BABEL_DEFAULT_LOCALE'] = LANGS[0]

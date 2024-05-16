@@ -4,39 +4,70 @@
 
   <div class="row">
     <div class="col-md-6">
-       <h3>Terms of Service</h3>
+	    <h3>Terms of Service - 16 May 2024</h3>
 
-       <p>Welcome to PeARS!</p>
-       <p>These Terms of Service (or 'Terms') govern your use of PeARS, except where we state that other terms apply. They also provide information about the PeARS Service (the 'Service'). When you create a PeARS account or use PeARS on {{sitename}} ('this Site'), you agree to these terms.</p>
+	    <p>Welcome to <i>{{sitename}}</i>!</p>
 
-       <p>The PeARS Service on this Site is provided by {{sitename}}. These Terms of Service constitute an agreement between yourself and {{sitename}}.</p>
+	    <p><i>{{sitename}}</i> is an instance of PeARS Federated. PeARS is <a href="https://pearsproject.org/">open-source software</a> developed by volunteers and freely available for all to use and modify. It receives development support from the non-profit collective <a href="https://possible-worlds.eu/">Possible Worlds Research</a>.</p>
+       
+	    <p>The instance of PeARS on {{sitename}} ('this Site') is provided by {{orgname}} ('we/us'). These Terms of Service (or 'Terms') govern your use of PeARS on this instance, except where we state that other terms apply. They also provide information about the service provided through <i>{{sitename}}</i> (the 'Service'). When you create an account or use PeARS on <i>{{sitename}}</i>, you agree to these terms. These Terms of Service constitute an agreement between yourself and {{orgname}}. They take effect at the point where you start using the Service and remain valid until you either stop using the Service, or the Terms change, in which case we will post the amendment on this page, indicating the date at which the new terms take effect.</p>
+
+       <br>
 
        <h4>Impressum</h4>
-       <p>If you need to contact us, you can do so via the email address listed on our <a href="{{url_for('pages.return_contact')}}">contact page</a>.
+       
+       <p>You can contact us at:</p>
+
+       <p>{{address}}<br>{{email}}.</p>
+
+       <p>More detail can be found on our <a href="{{url_for('pages.return_contact')}}">contact</a> page.</p>
+       <br>
 
        <h4>Funding</h4>
-       <p>There are no ads on this Site. We rely on donations to provide the Service.</p> 
+       <p>There are no ads on this Site. PeARS relies on <a href="https://opencollective.com/possible-worlds-research/projects/decentralized-web-search">donations</a> and public funding for its development.</p
+       <br>
 
        <h4>Your commitments</h4>
+       <br>
+       
        <h6>You cannot use this site for an unlawful or unauthorized purpose, or in a way that interfers with the operation of the Service.</h6>
        <p>This includes creating accounts automatically, or collecting data from the site in a way that would impair the Service. It also includes adding harmful links to our index.</p>
 
        <h6>You cannot post content that infringes the rights of other copyright holders, or violates their confidentiality.</h6>
        <p>You confirm that your have the copyright holder's permission for any content you post, under applicable law.</p>
 
-       <h6>You cannot post content that discriminates against others, on grounds of ethnicity, nationality, gender, sexual orientaton or religion.</h6>
+       <h6>You cannot post content that discriminates against others, including on grounds of ethnicity, nationality, gender, sexual orientation, disability status or religion.</h6>
+       <br>
 
        <h4>The rights you give to us</h4>
        <h6>You give us a non-exclusive license to use your content on this Site.</h6>
-       <p>You grant us a non-exclusive, transferable, sub-licensable, worldwide license to host, use, distribute, modify, run, copy, publicly perform or display, translate, and create derivative works of your content for purposes of making the Service available.</p>
+       <p>You grant us a non-exclusive, transferable, sub-licensable, worldwide license to host, use, distribute, modify, run, copy, publicly perform or display, translate, and create derivative works of your content for purposes of making the Service available. You are responsible for any infringements caused by your uploads and the license you grant us is not terminated by the cancellation of your account.</p>
+       <br>
 
        <h4>Content and account removal</h4>
+       <h6>You can delete your own contributions and close your account at any time. See our <a href="{{url_for('pages.return_privacy')}}">Privacy Policy</a> for more detail.</h6>
+       
        <h6>We can remove any content you post on the Service if we believe it to interfer with the Service or to violate these Terms of Service.</h6>
        
        <h6>If you repeatedly violate these Terms of Service, we reserve the right to delete your account.</h6>
        
-       <h6>If you think we have removed your account in error, contact us using the email provided in our Impressum.</h6>
+       <h6>If you think we have removed your account in error, contact us using the email provided on our <a href="{{url_for('pages.return_contact')}}">contact page</a>.</h6>
+       <br>
 
+       <h4>Licensing</h4>
+
+       <p>These terms do not restrict rights granted by the <a href="https://github.com/PeARSearch/PeARS-federated?tab=License-1-ov-file#readme">AGPL-3.0 license</a>, under which the <a href="https://github.com/PeARSearch/PeARS-federated">PeARS code</a> is released.</p>
+       <br>
+
+       <h4>Your privacy</h4>
+       
+       <p>We take your privacy seriously. By accepting these Terms, you confirm that you have read and accepted our <a href="{{url_for('pages.return_privacy')}}">Privacy Policy</a>.</p>
+       <br>
+
+       <h4>Applicable law</h4>
+
+       <p>These terms are governed by the law of {{applicable_law}}.</p>
+       <br>
 
        </div>
   </div> <!-- /row -->

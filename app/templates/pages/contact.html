@@ -4,10 +4,19 @@
 
   <div class="row">
     <div class="col-md-6">
-       <h3>Contact</h3>
+       <h3>Impressum</h3>
 
        <p>Any question, comment, or complaint about this PeARS instance? Let us help you!</p> 
-       <p>Contact us at {{email}}.</p>
+
+       <p>PeARS is <a href="https://pearsproject.org/">open-source software</a> developed by volunteers and freely available for all to use and modify. It receives development support from the non-profit collective <a href="https://possible-worlds.eu/">Possible Worlds Research</a>.</p>
+
+       <p>This specific instance is run by {{orgname}} (we/us). You can contact us at:</p>
+
+       <p>{{address}}<br>{{email}}.</p>
+
+       {% if eu %}
+       <p>The European Commission is providing an <a href="http://ec.europa.eu/consumers/odr/">online dispute resolution platform</a> which consumers can use for dispute resolution and where additional information on the topic of dispute resolution is provided. We are willing to participate in consumer dispute resolution proceedings before a consumer arbitration board in the event of a dispute with a consumer.</p>
+       {% endif %}
        </div>
   </div> <!-- /row -->
 </div> <!-- /container full -->

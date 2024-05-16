@@ -31,18 +31,28 @@ def return_acknowledgements():
 @pages.route('/privacy/')
 def return_privacy():
     sitename = app.config["SITENAME"]
-    return render_template("pages/privacy.html", sitename=sitename)
+    orgname = app.config["ORG_NAME"]
+    address = app.config["ORG_ADDRESS"]
+    email = app.config["ORG_EMAIL"]
+    return render_template("pages/privacy.html", sitename=sitename, orgname=orgname, address=address, email=email)
 
 @pages.route('/terms-of-service/')
 def return_tos():
+    applicable_law = app.config["APPLICABLE_LAW"]
     sitename = app.config["SITENAME"]
-    return render_template("pages/tos.html", sitename=sitename)
+    orgname = app.config["ORG_NAME"]
+    address = app.config["ORG_ADDRESS"]
+    email = app.config["ORG_EMAIL"]
+    return render_template("pages/tos.html", applicable_law=applicable_law, sitename=sitename, orgname=orgname, address=address, email=email)
 
-@pages.route('/contact/')
+@pages.route('/impressum/')
 def return_contact():
     sitename = app.config["SITENAME"]
-    email = app.config["MAIL_DEFAULT_SENDER"].replace('@',' AT ')
-    return render_template("pages/contact.html", email=email)
+    orgname = app.config["ORG_NAME"]
+    address = app.config["ORG_ADDRESS"]
+    email = app.config["ORG_EMAIL"]
+    eu = app.config["EU_SPECIFIC"]
+    return render_template("pages/contact.html", email=email, orgname=orgname, address=address, eu=eu)
 
 
 @pages.route('/maintenance/')
