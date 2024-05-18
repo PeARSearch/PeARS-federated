@@ -47,15 +47,16 @@ msgstr ""
 
 #: app/forms.py:9 app/forms.py:23
 msgid "Passwords must match"
-msgstr ""
+msgstr "Les mots de passe doivent correspondre"
 
 #: app/forms.py:10 app/forms.py:24
 msgid "Repeat Password"
-msgstr ""
+msgstr "Répéter le mot de passe"
 
 #: app/forms.py:13
 msgid "I accept the TOS and Privacy statement"
-msgstr ""
+msgstr "J’accepte les Conditions d’Utilisation et la déclaration sur la "
+"protection des données privées"
 
 #: app/forms.py:17
 msgid "Password"
@@ -93,7 +94,7 @@ msgstr ""
 
 #: app/forms.py:35
 msgid "Anything extra you would like people to know about this resource."
-msgstr ""
+msgstr "Informations additionelles sur cette ressource."
 
 #: app/forms.py:36
 msgid "I confirm that my suggestion does not contravene the Terms of Service"
@@ -145,11 +146,11 @@ msgstr ""
 
 #: app/auth/captcha.py:10
 msgid "Captcha: write down the last "
-msgstr ""
+msgstr "Captcha : écrivez le dernier"
 
 #: app/auth/captcha.py:10
 msgid " characters of the following string: "
-msgstr ""
+msgstr "caractère de la phrase suivante :"
 
 #: app/auth/controllers.py:28
 msgid "You have successfully logged out."
@@ -163,14 +164,17 @@ msgstr ""
 msgid ""
 "We have moved to a more secure authentification method. Please request a "
 "password change."
-msgstr ""
+msgstr "Nous avons migré vers une méthode d’authentication plus sécurisée. "
+"Veuillez demander un nouveau mot de passe."
 
 #: app/auth/controllers.py:62 app/search/controllers.py:47
 msgid ""
 "You have not confirmed your account.<br>                    Please use "
 "the link in the email that was sent to you,                     or "
 "request a new link by clicking <a href='../auth/resend'>here</a>."
-msgstr ""
+msgstr "Vous n’avez pas confirmé votre compte. <br> Veuillez utiliser "
+"le lien présent dans le courriel qui vous a été envoyé,          ou "
+"demandez un nouveau lien en cliquant <a href='../auth/resend'>ici</a>."
 
 #: app/auth/controllers.py:67 app/templates/auth/profile.html:5
 msgid "Welcome"
@@ -186,7 +190,7 @@ msgstr ""
 
 #: app/auth/controllers.py:101
 msgid "The captcha was incorrectly answered."
-msgstr ""
+msgstr "La réponse au captcha était incorrecte."
 
 #: app/auth/controllers.py:113 app/auth/controllers.py:166
 msgid "Please confirm your email."
@@ -234,7 +238,7 @@ msgstr ""
 
 #: app/indexer/controllers.py:74
 msgid "Nothing to amend."
-msgstr ""
+msgstr "Rien à ajouter"
 
 #: app/indexer/controllers.py:187
 msgid "ERROR: Invalid file format."
@@ -246,7 +250,7 @@ msgstr ""
 
 #: app/indexer/controllers.py:240
 msgid "There was a problem indexing your entry. Please check the submitted data."
-msgstr ""
+msgstr "Votre entrée n’a pas pû être indexée correctement. Veuillez vérifier les informations fournies."
 
 #: app/indexer/controllers.py:241
 msgid "Your entry:"
@@ -258,7 +262,7 @@ msgstr ""
 
 #: app/orchard/controllers.py:118
 msgid "Your feedback has been sent. Thank you!"
-msgstr ""
+msgstr "Votre retour d’expérience a été envoyé. Merci !"
 
 #: app/orchard/controllers.py:144
 msgid "Your note has been saved. Thank you!"
@@ -274,7 +278,7 @@ msgstr ""
 
 #: app/settings/controllers.py:92
 msgid "There was a problem deleting URL "
-msgstr ""
+msgstr "Il y a eu un problème pendant la suppression de l’URL"
 
 #: app/settings/controllers.py:92
 msgid " Please contact your administrator."
@@ -315,7 +319,11 @@ msgid ""
 "pages, or modify a keyword, this is the place to do so. You can also view"
 " and search the entire list of available pods, as registered by your "
 "pear."
-msgstr ""
+msgstr "Cette page vous permet de gérer manuellement vos utilisateurs, Pods, "
+"et URLs indexées. Si vous avez besoin, par exemple, de supprimer une"
+"URL de vos pages indexées ou de modifier un mot de passe, ici est l’endroit "
+"pour le faire. Vous pouvez aussi voir et chercher dans l’ensemble de "
+"vos Pods disponibles, tels qu’enregistrés par votre Pear."
 
 #: app/templates/admin/index.html:17
 msgid "See/modify your URL list"
@@ -336,15 +344,15 @@ msgstr ""
 
 #: app/templates/admin/pears_list.html:33
 msgid "Indexer"
-msgstr ""
+msgstr "Indexeur"
 
 #: app/templates/admin/pears_list.html:34 app/templates/base/base.html:73
 msgid "Themes"
-msgstr ""
+msgstr "Thèmes"
 
 #: app/templates/admin/pears_list.html:35
 msgid "DB admin"
-msgstr ""
+msgstr "Administrateur base de données"
 
 #: app/templates/admin/pears_list.html:38 app/templates/base/base.html:81
 msgid "Profile"
@@ -356,7 +364,7 @@ msgstr ""
 
 #: app/templates/analysis/index.html:13
 msgid "Run association analysis"
-msgstr ""
+msgstr "Démarrer l’analyse d’associations"
 
 #: app/templates/analysis/index.html:16
 msgid "Analyse"
@@ -368,11 +376,11 @@ msgstr ""
 
 #: app/templates/analysis/index.html:36
 msgid "Search associations"
-msgstr ""
+msgstr "Rechercher dans les associations"
 
 #: app/templates/analysis/index.html:40 app/templates/search/results.html:30
 msgid "Enter your search query"
-msgstr ""
+msgstr "Veuillez entrer votre recherche"
 
 #: app/templates/auth/confirm_email.html:2
 msgid ""
@@ -388,27 +396,31 @@ msgstr ""
 #: app/templates/auth/password_reset_email.html:1
 #: app/templates/auth/username_change.html:1
 msgid "Hi there!"
-msgstr ""
+msgstr "Bonjour !"
 
 #: app/templates/auth/email_change.html:2
 msgid ""
 "We are sending you this email because you have requested to change your "
 "email address on your PeARS instance. We have updated our records and all"
 " further emails will be sent to the following address:"
-msgstr ""
+msgstr "Vous vous avons envoyé ce courriel car vous avez demandé à "
+"changer votre adresse courriel sur votre instance PeARS. Nous avons mis à "
+"jour nos informations et tous nos courriels futurs vous seront envoyés à "
+"l’addresse suivante :"
 
 #: app/templates/auth/email_change.html:3
 #: app/templates/auth/username_change.html:3
 msgid ""
 "If the request did not originate from you, please contact your "
 "administrator."
-msgstr ""
+msgstr "Si vous n’êtes pas à l’origine de cette requête, veuillez"
+"contacter votre administrateur"
 
 #: app/templates/auth/email_change.html:4
 #: app/templates/auth/password_reset_email.html:5
 #: app/templates/auth/username_change.html:4
 msgid "See you soon on our PeARS instance again!"
-msgstr ""
+msgstr "À bientôt sur votre instance PeARS!"
 
 #: app/templates/auth/inactive.html:6
 msgid "Welcome!"
@@ -419,7 +431,9 @@ msgid ""
 "You have not confirmed your account. Please check your inbox (and your "
 "spam folder) - you should have received an email with a confirmation "
 "link."
-msgstr ""
+msgstr "Vous n’avez pas confirmé votre compte. Veuillez vérifier votre"
+"boîte de réception (et votre dossier pourriel) - vous devriez avoir "
+"reçu un courriel avec un lien de confirmation."
 
 #: app/templates/auth/inactive.html:19
 msgid "Didn't get the email?"
@@ -448,7 +462,7 @@ msgstr ""
 
 #: app/templates/auth/password_change.html:11
 msgid "Enter a new password"
-msgstr ""
+msgstr "Entrer un nouveau mot de passe"
 
 #: app/templates/auth/password_change.html:27
 msgid "Change password"
@@ -471,17 +485,22 @@ msgid ""
 "We are sending you this email because you have requested to reset your "
 "password. If the request did not originate from you, please ignore this "
 "email. Otherwise, use the link below to choose a new password."
-msgstr ""
+msgstr "Nous vous avons envoyé ce courriel car vous avez demandé un "
+"nouveau mot de pass. Si vous nêtes pas à l’origine de cette requête, "
+"veuillez ignorer ce courriel. Sinon, utilisez le lien suivant pour "
+"choisir un nouveau mot de passe"
 
 #: app/templates/auth/signup.html:11
 msgid "Signup"
-msgstr ""
+msgstr "Inscription"
 
 #: app/templates/auth/signup.html:29
 msgid ""
 "I agree to the <a href='../../privacy/'>privacy policy</a> and <a href"
 "='../../terms-of-service/'>terms of service</a> of this site."
-msgstr ""
+msgstr "J’accepte les <a href='../../privacy/'>règles de protection des "
+"données privées</a> et <a href='../../terms-of-service/'>conditions "
+"d’utilisation</a> de ce site."
 
 #: app/templates/auth/signup.html:38
 msgid "Do you already have an account?"
@@ -491,11 +510,13 @@ msgstr ""
 msgid ""
 "We are sending you this email because you have requested to change your "
 "username on your PeARS instance. Your new username is:"
-msgstr ""
+msgstr "Nous vous avons envoyé ce courriel car vous avez demandé à changer "
+"votre nom d’utilisateur sur votre instance PeARS. Votre nouveau nom "
+"d’utilisateur est :"
 
 #: app/templates/base/404.html:4
 msgid "Oops! The address you were looking for was not found."
-msgstr ""
+msgstr "Oups ! L’adresse que vous recherchiez n’a pas été trouvée."
 
 #: app/templates/base/404.html:5
 msgid "We are sorry for this inconvenience."
@@ -519,11 +540,11 @@ msgstr ""
 
 #: app/templates/base/base.html:70
 msgid "Index"
-msgstr ""
+msgstr "Index"
 
 #: app/templates/base/base.html:76
 msgid "DB Admin"
-msgstr ""
+msgstr "Administrateur base de donnée"
 
 #: app/templates/base/base.html:100
 msgid "Logout"
@@ -543,7 +564,7 @@ msgstr ""
 
 #: app/templates/base/base.html:113
 msgid "Acknowledgments"
-msgstr ""
+msgstr "Remerciements"
 
 #: app/templates/indexer/fail.html:13
 msgid ""
@@ -572,7 +593,9 @@ msgstr ""
 msgid ""
 "I confirm that my entry does not contravene the <a href='../terms-of-"
 "service'>terms of service</a> of this site."
-msgstr ""
+msgstr "Je confirme que mon entrée ne va pas à l’encontre des "
+"<a href='../terms-of-service'>conditions d’utilisations</a> "
+"de ce site"
 
 #: app/templates/indexer/index.html:49 app/templates/indexer/index.html:83
 msgid "Add"
@@ -580,11 +603,11 @@ msgstr ""
 
 #: app/templates/indexer/index.html:54
 msgid "Or add a manual resource"
-msgstr ""
+msgstr "Ou ajouter une ressource manuellement"
 
 #: app/templates/indexer/index.html:63
 msgid "Add an offline resource"
-msgstr ""
+msgstr "Et une ressource hors-ligne"
 
 #: app/templates/indexer/index.html:87
 msgid "Or index a URL"
@@ -606,7 +629,7 @@ msgstr ""
 
 #: app/templates/indexer/success.html:25
 msgid "Made a mistake? No problem"
-msgstr ""
+msgstr "Vous avez fait une errour? Aucun problème"
 
 #: app/templates/indexer/success.html:25
 msgid "try again"
@@ -631,7 +654,7 @@ msgstr ""
 
 #: app/templates/orchard/feedback.html:14
 msgid "Send us feedback"
-msgstr ""
+msgstr "Envoyez nous votre retour d’expérience"
 
 #: app/templates/orchard/feedback.html:26
 msgid ""
