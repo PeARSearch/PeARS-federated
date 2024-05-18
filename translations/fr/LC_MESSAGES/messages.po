@@ -27,11 +27,11 @@ msgstr ""
 
 #: app/forms.py:7
 msgid "Username"
-msgstr "Nom d'utilisateur"
+msgstr "Nom d’utilisateur"
 
 #: app/forms.py:7 app/forms.py:30
 msgid "Your username should have between 4 and 25 characters."
-msgstr "Votre nom d'utilisateur doit comporter entre 4 et 25 caractères."
+msgstr "Votre nom d’utilisateur doit comporter entre 4 et 25 caractères."
 
 #: app/forms.py:8 app/forms.py:16 app/forms.py:20
 msgid "Email Address"
@@ -72,15 +72,15 @@ msgstr "Nouveau nom d'utilisateur"
 
 #: app/forms.py:33
 msgid "The url to index"
-msgstr "L'url à indexer"
+msgstr "L’url à indexer"
 
 #: app/forms.py:33
 msgid "The URL you would like to index."
-msgstr "L'url que vous voudriez indexer"
+msgstr "L’url que vous voudriez indexer"
 
 #: app/forms.py:34 app/templates/orchard/get-a-pod.html:12
 msgid "Theme"
-msgstr ""
+msgstr "Thèmes"
 
 #: app/forms.py:34
 msgid ""
@@ -99,7 +99,7 @@ msgstr "Informations additionelles sur cette ressource."
 
 #: app/forms.py:36
 msgid "I confirm that my suggestion does not contravene the Terms of Service"
-msgstr "Je confirme que ma suggestion n'enfreint pas les Conditions d'Utilisation"
+msgstr "Je confirme que ma suggestion n’enfreint pas les Conditions d'Utilisation"
 
 #: app/forms.py:39
 msgid "A title for your entry"
@@ -119,7 +119,7 @@ msgstr "Je confirme que mon entrée n'enfreint pas les Conditions d'Utilisation"
 
 #: app/forms.py:44
 msgid "The url you are reporting"
-msgstr "L'url que vous signalez"
+msgstr "L’url que vous signalez"
 
 #: app/forms.py:45
 msgid "Description of the issue"
@@ -131,11 +131,11 @@ msgstr "Je confirme que je peux être contacté à propos de mon signalement."
 
 #: app/forms.py:49
 msgid "Your feedback"
-msgstr ""
+msgstr "Votre retour d’expérience"
 
 #: app/forms.py:53
 msgid "The url you wish to annotate"
-msgstr "L'url que vous souhaitez annoter"
+msgstr "L’url que vous souhaitez annoter"
 
 #: app/forms.py:54
 msgid "Your note"
@@ -183,11 +183,11 @@ msgstr "Bienvenue"
 
 #: app/auth/controllers.py:93
 msgid "Email address already exists."
-msgstr "L'adresse courriel existe déjà."
+msgstr "L’adresse courriel existe déjà."
 
 #: app/auth/controllers.py:97
 msgid "Username already exists."
-msgstr "Ce nom d'utilisateur existe déjà."
+msgstr "Ce nom d’utilisateur existe déjà."
 
 #: app/auth/controllers.py:101
 msgid "The captcha was incorrectly answered."
@@ -203,7 +203,7 @@ msgstr "Une confirmation vous a été envoyé par courriel."
 
 #: app/auth/controllers.py:143
 msgid "Account already confirmed."
-msgstr ""
+msgstr "Compte déjà confirmé."
 
 #: app/auth/controllers.py:152
 msgid "You have confirmed your account. Thanks!"
@@ -247,7 +247,7 @@ msgstr "ERREUR: Format de fichier invalide."
 
 #: app/indexer/controllers.py:195
 msgid "ERROR: Content type could not be retrieved from header."
-msgstr ""
+msgstr "ERREUR: Le type de contenu could not be retrieved from header."
 
 #: app/indexer/controllers.py:240
 msgid "There was a problem indexing your entry. Please check the submitted data."
@@ -271,7 +271,7 @@ msgstr "Votre note a été sauvegardée. Merci!"
 
 #: app/settings/controllers.py:86
 msgid "URL does not belong to you and cannot be deleted."
-msgstr "L'URL ne vous appartient pas et ne peut être supprimée."
+msgstr "L’URL ne vous appartient pas et ne peut être supprimée."
 
 #: app/settings/controllers.py:90
 msgid " was successfully deleted."
@@ -283,11 +283,11 @@ msgstr "Il y a eu un problème pendant la suppression de l’URL"
 
 #: app/settings/controllers.py:92
 msgid " Please contact your administrator."
-msgstr "Veuillez prendre contact avec votre admnistrateur."
+msgstr "Veuillez prendre contact avec votre administrateur."
 
 #: app/settings/controllers.py:109
 msgid "Your comments for "
-msgstr "Votre commentaire pour "
+msgstr "Vos commentaires pour "
 
 #: app/settings/controllers.py:109
 msgid " were successfully deleted."
@@ -307,11 +307,11 @@ msgstr "Votre courriel a été modifié avec succès."
 
 #: app/settings/controllers.py:203
 msgid "This username already exists."
-msgstr "Ce nom d'utilisateur existe déjà."
+msgstr "Ce nom d’utilisateur existe déjà."
 
 #: app/settings/controllers.py:211
 msgid "Your username has been successfully modified."
-msgstr "Votre nom d'utilisateur a été modifié avec succès."
+msgstr "Votre nom d’utilisateur a été modifié avec succès."
 
 #: app/templates/admin/index.html:14
 msgid ""
@@ -328,7 +328,7 @@ msgstr "Cette page vous permet de gérer manuellement vos utilisateurs, Pods, "
 
 #: app/templates/admin/index.html:17
 msgid "See/modify your URL list"
-msgstr "Voir/modifier votre liste d'URL"
+msgstr "Voir/modifier votre liste d’URL"
 
 #: app/templates/admin/index.html:20
 msgid "See/modify your Pods list"
@@ -336,7 +336,7 @@ msgstr "Voir/modifier votre liste de Pods"
 
 #: app/templates/admin/index.html:23
 msgid "See/modify your Users list"
-msgstr "Voir/modifier votre liste d'Utilisateurs"
+msgstr "Voir/modifier votre liste d’Utilisateurs"
 
 #: app/templates/admin/pears_list.html:32 app/templates/analysis/index.html:41
 #: app/templates/base/base.html:68
@@ -530,11 +530,11 @@ msgstr "Retourner à la page principale."
 
 #: app/templates/base/500.html:4
 msgid "An unexpected error has occurred."
-msgstr "Une erreur inattendue s'est produite."
+msgstr "Une erreur inattendue s’est produite."
 
 #: app/templates/base/500.html:5
 msgid "The administrator has been notified. Sorry for the inconvenience!"
-msgstr "L'administrateur a été notifié. Désolé pour le dérangement!"
+msgstr "L’administrateur a été notifié. Désolé pour le dérangement!"
 
 #: app/templates/base/_formhelpers.html:18
 msgid "Password forgotten?"
@@ -558,7 +558,7 @@ msgstr ""
 
 #: app/templates/base/base.html:113
 msgid "Terms of service"
-msgstr "Conditions d'utilisation"
+msgstr "Conditions d’utilisation"
 
 #: app/templates/base/base.html:113
 msgid "Impressum"
@@ -619,7 +619,7 @@ msgstr "Ou indexer une URL"
 msgid ""
 "Your URL has been successfully indexed! Here is a summary of your "
 "contribution:"
-msgstr "Votre URL a été indexé avec succès! Voici un résumé de votre "
+msgstr "Votre URL a été indexée avec succès! Voici un résumé de votre "
 "contribution:"
 
 #: app/templates/indexer/success.html:22
@@ -632,7 +632,7 @@ msgstr "Note:"
 
 #: app/templates/indexer/success.html:25
 msgid "Made a mistake? No problem"
-msgstr "Vous avez fait une errour? Aucun problème"
+msgstr "Vous avez fait une erreur? Aucun problème"
 
 #: app/templates/indexer/success.html:25
 msgid "try again"
@@ -678,7 +678,7 @@ msgstr "Télécharger"
 
 #: app/templates/orchard/index.html:22
 msgid "Theme:"
-msgstr ""
+msgstr "Thème:"
 
 #: app/templates/orchard/index.html:24
 msgid "entries"
@@ -690,7 +690,7 @@ msgstr ""
 
 #: app/templates/orchard/index.html:35
 msgid "Rename theme"
-msgstr ""
+msgstr "Renommer le thème"
 
 #: app/templates/orchard/index.html:36
 msgid "Rename"
@@ -747,7 +747,7 @@ msgstr "Votre Profil"
 
 #: app/templates/settings/index.html:17
 msgid "Username:"
-msgstr "Nom d'utilisateur:"
+msgstr "Nom d’utilisateur:"
 
 #: app/templates/settings/index.html:18
 msgid "Email:"
