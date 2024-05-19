@@ -90,7 +90,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 
 <script>
-  let themes = {{themes|safe}};
+  let themes = {{themes|tojson}};
   let str = '';
   for (theme of themes) {
     str += '<option value="' + theme + '" />';
