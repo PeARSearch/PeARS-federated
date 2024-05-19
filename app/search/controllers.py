@@ -74,9 +74,11 @@ def prepare_gui_results(query, results):
         r['snippet'] = beautify_snippet(r['snippet'], r['img'], query)
         logging.debug(f"RESULT URL {url}")
         if 'url=pearslocal' not in url:
-            r['snippet'] = ' '.join(r['snippet'].split()[:11]) #11 to conform with EU regulations
+            r['snippet'] = ' '.join(r['snippet'].split()[:10]) #10 to conform with EU regulations
         if r['notes'] == 'None':
             r['notes'] = None
+        else:
+            r['notes'] = r['notes'].split('<br>')
         values = list(r.values())
         displayresults.append(values)
     return displayresults
