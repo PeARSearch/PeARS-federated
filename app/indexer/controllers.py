@@ -103,7 +103,7 @@ def index_from_url():
     contributor = current_user.username
     create_idx_to_url(contributor)
     pods = Pods.query.all()
-    themes = [p.name.split('.u.')[0] for p in pods]
+    themes = list(set([p.name.split('.u.')[0] for p in pods]))
 
     form = IndexerForm(request.form)
     if form.validate_on_submit():
