@@ -7,7 +7,7 @@ from flask import request
 from app.api.models import Urls
 
 dir_path = dirname(dirname(realpath(__file__)))
-pod_dir = join(dir_path,'static','pods')
+pod_dir = os.getenv("PODS_DIR", join(dir_path, 'static','pods'))
 
 
 def get_url_list_for_users(theme):

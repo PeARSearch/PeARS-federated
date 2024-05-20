@@ -15,7 +15,7 @@ from app.api.models import Urls, Pods
 from app.indexer.posix import load_posix, dump_posix
 
 dir_path = dirname(dirname(realpath(__file__)))
-pod_dir = join(dir_path,'app','static','pods')
+pod_dir = os.getenv("PODS_DIR", join(dir_path, 'app', 'static','pods'))
 
 def parse_pod_name(pod_name):
     logging.debug(f">> UTILS_DB: parse_pod_name: {pod_name}")

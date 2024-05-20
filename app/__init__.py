@@ -100,6 +100,8 @@ babel = Babel(app)
 # Make sure user data directories exist
 DEFAULT_PATH = f'app'
 Path(os.path.join(DEFAULT_PATH,'static/userdata')).mkdir(parents=True, exist_ok=True)
+if os.getenv("SUGGESTIONS_DIR", "") != "":
+    Path(os.getenv("SUGGESTIONS_DIR")).mkdir(parents=True, exist_ok=True)
 
 # Mail
 mail = Mail(app)

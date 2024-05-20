@@ -23,7 +23,7 @@ from app.utils_db import load_idx_to_url, load_npz_to_idx, rm_from_idx_to_url, d
 api = Blueprint('api', __name__, url_prefix='/api')
 
 dir_path = dirname(dirname(realpath(__file__)))
-pod_dir = join(dir_path,'static','pods')
+pod_dir = os.getenv("PODS_DIR", join(dir_path, 'static','pods'))
 
 @api.route('/languages/', methods=["GET", "POST"])
 def return_instance_languages():
