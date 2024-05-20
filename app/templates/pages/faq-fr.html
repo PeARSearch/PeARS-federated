@@ -1,0 +1,67 @@
+<!--
+SPDX-FileCopyrightText: 2023 PeARS Project, <community@pearsproject.org>, 
+
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
+{% extends "base/base.html" %}
+{% block body %}
+<div class="container">
+
+  <div class="row">
+       <div class="col">
+       <h3>F.A.Q.</h3>
+       <p><a href="#firsttime">What is this?</a><br>
+       <a href="#indexurl">Comment puis-je contribuer?</a><br>
+       <a href="#newpods">Qu’est-ce qu’un pod?</a><br>
+       <a href="#tips">Que sont les 'ressources manuelles'?</a><br>
+       <a href="#otherfeatures">Que puis-je faire d’autre?</a><br>
+       <a href="#mistakes">À l’aide! J’ai fait une erreur en indexant!</a><br>
+       <a href="#contribute">Comment puis-je contribuer au code?</a><br>
+       <a href="#copyright">What is your approach to crawling?</a><br>
+       <br><br>
+
+       <p id="firsttime"><b>What is this?</b></p>
+       <p>Bienvenue, étranger! Vous êtes sur une instance de 'PeARS Fédéré', un moteur de recherche décentralisé. Chaque instance de PeARS peut être considéré comme un mini moteur de recherche pour un unique sujet d’intérêt. The focus of <a href={{siteurl}}>{{sitename}}</a> is {{topic}}. D’autres instances ont trait à des sujets différents.</p>
+       <p>L’idée derrière PeARS est que chaque instance is populated via crowdsourcing. Cela signifie que si vous créez un compte, vous pouvez contribuer au contenu de l’index de recherche en partageant des URL intéressantes. Cela permet à l’index d’être d’une particulèrement grande qualité, ayant été validé par des contributeurs en chair et en os.</p>
+
+       <br><br>
+       <p id="indexurl"><bComment puis-je contribuer?</b></p>
+       <p>D’abord, <a href="{{url_for('auth.signup')}}">créer</a> un compte sur cette instance. Nous sommes heureux de vous compter parmis nous!</p>
+       <p>Chaque instance de PeARS comprend une <a href="{{url_for('indexer.index')}}">page d’indexation</a> which helps you with the hard work of converting documents into searchable representations. Vous pouvez indexer de plusieurs manières mais nous allons commencer par la plus simple, qui consiste à taper une seule URL dans le champs 'Indexer une URL unique' -- Seule cette page sera indexer. Vous devriez également saisir un mot clér sous cette URL, indiqué à PeARS le sujet de la page que vous voulez indexer. Avec le temps, cela permettra la création de <a href="#newpods">pods</a>, que vous pourrez gérer individuellement. Enfin, ajouter une note optionnelle, si vous souhaitez ajouter un commentaire à propos de cette ressource qui pourrait être utile aux autres.</p>
+       <p><img src="{{url_for('static', filename='assets/faq/indexing_page.png')}}" width=70% /></p>
+
+       <br><br>
+       <p id="newpods"><b>Qu’est-ce qu’un pod?</b></p>
+       <p>Un pod est un index dédié à un sous-thème particulier au sein de l’instance PeARS. Imaginer que la collection d’URL sur ce site et une bibliothèque, et que vous êtes le bibliothécaire étiquetant différentes sections de vos étagères. Le fait d’avoir des sections étiquetées vous aides à diriger plus facilement les visiteurs vers le bon livre. Cela vous aide également and your fellow contributors à gérer la collection que vous avez construite.</p>
+       <p>Si nécessaire, vous pouvez vérifier quelles pages ont été indexées dans sous-thème particulier. Rendez vous sur <a href="{{url_for('orchard.index')}}">Pods</a>. Vous y trouverez un pod pour chaque mot clé utilisé dans l’indexeur. La taille actuelle de chaque pod en cours de création y sera indiquée. Vous pouvez voir le contenu du pod en cliquant sur celui-ci. Il est également possible de télécharger les informations contenues dans ce pod.</p> 
+
+       <br><br>
+       <p id="tips"><b>Que sont les 'ressources manuelles'?</b></p>
+       <p>Croyez le ou non, mais tout n’est pas sur Internet. Ce petit restaurant que vous adorez n’est pas présent en ligne? Pas de problème, ajouter une ressource manuelle depuis la <a href="{{url_for('indexer.index')}}">page d’indexation</a> en recommandant votre chef préféré.</p>
+       <p>Vous pouvez aussi utiliser la fonction manuelle quand l’indexation automatique d’une page a échouée pour quelque raison que ce soit (typiquement, le propriétaire du site web n’autorise pas le crawling). Vous pouvez alors mentionner ce site web dans votre entrée manuelle. Mais assurez-vous de n’utiliser aucun matériel provenant de la page que vous citez, pour éviter la violation des droits d’auteur.</p> 
+       <p><img src="{{url_for('static', filename='assets/faq/manual_tips_page.png')}}" width=70% /></p>
+
+       <br><br>
+       <p id="otherfeatures"><b>Que puis-je faire d’autre?</b></p>
+       <p>Lors d’une recherche, vous remarquerez que chaque URL sur la page des résultats est accompagnée par un ensemble de trois icônes. Ces icônes vous permettent de commenter, partager ou signaler les ressources. L’icône commentaire (<ion-icon name="chatbubble-outline"></ion-icon>) ouvre une nouvelle page qui vous permet d’ajouter quelques informations à la page indexée. Les commentaires apparaitront avec l’URL et sont accessibles en cliquant sur la petite bulle près d’un snippet (sur les URL sans commentaire la bulle n’est pas visible). L’icône de partage (<ion-icon name="share-outline"></ion-icon>) copie l’entrée PeARS pour l’URL dans votre presse-papiers, vous permettant de partager le lien ainsi que les commentaires associés en une action. L’icône drapeau (<ion-icon name="flag-outline"></ion-icon>) ouvre un nouveau dialogue que  vous pouvez utiliser pour informer les administrateurs si vous considerez que l’inclusion d’une ressource particulière pose un problème.</p>
+       <p><img src="{{url_for('static', filename='assets/faq/search_result.png')}}" width=70% /></p>
+
+       <br><br>
+       <p id="mistakes"><b>À l’aide! J’ai fait une erreur en indexant!</b></p>
+       <p>Pas de soucis! Premièrement, quand vous indexez une nouvelle URL, l’indexeur affiche un résumé de votre contribution. Si vous identifiez l’erreur immédiatement, cliquer sur 'try again' et corriger l’information. Deuxièmement, vous pouvez, à n’importe quel moment, supprimer n’importe laquelle de vos contributions (URL indexée, ressource manuelle et/ou commentaire) en allant sur votre page de profil et en cliquant sur la corbeille à côté d’une entrée.</p>
+
+       <br><br>
+       <p id="contribute"><b>Comment puis-je contribuer au code de PeARS?</b></p>
+       <p>Nous adorerions vous voir sur nos dépots GitHub! Venez et rejoignez la discussion <a href="https://github.com/orgs/PeARSearch/discussions">ici</a>.</p>
+
+       <br><br>
+       <p id="indexurl"><b>What is your approach to crawling?</b></p>
+       <p>Crawling is a big topic at the moment, alors que les multinationales de la Tech sont souvent accusées de moissonner sans discernement le contenu du web pour entraîner des modèles d’IA, et par extension, la recherche basé sur l’IA.</p>
+       <p>PeARS respecte toujours les détenteurs de droits d’auteur. Il vérifie automatiquement les contraintes spécifiées par les fichiers robots.txt et il n’affiche que des snippets minimaux dans les résultats de recherche. Si vous souhaitez que votre site soit retiré de l’index, contactez simplement l’administrateur pour cette instance, et nous supprimerons votre contenu.</p>
+       
+       <br><br>
+       </div>
+  </div> <!-- /row -->
+</div> <!-- /container full -->
+{% endblock %}
