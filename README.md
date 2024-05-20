@@ -59,7 +59,7 @@ If you want to search and index in several languages at the same time, you can a
 
     python3 install_language.py lc
 
-where you should replace lc with a language code of your choice. For now, we are only supporting English (en) and German (de), but more languages are coming!
+where you should replace lc with a language code of your choice. For now, we are only supporting English (en), German (de) and French (fr) but more languages are coming!
 
 
 ##### 5. Set up your .env
