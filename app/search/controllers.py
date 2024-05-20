@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 import logging
+from os import getenv
 from os.path import dirname, join, realpath
 from glob import glob
 import numpy as np
@@ -21,7 +22,7 @@ search = Blueprint('search', __name__, url_prefix='')
 
 dir_path = dirname(dirname(dirname(realpath(__file__))))
 static_dir = join(dir_path,'app','static')
-pod_dir = os.getenv("PODS_DIR", join(dir_path, 'static','pods'))
+pod_dir = getenv("PODS_DIR", join(dir_path, 'static','pods'))
 
 
 @search.context_processor

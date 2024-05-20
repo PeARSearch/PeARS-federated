@@ -3,11 +3,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 from os.path import dirname, realpath, join
+from os import getenv
 from flask import request
 from app.api.models import Urls
 
 dir_path = dirname(dirname(realpath(__file__)))
-pod_dir = os.getenv("PODS_DIR", join(dir_path, 'static','pods'))
+pod_dir = getenv("PODS_DIR", join(dir_path, 'static','pods'))
 
 
 def get_url_list_for_users(theme):

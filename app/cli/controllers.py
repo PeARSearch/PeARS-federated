@@ -4,6 +4,7 @@
 
 from shutil import copy2, copytree
 from os.path import dirname, realpath, join
+from os import getenv
 from datetime import datetime
 from pathlib import Path
 import joblib
@@ -23,8 +24,8 @@ from app import db, User, Urls, Pods
 pears = Blueprint('pears', __name__)
 
 dir_path = dirname(dirname(dirname(realpath(__file__))))
-pod_dir = os.getenv("PODS_DIR", join(dir_path, 'app','static','pods'))
-user_dir = os.getenv("SUGGESTIONS_DIR", join(dir_path, 'app' 'static', 'userdata'))
+pod_dir = getenv("PODS_DIR", join(dir_path, 'app','static','pods'))
+user_dir = getenv("SUGGESTIONS_DIR", join(dir_path, 'app' 'static', 'userdata'))
 
 @pears.cli.command('setadmin')
 @click.argument('username')
