@@ -118,9 +118,10 @@ def extract_html(url):
                 error = "\t>> ERROR: extract_html: Couldn't detect page language."
                 return title, body_str, snippet, cc, error
             if language not in installed_languages:
-                error = "\t>> ERROR: extract_html: language is not supported."
-                title = ""
-                return title, body_str, language, snippet, cc, error
+                logging.error(f"\t>> ERROR: extract_html: language {language} is not supported. Moving to default language.")
+                language = LANGS[0]
+                #title = ""
+                #return title, body_str, language, snippet, cc, error
             # Process snippet
             if og_description:
                 snippet = og_description['content'][:1000]
