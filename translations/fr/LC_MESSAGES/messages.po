@@ -151,7 +151,7 @@ msgstr "Captcha : écrivez le dernier"
 
 #: app/auth/captcha.py:10
 msgid " characters of the following string: "
-msgstr "caractère de la phrase suivante :"
+msgstr "caractères de la phrase suivante :"
 
 #: app/auth/controllers.py:28
 msgid "You have successfully logged out."
@@ -575,7 +575,11 @@ msgid ""
 " owner disallows automatic access\n"
 "      to their content, or the server refused our request. Please also "
 "check that the URL still exists, and that you have not mistyped it."
-msgstr ""
+msgstr "Malheureusement, une erreur est survenue alors que nous tentions d’indexer "
+"l’URL suggérée. Cela peut être dû à diverses raisons. Par exemple, le propriétaire"
+"du site web interdit l’accès automatique\n"
+"      à son contenu, ou le serveur a refusé notre requête. Veuillez également "
+"vérifier que l’URL existe toujours, et que vous n’avez pas fait de faute de frappe."
 
 #: app/templates/indexer/fail.html:20
 #: app/templates/indexer/progress_file.html:17
@@ -714,7 +718,13 @@ msgid ""
 "database. Whatever your concern is, please give us as much detail as "
 "possible, so that we can resolve the problem quickly. We may contact you "
 "at your registered email address if we need further details from you."
-msgstr ""
+msgstr " Vous pourriez vouloir nous signaler une url pour diverses raisons. Par exemple, "
+"l’url renvoie vers un contenu préjudiciable dont vous pensez qu’il ne devrait pas être inclus "
+"dans notre index. Ou, vous êtes le propriétaire d’un site et vous préféreriez que celui-ci"
+"ne soit pas listé dans notre base de données. Quelle que soit votre préoccupation, veuillez"
+"nous donner autant de détails que possible, afin que nous puissions résoudre le problème rapidement. "
+"Il est possible que nous vous contactions sur votre adresse courriel enregistrée si nous avions
+"besoin de plus amples détails."
 
 #: app/templates/orchard/report.html:31
 msgid ""
@@ -731,6 +741,9 @@ msgid ""
 " if you contributed to the index by adding your favourite URLs\n"
 "\t  on your topic."
 msgstr ""
+"<b>Aucun résultat trouvé.</b><br> Il se peut que le sujet de cette instance PeARS ne soit pas aligné avec votre requête. Il se peut "
+"aussi que l’index ne contienne pas encore suffisamment d'informations. Pourquoi ne pas"
+"contribuer une URL sur votre sujet préféré?"
 
 #: app/templates/search/results.html:48
 msgid "Search results:"
