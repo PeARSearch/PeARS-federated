@@ -671,9 +671,7 @@ msgid ""
 "This instance is undergoing alpha testing. We expect that there are still"
 " many issues to fix here. You will help us greatly by telling us what "
 "worked or didn't work for you."
-msgstr "Cette instance est en phase de test alpha. Nous nous attendons à ce que"
-" de nombreux problèmes soient encore à résoudre. Vous nous aiderez beaucoup " 
-"en nous disant ce qui fonctionne et ce qui ne fonctionne pas pour vous."
+msgstr ""
 
 #: app/templates/orchard/feedback.html:40
 msgid ""
