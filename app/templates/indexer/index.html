@@ -36,7 +36,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 	<form method="POST" accept-charset="UTF-8" action="{{url_for('indexer.index_from_url')}}" enctype="multipart/form-data" autocomplete="off">
 	<datalist id="themes"></datalist>
         {{ form1.hidden_tag() }}
-        <p>{{ render_field(form1.url) }}</p>
+        <p>{{ render_field(form1.suggested_url) }}</p>
         <p>{{ render_autocomplete_field(form1.theme) }}</p>
         <p>{{ render_field(form1.note) }}</p>
         <div class="form-check">
