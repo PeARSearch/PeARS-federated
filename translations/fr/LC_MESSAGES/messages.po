@@ -68,7 +68,7 @@ msgstr "Nouveau Courriel"
 
 #: app/forms.py:30
 msgid "New Username"
-msgstr "Nouveau nom d'utilisateur"
+msgstr "Nouveau nom d’utilisateur"
 
 #: app/forms.py:33
 msgid "The url to index"
@@ -80,7 +80,7 @@ msgstr "L’url que vous voudriez indexer"
 
 #: app/forms.py:34 app/templates/orchard/get-a-pod.html:12
 msgid "Theme"
-msgstr "Thèmes"
+msgstr "Thème"
 
 #: app/forms.py:34
 msgid ""
@@ -99,7 +99,7 @@ msgstr "Informations additionelles sur cette ressource."
 
 #: app/forms.py:36
 msgid "I confirm that my suggestion does not contravene the Terms of Service"
-msgstr "Je confirme que ma suggestion n’enfreint pas les Conditions d'Utilisation"
+msgstr "Je confirme que ma suggestion n’enfreint pas les Conditions d’Utilisation"
 
 #: app/forms.py:39
 msgid "A title for your entry"
@@ -151,7 +151,7 @@ msgstr "Captcha : écrivez le dernier"
 
 #: app/auth/captcha.py:10
 msgid " characters of the following string: "
-msgstr "caractère de la phrase suivante :"
+msgstr "caractères de la phrase suivante :"
 
 #: app/auth/controllers.py:28
 msgid "You have successfully logged out."
@@ -392,7 +392,7 @@ msgstr "Bienvenue! Merci de votre inscription. Suivez ce lien pour activer votre
 
 #: app/templates/auth/confirm_email.html:6
 msgid "We are looking forward to seeing you on this PeARS instance!"
-msgstr ""
+msgstr "Nous nous réjouissons de vous voir sur cette instance PeARS!"
 
 #: app/templates/auth/email_change.html:1
 #: app/templates/auth/password_reset_email.html:1
@@ -488,7 +488,7 @@ msgid ""
 "password. If the request did not originate from you, please ignore this "
 "email. Otherwise, use the link below to choose a new password."
 msgstr "Nous vous avons envoyé ce courriel car vous avez demandé un "
-"nouveau mot de pass. Si vous nêtes pas à l’origine de cette requête, "
+"nouveau mot de passe. Si vous nêtes pas à l’origine de cette requête, "
 "veuillez ignorer ce courriel. Sinon, utilisez le lien suivant pour "
 "choisir un nouveau mot de passe"
 
@@ -554,7 +554,7 @@ msgstr "Déconnection"
 
 #: app/templates/base/base.html:113
 msgid "Privacy policy"
-msgstr ""
+msgstr "Politique de confidentialité"
 
 #: app/templates/base/base.html:113
 msgid "Terms of service"
@@ -562,7 +562,7 @@ msgstr "Conditions d’utilisation"
 
 #: app/templates/base/base.html:113
 msgid "Impressum"
-msgstr ""
+msgstr "Mentions légales"
 
 #: app/templates/base/base.html:113
 msgid "Acknowledgments"
@@ -575,7 +575,11 @@ msgid ""
 " owner disallows automatic access\n"
 "      to their content, or the server refused our request. Please also "
 "check that the URL still exists, and that you have not mistyped it."
-msgstr ""
+msgstr "Malheureusement, une erreur est survenue alors que nous tentions d’indexer "
+"l’URL suggérée. Cela peut être dû à diverses raisons. Par exemple, le propriétaire"
+"du site web interdit l’accès automatique\n"
+"      à son contenu, ou le serveur a refusé notre requête. Veuillez également "
+"vérifier que l’URL existe toujours, et que vous n’avez pas fait de faute de frappe."
 
 #: app/templates/indexer/fail.html:20
 #: app/templates/indexer/progress_file.html:17
@@ -647,13 +651,16 @@ msgid ""
 "You can add here a comment on this URL for the benefit of the community. "
 "Your comment will appear <i>with your username</i> under the URL in the "
 "search results."
-msgstr ""
+msgstr "Vous pouvez ajouter ici un commentaire sur cette URL au bénéfice de la communauté. "
+"Votre commentaire apparaîtra <i>avec votre nom d’utilisateur</i> sous l’URL "
+"dans les résultats."
 
 #: app/templates/orchard/annotate.html:31
 msgid ""
 "I agree for my comment to be included in the public notes for this url, "
 "together with my username."
-msgstr ""
+msgstr "J’accepte que mon commentaire soit inclus dans les notes publiques pour cette url,"
+"accompagné de mon nom d’utilisateur"
 
 #: app/templates/orchard/feedback.html:14
 msgid "Send us feedback"
@@ -664,13 +671,16 @@ msgid ""
 "This instance is undergoing alpha testing. We expect that there are still"
 " many issues to fix here. You will help us greatly by telling us what "
 "worked or didn't work for you."
-msgstr ""
+msgstr "Cette instance est en phase de test alpha. Nous nous attendons à ce que"
+" de nombreux problèmes soient encore à résoudre. Vous nous aiderez beaucoup " 
+"en nous disant ce qui fonctionne et ce qui ne fonctionne pas pour vous."
 
 #: app/templates/orchard/feedback.html:40
 msgid ""
 "I confirm that I may be contacted in relation to my feedback and that my "
 "email address is"
-msgstr ""
+msgstr "Je confirme que je peux être contacté en relation avec mon retour d’expérience "
+"et que mon adresse adresse courriel est"
 
 #: app/templates/orchard/get-a-pod.html:14
 msgid "Download"
@@ -708,13 +718,20 @@ msgid ""
 "database. Whatever your concern is, please give us as much detail as "
 "possible, so that we can resolve the problem quickly. We may contact you "
 "at your registered email address if we need further details from you."
-msgstr ""
+msgstr " Vous pourriez vouloir nous signaler une url pour diverses raisons. Par exemple, "
+"l’url renvoie vers un contenu préjudiciable dont vous pensez qu’il ne devrait pas être inclus "
+"dans notre index. Ou, vous êtes le propriétaire d’un site et vous préféreriez que celui-ci"
+"ne soit pas listé dans notre base de données. Quelle que soit votre préoccupation, veuillez"
+"nous donner autant de détails que possible, afin que nous puissions résoudre le problème rapidement. "
+"Il est possible que nous vous contactions sur votre adresse courriel enregistrée si nous avions
+"besoin de plus amples détails."
 
 #: app/templates/orchard/report.html:31
 msgid ""
 "I confirm that I may be contacted in relation to my report and that my "
 "email address is"
-msgstr ""
+msgstr "Je confirme que je peux être contacté en relation avec mon signalement "
+"et que mon adresse adresse courriel est"
 
 #: app/templates/search/results.html:43
 msgid ""
@@ -724,6 +741,9 @@ msgid ""
 " if you contributed to the index by adding your favourite URLs\n"
 "\t  on your topic."
 msgstr ""
+"<b>Aucun résultat trouvé.</b><br> Il se peut que le sujet de cette instance PeARS ne soit pas aligné avec votre requête. Il se peut "
+"aussi que l’index ne contienne pas encore suffisamment d'informations. Pourquoi ne pas"
+"contribuer une URL sur votre sujet préféré?"
 
 #: app/templates/search/results.html:48
 msgid "Search results:"
@@ -767,7 +787,7 @@ msgstr "Changer votre courriel"
 
 #: app/templates/settings/index.html:44
 msgid "Change username"
-msgstr "Changer votre nom d'utilisateur"
+msgstr "Changer votre nom d’utilisateur"
 
 #: app/templates/settings/index.html:55
 msgid "Your contributions"
@@ -796,4 +816,3 @@ msgstr "Commentaires"
 #: app/templates/settings/index.html:91
 msgid "Delete comments for this URL"
 msgstr "Supprimer les commentaires pour cette URL"
-
