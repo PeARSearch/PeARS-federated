@@ -22,9 +22,9 @@ from flask_login import LoginManager, current_user
 
 # Set up basic logging configuration for the root logger
 formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-logging.basicConfig(level=logging.ERROR, filename="errors.log", format='%(asctime)s | %(levelname)s : %(message)s')
+logging.basicConfig(level=logging.ERROR, filename="system.log", format='%(asctime)s | %(levelname)s : %(message)s')
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
-logging.error("Checking error logs on init.")
+logging.error("Checking system logs on init.")
 
 # Define a custom log level
 MAILING = 55

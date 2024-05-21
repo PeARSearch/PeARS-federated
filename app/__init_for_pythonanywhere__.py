@@ -17,6 +17,8 @@ from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user
 
+USERNAME = os.getenv('PA_USERNAME') #PythonAnywhere username
+DEFAULT_PATH = f'/home/{USERNAME}/PeARS-federated/app/'
 
 #########
 # Logging
@@ -24,8 +26,8 @@ from flask_login import LoginManager, current_user
 
 # Set up basic logging configuration for the root logger
 formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-logging.basicConfig(level=logging.ERROR, filename="errors.log")
-#logging.getLogger('werkzeug').setLevel(logging.INFO)
+logging.basicConfig(level=logging.ERROR, filename=join(DEFAULT_PATH,"system.log"))
+logging.getLogger('werkzeug').setLevel(logging.ERROR)
 logging.error("Checking error logs on init.")
 
 # Define a custom log level
@@ -54,7 +56,7 @@ def setup_logger(name, log_file, level=logging.INFO):
 
     return logger
 
-mail_logger = setup_logger('mailing_logger', 'mailing.log', level=logging.MAILING)
+mail_logger = setup_logger('mailing_logger', join(DEFAULT_PATH,"mailing.log"), level=logging.MAILING)
 mail_logger.mailing("Checking mailing logs on init.")
 
 ####################################
@@ -67,7 +69,6 @@ app = Flask(__name__, static_folder='static')
 # Configurations
 ################
 
-USERNAME = os.getenv('PA_USERNAME') #default language for the installation
 LANGS = os.getenv('PEARS_LANGS', "en").split(',')
 OWN_BRAND = True if os.getenv('OWN_BRAND') == 'true' else False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////home/'+USERNAME+'/PeARS-federated/app.db'
@@ -106,7 +107,6 @@ babel = Babel(app)
 mail = Mail(app)
 
 # Make sure user data directories exist
-DEFAULT_PATH = f'/home/{USERNAME}/PeARS-federated/app/'
 Path(os.path.join(DEFAULT_PATH,'static/userdata')).mkdir(parents=True, exist_ok=True)
 Path(os.path.join(DEFAULT_PATH,'static/userdata/csv')).mkdir(parents=True, exist_ok=True)
 Path(os.path.join(DEFAULT_PATH,'static/userdata/pdf')).mkdir(parents=True, exist_ok=True)
