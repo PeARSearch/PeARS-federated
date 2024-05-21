@@ -6,7 +6,7 @@
 # Import flask dependencies
 import logging
 from glob import glob
-from os import rename
+from os import rename, getenv
 from os.path import dirname, realpath, join, isdir, exists
 from flask import Blueprint, flash, request, render_template, redirect, url_for, session
 from flask_login import login_required, current_user, logout_user
@@ -24,7 +24,7 @@ from app.auth.token import send_email
 settings = Blueprint('settings', __name__, url_prefix='/settings')
 
 dir_path = dirname(dirname(realpath(__file__)))
-pod_dir = join(dir_path,'static','pods')
+pod_dir = getenv("PODS_DIR", join(dir_path, 'static','pods'))
 
 
 @settings.context_processor

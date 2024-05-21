@@ -4,10 +4,10 @@
 
 from shutil import copy2, copytree
 from os.path import dirname, realpath, join
+from os import getenv
 from datetime import datetime
 from pathlib import Path
 import joblib
-import os
 from urllib.parse import urlparse
 from random import shuffle
 from flask import Blueprint
@@ -24,7 +24,8 @@ from app import db, User, Urls, Pods
 pears = Blueprint('pears', __name__)
 
 dir_path = dirname(dirname(dirname(realpath(__file__))))
-pod_dir = os.getenv("PODS_DIR", os.path.join(dir_path, 'app','static','pods'))
+pod_dir = getenv("PODS_DIR", join(dir_path, 'app','static','pods'))
+user_dir = getenv("SUGGESTIONS_DIR", join(dir_path, 'app' 'static', 'userdata'))
 
 @pears.cli.command('setadmin')
 @click.argument('username')
@@ -71,8 +72,6 @@ def get_links(url):
 @pears.cli.command('exporturls')
 def export_urls():
     '''Get all URLs on this instance'''
-    dir_path = dirname(dirname(dirname(realpath(__file__))))
-    user_dir = join(dir_path,'app','static','userdata')
     date = datetime.now().strftime('%Y-%m-%d-%Hh%Mm')
     filepath = join(user_dir,"admin."+date+".pears.txt")
     urls = []

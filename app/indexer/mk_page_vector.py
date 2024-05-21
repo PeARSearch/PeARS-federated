@@ -4,6 +4,7 @@
 
 import logging
 from os.path import dirname, join, realpath
+from os import getenv
 import numpy as np
 from scipy.sparse import csr_matrix, vstack, save_npz, load_npz
 from app import models, VEC_SIZE, DEFAULT_PATH
@@ -15,7 +16,7 @@ from app.utils import timer
 from app.utils_db import create_pod_npz_pos
 
 dir_path = dirname(dirname(realpath(__file__)))
-pod_dir = join(dir_path,'static','pods')
+pod_dir = getenv("PODS_DIR", join(dir_path, 'static','pods'))
 
 def tokenize_text(text, lang, stringify = True):
     """ Load the SentencePiece model included in the install

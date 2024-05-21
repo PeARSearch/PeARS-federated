@@ -69,7 +69,7 @@ app.config.from_object('config')
 
 load_dotenv()
 LANGS = os.getenv('PEARS_LANGS', "en").split(',')
-OWN_BRAND = True if os.getenv('OWN_BRAND').lower() == 'true' else False
+OWN_BRAND = True if os.getenv('OWN_BRAND', "false").lower() == 'true' else False
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv("MAIL_DEFAULT_SENDER")
 app.config['MAIL_SERVER'] = os.getenv("MAIL_SERVER")
 app.config['MAIL_PORT'] = os.getenv("MAIL_PORT")
@@ -89,7 +89,7 @@ app.config['ORG_NAME'] = os.getenv("ORG_NAME")
 app.config['ORG_ADDRESS'] = os.getenv("ORG_ADDRESS")
 app.config['ORG_EMAIL'] = os.getenv("ORG_EMAIL")
 app.config['APPLICABLE_LAW'] = os.getenv("APPLICABLE_LAW")
-app.config['EU_SPECIFIC'] = True if os.getenv("EU_SPECIFIC").lower() == 'true' else False
+app.config['EU_SPECIFIC'] = True if os.getenv("EU_SPECIFIC", "false").lower() == 'true' else False
 
 # Localization
 from flask_babel import Babel, gettext
@@ -100,6 +100,8 @@ babel = Babel(app)
 # Make sure user data directories exist
 DEFAULT_PATH = f'app'
 Path(os.path.join(DEFAULT_PATH,'static/userdata')).mkdir(parents=True, exist_ok=True)
+if os.getenv("SUGGESTIONS_DIR", "") != "":
+    Path(os.getenv("SUGGESTIONS_DIR")).mkdir(parents=True, exist_ok=True)
 
 # Mail
 mail = Mail(app)
