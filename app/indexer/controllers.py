@@ -51,7 +51,7 @@ def index():
     form1 = IndexerForm(request.form)
     form2 = ManualEntryForm(request.form)
     pods = Pods.query.all()
-    themes = [p.name.split('.u.')[0] for p in pods]
+    themes = list(set([p.name.split('.u.')[0] for p in pods]))
     default_screen = 'url'
     return render_template("indexer/index.html", \
             num_entries=num_db_entries, form1=form1, form2=form2, themes=themes, default_screen=default_screen)
@@ -68,7 +68,7 @@ def correct_entry():
     form1 = IndexerForm(request.form)
     form2 = ManualEntryForm(request.form)
     pods = Pods.query.all()
-    themes = [p.name.split('.u.')[0] for p in pods]
+    themes = list(set([p.name.split('.u.')[0] for p in pods]))
     default_screen = "url"
     
     if not session['index_url']:
@@ -109,7 +109,7 @@ def index_from_url():
     form = IndexerForm(request.form)
     if form.validate_on_submit():
         user_url_file = join(suggestions_dir_path, contributor+".suggestions")
-        url = request.form.get('url').strip()
+        url = request.form.get('suggested_url').strip()
         theme = request.form.get('theme').strip()
         note = request.form.get('note').strip()
         session['index_url'] = url
