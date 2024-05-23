@@ -15,7 +15,7 @@ from app.api.models import installed_languages
 from app import LANGS
 
 dir_path = dirname(dirname(realpath(__file__)))
-toindex_dir = join(dir_path,'static','toindex')
+toindex_dir = join(dir_path,'toindex')
 
 
 def pdf_mine(pdf_path):

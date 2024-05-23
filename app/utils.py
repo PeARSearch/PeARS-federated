@@ -19,7 +19,7 @@ def read_language_codes():
     directory. This give mappings between actual language
     codes and the language names used in stopword lists.
     """
-    ling_dir = join(dir_path,'static','ling')
+    ling_dir = join(dir_path,'ling')
     language_codes = {}
     with open(join(ling_dir,'language_codes.txt'),'r', encoding="utf-8") as f:
         for l in f:
@@ -30,7 +30,7 @@ def read_language_codes():
 
 def read_stopwords(lang):
     """ Read stopword list for a given language."""
-    ling_dir = join(dir_path,'static','ling','stopwords')
+    ling_dir = join(dir_path,'ling','stopwords')
     stopwords = []
     with open(join(ling_dir,lang),'r', encoding="utf-8") as f:
         stopwords = f.read().splitlines()
@@ -57,7 +57,7 @@ def _extract_url_info(line):
 
 def read_urls(url_file):
     """Read .suggestions file from a particular user.
-    The file is located in static/userdata/ and contains
+    The file is located in app/userdata/ and contains
     one URL per line. This parses the line and returns 
     all relevant information for each URL.
     """

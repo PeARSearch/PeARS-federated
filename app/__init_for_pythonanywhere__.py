@@ -107,9 +107,7 @@ babel = Babel(app)
 mail = Mail(app)
 
 # Make sure user data directories exist
-Path(os.path.join(DEFAULT_PATH,'static/userdata')).mkdir(parents=True, exist_ok=True)
-Path(os.path.join(DEFAULT_PATH,'static/userdata/csv')).mkdir(parents=True, exist_ok=True)
-Path(os.path.join(DEFAULT_PATH,'static/userdata/pdf')).mkdir(parents=True, exist_ok=True)
+Path(os.path.join(DEFAULT_PATH,'userdata')).mkdir(parents=True, exist_ok=True)
 
 
 ########################

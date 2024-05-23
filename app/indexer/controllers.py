@@ -24,7 +24,7 @@ from app.indexer.posix import posix_doc
 from app.forms import IndexerForm, ManualEntryForm
 
 app_dir_path = dirname(dirname(realpath(__file__)))
-suggestions_dir_path = getenv("SUGGESTIONS_DIR", join(app_dir_path, 'static', 'userdata'))
+suggestions_dir_path = getenv("SUGGESTIONS_DIR", join(app_dir_path, 'userdata'))
 
 # Define the blueprint:
 indexer = Blueprint('indexer', __name__, url_prefix='/indexer')

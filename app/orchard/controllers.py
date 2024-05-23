@@ -67,7 +67,7 @@ def get_a_pod():
 def download_file():
     filename = request.args.get('filename')
     print('>> orchard: download_file:',filename)
-    return send_from_directory(join(dir_path,'static','pods'), filename, as_attachment=True)
+    return send_from_directory(join(dir_path,'pods'), filename, as_attachment=True)
 
 
 @orchard.route("/rename", methods=['GET'])

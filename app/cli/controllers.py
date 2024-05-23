@@ -24,8 +24,8 @@ from app import db, User, Urls, Pods
 pears = Blueprint('pears', __name__)
 
 dir_path = dirname(dirname(dirname(realpath(__file__))))
-pod_dir = getenv("PODS_DIR", join(dir_path, 'app','static','pods'))
-user_dir = getenv("SUGGESTIONS_DIR", join(dir_path, 'app' 'static', 'userdata'))
+pod_dir = getenv("PODS_DIR", join(dir_path, 'app','pods'))
+user_dir = getenv("SUGGESTIONS_DIR", join(dir_path, 'app','userdata'))
 
 @pears.cli.command('setadmin')
 @click.argument('username')
@@ -133,12 +133,14 @@ def random_crawl(n, username):
 
 @pears.cli.command('deletedbonly')
 def deletedbonly():
+    urls = Urls.query.all()
+    for u in urls:
+        db.session.delete(u)
+        db.session.commit()
     pods = Pods.query.all()
-    for pod in pods:
-        urls = Urls.query.filter_by(pod=pod.name).all()
-        for u in urls:
-            db.session.delete(u)
-            db.session.commit()
+    for p in pods:
+        db.session.delete(p)
+        db.session.commit()
 
 
 #####################

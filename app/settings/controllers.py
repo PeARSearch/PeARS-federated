@@ -24,7 +24,7 @@ from app.auth.token import send_email
 settings = Blueprint('settings', __name__, url_prefix='/settings')
 
 dir_path = dirname(dirname(realpath(__file__)))
-pod_dir = getenv("PODS_DIR", join(dir_path, 'static','pods'))
+pod_dir = getenv("PODS_DIR", join(dir_path,'pods'))
 
 
 @settings.context_processor

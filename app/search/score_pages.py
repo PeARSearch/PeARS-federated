@@ -26,7 +26,7 @@ from app.indexer.mk_page_vector import compute_query_vectors
 from app.indexer.posix import load_posix
 
 dir_path = dirname(dirname(realpath(__file__)))
-pod_dir = getenv("PODS_DIR", join(dir_path, 'static','pods'))
+pod_dir = getenv("PODS_DIR", join(dir_path, 'pods'))
 
 def intersect_best_pods_lists(query_vectors, podsum, podnames):
     """ Iterate through each word in the query (a vector of tokens)

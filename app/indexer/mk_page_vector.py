@@ -16,7 +16,7 @@ from app.utils import timer
 from app.utils_db import create_pod_npz_pos
 
 dir_path = dirname(dirname(realpath(__file__)))
-pod_dir = getenv("PODS_DIR", join(dir_path, 'static','pods'))
+pod_dir = getenv("PODS_DIR", join(dir_path, 'pods'))
 
 def tokenize_text(text, lang, stringify = True):
     """ Load the SentencePiece model included in the install

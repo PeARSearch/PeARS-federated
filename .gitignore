@@ -1,8 +1,10 @@
 env/
 app/*.txt
 app/static/*.txt
-app/static/pods
-app/static/toindex
+app/pods
+app/toindex
+app/userdata
+app/admindata
 __pycache__/
 app/__pycache__/
 app.db

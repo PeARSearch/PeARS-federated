@@ -23,11 +23,11 @@ def parse_line(fields):
 
 def convert_img_to_csv():
     image = Image.open(
-        join(dir_path, "app", "static", "pods", "urls_from_pod.png"))
+        join(dir_path, "app", "pods", "urls_from_pod.png"))
     pixels = list(image.getdata())
 
     f = open(
-        join(dir_path, "app", "static", "pods", "urls_from_pod.csv"),
+        join(dir_path, "app", "pods", "urls_from_pod.csv"),
         'w',
         encoding="utf-8")
     '''Discard the last pixel, which should be the transparency pixel.'''
