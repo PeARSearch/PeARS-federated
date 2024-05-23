@@ -22,7 +22,7 @@ search = Blueprint('search', __name__, url_prefix='')
 
 dir_path = dirname(dirname(dirname(realpath(__file__))))
 static_dir = join(dir_path,'app','static')
-pod_dir = getenv("PODS_DIR", join('app','pods'))
+pod_dir = getenv("PODS_DIR", join(dir_path, 'app','pods'))
 
 
 @search.context_processor
