@@ -13,7 +13,7 @@ import joblib
 
 app_dir_path = dirname(dirname(realpath(__file__)))
 pod_dir = join(app_dir_path, 'pods')
-analysis_dir = join(app_dir_path, 'analysis')
+analysis_dir = join(app_dir_path, 'dataanalysis')
 Path(analysis_dir).mkdir(exist_ok=True, parents=True)
 
 # Define the blueprint:
