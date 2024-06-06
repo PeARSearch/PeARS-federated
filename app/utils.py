@@ -10,6 +10,7 @@ from urllib.parse import urljoin
 import requests
 import numpy as np
 from scipy.spatial import distance
+from markupsafe import Markup, escape
 from app import LANGS
 
 dir_path = dirname(realpath(__file__))
@@ -219,7 +220,7 @@ def beautify_title(title, doctype):
         title = '📍 '+title
     return title
 
-def beautify_snippet(snippet, img, query):
+def beautify_snippet(snippet, query):
     snippet = snippet.replace('og desc:','')
     if snippet[-3:] != '...':
         snippet+='...'
@@ -227,9 +228,16 @@ def beautify_snippet(snippet, img, query):
     for w in query.split():
         tmp_snippet = tmp_snippet.replace(w,'<b>'+w+'</b>')
         tmp_snippet = tmp_snippet.replace(w.title(),'<b>'+w.title()+'</b>')
-    if img != 'None': #None is str in database
-        img = join('static','assets',img)
-        tmp_snippet = "<img src='"+img+"' style='float:left; width:150px; margin-right: 10px'/>"+tmp_snippet
+    #if img != 'None': #None is str in database
+    #    img = join('static','assets',img)
+    #    tmp_snippet = "<img src='"+img+"' style='float:left; width:150px; margin-right: 10px'/>"+tmp_snippet
+    els = re.split(r'<b>|</b>', tmp_snippet)
+    tmp_snippet = ""
+    tag = '<b>'
+    for e in els:
+        tmp_snippet+=escape(e)+Markup(tag)
+        tag = '</b>' if tag == '<b>' else '<b>'
+    print(tmp_snippet)
     return tmp_snippet
 
 def timer(func):

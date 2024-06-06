@@ -75,7 +75,7 @@ def prepare_gui_results(query, results):
     displayresults = []
     for url, r in results.items():
         r['title'] = r['title'][:70]
-        r['snippet'] = beautify_snippet(r['snippet'], r['img'], query)
+        r['snippet'] = beautify_snippet(r['snippet'], query)
         logging.debug(f"RESULT URL {url}")
         if 'url=pearslocal' not in url:
             r['snippet'] = ' '.join(r['snippet'].split()[:10]) #10 to conform with EU regulations
