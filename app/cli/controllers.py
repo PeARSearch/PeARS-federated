@@ -14,6 +14,7 @@ from urllib.parse import urlparse
 import joblib
 from flask import Blueprint
 import click
+from werkzeug.security import generate_password_hash
 from scipy.sparse import load_npz
 from app.indexer.controllers import run_indexer_url, index_doc_from_cli
 from app.indexer.access import request_url
@@ -43,6 +44,23 @@ def set_admin(username):
     db.session.commit()
     print(username,"is now admin.")
 
+@pears.cli.command('create-user')
+@click.argument('username')
+@click.argument('password')
+@click.argument('email')
+def create_user(username, password, email):
+    '''
+    Creates a user with provided username, password and email.
+    This user is not admin and their email address is automatically confirmed.
+    '''
+    user = User(username=username,
+                password=generate_password_hash(password, method='scrypt'),
+                email=email,
+                is_confirmed=True,
+                confirmed_on=datetime.now())
+    db.session.add(user)
+    db.session.commit()
+    print(username, "has been registered.")
 
 ###########################
 # BACKUP STUFF
