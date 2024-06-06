@@ -12,6 +12,7 @@ from markupsafe import Markup
 from flask import Blueprint, request, render_template, flash, url_for, redirect
 from flask_login import current_user
 from flask_babel import gettext
+from app.forms import SearchForm
 from app.search import score_pages
 from app.utils import parse_query, beautify_title, beautify_snippet
 from app import app, models, db
@@ -32,38 +33,40 @@ def inject_brand():
     """
     return dict(own_brand=OWN_BRAND)
 
-@search.route('/')
+@search.route('/', methods=["GET","POST"])
 def index():
     """ Route for the main search page.
     """
     results = []
     internal_message = ""
-    query = request.args.get('q')
-    if query:
-        query = query.strip()
+    searchform = SearchForm()
     
-    if not query:
-        placeholder = app.config['SEARCH_PLACEHOLDER']
-        if current_user.is_authenticated and not current_user.is_confirmed:
-            message = Markup(gettext("You have not confirmed your account.<br>\
-                    Please use the link in the email that was sent to you, \
-                    or request a new link by clicking <a href='../auth/resend'>here</a>."))
-            flash(message)
-        if OWN_BRAND:
-            with open(join(static_dir,'intro.txt'), 'r', encoding="utf-8") as f:
-                internal_message = f.read().replace('\n', '<br>')
-        return render_template("search/index.html", internal_message=internal_message, \
-                own_brand=OWN_BRAND, placeholder=placeholder)
+    if searchform.validate_on_submit():
+        query = request.form.get('query').strip()
+        with open(join(static_dir,'did_you_know.txt'), 'r', encoding="utf-8") as f:
+            messages = f.read().splitlines()
+            shuffle(messages)
+            internal_message = messages[0]
+       
+        results = get_search_results(query)
+        displayresults = prepare_gui_results(query, results)
+        return render_template('search/results.html', query=query, results=displayresults, \
+                internal_message=internal_message, own_brand=OWN_BRAND, searchform=searchform)
+
     
-    with open(join(static_dir,'did_you_know.txt'), 'r', encoding="utf-8") as f:
-        messages = f.read().splitlines()
-        shuffle(messages)
-        internal_message = messages[0]
-   
-    results = get_search_results(query)
-    displayresults = prepare_gui_results(query, results)
-    return render_template('search/results.html', query=query, results=displayresults, \
-            internal_message=internal_message, own_brand=OWN_BRAND)
+    placeholder = app.config['SEARCH_PLACEHOLDER']
+    searchform.query(render_kw={"placeholder": placeholder})
+    if current_user.is_authenticated and not current_user.is_confirmed:
+        message = Markup(gettext("You have not confirmed your account.<br>\
+                Please use the link in the email that was sent to you, \
+                or request a new link by clicking <a href='../auth/resend'>here</a>."))
+        flash(message)
+    if OWN_BRAND:
+        with open(join(static_dir,'intro.txt'), 'r', encoding="utf-8") as f:
+            internal_message = f.read().replace('\n', '<br>')
+    return render_template("search/index.html", internal_message=internal_message, \
+            own_brand=OWN_BRAND, placeholder=placeholder, searchform=searchform)
+    
 
 
 def prepare_gui_results(query, results):

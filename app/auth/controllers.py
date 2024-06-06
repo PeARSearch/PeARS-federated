@@ -26,8 +26,7 @@ auth = Blueprint('auth', __name__, url_prefix='/auth')
 def logout():
     logout_user()
     flash(gettext("You have successfully logged out."), "success")
-    placeholder = app.config['SEARCH_PLACEHOLDER']
-    return render_template('search/index.html', own_brand=OWN_BRAND, placeholder=placeholder)
+    return redirect(url_for("search.index"))
 
 
 ''' LOGGING IN '''
@@ -55,9 +54,6 @@ def login():
 
         # if the above check passes, then we know the user has the right credentials
         login_user(user)
-        placeholder = app.config['SEARCH_PLACEHOLDER']
-        print(current_user.is_confirmed)
-        welcome = None
         if current_user.is_authenticated and not current_user.is_confirmed:
             msg = Markup(gettext("You have not confirmed your account.<br>\
                     Please use the link in the email that was sent to you, \
@@ -65,10 +61,9 @@ def login():
             flash(msg)
         else:
             welcome = "<b>"+gettext('Welcome')+", "+current_user.username+"!</b>"
-        return render_template('search/index.html', internal_message=welcome, own_brand = OWN_BRAND, placeholder=placeholder)
-    else:
-        print(form.errors)
-        return render_template('auth/login.html', own_brand = OWN_BRAND, form=form)
+        return redirect(url_for("search.index"))
+    print(form.errors)
+    return render_template('auth/login.html', own_brand = OWN_BRAND, form=form)
 
 
 

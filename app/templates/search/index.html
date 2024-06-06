@@ -5,6 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 {% extends "base/base.html" %}
+{% from "base/_formhelpers.html" import render_search_field %}
 {% block body %}
   <div class="row">
     <div class="col-lg-2"></div>
@@ -22,9 +23,10 @@ SPDX-License-Identifier: AGPL-3.0-only
           <a href="{{ url_for('search.index')}}"><img width=350px; src="{{ url_for('static', filename='pears-logo.png')}}"></a>
 	{% endif %}
       {% endif %}
-      <form  action="{{url_for('search.index')}}" id='searchform'>
+      <form method="POST" action="{{url_for('search.index')}}" enctype="multipart/form-data" id='searchform'>
+        {{ searchform.hidden_tag() }}
         <div class="input-group group mt-4" >
-	  <input class="form-control" title="Enter your search query." placeholder="{{placeholder}}"  type="search" name='q' required>
+          {{ render_search_field(searchform.query, placeholder) }}
 	  <button class="btn btn-lg btn-success" type="submit" id='searchbutton'><ion-icon name="search-outline"></ion-icon></button>
           <button class="btn btn-lg btn-success" type="button" id='loadingbutton' style='display:none'>
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>

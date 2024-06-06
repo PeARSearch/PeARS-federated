@@ -81,7 +81,6 @@ SPDX-License-Identifier: AGPL-3.0-only
                 <li class="nav-item"><a class="nav-link" href="{{url_for('settings.index')}}">{{gettext('Profile')}}</a></li>
 		{% endif %}
                 <li class="nav-item"><a class="nav-link" href="{{url_for('pages.return_faq')}}">{{gettext('F.A.Q.')}}</a></li>
-                </li>
                 <li class="nav-item py-1 col-12 col-lg-auto">
                     <div class="vr d-none d-lg-flex h-100 mx-lg-2 text-white"></div>
                 <li class="nav-item"><a class="nav-link" href="{{url_for('settings.toggle_theme', current_page=request.path)}}">
@@ -90,9 +89,9 @@ SPDX-License-Identifier: AGPL-3.0-only
 				{% else %}
 				<ion-icon name="moon-outline"></ion-icon>
 				{% endif %}
-			</a></li>
-                    <hr class="d-lg-none text-white-50">
-                </li>
+			</a>
+		</li>
+                <hr class="d-lg-none text-white-50">
 		{% if not current_user.is_authenticated %}
                 <li class="nav-item"><a class="nav-link active" href="{{url_for('auth.login')}}">{{gettext('Login')}}</a></li>
 		{% endif %}

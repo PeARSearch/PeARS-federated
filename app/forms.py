@@ -3,6 +3,9 @@ from wtforms import BooleanField, StringField, TextAreaField, PasswordField, Hid
 from wtforms.validators import Length, DataRequired, InputRequired, EqualTo, Email, URL
 from flask_babel import lazy_gettext
 
+class SearchForm(FlaskForm):
+    query = StringField("", [DataRequired()])
+
 class RegistrationForm(FlaskForm):
     username = StringField(lazy_gettext('Username'), [Length(min=4, max=25, message=lazy_gettext("Your username should have between 4 and 25 characters."))])
     email = StringField(lazy_gettext('Email Address'), [DataRequired(), Email()])
