@@ -2,18 +2,20 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
+import re
 from shutil import copy2, copytree
 from os.path import dirname, realpath, join
 from os import getenv
+from glob import glob
 from datetime import datetime
 from pathlib import Path
-import joblib
-from urllib.parse import urlparse
 from random import shuffle
+from urllib.parse import urlparse
+import joblib
 from flask import Blueprint
 import click
 from scipy.sparse import load_npz
-from app.indexer.controllers import run_indexer_url
+from app.indexer.controllers import run_indexer_url, index_doc_from_cli
 from app.indexer.access import request_url
 from app.indexer.posix import load_posix
 from app.indexer.htmlparser import extract_links
@@ -27,6 +29,11 @@ dir_path = dirname(dirname(dirname(realpath(__file__))))
 pod_dir = getenv("PODS_DIR", join(dir_path, 'app','pods'))
 user_dir = getenv("SUGGESTIONS_DIR", join(dir_path, 'app','userdata'))
 
+
+###########################
+# ADMIN USER MANAGEMENT
+###########################
+
 @pears.cli.command('setadmin')
 @click.argument('username')
 def set_admin(username):
@@ -37,37 +44,9 @@ def set_admin(username):
     print(username,"is now admin.")
 
 
-@pears.cli.command('index')
-@click.argument('host_url')
-@click.argument('filepath')
-def index(host_url, filepath):
-    '''
-    Index from a manual created URL file.
-    The file should have the following information,
-    separated by semi-colons:
-    url; theme; lang; note; contributor
-    with one url per line.
-    Use from CLI with flask pears index <contributor> <path>
-    '''
-    users = User.query.all()
-    for user in users:
-        Path(join(pod_dir,user.username)).mkdir(parents=True, exist_ok=True)
-        create_idx_to_url(user.username)
-    run_indexer_url(filepath, host_url)
-
-
-@pears.cli.command('getlinks')
-@click.argument('url')
-def get_links(url):
-    '''Get links from a particular URL'''
-    access, req, request_errors = request_url(url)
-    if access:
-        links = extract_links(url)
-        for link in links:
-            print(link)
-    else:
-        print("Access denied.")
-
+###########################
+# BACKUP STUFF
+###########################
 
 @pears.cli.command('exporturls')
 def export_urls():
@@ -83,6 +62,7 @@ def export_urls():
         for url in urls:
             f.write(url+'\n')
 
+
 @pears.cli.command('legacyexporturls')
 @click.argument('user')
 def legacy_export_urls(user):
@@ -90,6 +70,7 @@ def legacy_export_urls(user):
     urls = Urls.query.all()
     for u in urls:
         print(u.url+';'+u.pod+';;'+user)
+
 
 @pears.cli.command('backup')
 @click.argument('backupdir')
@@ -105,6 +86,30 @@ def backup(backupdir):
     copy2('app.db',dirpath)
     #Copy pods folder
     copytree(pod_dir, join(dirpath,'pods'))
+
+
+#########################
+# ADMIN INDEXING TOOLS
+#########################
+
+@pears.cli.command('index')
+@click.argument('host_url')
+@click.argument('filepath')
+def index(host_url, filepath):
+    '''
+    Index from a manual created URL file.
+    The file should have the following information,
+    separated by semi-colons:
+    url; theme; lang; note; contributor
+    with one url per line.
+    Use from CLI with flask pears index <your site's domain> <path>
+    '''
+    users = User.query.all()
+    for user in users:
+        Path(join(pod_dir,user.username)).mkdir(parents=True, exist_ok=True)
+        create_idx_to_url(user.username)
+    run_indexer_url(filepath, host_url)
+
 
 @pears.cli.command('randomcrawl')
 @click.argument('n')
@@ -130,6 +135,57 @@ def random_crawl(n, username):
         for link in links:
             if domain in link:
                 print(link+';'+pod+';;'+username)
+
+
+@pears.cli.command('getlinks')
+@click.argument('url')
+def get_links(url):
+    '''Get links from a particular URL'''
+    access, req, request_errors = request_url(url)
+    if access:
+        links = extract_links(url)
+        for link in links:
+            print(link)
+    else:
+        print("Access denied.")
+
+
+@pears.cli.command('indexwiki')
+@click.argument('folder')
+@click.argument('lang')
+@click.argument('contributor')
+@click.argument('host_url')
+def index_wiki(folder, lang, contributor, host_url):
+    '''Index Wikipedia corpus in <doc> format,
+    as obtained from the Wikiloader scripts'''
+    corpus_files = glob(join(folder,'Novels_about*','*.doc.txt'))
+    for filepath in corpus_files:
+        print(f">>Processing {filepath}...")
+        with open(filepath, encoding='utf-8') as fin:
+            url = ""
+            title = ""
+            doc = ""
+            theme = filepath.split('/')[-2]
+            for l in fin:
+                l=l.rstrip('\n')
+                if l[:4] == "<doc":
+                    m = re.search('url=\"([^\"]*)\"',l)
+                    url = m.group(1)
+                    m = re.search('title=\"([^\"]*)\"',l)
+                    title = m.group(1)
+                elif "</doc" in l:
+                    print(url,theme,title,doc[:30])
+                    note = ""
+                    index_doc_from_cli(title, doc, theme, lang, contributor, url, note, host_url)
+                    doc = ""
+                else:
+                    doc+=l+' '
+
+
+
+######################
+# CLEAN UP CODE
+######################
 
 @pears.cli.command('deletedbonly')
 def deletedbonly():

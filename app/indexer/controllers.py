@@ -242,3 +242,24 @@ def run_indexer_manual(url, title, doc, theme, lang, note, contributor, host_url
         messages.append(gettext("Your entry:"), doc)
         indexed = False
     return indexed, messages, share_url
+
+
+def index_doc_from_cli(title, doc, theme, lang, contributor, url, note, host_url):
+    """ Index a single doc, to be called by a CLI function."""
+    create_idx_to_url(contributor)
+    create_pod_npz_pos(contributor, theme, lang)
+    create_pod_in_db(contributor, theme, lang)
+    idx = add_to_idx_to_url(contributor, url)
+    success, text, snippet, vid = \
+            mk_page_vector.compute_vector_local_docs(title, doc, theme, lang, contributor)
+    if success:
+        create_pod_in_db(contributor, theme, lang)
+        posix_doc(text, idx, contributor, lang, theme)
+        add_to_npz_to_idx(theme+'.u.'+contributor, lang, vid, idx)
+        share_url = host_url+"api/get?url="+url
+        create_or_replace_url_in_db(\
+                url, title, snippet, theme, lang, note, share_url, contributor, 'url')
+        return True
+    else:
+        return False
+
