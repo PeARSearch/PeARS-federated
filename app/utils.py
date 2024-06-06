@@ -237,7 +237,6 @@ def beautify_snippet(snippet, query):
     for e in els:
         tmp_snippet+=escape(e)+Markup(tag)
         tag = '</b>' if tag == '<b>' else '<b>'
-    print(tmp_snippet)
     return tmp_snippet
 
 def timer(func):

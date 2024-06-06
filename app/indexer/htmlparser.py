@@ -87,6 +87,8 @@ def extract_html(url):
     cc = False
     language = LANGS[0]
     error = None
+    snippet_length = app.config['SNIPPET_LENGTH']
+    
     bs_obj, req = BS_parse(url)
     if not bs_obj:
         error = "\t>> ERROR: extract_html: Failed to get BeautifulSoup object."
@@ -105,7 +107,7 @@ def extract_html(url):
                     title = ""
             else:
                 title = og_title['content']
-            title = ' '.join(title.split()[:10]) #10 to conform with EU regulations
+            title = ' '.join(title.split()[:snippet_length])
             
             # Get body string
             body_str = remove_boilerplates(req, LANGS[0]) #Problematic...
@@ -126,5 +128,5 @@ def extract_html(url):
             if og_description:
                 snippet = og_description['content'][:1000]
             else:
-                snippet = ' '.join(body_str.split()[:10]) #10 to conform with EU regulations
+                snippet = ' '.join(body_str.split()[:snippet_length])
     return title, body_str, language, snippet, cc, error

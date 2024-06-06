@@ -96,6 +96,7 @@ app.config['ORG_ADDRESS'] = os.getenv("ORG_ADDRESS")
 app.config['ORG_EMAIL'] = os.getenv("ORG_EMAIL")
 app.config['APPLICABLE_LAW'] = os.getenv("APPLICABLE_LAW")
 app.config['EU_SPECIFIC'] = True if os.getenv("EU_SPECIFIC").lower() == 'true' else False
+app.config['SNIPPET_LENGTH'] = int(os.getenv("SNIPPET_LENGTH"))
 
 # Localization
 from flask_babel import Babel, gettext
