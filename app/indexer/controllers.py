@@ -12,7 +12,7 @@ from flask_login import login_required, current_user
 from flask_babel import gettext
 from langdetect import detect
 from app.auth.decorators import check_is_confirmed
-from app import LANGS, OWN_BRAND
+from app import db, LANGS, OWN_BRAND
 from app.api.models import Urls, Pods
 from app.indexer import mk_page_vector
 from app.utils import read_urls, parse_query
@@ -202,7 +202,7 @@ def run_indexer_url(user_url_file, host_url):
                 create_pod_in_db(contributor, theme, lang)
                 posix_doc(text, idx, contributor, lang, theme)
                 add_to_npz_to_idx(theme+'.u.'+contributor, lang, vid, idx)
-                share_url = host_url+"api/get?url="+url
+                share_url = join(host_url,'api', 'get?url='+url)
                 create_or_replace_url_in_db(\
                         url, title, snippet, theme, lang, note, share_url, contributor, 'url')
                 indexed = True
@@ -246,6 +246,9 @@ def run_indexer_manual(url, title, doc, theme, lang, note, contributor, host_url
 
 def index_doc_from_cli(title, doc, theme, lang, contributor, url, note, host_url):
     """ Index a single doc, to be called by a CLI function."""
+    u = db.session.query(Urls).filter_by(url=url).first()
+    if u:
+        return False #URL exists already
     create_idx_to_url(contributor)
     create_pod_npz_pos(contributor, theme, lang)
     create_pod_in_db(contributor, theme, lang)
@@ -256,7 +259,7 @@ def index_doc_from_cli(title, doc, theme, lang, contributor, url, note, host_url
         create_pod_in_db(contributor, theme, lang)
         posix_doc(text, idx, contributor, lang, theme)
         add_to_npz_to_idx(theme+'.u.'+contributor, lang, vid, idx)
-        share_url = host_url+"api/get?url="+url
+        share_url = join(host_url,'api', 'get?url='+url)
         create_or_replace_url_in_db(\
                 url, title, snippet, theme, lang, note, share_url, contributor, 'url')
         return True
