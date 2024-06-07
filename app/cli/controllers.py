@@ -170,13 +170,14 @@ def get_links(url):
 
 @pears.cli.command('indexwiki')
 @click.argument('folder')
+@click.argument('regex')
 @click.argument('lang')
 @click.argument('contributor')
 @click.argument('host_url')
-def index_wiki(folder, lang, contributor, host_url):
+def index_wiki(folder, regex, lang, contributor, host_url):
     '''Index Wikipedia corpus in <doc> format,
     as obtained from the Wikiloader scripts'''
-    corpus_files = glob(join(folder,'Novels_about*','*.doc.txt'))
+    corpus_files = glob(join(folder, regex ,'*.doc.txt'))
     for filepath in corpus_files:
         print(f">>Processing {filepath}...")
         with open(filepath, encoding='utf-8') as fin:
@@ -184,6 +185,7 @@ def index_wiki(folder, lang, contributor, host_url):
             title = ""
             doc = ""
             theme = filepath.split('/')[-2]
+            theme = theme.replace('_',' ')
             for l in fin:
                 l=l.rstrip('\n')
                 if l[:4] == "<doc":
