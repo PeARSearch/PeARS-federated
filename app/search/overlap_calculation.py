@@ -4,6 +4,7 @@
 
 import re
 import string
+import logging
 from app import models, VEC_SIZE
 from app.indexer.posix import load_posix
 import numpy as np
@@ -143,20 +144,21 @@ def posix(q, posindex, lang):
 
     idx = []
     for w in query_vocab_ids:                      # for each token in query
+        #print(inverted_vocab[w])
         idx.append(set(posindex[w].keys()))        # get docs containing token, resulting in list of sets (one set per token)
         #if len(set(posindex[w].keys())) > 0:
         #    print("FOUND",inverted_vocab[w], set(posindex[w].keys()))
 
     matching_docs = list(set.intersection(*idx))   # intersect doc lists to only retain the docs that contain *all* tokens
     #if len(matching_docs) > 0:
-        #print("MATCHING DOCS",matching_docs)
+    logging.debug(f"MATCHING DOCS: {matching_docs}")
     doc_scores = {}
     for doc in matching_docs:
         positions = []
         for w in query_vocab_ids:
             token_str = inverted_vocab[w]
             token_positions = posindex[w][doc]
-            #print("DOC",doc,"TOKEN STR",token_str)
+            logging.debug(f"DOC {doc} TOKEN STR {token_str}")
             if token_str.startswith("▁") or len(positions) == 0:
                 positions.append((token_positions,))
             else:
@@ -165,7 +167,7 @@ def posix(q, posindex, lang):
 
         final_score = posix_score_seq(positions)
         doc_scores[doc] = final_score
-        #print("\tFINAL SCORE FOR DOC", doc, final_score,"\n")
+        logging.debug(f"\tFINAL SCORE FOR DOC {doc}: {final_score}\n")
     return doc_scores
 
 
