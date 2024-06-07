@@ -49,7 +49,7 @@ def intersect_best_pods_lists(query_words, query_vectors, podsum, podnames, max_
             continue
         podname = podnames[p]
         podscore = 1 - distance.cdist([maximums],[m_cosines.T[p]], 'euclidean')[0][0]
-        logging.debug("POD", podnames[p], m_cosines.T[p], podscore)
+        logging.debug(f"POD {podnames[p]} {m_cosines.T[p]} {podscore}")
         best_pods[podname] = podscore
     best_pods = dict(sorted(best_pods.items(), key=lambda item: item[1], reverse=True))
     best_pods = dict(islice(best_pods.items(), max_pods))
@@ -353,7 +353,11 @@ def run_search(query:str, lang:str):
     for pod in best_pods:
         theme = pod.split('.u.')[0]
         contributor = pod.split('.u.')[1]
-        posindices.append(load_posix(contributor, lang, theme))
+        if theme in models[lang]['posix']:
+            print("Using posix in RAM")
+            posindices.append(models[lang]['posix'][theme])
+        else:
+            posindices.append(load_posix(contributor, lang, theme))
 
     # Compute results for original query
     logging.info(f"BEST PODS: {best_pods}")

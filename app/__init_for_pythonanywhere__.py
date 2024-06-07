@@ -111,6 +111,7 @@ babel = Babel(app)
 # Optimization
 app.config['MAX_PODS'] = int(os.getenv("MAX_PODS"))
 app.config['LIVE_PODSUM'] = True if os.getenv("LIVE_PODSUM", "false").lower() == 'true' else False
+app.config['LOADED_POS_INDEX'] = int(os.getenv("LOADED_POS_INDEX"))
 
 # Mail
 mail = Mail(app)
@@ -195,6 +196,11 @@ if not app.config['LIVE_PODSUM']:
         podnames, podsum = mk_podsum_matrix(LANG)
         models[LANG]['podnames'] = podnames
         models[LANG]['podsum'] = podsum
+
+if app.config['LOADED_POS_INDEX'] > 0:
+    from app.indexer.posix import load_posindices
+    for LANG in LANGS:
+        models[LANG]['posix'] = load_posindices(LANG, n=app.config['LOADED_POS_INDEX'])
 
 
 #######
