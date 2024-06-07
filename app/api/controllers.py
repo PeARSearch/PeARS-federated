@@ -10,6 +10,7 @@ from os.path import dirname, join, realpath, isfile
 from flask import Blueprint, jsonify, request, render_template, url_for
 from flask_login import login_required
 from scipy.sparse import vstack, save_npz, load_npz
+from app.forms import SearchForm
 from app.api.models import Urls, Pods
 from app.auth.decorators import check_is_confirmed
 from app import db, models, LANGS, OWN_BRAND
@@ -79,6 +80,7 @@ def return_urls():
 
 @api.route('/get', methods=["GET"])
 def return_specific_url():
+    searchform = SearchForm()
     internal_message = ""
     u = request.args.get('url')
     url = db.session.query(Urls).filter_by(url=u).first().as_dict()
@@ -87,7 +89,7 @@ def return_specific_url():
         url['url'] = u
     displayresults = prepare_gui_results("",{u:url})
     return render_template('search/results.html', query="", results=displayresults, \
-            internal_message=internal_message, own_brand=OWN_BRAND)
+            internal_message=internal_message, own_brand=OWN_BRAND, searchform=searchform)
 
 
 @api.route('/urls/delete', methods=["GET","POST"])
