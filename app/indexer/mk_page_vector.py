@@ -85,7 +85,7 @@ def compute_vector_local_docs(title, doc, theme, lang, contributor):
     npz_path = join(pod_dir,contributor, lang, theme+'.u.'+contributor+'.npz')
     pod_m = load_npz(npz_path)
     #print("Computing vectors for", target_url, "(",theme,")",lang)
-    text = title + " " + doc
+    text = title + ". " + theme + ". " + doc
     text = tokenize_text(text, lang)
     pod_m, success = compute_and_stack_new_vec(lang, text, pod_m)
     if doc != "":
