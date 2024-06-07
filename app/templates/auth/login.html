@@ -29,7 +29,9 @@
       </div><!-- card footer -->
     </form>
     </div>
+    {% if new_users_allowed %}
     <br><p>{{gettext('No account yet?')}} <a href={{url_for('auth.signup')}}>{{gettext('Sign up')}}</a></p>
+    {% endif %}
  </div>
  </div>
  </div>

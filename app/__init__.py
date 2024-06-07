@@ -22,7 +22,7 @@ from flask_login import LoginManager, current_user
 
 # Set up basic logging configuration for the root logger
 formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-logging.basicConfig(level=logging.ERROR, filename="system.log", format='%(asctime)s | %(levelname)s : %(message)s')
+logging.basicConfig(level=logging.DEBUG, filename="system.log", format='%(asctime)s | %(levelname)s : %(message)s')
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 logging.error("Checking system logs on init.")
 
@@ -92,11 +92,17 @@ app.config['APPLICABLE_LAW'] = os.getenv("APPLICABLE_LAW")
 app.config['EU_SPECIFIC'] = True if os.getenv("EU_SPECIFIC", "false").lower() == 'true' else False
 app.config['SNIPPET_LENGTH'] = int(os.getenv("SNIPPET_LENGTH"))
 
+# User-related settings
+app.config['NEW_USERS'] = True if os.getenv("NEW_USERS_ALLOWED", "false").lower() == 'true' else False
+
 # Localization
 from flask_babel import Babel, gettext
 app.config['BABEL_DEFAULT_LOCALE'] = LANGS[0]
 app.config['BABEL_TRANSLATION_DIRECTORIES'] = os.getenv("TRANSLATION_DIR")
 babel = Babel(app)
+
+# Optimization
+app.config['MAX_PODS'] = int(os.getenv("MAX_PODS"))
 
 # Make sure user data directories exist
 DEFAULT_PATH = f'app'

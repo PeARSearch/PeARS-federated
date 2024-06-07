@@ -33,6 +33,7 @@ def logout():
 
 @auth.route('/login', methods=['GET','POST'])
 def login():
+    new_users_allowed = app.config['NEW_USERS']
     form = LoginForm(request.form)
     
     if form.validate_on_submit():
@@ -63,7 +64,7 @@ def login():
             welcome = "<b>"+gettext('Welcome')+", "+current_user.username+"!</b>"
         return redirect(url_for("search.index"))
     print(form.errors)
-    return render_template('auth/login.html', own_brand = OWN_BRAND, form=form)
+    return render_template('auth/login.html', own_brand = OWN_BRAND, form=form, new_users_allowed=new_users_allowed)
 
 
 
@@ -72,6 +73,7 @@ def login():
 
 @auth.route('/signup', methods=['GET','POST'])
 def signup():
+    new_users_allowed = app.config['NEW_USERS']
     form = RegistrationForm(request.form)
     if form.validate_on_submit():
 
@@ -129,7 +131,7 @@ def signup():
         form = RegistrationForm(request.form)
         form.captcha.data = captcha
         form.captcha_answer.label = captcha
-        return render_template('auth/signup.html', own_brand = OWN_BRAND, form=form)
+        return render_template('auth/signup.html', own_brand = OWN_BRAND, form=form, new_users_allowed=new_users_allowed)
 
 @auth.route("/registration-confirm/<token>")
 @login_required

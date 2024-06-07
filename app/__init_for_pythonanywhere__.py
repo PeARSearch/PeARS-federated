@@ -98,11 +98,17 @@ app.config['APPLICABLE_LAW'] = os.getenv("APPLICABLE_LAW")
 app.config['EU_SPECIFIC'] = True if os.getenv("EU_SPECIFIC").lower() == 'true' else False
 app.config['SNIPPET_LENGTH'] = int(os.getenv("SNIPPET_LENGTH"))
 
+# User-related settings
+app.config['NEW_USERS'] = True if os.getenv("NEW_USERS_ALLOWED", "false").lower() == 'true' else False
+
 # Localization
 from flask_babel import Babel, gettext
 app.config['BABEL_DEFAULT_LOCALE'] = LANGS[0]
 app.config['BABEL_TRANSLATION_DIRECTORIES'] = os.getenv("TRANSLATION_DIR")
 babel = Babel(app)
+
+# Optimization
+app.config['MAX_PODS'] = int(os.getenv("MAX_PODS"))
 
 # Mail
 mail = Mail(app)
