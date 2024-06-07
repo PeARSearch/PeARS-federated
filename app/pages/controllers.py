@@ -34,7 +34,8 @@ def return_privacy():
     orgname = app.config["ORG_NAME"]
     address = app.config["ORG_ADDRESS"]
     email = app.config["ORG_EMAIL"]
-    return render_template("pages/privacy.html", sitename=sitename, orgname=orgname, address=address, email=email)
+    servers = app.config["SERVERS"]
+    return render_template("pages/privacy.html", sitename=sitename, orgname=orgname, address=address, email=email, servers=servers)
 
 @pages.route('/terms-of-service/')
 def return_tos():
