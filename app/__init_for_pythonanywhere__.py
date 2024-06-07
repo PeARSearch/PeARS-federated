@@ -95,6 +95,7 @@ app.config['ORG_NAME'] = os.getenv("ORG_NAME")
 app.config['ORG_ADDRESS'] = os.getenv("ORG_ADDRESS")
 app.config['ORG_EMAIL'] = os.getenv("ORG_EMAIL")
 app.config['APPLICABLE_LAW'] = os.getenv("APPLICABLE_LAW")
+app.config['SERVERS'] = os.getenv("SERVERS")
 app.config['EU_SPECIFIC'] = True if os.getenv("EU_SPECIFIC").lower() == 'true' else False
 app.config['SNIPPET_LENGTH'] = int(os.getenv("SNIPPET_LENGTH"))
 
