@@ -2,21 +2,21 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
+import math
+import logging
+from time import time
 from os import getenv
 from os.path import dirname, join, realpath
-import logging
-import math
-from time import time
 from itertools import islice
 from urllib.parse import urlparse
-from flask import url_for
 from glob import glob
 import joblib
 from joblib import Parallel, delayed
 from scipy.sparse import load_npz
 from scipy.spatial import distance
 import numpy as np
-from app import app, db
+from flask import url_for
+from app import app, db, models
 from app.api.models import Urls
 from app.search.overlap_calculation import (snippet_overlap,
         score_url_overlap, posix, posix_no_seq)
@@ -49,11 +49,10 @@ def intersect_best_pods_lists(query_words, query_vectors, podsum, podnames, max_
             continue
         podname = podnames[p]
         podscore = 1 - distance.cdist([maximums],[m_cosines.T[p]], 'euclidean')[0][0]
-        print("BEST POD", podnames[p], m_cosines.T[p], podscore)
+        logging.debug("POD", podnames[p], m_cosines.T[p], podscore)
         best_pods[podname] = podscore
     best_pods = dict(sorted(best_pods.items(), key=lambda item: item[1], reverse=True))
     best_pods = dict(islice(best_pods.items(), max_pods))
-    print("Best pods",best_pods)
     return best_pods
 
 
@@ -194,7 +193,12 @@ def score_pods(query_words, query_vectors, extended_q_vectors, lang):
     max_pods = app.config["MAX_PODS"] # How many pods to return
     quality_threshold = 0.05 # Minimum score for a pod to be considered okay
     pod_scores = {}
-    podnames, podsum = mk_podsum_matrix(lang)
+
+    if 'podsum' in models[lang]:
+        podnames = models[lang]['podnames']
+        podsum = models[lang]['podsum']
+    else:
+        podnames, podsum = mk_podsum_matrix(lang)
 
     # For each word in the query, compute best pods
     pod_scores = intersect_best_pods_lists(query_words, query_vectors, podsum, podnames, max_pods)

@@ -109,6 +109,7 @@ babel = Babel(app)
 
 # Optimization
 app.config['MAX_PODS'] = int(os.getenv("MAX_PODS"))
+app.config['LIVE_PODSUM'] = True if os.getenv("LIVE_PODSUM", "false").lower() == 'true' else False
 
 # Mail
 mail = Mail(app)
@@ -181,6 +182,18 @@ app.register_blueprint(auth_module)
 # db.drop_all()
 with app.app_context():
     db.create_all()
+
+
+##############
+# Optimization
+##############
+
+if not app.config['LIVE_PODSUM']:
+    from app.search.score_pages import mk_podsum_matrix
+    for LANG in LANGS:
+        podnames, podsum = mk_podsum_matrix(LANG)
+        models[LANG]['podnames'] = podnames
+        models[LANG]['podsum'] = podsum
 
 
 #######

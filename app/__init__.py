@@ -89,6 +89,7 @@ app.config['ORG_NAME'] = os.getenv("ORG_NAME")
 app.config['ORG_ADDRESS'] = os.getenv("ORG_ADDRESS")
 app.config['ORG_EMAIL'] = os.getenv("ORG_EMAIL")
 app.config['APPLICABLE_LAW'] = os.getenv("APPLICABLE_LAW")
+app.config['SERVERS'] = os.getenv("SERVERS")
 app.config['EU_SPECIFIC'] = True if os.getenv("EU_SPECIFIC", "false").lower() == 'true' else False
 app.config['SNIPPET_LENGTH'] = int(os.getenv("SNIPPET_LENGTH"))
 
@@ -103,6 +104,7 @@ babel = Babel(app)
 
 # Optimization
 app.config['MAX_PODS'] = int(os.getenv("MAX_PODS"))
+app.config['LIVE_PODSUM'] = True if os.getenv("LIVE_PODSUM", "false").lower() == 'true' else False
 
 # Make sure user data directories exist
 DEFAULT_PATH = f'app'
@@ -179,6 +181,19 @@ app.register_blueprint(auth_module)
 # db.drop_all()
 with app.app_context():
     db.create_all()
+
+
+##############
+# Optimization
+##############
+
+
+if not app.config['LIVE_PODSUM']:
+    from app.search.score_pages import mk_podsum_matrix
+    for LANG in LANGS:
+        podnames, podsum = mk_podsum_matrix(LANG)
+        models[LANG]['podnames'] = podnames
+        models[LANG]['podsum'] = podsum
 
 
 #######
