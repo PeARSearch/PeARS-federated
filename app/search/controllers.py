@@ -48,8 +48,8 @@ def index():
             shuffle(messages)
             internal_message = messages[0]
        
-        results = get_search_results(query)
-        displayresults = prepare_gui_results(query, results)
+        clean_query, results = get_search_results(query)
+        displayresults = prepare_gui_results(clean_query, results)
         return render_template('search/results.html', query=query, results=displayresults, \
                 internal_message=internal_message, own_brand=OWN_BRAND, searchform=searchform)
 
@@ -117,5 +117,5 @@ def get_search_results(query):
         url = list(results.keys())[i]
         sorted_results[url] = results[url]
     logging.debug(f"SORTED RESULTS: {sorted_results}")
-    return sorted_results
+    return clean_query, sorted_results
 
