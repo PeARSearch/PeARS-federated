@@ -22,7 +22,7 @@ from flask_login import LoginManager, current_user
 
 # Set up basic logging configuration for the root logger
 formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-logging.basicConfig(level=logging.DEBUG, filename="system.log", format='%(asctime)s | %(levelname)s : %(message)s')
+logging.basicConfig(level=logging.ERROR, filename="system.log", format='%(asctime)s | %(levelname)s : %(message)s')
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 logging.error("Checking system logs on init.")
 
