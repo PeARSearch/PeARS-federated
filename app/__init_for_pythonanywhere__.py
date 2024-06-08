@@ -200,10 +200,11 @@ if not app.config['LIVE_MATRIX']:
         npzs = glob(join(pod_dir,'*',LANG,'*.u.*npz'))
         if len(npzs) == 0:
             continue
-        m, bins, podnames = mk_vec_matrix(LANG)
+        m, bins, podnames, urls = mk_vec_matrix(LANG)
         models[LANG]['m'] = m
         models[LANG]['mbins'] = bins
         models[LANG]['podnames'] = podnames
+        models[LANG]['urls'] = urls
 
 
 if app.config['LOADED_POS_INDEX'] > 0:
