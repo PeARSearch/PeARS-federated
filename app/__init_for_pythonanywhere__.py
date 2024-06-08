@@ -2,10 +2,11 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-import os
-from os.path import join
 import logging
+from os import getenv, path
+from glob import glob
 from pathlib import Path
+from os.path import join, dirname, realpath
 
 # Import flask and template operators
 from flask import Flask, flash, send_file, send_from_directory, request
@@ -189,6 +190,9 @@ with app.app_context():
 ##############
 # Optimization
 ##############
+
+dir_path = dirname(realpath(__file__))
+pod_dir = getenv("PODS_DIR", join(dir_path, 'pods'))
 
 if not app.config['LIVE_MATRIX']:
     from app.search.score_pages import mk_vec_matrix
