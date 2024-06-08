@@ -106,7 +106,7 @@ babel = Babel(app)
 
 # Optimization
 app.config['MAX_PODS'] = int(getenv("MAX_PODS"))
-app.config['LIVE_PODSUM'] = True if getenv("LIVE_PODSUM", "false").lower() == 'true' else False
+app.config['LIVE_MATRIX'] = True if getenv("LIVE_PODSUM", "false").lower() == 'true' else False
 app.config['LOADED_POS_INDEX'] = int(getenv("LOADED_POS_INDEX"))
 
 # Make sure user data directories exist

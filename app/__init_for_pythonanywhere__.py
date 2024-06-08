@@ -110,7 +110,7 @@ babel = Babel(app)
 
 # Optimization
 app.config['MAX_PODS'] = int(os.getenv("MAX_PODS"))
-app.config['LIVE_PODSUM'] = True if os.getenv("LIVE_PODSUM", "false").lower() == 'true' else False
+app.config['LIVE_MATRIX'] = True if os.getenv("LIVE_PODSUM", "false").lower() == 'true' else False
 app.config['LOADED_POS_INDEX'] = int(os.getenv("LOADED_POS_INDEX"))
 
 # Mail
