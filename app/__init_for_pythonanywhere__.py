@@ -190,12 +190,17 @@ with app.app_context():
 # Optimization
 ##############
 
-if not app.config['LIVE_PODSUM']:
-    from app.search.score_pages import mk_podsum_matrix
+if not app.config['LIVE_MATRIX']:
+    from app.search.score_pages import mk_vec_matrix
     for LANG in LANGS:
-        podnames, podsum = mk_podsum_matrix(LANG)
+        npzs = glob(join(pod_dir,'*',LANG,'*.u.*npz'))
+        if len(npzs) == 0:
+            continue
+        m, bins, podnames = mk_vec_matrix(LANG)
+        models[LANG]['m'] = m
+        models[LANG]['mbins'] = bins
         models[LANG]['podnames'] = podnames
-        models[LANG]['podsum'] = podsum
+
 
 if app.config['LOADED_POS_INDEX'] > 0:
     from app.indexer.posix import load_posindices

@@ -45,6 +45,7 @@ def snippet_overlap(q, s):
     score = 0
     q = "".join(l if l not in string.punctuation else ' ' for l in q.lower())
     q_words = q.split()
+    s = s.lower()
     for w in q_words:
         if w in s:
             score+=1

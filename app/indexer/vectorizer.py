@@ -2,10 +2,10 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-from app import models
 import numpy as np
-from scipy.sparse import csr_matrix, vstack
+from scipy.sparse import csr_matrix
 from sklearn import preprocessing
+from app import models
 
 
 def wta_vectorized(feature_mat, k, percent=True):

@@ -10,10 +10,11 @@ from os.path import dirname, join, realpath
 from itertools import islice
 from urllib.parse import urlparse
 from glob import glob
+from collections import Counter
 import joblib
 from joblib import Parallel, delayed
-from scipy.sparse import load_npz
 from scipy.spatial import distance
+from scipy.sparse import load_npz, csr_matrix, vstack
 import numpy as np
 from flask import url_for
 from app import app, db, models
@@ -170,8 +171,100 @@ def mk_podsum_matrix(lang):
             podnames.append(podname)
     return podnames, podsum
 
+
+def mk_vec_matrix(lang):
+    """ Make a vector matrix by stacking all
+    pod matrices."""
+    c = 0
+    podnames = []
+    bins = [c]
+    npzs = glob(join(pod_dir,'*',lang,'*.u.*npz'))
+    for npz in npzs:
+        podnames.append(npz.split('/')[-1].replace('.npz',''))
+    m = load_npz(npzs[0]).toarray()
+    c+=m.shape[0]
+    bins.append(c)
+    for i in range(1,len(npzs)):
+        npz = load_npz(npzs[i]).toarray()
+        m = vstack((m, npz))
+        c+=npz.shape[0]
+        bins.append(c)
+    m = csr_matrix(m)
+    return m, bins, podnames
+
+
+
 @timer
 def score_pods(query_words, query_vectors, extended_q_vectors, lang):
+    """Score pods for a query.
+
+    Parameters:
+    query_vector: the numpy array for the query (dim = size of vocab)
+    extended_q_vectors: a list of numpy arrays for the extended query
+    lang: the language of the query
+
+    Returns: a list of the best <max_pods: int> pods.
+    """
+    print(">> SEARCH: SCORE PAGES: SCORE PODS")
+
+    max_pods = app.config["MAX_PODS"] # How many pods to return
+    pod_scores = {}
+
+    if 'm' in models[lang]:
+        m = models[lang]['m'].todense()
+        bins = models[lang]['mbins']
+        podnames = models[lang]['podnames']
+    else:
+        m, bins, podnames = mk_vec_matrix(lang)
+
+    tmp_best_pods = []
+    tmp_best_scores = []
+    # For each word in the query, compute best pods
+    for query_vector in query_vectors:
+        # Only compute cosines over the dimensions of interest
+        a = np.where(query_vector!=0)[1]
+        cos = 1 - distance.cdist(query_vector[:,a], m[:,a], 'cosine')[0]
+        cos[np.isnan(cos)] = 0
+
+        # Document ids with non-zero values (match at least one subword)
+        idx = np.where(cos!=0)[0]
+
+        # Sort document ids with non-zero values
+        idx = np.argsort(cos)[-len(idx):][::-1]
+
+        # Bin document ids into pods, and record how many documents are matched in each bin
+        d = np.digitize(idx, bins)
+        d = dict(Counter(d).most_common())
+        best_bins = list(d.keys())
+        best_bins = [b-1 for b in best_bins] #digitize starts at 1, not 0
+        best_scores = list(d.values())
+        max_score = max(best_scores)
+        best_scores = np.array(best_scores) / max_score
+
+        #pods = [podnames[b] for b in best_bins]
+        tmp_best_pods.append(best_bins)
+        tmp_best_scores.append(best_scores)
+
+    best_pods = {}
+    maximums = np.ones((1,len(query_vectors)))
+    scores = np.zeros((1,len(query_vectors)))
+    for p in range(len(podnames)):
+        podname = podnames[p]
+        for i, arr in enumerate(tmp_best_pods):
+            score = tmp_best_scores[i][tmp_best_pods[i].index(p)] if p in tmp_best_pods[i] else 0
+            scores[0][i] = score
+        podscore = 1 - distance.cdist(maximums,scores, 'euclidean')[0][0]
+        #if podscore != 0:
+        #    print(f"POD {podnames[p]} {scores} {podscore}")
+        best_pods[podname] = podscore
+    best_pods = dict(sorted(best_pods.items(), key=lambda item: item[1], reverse=True))
+    best_pods = dict(islice(best_pods.items(), max_pods))
+    best_pods = list(best_pods.keys())
+    return best_pods
+
+
+@timer
+def score_pods_legacy(query_words, query_vectors, extended_q_vectors, lang):
     """Score pods for a query.
 
     We score pods with respect to the original query as well as the extended
@@ -353,10 +446,11 @@ def run_search(query:str, lang:str):
     for pod in best_pods:
         theme = pod.split('.u.')[0]
         contributor = pod.split('.u.')[1]
-        if theme in models[lang]['posix']:
-            print("Using posix in RAM")
+        if 'posix' in models[lang] and theme in models[lang]['posix']:
+            print("Using posix in RAM for ", pod)
             posindices.append(models[lang]['posix'][theme])
         else:
+            print("Loading posix for ", pod)
             posindices.append(load_posix(contributor, lang, theme))
 
     # Compute results for original query
