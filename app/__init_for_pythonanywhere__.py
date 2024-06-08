@@ -18,7 +18,7 @@ from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user
 
-USERNAME = os.getenv('PA_USERNAME') #PythonAnywhere username
+USERNAME = getenv('PA_USERNAME') #PythonAnywhere username
 DEFAULT_PATH = f'/home/{USERNAME}/PeARS-federated/app/'
 
 #########
@@ -70,49 +70,49 @@ app = Flask(__name__, static_folder='static')
 # Configurations
 ################
 
-LANGS = os.getenv('PEARS_LANGS', "en").split(',')
-OWN_BRAND = True if os.getenv('OWN_BRAND') == 'true' else False
+LANGS = getenv('PEARS_LANGS', "en").split(',')
+OWN_BRAND = True if getenv('OWN_BRAND') == 'true' else False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////home/'+USERNAME+'/PeARS-federated/app.db'
-app.config['MAIL_DEFAULT_SENDER'] = os.getenv("MAIL_DEFAULT_SENDER")
-app.config['MAIL_SERVER'] = os.getenv("MAIL_SERVER")
-app.config['MAIL_PORT'] = os.getenv("MAIL_PORT")
+app.config['MAIL_DEFAULT_SENDER'] = getenv("MAIL_DEFAULT_SENDER")
+app.config['MAIL_SERVER'] = getenv("MAIL_SERVER")
+app.config['MAIL_PORT'] = getenv("MAIL_PORT")
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False
 app.config['MAIL_DEBUG'] = False
-app.config['MAIL_USERNAME'] = os.getenv("EMAIL_USER")
-app.config['MAIL_PASSWORD'] = os.getenv("EMAIL_PASSWORD")
-app.config['SITENAME'] = os.getenv("SITENAME")
-app.config['SITE_TOPIC'] = os.getenv("SITE_TOPIC")
-app.config['SEARCH_PLACEHOLDER'] = os.getenv("SEARCH_PLACEHOLDER")
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("SQLALCHEMY_DATABASE_URI", app.config.get("SQLALCHEMY_DATABASE_URI"))
+app.config['MAIL_USERNAME'] = getenv("EMAIL_USER")
+app.config['MAIL_PASSWORD'] = getenv("EMAIL_PASSWORD")
+app.config['SITENAME'] = getenv("SITENAME")
+app.config['SITE_TOPIC'] = getenv("SITE_TOPIC")
+app.config['SEARCH_PLACEHOLDER'] = getenv("SEARCH_PLACEHOLDER")
+app.config['SQLALCHEMY_DATABASE_URI'] = getenv("SQLALCHEMY_DATABASE_URI", app.config.get("SQLALCHEMY_DATABASE_URI"))
 app.config['USER-AGENT'] = "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; PeARSbot/0.1; +https://www.pearsproject.org/) Chrome/W.X.Y.Z Safari/537.36"
 
 # Secrets
-app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")                         # set in .env file
-app.config['SECURITY_PASSWORD_SALT'] = os.getenv("SECURITY_PASSWORD_SALT") # set in .env file
+app.config['SECRET_KEY'] = getenv("SECRET_KEY")                         # set in .env file
+app.config['SECURITY_PASSWORD_SALT'] = getenv("SECURITY_PASSWORD_SALT") # set in .env file
 
 # Legal
-app.config['ORG_NAME'] = os.getenv("ORG_NAME")
-app.config['ORG_ADDRESS'] = os.getenv("ORG_ADDRESS")
-app.config['ORG_EMAIL'] = os.getenv("ORG_EMAIL")
-app.config['APPLICABLE_LAW'] = os.getenv("APPLICABLE_LAW")
-app.config['SERVERS'] = os.getenv("SERVERS")
-app.config['EU_SPECIFIC'] = True if os.getenv("EU_SPECIFIC").lower() == 'true' else False
-app.config['SNIPPET_LENGTH'] = int(os.getenv("SNIPPET_LENGTH"))
+app.config['ORG_NAME'] = getenv("ORG_NAME")
+app.config['ORG_ADDRESS'] = getenv("ORG_ADDRESS")
+app.config['ORG_EMAIL'] = getenv("ORG_EMAIL")
+app.config['APPLICABLE_LAW'] = getenv("APPLICABLE_LAW")
+app.config['SERVERS'] = getenv("SERVERS")
+app.config['EU_SPECIFIC'] = True if getenv("EU_SPECIFIC").lower() == 'true' else False
+app.config['SNIPPET_LENGTH'] = int(getenv("SNIPPET_LENGTH"))
 
 # User-related settings
-app.config['NEW_USERS'] = True if os.getenv("NEW_USERS_ALLOWED", "false").lower() == 'true' else False
+app.config['NEW_USERS'] = True if getenv("NEW_USERS_ALLOWED", "false").lower() == 'true' else False
 
 # Localization
 from flask_babel import Babel, gettext
 app.config['BABEL_DEFAULT_LOCALE'] = LANGS[0]
-app.config['BABEL_TRANSLATION_DIRECTORIES'] = os.getenv("TRANSLATION_DIR")
+app.config['BABEL_TRANSLATION_DIRECTORIES'] = getenv("TRANSLATION_DIR")
 babel = Babel(app)
 
 # Optimization
-app.config['MAX_PODS'] = int(os.getenv("MAX_PODS"))
-app.config['LIVE_MATRIX'] = True if os.getenv("LIVE_MATRIX", "false").lower() == 'true' else False
-app.config['LOADED_POS_INDEX'] = int(os.getenv("LOADED_POS_INDEX"))
+app.config['MAX_PODS'] = int(getenv("MAX_PODS"))
+app.config['LIVE_MATRIX'] = True if getenv("LIVE_MATRIX", "false").lower() == 'true' else False
+app.config['LOADED_POS_INDEX'] = int(getenv("LOADED_POS_INDEX"))
 
 # Mail
 mail = Mail(app)
