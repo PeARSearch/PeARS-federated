@@ -118,7 +118,7 @@ app.config['LOADED_POS_INDEX'] = int(getenv("LOADED_POS_INDEX"))
 mail = Mail(app)
 
 # Make sure user data directories exist
-Path(os.path.join(DEFAULT_PATH,'userdata')).mkdir(parents=True, exist_ok=True)
+Path(path.join(DEFAULT_PATH,'userdata')).mkdir(parents=True, exist_ok=True)
 
 
 ########################
