@@ -140,21 +140,24 @@ def compute_scores(query, query_vectors, lang):
     idx = np.where(cos!=0)[0]
 
     # Sort document ids with non-zero values
-    idx = np.argsort(cos)[-len(idx):][::-1][:100]
+    idx = np.argsort(cos)[-len(idx):][::-1][:50]
 
     # Get urls
     document_scores = {}
-    for i in idx:
-        url = urls[i]
-        document_scores[url] = cos[i]
-        u = db.session.query(Urls).filter_by(url=url).first()
+    best_urls = [urls[i] for i in idx]
+    best_cos = [cos[i] for i in idx]
+    us = Urls.query.filter(Urls.url.in_(best_urls)).all()
+
+    snippet_scores = {}
+    for u in us:
         snippet = ' '.join(u.snippet.split()[:snippet_length])
         snippet_score = snippet_overlap(query, u.title+' '+snippet)
-        #print(">>>",url, u.title+' '+snippet[:50], snippet_score)
-        if snippet_score > 0:
-            snippet_score = snippet_score*10 #push up the urls with matches in title or snippet
-        document_scores[url]+=snippet_score
-        #print(f"url: {u.title}, snippet_score: {snippet_score} ||| GRAND SCORE: {document_scores[url]}")
+        snippet_scores[u.url] = snippet_score
+
+    for i, u in enumerate(best_urls):
+        #print(f"url: {u}, snippet_score: {snippet_scores[u]}, cos: {best_cos[i]}")
+        document_scores[u] = best_cos[i] + snippet_scores[u]
+
     return document_scores
 
 
@@ -221,47 +224,6 @@ def score_pods(query_words, query_vectors, extended_q_vectors, lang):
     best_pods = dict(islice(best_pods.items(), max_pods))
     best_pods = list(best_pods.keys())
     return best_pods
-
-
-@timer
-def score_docs(query, query_vectors, query_tokenized, pod_name, posindex, lang):
-    """Score documents for a query.
-    Arguments:
-    query: the original query
-    query_vectors: a list of lists of vectors, one list per word in the
-    query (because each word has several tokens)
-    query_tokenized: a list of lists of tokens, one list per word.
-    pod_name: the pod we are scoring against
-    posindex: the positional index for that pod
-    """
-    print("\n>> INFO: SEARCH: SCORE_PAGES: SCORE_DOCS", pod_name)
-    print(">> SEARCH:SCORE_PAGES:score_docs starting at", time())
-    snippet_length = app.config['SNIPPET_LENGTH']
-    document_scores = {}  # Document scores
-    vec_scores, posix_scores = \
-            compute_scores(query, query_vectors, query_tokenized, pod_name, posindex, lang)
-    username = pod_name.split('.u.')[1]
-    user_dir = join(pod_dir, username)
-    idx_to_url = joblib.load(join(user_dir, username+'.idx'))
-    for url in list(vec_scores.keys()):
-        i = idx_to_url[1].index(url)
-        idx = idx_to_url[0][i]
-        document_scores[url] = vec_scores[url]
-        document_scores[url] += posix_scores.get(idx, 0)
-        #print(">>>",url, "POSIX",posix_scores.get(idx,0))
-        #print(">>>",url, "VEC", vec_scores[url], "POSIX",posix_scores.get(idx,0))
-        if math.isnan(document_scores[url]) or document_scores[url] < 1:
-            document_scores[url] = 0
-        else:
-            u = db.session.query(Urls).filter_by(url=url).first()
-            snippet = ' '.join(u.snippet.split()[:snippet_length])
-            snippet_score = snippet_overlap(query, u.title+' '+snippet)
-            #print(">>>",url, u.title+' '+snippet[:50], snippet_score)
-            if snippet_score > 0:
-                snippet_score = snippet_score*10 #push up the urls with matches in title or snippet
-            document_scores[url]+=snippet_score
-            logging.debug(f"url: {u.title}, vec_score: {vec_scores[url]}, posix_score: {posix_scores.get(idx,0)}, snippet_score: {snippet_score} ||| GRAND SCORE: {document_scores[url]}")
-    return document_scores
 
 
 def return_best_urls(doc_scores):
