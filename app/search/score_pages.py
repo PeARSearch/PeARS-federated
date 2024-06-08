@@ -154,7 +154,7 @@ def compute_scores(query, query_vectors, lang):
         if snippet_score > 0:
             snippet_score = snippet_score*10 #push up the urls with matches in title or snippet
         document_scores[url]+=snippet_score
-        print(f"url: {u.title}, snippet_score: {snippet_score} ||| GRAND SCORE: {document_scores[url]}")
+        #print(f"url: {u.title}, snippet_score: {snippet_score} ||| GRAND SCORE: {document_scores[url]}")
     return document_scores
 
 
