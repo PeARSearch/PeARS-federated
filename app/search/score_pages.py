@@ -115,12 +115,13 @@ def mk_vec_matrix(lang):
 
 def load_vec_matrix(lang):
     if 'm' in models[lang]:
-        m = models[lang]['m'].todense()
+        m = models[lang]['m']
         bins = models[lang]['mbins']
         podnames = models[lang]['podnames']
         urls = models[lang]['urls']
     else:
         m, bins, podnames, urls = mk_vec_matrix(lang)
+    m = m.todense()
     return m, bins, podnames, urls
 
 

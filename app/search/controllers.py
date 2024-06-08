@@ -98,19 +98,20 @@ def get_search_results(query):
     else:
         languages = [lang]
     for lang in languages:
-        if glob(join(pod_dir,'*',lang)) == []:
+        npzs = glob(join(pod_dir,'*',lang,'*.npz'))
+        if len(npzs) == 0:
             continue
         clean_query = ' '.join([w for w in query.split() if w not in models[lang]['stopwords']])
         print("\n\n>>>>>>>>>>>>>>>>>>>>>>")
         print(">> SEARCH:CONTROLLERS:get_search_results: searching in",lang)
         print(">>>>>>>>>>>>>>>>>>>>>>")
-        try:
-            r, s = score_pages.run_search(clean_query, lang)
-            #r, s = score_pages.run_search_decentralized(clean_query, lang)
-            results.update(r)
-            scores.extend(s)
-        except:
-            pass
+        #try:
+        r, s = score_pages.run_search(clean_query, lang)
+        #r, s = score_pages.run_search_decentralized(clean_query, lang)
+        results.update(r)
+        scores.extend(s)
+        #except:
+        #    pass
     sorted_scores = np.argsort(scores)[::-1]
     sorted_results = {}
     for i in sorted_scores:
