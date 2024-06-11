@@ -110,9 +110,12 @@ app.config['BABEL_TRANSLATION_DIRECTORIES'] = getenv("TRANSLATION_DIR")
 babel = Babel(app)
 
 # Optimization
-app.config['MAX_PODS'] = int(getenv("MAX_PODS"))
 app.config['LIVE_MATRIX'] = True if getenv("LIVE_MATRIX", "false").lower() == 'true' else False
-app.config['LOADED_POS_INDEX'] = int(getenv("LOADED_POS_INDEX"))
+app.config['EXTEND_QUERY'] = True if getenv("EXTEND_QUERY", "false").lower() == 'true' else False
+
+#Legacy
+#app.config['MAX_PODS'] = int(getenv("MAX_PODS"))
+#app.config['LOADED_POS_INDEX'] = int(getenv("LOADED_POS_INDEX"))
 
 # Mail
 mail = Mail(app)
@@ -206,11 +209,11 @@ if not app.config['LIVE_MATRIX']:
         models[LANG]['podnames'] = podnames
         models[LANG]['urls'] = urls
 
-
-if app.config['LOADED_POS_INDEX'] > 0:
-    from app.indexer.posix import load_posindices
-    for LANG in LANGS:
-        models[LANG]['posix'] = load_posindices(LANG, n=app.config['LOADED_POS_INDEX'])
+# Legacy
+#if app.config['LOADED_POS_INDEX'] > 0:
+#    from app.indexer.posix import load_posindices
+#    for LANG in LANGS:
+#        models[LANG]['posix'] = load_posindices(LANG, n=app.config['LOADED_POS_INDEX'])
 
 
 #######
