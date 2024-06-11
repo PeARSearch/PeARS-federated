@@ -109,7 +109,8 @@ SPDX-License-Identifier: AGPL-3.0-only
     </div>
     <footer class="footer mt-auto py-3 bg-dark">
     <div class="container">
-	    <span class="text-light"><a class="btn btn-dark" href="{{url_for('pages.return_privacy')}}">{{gettext('Privacy policy')}}</a> | <a class="btn btn-dark" href="{{url_for('pages.return_tos')}}">{{gettext('Terms of service')}}</a> | <a class="btn btn-dark" href="{{url_for('pages.return_contact')}}">{{gettext('Impressum')}}</a> | <a class="btn btn-dark" href="{{url_for('pages.return_acknowledgements')}}">{{gettext('Acknowledgments')}}</a> | <a class="btn btn-dark" href="{{url_for('orchard.feedback')}}">Feedback</a> | <a class="btn btn-dark" href="https://github.com/PeARSearch"><ion-icon name="logo-github"></ion-icon></a></span>
+	    <span class="text-light"><a class="btn btn-dark" href="{{url_for('pages.return_privacy')}}">{{gettext('Privacy policy')}}</a> | <a class="btn btn-dark" href="{{url_for('pages.return_tos')}}">{{gettext('Terms of service')}}</a> | <a class="btn btn-dark" href="{{url_for('pages.return_contact')}}">{{gettext('Impressum')}}</a> | <a class="btn btn-dark" href="{{url_for('pages.return_acknowledgements')}}">{{gettext('Acknowledgments')}}</a>   {% if config['FEEDBACK_FORM'] %}| <a class="btn btn-dark" href="{{url_for('orchard.feedback')}}">Feedback</a> | {% endif %}
+	<a class="btn btn-dark" href="https://github.com/PeARSearch"><ion-icon name="logo-github"></ion-icon></a></span>
     </div>
   </footer>
 <!-- script references -->

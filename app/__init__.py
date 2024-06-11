@@ -97,6 +97,7 @@ app.config['SNIPPET_LENGTH'] = int(getenv("SNIPPET_LENGTH"))
 
 # User-related settings
 app.config['NEW_USERS'] = True if getenv("NEW_USERS_ALLOWED", "false").lower() == 'true' else False
+app.config['FEEDBACK_FORM'] = True if getenv("FEEDBACK_FORM", "false").lower() == 'true' else False
 
 # Localization
 from flask_babel import Babel, gettext

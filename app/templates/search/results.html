@@ -21,7 +21,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 	    {% else %}
 	      <div class="d-flex justify-content-start"><img src="{{ url_for('static', filename='happy_pears.png')}}" width="40px" style="margin-right:10px">
             {% endif %}
-	    {{internal_message|safe}}
+	    {{internal_message}}
 	    </div>
           </div>
         </div>
@@ -36,7 +36,9 @@ SPDX-License-Identifier: AGPL-3.0-only
           </button>
         </div>
       </form>
+      {% if config['FEEDBACK_FORM'] %}
       <p class="small">Help us improve this alpha version of PeARS! <a href={{url_for('orchard.feedback')}}>Send us your feedback.</a></p>
+      {% endif %}
       </div>
     </div>
     <div class="row">
