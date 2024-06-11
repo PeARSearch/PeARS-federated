@@ -176,7 +176,22 @@ def get_links(url):
 @click.argument('host_url')
 def index_wiki(folder, regex, lang, contributor, host_url):
     '''Index Wikipedia corpus in <doc> format,
-    as obtained from the Wikiloader scripts'''
+    as obtained from the WikiNLP scripts.
+
+    Parameters
+    - folder: the directory containing your preprocessed documents,
+    as obtained from WikiNLP using wikinlp.categories.CatProcessor
+    (https://github.com/possible-worlds-research/wikinlp). This should
+    be a path ending in 'categories' in your WikiNLP install.
+    - regex: a regex filtering which directories from the categories 
+    folder should be processed. For example, assuming that categories
+    about books have been retrieved, 'Novels_about*' would select the 
+    novels about certain topics.
+    - lang: the language of the Wikipedia you have processed.
+    - contributor: the username of the admin indexing the corpus.
+    - host_url: the domain of your instance, e.g. https://mypears.org.
+
+    '''
     corpus_files = glob(join(folder, regex ,'*.doc.txt'))
     for filepath in corpus_files:
         print(f">>Processing {filepath}...")
