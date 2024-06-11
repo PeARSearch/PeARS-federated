@@ -98,7 +98,7 @@ def compute_vector_local_docs(title, doc, theme, lang, contributor):
         return True, text, snippet, vid
     return False, text, snippet, None
 
-def compute_query_vectors(query, lang):
+def compute_query_vectors(query, lang, expansion_length=None):
     """ Make query vectors: the vector for the original
     query as well as the vector for the expanded query.
     This involves tokenization, query expansion using 
@@ -124,11 +124,14 @@ def compute_query_vectors(query, lang):
             if len(wtoken.replace('▁','')) > 3:
                 if wtoken not in nns:
                     continue
-                neighbours = [n for n in nns[wtoken] if len(n) > 2]
+                if expansion_length:
+                    neighbours = [n for n in nns[wtoken] if len(n) > 2][:expansion_length]
+                else:
+                    neighbours = [n for n in nns[wtoken] if len(n) > 2]
                 sims.extend(neighbours)
         sims = list(set(sims))
-        #print("SIMS",w,sims)
         words_tokenized_expanded.append(sims)
+    print("WORDS TOKENIZED EXPANDED:",words_tokenized_expanded)
     logging.debug(f"WORDS TOKENIZED EXPANDED {words_tokenized_expanded}")
 
     v_query = []

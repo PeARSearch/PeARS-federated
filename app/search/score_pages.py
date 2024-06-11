@@ -46,29 +46,6 @@ def mk_podsum_matrix(lang):
     return podnames, podsum
 
 
-def intersect_best_posix_lists(query_tokenized, posindex, lang):
-    tmp_best_docs = []
-    posix_scores = {}
-    # Loop throught the token list corresponding to each word
-    for word_tokens in query_tokenized:
-        scores = posix(' '.join(word_tokens), posindex, lang)
-        logging.debug(f"POSIX SCORES: {scores}")
-        tmp_best_docs.append(list(scores.keys()))
-        for k,v in scores.items():
-            if k in posix_scores:
-                posix_scores[k].append(v)
-            else:
-                posix_scores[k] = [v]
-    q_best_docs = set.intersection(*map(set,tmp_best_docs))
-    if len(q_best_docs) == 0:
-        q_best_docs = set.union(*map(set,tmp_best_docs))
-    best_docs = {}
-    for d in q_best_docs:
-        docscore = np.mean(posix_scores[d])
-        best_docs[d] = docscore
-    logging.info(f"BEST DOCS FROM POS INDEX: {best_docs}")
-    return best_docs
-
 
 
 
@@ -162,6 +139,95 @@ def compute_scores(query, query_vectors, lang):
     return document_scores
 
 
+def return_best_urls(doc_scores):
+    best_urls = []
+    scores = []
+    netlocs_used = []  # Don't return 100 pages from the same site
+    c = 0
+    for w in sorted(doc_scores, key=doc_scores.get, reverse=True):
+        loc = urlparse(w).netloc
+        if c < 50:
+            if doc_scores[w] >= 0.5:
+                #if netlocs_used.count(loc) < 10:
+                #print("DOC SCORE",w,doc_scores[w])
+                best_urls.append(w)
+                scores.append(doc_scores[w])
+                netlocs_used.append(loc)
+                c += 1
+            else:
+                break
+        else:
+            break
+    return best_urls, scores
+
+
+def output(best_urls):
+    results = {}
+    for u in best_urls:
+        url = db.session.query(Urls).filter_by(url=u).first().as_dict()
+        if u.startswith('pearslocal'):
+            u = url_for('api.return_specific_url')+'?url='+u
+        url['url'] = u
+        results[u] = url
+    return results
+
+
+def run_search(query, lang, extended=True):
+    """Run search on query input by user
+
+    Parameter: query, a query string.
+    Returns: a list of documents. Each document is a dictionary. 
+    """
+    document_scores = {}
+    extended_document_scores = {}
+
+    # Run tokenization and vectorization on query. We also get an extended query and its vector.
+    q_tokenized, extended_q_tokenized, q_vectors, extended_q_vectors = compute_query_vectors(query, lang, expansion_length=10)
+
+    document_scores = compute_scores(query, q_vectors, lang)
+
+    if extended:
+        extended_document_scores = compute_scores(query, extended_q_vectors, lang)
+
+    # Merge
+    merged_scores = document_scores.copy()
+    for k,_ in extended_document_scores.items():
+        if k in document_scores:
+            merged_scores[k] = document_scores[k]+ 0.5*extended_document_scores[k]
+        else:
+            merged_scores[k] = 0.5*extended_document_scores[k]
+
+    best_urls, scores = return_best_urls(merged_scores)
+    results = output(best_urls)
+    return results, scores
+
+
+
+
+def intersect_best_posix_lists(query_tokenized, posindex, lang):
+    tmp_best_docs = []
+    posix_scores = {}
+    # Loop throught the token list corresponding to each word
+    for word_tokens in query_tokenized:
+        scores = posix(' '.join(word_tokens), posindex, lang)
+        logging.debug(f"POSIX SCORES: {scores}")
+        tmp_best_docs.append(list(scores.keys()))
+        for k,v in scores.items():
+            if k in posix_scores:
+                posix_scores[k].append(v)
+            else:
+                posix_scores[k] = [v]
+    q_best_docs = set.intersection(*map(set,tmp_best_docs))
+    if len(q_best_docs) == 0:
+        q_best_docs = set.union(*map(set,tmp_best_docs))
+    best_docs = {}
+    for d in q_best_docs:
+        docscore = np.mean(posix_scores[d])
+        best_docs[d] = docscore
+    logging.info(f"BEST DOCS FROM POS INDEX: {best_docs}")
+    return best_docs
+
+
 @timer
 def score_pods(query_words, query_vectors, extended_q_vectors, lang):
     """Score pods for a query.
@@ -226,58 +292,3 @@ def score_pods(query_words, query_vectors, extended_q_vectors, lang):
     best_pods = list(best_pods.keys())
     return best_pods
 
-
-def return_best_urls(doc_scores):
-    best_urls = []
-    scores = []
-    netlocs_used = []  # Don't return 100 pages from the same site
-    c = 0
-    for w in sorted(doc_scores, key=doc_scores.get, reverse=True):
-        loc = urlparse(w).netloc
-        if c < 50:
-            if doc_scores[w] >= 0.5:
-                #if netlocs_used.count(loc) < 10:
-                #print("DOC SCORE",w,doc_scores[w])
-                best_urls.append(w)
-                scores.append(doc_scores[w])
-                netlocs_used.append(loc)
-                c += 1
-            else:
-                break
-        else:
-            break
-    return best_urls, scores
-
-
-def output(best_urls):
-    results = {}
-    for u in best_urls:
-        url = db.session.query(Urls).filter_by(url=u).first().as_dict()
-        if u.startswith('pearslocal'):
-            u = url_for('api.return_specific_url')+'?url='+u
-        url['url'] = u
-        results[u] = url
-    return results
-
-
-def run_search(query:str, lang:str):
-    """Run search on query input by user
-
-    Search happens in three steps. 1) We get the pods most likely
-    to contain documents relevant to the query. 2) We run search 
-    on the original query. 3) We run search on an 'extended' query
-    consisting of distributional neighbours of the original words.
-
-    Parameter: query, a query string.
-    Returns: a list of documents. Each document is a dictionary. 
-    """
-    document_scores = {}
-
-    # Run tokenization and vectorization on query. We also get an extended query and its vector.
-    q_tokenized, extended_q_tokenized, q_vectors, extended_q_vectors = compute_query_vectors(query, lang)
-
-    document_scores = compute_scores(query, q_vectors, lang)
-
-    best_urls, scores = return_best_urls(document_scores)
-    results = output(best_urls)
-    return results, scores
