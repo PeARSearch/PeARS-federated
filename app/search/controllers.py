@@ -63,7 +63,7 @@ def index():
         flash(message)
     if OWN_BRAND:
         with open(join(static_dir,'intro.txt'), 'r', encoding="utf-8") as f:
-            internal_message = f.read().replace('\n', '<br>')
+            internal_message = f.read().replace('\n', '')
     return render_template("search/index.html", internal_message=internal_message, \
             own_brand=OWN_BRAND, placeholder=placeholder, searchform=searchform)
     

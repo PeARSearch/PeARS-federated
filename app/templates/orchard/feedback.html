@@ -9,6 +9,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% block body %}
 <div class="container">
 
+  {% if config['FEEDBACK_FORM'] %}
   <div class="row p-3">
     <div class="card">
 	    <div class="card-header text-center"><b>{{gettext('Send us feedback')}}</b><br>
@@ -47,6 +48,7 @@ SPDX-License-Identifier: AGPL-3.0-only
     </form>
     </div>
  </div>
+ {% endif %}
 
 </div><!-- /.container -->
 {% endblock %}
