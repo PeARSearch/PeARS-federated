@@ -222,7 +222,7 @@ if not app.config['LIVE_MATRIX']:
 #######
 
 from flask_admin.contrib.sqla import ModelView
-from app.api.models import Pods, Urls
+from app.api.models import Pods, Urls, Personalization
 from app.api.controllers import return_pod_delete
 from app.utils_db import delete_url_representations
 
@@ -360,11 +360,18 @@ class UsersModelView(ModelView):
         },
     }
 
+class PersonalizationModelView(ModelView):
+    list_template = 'admin/pears_list.html'
+    column_searchable_list = ['feature', 'language']
+    can_edit = True
+    page_size = 50
+
 
 
 admin.add_view(PodsModelView(Pods, db.session))
 admin.add_view(UrlsModelView(Urls, db.session))
 admin.add_view(UsersModelView(User, db.session))
+admin.add_view(PersonalizationModelView(Personalization, db.session))
 
 
 
