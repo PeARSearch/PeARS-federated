@@ -163,12 +163,13 @@ def return_best_urls(doc_scores):
 
 def output(best_urls):
     results = {}
-    for u in best_urls:
-        url = db.session.query(Urls).filter_by(url=u).first().as_dict()
-        if u.startswith('pearslocal'):
-            u = url_for('api.return_specific_url')+'?url='+u
-        url['url'] = u
-        results[u] = url
+    urls = Urls.query.filter(Urls.url.in_(best_urls)).all()
+    urls = [next(u for u in urls if u.url == best_url) for best_url in best_urls]
+    for u in urls:
+        url = u.url
+        if url.startswith('pearslocal'):
+            url = url_for('api.return_specific_url')+'?url='+url
+        results[url] = u.as_dict()
     return results
 
 

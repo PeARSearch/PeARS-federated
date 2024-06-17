@@ -17,6 +17,7 @@ from app.search import score_pages
 from app.utils import parse_query, beautify_title, beautify_snippet
 from app import app, models, db
 from app import LANGS, OWN_BRAND
+from app.api.models import Personalization
 
 # Define the blueprint:
 search = Blueprint('search', __name__, url_prefix='')
@@ -43,10 +44,11 @@ def index():
     
     if searchform.validate_on_submit():
         query = request.form.get('query').strip()
-        with open(join(static_dir,'did_you_know.txt'), 'r', encoding="utf-8") as f:
-            messages = f.read().splitlines()
+        messages = db.session.query(Personalization).filter_by(feature='tip').all()
+        if messages:
             shuffle(messages)
-            internal_message = messages[0]
+            internal_message = messages[0].text
+        
        
         clean_query, results = get_search_results(query)
         displayresults = prepare_gui_results(clean_query, results)
@@ -62,8 +64,10 @@ def index():
                 or request a new link by clicking <a href='../auth/resend'>here</a>."))
         flash(message)
     if OWN_BRAND:
-        with open(join(static_dir,'intro.txt'), 'r', encoding="utf-8") as f:
-            internal_message = f.read().replace('\n', '')
+        internal_message = db.session.query(Personalization).filter_by(feature='instance_info').first()
+        if internal_message:
+            internal_message = internal_message.text
+
     return render_template("search/index.html", internal_message=internal_message, \
             own_brand=OWN_BRAND, placeholder=placeholder, searchform=searchform)
     

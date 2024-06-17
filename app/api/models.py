@@ -167,3 +167,18 @@ class User(UserMixin, db.Model):
         }
     def remove(self):
         db.session.delete(self)
+
+
+class Personalization(Base):
+    id = db.Column(db.Integer, primary_key=True)
+    feature = db.Column(db.String(1000))
+    text = db.Column(db.String(7000))
+    language = db.Column(db.String(10))
+
+    def __init__(self,
+                 feature=None,
+                 text=None,
+                 language=None):
+        self.feature = feature
+        self.text = text
+        self.language = language

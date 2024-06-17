@@ -12,17 +12,10 @@ SPDX-License-Identifier: AGPL-3.0-only
       <div class="card-header text-center"><h1>Database admin page</h1></div>
       <div class="card-body">
 	      <p>{{gettext('This page allows you to manually administer your users, pods and indexed URLs. If you ever need to e.g. delete a single URL from your indexed pages, or modify a keyword, this is the place to do so. You can also view and search the entire list of available pods, as registered by your pear.')}}</p>
-        <div class="row">
-          <div class="col-sm-3 p-3">
-		  <a href="{{url_for('urls.index_view')}}" class="btn btn-success">{{gettext('See/modify your URL list')}}</a>
-          </div>
-          <div class="col-sm-3 p-3">
-		  <a href="{{url_for('pods.index_view')}}" class="btn btn-success">{{gettext('See/modify your Pods list')}}</a>
-          </div>
-          <div class="col-sm-3 p-3">
-		  <a href="{{url_for('user.index_view')}}" class="btn btn-success">{{gettext('See/modify your Users list')}}</a>
-          </div>
-        </div>
+		  <a href="{{url_for('urls.index_view')}}" class="btn btn-success btn-block">{{gettext('URLs')}}</a>
+		  <a href="{{url_for('pods.index_view')}}" class="btn btn-success btn-block">{{gettext('Pods')}}</a>
+		  <a href="{{url_for('user.index_view')}}" class="btn btn-success btn-block">{{gettext('Users')}}</a>
+		  <a href="{{url_for('personalization.index_view')}}" class="btn btn-success btn-block">{{gettext('Personalization')}}</a>
       </div>
     </div>
     </div>
