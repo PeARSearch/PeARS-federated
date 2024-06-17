@@ -5,8 +5,8 @@
 # Import flask dependencies
 from flask import Blueprint, render_template, request
 
-from app.api.models import Pods
-from app import app, OWN_BRAND
+from app.api.models import Pods, Personalization
+from app import app, db, OWN_BRAND
 
 # Define the blueprint:
 pages = Blueprint('pages', __name__, url_prefix='')
@@ -26,7 +26,12 @@ def return_faq():
 
 @pages.route('/acknowledgements/')
 def return_acknowledgements():
-    return render_template("pages/acknowledgements.html")
+    acknowledgements = []
+    acks = db.session.query(Personalization).filter_by(feature='thanks').all()
+    if acks:
+        for ack in acks:
+            acknowledgements.append(ack.text)
+    return render_template("pages/acknowledgements.html", acknowledgements=acknowledgements)
 
 @pages.route('/privacy/')
 def return_privacy():
