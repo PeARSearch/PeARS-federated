@@ -13,7 +13,7 @@ from scipy.sparse import vstack, save_npz, load_npz
 from app.forms import SearchForm
 from app.api.models import Urls, Pods
 from app.auth.decorators import check_is_confirmed
-from app import db, models, LANGS, OWN_BRAND
+from app import app, db, models
 from app.indexer.posix import load_posix, dump_posix
 from app.indexer.vectorizer import scale
 from app.search.controllers import get_search_results, prepare_gui_results
@@ -30,7 +30,7 @@ pod_dir = getenv("PODS_DIR", join(dir_path, 'pods'))
 def return_instance_languages():
     """Returns the languages of this instance.
     For use by other PeARS instances."""
-    return jsonify(json_list=LANGS)
+    return jsonify(json_list=app.config['LANGS'])
 
 @api.route('/signature/<lang>/', methods=["GET", "POST"])
 def return_instance_signature(lang):
@@ -80,7 +80,6 @@ def return_urls():
 
 @api.route('/get', methods=["GET"])
 def return_specific_url():
-    searchform = SearchForm()
     internal_message = ""
     u = request.args.get('url')
     url = db.session.query(Urls).filter_by(url=u).first().as_dict()
@@ -89,7 +88,7 @@ def return_specific_url():
         url['url'] = u
     displayresults = prepare_gui_results("",{u:url})
     return render_template('search/results.html', query="", results=displayresults, \
-            internal_message=internal_message, own_brand=OWN_BRAND, searchform=searchform)
+            internal_message=internal_message, searchform=SearchForm())
 
 
 @api.route('/urls/delete', methods=["GET","POST"])

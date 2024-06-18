@@ -2,7 +2,6 @@ import uuid
 import re
 from random import randint
 from flask_babel import gettext
-from app import LANGS
 
 def mk_captcha():
     random_str = str(uuid.uuid4().hex)

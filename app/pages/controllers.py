@@ -6,14 +6,10 @@
 from flask import Blueprint, render_template, request
 
 from app.api.models import Pods, Personalization
-from app import app, db, OWN_BRAND
+from app import app, db
 
 # Define the blueprint:
 pages = Blueprint('pages', __name__, url_prefix='')
-
-@pages.context_processor
-def inject_brand():
-    return dict(own_brand=OWN_BRAND)
 
 
 @pages.route('/faq/')

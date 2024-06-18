@@ -11,7 +11,7 @@ from os.path import dirname, realpath, join, isdir, exists
 from flask import Blueprint, flash, request, render_template, redirect, url_for, session
 from flask_login import login_required, current_user, logout_user
 from flask_babel import gettext
-from app import app, db, OWN_BRAND
+from app import app, db
 from app.api.models import Urls, User
 from app.forms import EmailChangeForm, UsernameChangeForm
 from app.api.controllers import return_url_delete
@@ -26,10 +26,6 @@ settings = Blueprint('settings', __name__, url_prefix='/settings')
 dir_path = dirname(dirname(realpath(__file__)))
 pod_dir = getenv("PODS_DIR", join(dir_path,'pods'))
 
-
-@settings.context_processor
-def inject_brand():
-    return dict(own_brand=OWN_BRAND)
 
 
 # Set the route and accepted methods

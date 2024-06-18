@@ -12,7 +12,7 @@ from flask_login import login_required, current_user
 from flask_babel import gettext
 from langdetect import detect
 from app.auth.decorators import check_is_confirmed
-from app import db, LANGS, OWN_BRAND
+from app import app, db
 from app.api.models import Urls, Pods
 from app.indexer import mk_page_vector
 from app.utils import read_urls, parse_query
@@ -28,13 +28,6 @@ suggestions_dir_path = getenv("SUGGESTIONS_DIR", join(app_dir_path, 'userdata'))
 
 # Define the blueprint:
 indexer = Blueprint('indexer', __name__, url_prefix='/indexer')
-
-@indexer.context_processor
-def inject_brand():
-    """Inject brand information into page
-    (logo on all pages and info on start page.)
-    """
-    return dict(own_brand=OWN_BRAND)
 
 
 @indexer.route("/", methods=["GET"])
@@ -148,8 +141,8 @@ def index_from_manual():
         snippet = request.form.get('description').strip()
         lang = detect(snippet)
         # Hack if language of contribution is not recognized
-        if lang not in LANGS:
-            lang = LANGS[0]
+        if lang not in app.config['LANGS']:
+            lang = app.config['LANGS'][0]
         h = hashlib.new('sha256')
         h.update(snippet.encode())
         url = 'pearslocal'+h.hexdigest()
