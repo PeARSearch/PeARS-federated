@@ -156,7 +156,7 @@ VEC_SIZE = len(models[first_lang]['vocab'])
 ########################
 
 app.config['OWN_BRAND'] = True if getenv('OWN_BRAND', "false").lower() == 'true' else False
-app.config['LOGO_PATH'] = getenv('LOGO_PATH', 'static/assets')
+app.config['LOGO_PATH'] = getenv('LOGO_PATH', None)
 
 @app.context_processor
 def inject_brand():

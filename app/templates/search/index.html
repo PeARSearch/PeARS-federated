@@ -10,7 +10,7 @@ SPDX-License-Identifier: AGPL-3.0-only
   <div class="row">
     <div class="col-lg-2"></div>
     <div class="col-lg-8 text-center mt-5">
-      {% if own_brand %}
+      {% if logo_path is not none %}
 	{% if session.get('theme') == 'dark' %}
           <a href="{{ url_for('search.index')}}"><img width=350px; src="{{logo_path}}/logo-dark.png"></a>
 	{% else %}
