@@ -9,6 +9,9 @@
        <ul>
        <li>The PeARS logo, beautifully designed by Orion Chambadiyil.
        <li>The open-source icons offered by <a href="https://ionic.io/ionicons">Ionic</a>.
+       {% for ack in acknowledgements %}
+       <li>{{ack}}
+	{% endfor %}
        </ul>
        </div>
   </div> <!-- /row -->

@@ -9,7 +9,7 @@ from flask_babel import gettext
 from os.path import dirname, realpath, join
 from app.api.models import Urls, Pods
 from app.utils_db import mv_pod
-from app import app, db, OWN_BRAND
+from app import app, db
 from app.orchard.mk_urls_file import get_url_list_for_users
 from app.auth.decorators import check_is_confirmed
 from app.auth.token import send_email
@@ -19,11 +19,6 @@ dir_path = dirname(dirname(realpath(__file__)))
 
 # Define the blueprint:
 orchard = Blueprint('orchard', __name__, url_prefix='/orchard')
-
-@orchard.context_processor
-def inject_brand():
-    return dict(own_brand=OWN_BRAND)
-
 
 @orchard.route('/')
 @orchard.route('/index', methods=['GET', 'POST'])

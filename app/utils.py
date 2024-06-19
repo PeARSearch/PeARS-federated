@@ -11,7 +11,6 @@ import requests
 import numpy as np
 from scipy.spatial import distance
 from markupsafe import Markup, escape
-from app import LANGS
 
 dir_path = dirname(realpath(__file__))
 

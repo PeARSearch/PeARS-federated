@@ -16,23 +16,14 @@ from app.forms import SearchForm
 from app.search import score_pages
 from app.utils import parse_query, beautify_title, beautify_snippet
 from app import app, models, db
-from app import LANGS, OWN_BRAND
 from app.api.models import Personalization
 
 # Define the blueprint:
 search = Blueprint('search', __name__, url_prefix='')
 
 dir_path = dirname(dirname(dirname(realpath(__file__))))
-static_dir = join(dir_path,'app','static')
 pod_dir = getenv("PODS_DIR", join(dir_path, 'app','pods'))
 
-
-@search.context_processor
-def inject_brand():
-    """Inject brand information into page
-    (logo on all pages and info on start page.)
-    """
-    return dict(own_brand=OWN_BRAND)
 
 @search.route('/', methods=["GET","POST"])
 def index():
@@ -53,7 +44,7 @@ def index():
         clean_query, results = get_search_results(query)
         displayresults = prepare_gui_results(clean_query, results)
         return render_template('search/results.html', query=query, results=displayresults, \
-                internal_message=internal_message, own_brand=OWN_BRAND, searchform=searchform)
+                internal_message=internal_message, searchform=searchform)
 
     
     placeholder = app.config['SEARCH_PLACEHOLDER']
@@ -63,13 +54,13 @@ def index():
                 Please use the link in the email that was sent to you, \
                 or request a new link by clicking <a href='../auth/resend'>here</a>."))
         flash(message)
-    if OWN_BRAND:
+    if app.config['OWN_BRAND']:
         internal_message = db.session.query(Personalization).filter_by(feature='instance_info').first()
         if internal_message:
             internal_message = internal_message.text
 
     return render_template("search/index.html", internal_message=internal_message, \
-            own_brand=OWN_BRAND, placeholder=placeholder, searchform=searchform)
+            placeholder=placeholder, searchform=searchform)
     
 
 
@@ -98,7 +89,7 @@ def get_search_results(query):
     scores = []
     query, _, lang = parse_query(query.lower())
     if lang is None:
-        languages = LANGS
+        languages = app.config['LANGS']
     else:
         languages = [lang]
     for lang in languages:

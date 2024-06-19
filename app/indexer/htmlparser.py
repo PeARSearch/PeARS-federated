@@ -11,7 +11,7 @@ from langdetect import detect
 from app.indexer.access import request_url
 from app.indexer import detect_open
 from app.api.models import installed_languages
-from app import app, LANGS, LANGUAGE_CODES
+from app import app, LANGUAGE_CODES
 
 def remove_boilerplates(response, lang):
     text = ""
@@ -85,7 +85,7 @@ def extract_html(url):
     body_str = ""
     snippet = ""
     cc = False
-    language = LANGS[0]
+    language = app.config['LANGS'][0]
     error = None
     snippet_length = app.config['SNIPPET_LENGTH']
     
@@ -110,7 +110,7 @@ def extract_html(url):
             title = ' '.join(title.split()[:snippet_length])
             
             # Get body string
-            body_str = remove_boilerplates(req, LANGS[0]) #Problematic...
+            body_str = remove_boilerplates(req, app.config['LANGS'][0]) #Problematic...
             logging.debug(body_str[:500])
             try:
                 language = detect(title + " " + body_str)
@@ -121,7 +121,7 @@ def extract_html(url):
                 return title, body_str, snippet, cc, error
             if language not in installed_languages:
                 logging.error(f"\t>> ERROR: extract_html: language {language} is not supported. Moving to default language.")
-                language = LANGS[0]
+                language = app.config['LANGS'][0]
                 #title = ""
                 #return title, body_str, language, snippet, cc, error
             # Process snippet

@@ -70,8 +70,6 @@ app = Flask(__name__, static_folder='static')
 # Configurations
 ################
 
-LANGS = getenv('PEARS_LANGS', "en").split(',')
-OWN_BRAND = True if getenv('OWN_BRAND') == 'true' else False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////home/'+USERNAME+'/PeARS-federated/app.db'
 app.config['MAIL_DEFAULT_SENDER'] = getenv("MAIL_DEFAULT_SENDER")
 app.config['MAIL_SERVER'] = getenv("MAIL_SERVER")
@@ -106,7 +104,9 @@ app.config['FEEDBACK_FORM'] = True if getenv("FEEDBACK_FORM", "false").lower() =
 
 # Localization
 from flask_babel import Babel, gettext
-app.config['BABEL_DEFAULT_LOCALE'] = LANGS[0]
+app.config['LANGS'] = getenv('PEARS_LANGS', "en").split(',')
+first_lang = app.config['LANGS'][0]
+app.config['BABEL_DEFAULT_LOCALE'] = first_lang
 app.config['BABEL_TRANSLATION_DIRECTORIES'] = getenv("TRANSLATION_DIR")
 babel = Babel(app)
 
@@ -134,7 +134,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 
 LANGUAGE_CODES = read_language_codes()
 models = dict()
-for LANG in LANGS:
+for LANG in app.config['LANGS']:
     models[LANG] = {}
     spm_vocab_path = join(DEFAULT_PATH, f'api/models/{LANG}/{LANG}wiki.lite.16k.vocab')
     ft_path = join(DEFAULT_PATH, f'api/models/{LANG}/{LANG}wiki.lite.16k.cos')
@@ -149,7 +149,26 @@ for LANG in LANGS:
     models[LANG]['stopwords'] = read_stopwords(LANGUAGE_CODES[LANG].lower())
   
 # All vocabs have the same vector size
-VEC_SIZE = len(models[LANGS[0]]['vocab'])
+VEC_SIZE = len(models[first_lang]['vocab'])
+
+########################
+# Jinja global variables
+########################
+
+app.config['OWN_BRAND'] = True if getenv('OWN_BRAND', "false").lower() == 'true' else False
+app.config['LOGO_PATH'] = getenv('LOGO_PATH', join(dir_path,'static','assets'))
+
+@app.context_processor
+def inject_brand():
+    """Inject brand information into page
+    (logo on all pages and info on start page.)
+    """
+    return dict(own_brand=app.config['OWN_BRAND'], logo_path=app.config['LOGO_PATH'])
+
+@app.route('/static/assets/<path:path>')
+def serve_logos(path):
+    return send_from_directory(app.config['LOGO_PATH'], path)
+
 
 
 ##########
@@ -200,7 +219,7 @@ pod_dir = getenv("PODS_DIR", join(dir_path, 'pods'))
 
 if not app.config['LIVE_MATRIX']:
     from app.search.score_pages import mk_vec_matrix
-    for LANG in LANGS:
+    for LANG in app.config['LANGS']:
         npzs = glob(join(pod_dir,'*',LANG,'*.u.*npz'))
         if len(npzs) == 0:
             continue

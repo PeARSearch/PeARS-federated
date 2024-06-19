@@ -9,10 +9,9 @@ from urllib.parse import urljoin
 from pdfminer.high_level import extract_pages
 from pdfminer.layout import LTTextContainer
 from langdetect import detect
-
+from app import app
 from app.indexer import detect_open
 from app.api.models import installed_languages
-from app import LANGS
 
 dir_path = dirname(dirname(realpath(__file__)))
 toindex_dir = join(dir_path,'toindex')
@@ -35,7 +34,7 @@ def extract_txt(url):
     body_str = ""
     snippet = ""
     cc = False
-    language = LANGS[0]
+    language = app.config['LANGS'][0]
     error = None
     try:
         req = requests.get(url, allow_redirects=True, timeout=30)

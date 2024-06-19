@@ -18,6 +18,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager, current_user
 
+dir_path = dirname(realpath(__file__))
+
 #########
 # Logging
 #########
@@ -63,6 +65,7 @@ mail_logger.mailing("Checking mailing logs on init.")
 
 app = Flask(__name__, static_folder='static')
 
+
 ################
 # Configurations
 ################
@@ -70,8 +73,6 @@ from dotenv import load_dotenv
 app.config.from_object('config')
 
 load_dotenv()
-LANGS = getenv('PEARS_LANGS', "en").split(',')
-OWN_BRAND = True if getenv('OWN_BRAND', "false").lower() == 'true' else False
 app.config['MAIL_DEFAULT_SENDER'] = getenv("MAIL_DEFAULT_SENDER")
 app.config['MAIL_SERVER'] = getenv("MAIL_SERVER")
 app.config['MAIL_PORT'] = getenv("MAIL_PORT")
@@ -101,7 +102,9 @@ app.config['FEEDBACK_FORM'] = True if getenv("FEEDBACK_FORM", "false").lower() =
 
 # Localization
 from flask_babel import Babel, gettext
-app.config['BABEL_DEFAULT_LOCALE'] = LANGS[0]
+app.config['LANGS'] = getenv('PEARS_LANGS', "en").split(',')
+first_lang = app.config['LANGS'][0]
+app.config['BABEL_DEFAULT_LOCALE'] = first_lang
 app.config['BABEL_TRANSLATION_DIRECTORIES'] = getenv("TRANSLATION_DIR")
 babel = Babel(app)
 
@@ -114,7 +117,7 @@ app.config['EXTEND_QUERY'] = True if getenv("EXTEND_QUERY", "false").lower() == 
 #app.config['LOADED_POS_INDEX'] = int(getenv("LOADED_POS_INDEX"))
 
 # Make sure user data directories exist
-DEFAULT_PATH = f'app'
+DEFAULT_PATH = dir_path
 Path(path.join(DEFAULT_PATH,'userdata')).mkdir(parents=True, exist_ok=True)
 Path(path.join(DEFAULT_PATH,'admindata')).mkdir(parents=True, exist_ok=True)
 if getenv("SUGGESTIONS_DIR", "") != "":
@@ -122,6 +125,26 @@ if getenv("SUGGESTIONS_DIR", "") != "":
 
 # Mail
 mail = Mail(app)
+
+
+########################
+# Jinja global variables
+########################
+
+app.config['OWN_BRAND'] = True if getenv('OWN_BRAND', "false").lower() == 'true' else False
+app.config['LOGO_PATH'] = getenv('LOGO_PATH', join(dir_path,'static','assets'))
+
+@app.context_processor
+def inject_brand():
+    """Inject brand information into page
+    (logo on all pages and info on start page.)
+    """
+    return dict(own_brand=app.config['OWN_BRAND'], logo_path=app.config['LOGO_PATH'])
+
+@app.route('/static/assets/<path:path>')
+def serve_logos(path):
+    return send_from_directory(app.config['LOGO_PATH'], path)
+
 
 ########################
 # Load pretrained models
@@ -133,7 +156,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 
 LANGUAGE_CODES = read_language_codes()
 models = dict()
-for LANG in LANGS:
+for LANG in app.config['LANGS']:
     models[LANG] = {}
     spm_vocab_path = f'app/api/models/{LANG}/{LANG}wiki.lite.16k.vocab'
     ft_path = f'app/api/models/{LANG}/{LANG}wiki.lite.16k.cos'
@@ -148,7 +171,7 @@ for LANG in LANGS:
     models[LANG]['stopwords'] = read_stopwords(LANGUAGE_CODES[LANG].lower())
 
 # All vocabs have the same vector size
-VEC_SIZE = len(models[LANGS[0]]['vocab'])
+VEC_SIZE = len(models[first_lang]['vocab'])
 
 ##########
 # Database
@@ -199,7 +222,7 @@ pod_dir = getenv("PODS_DIR", join(dir_path, 'pods'))
 
 if not app.config['LIVE_MATRIX']:
     from app.search.score_pages import mk_vec_matrix
-    for LANG in LANGS:
+    for LANG in app.config['LANGS']:
         npzs = glob(join(pod_dir,'*',LANG,'*.u.*npz'))
         if len(npzs) == 0:
             continue

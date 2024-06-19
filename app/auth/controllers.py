@@ -8,7 +8,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.api.models import User
 from app.forms import RegistrationForm, LoginForm, PasswordForgottenForm, PasswordChangeForm
-from app import app, db, OWN_BRAND
+from app import app, db
 
 from flask import (Blueprint, flash, request, render_template, Response, redirect, url_for)
 from flask_babel import gettext
@@ -64,7 +64,7 @@ def login():
             welcome = "<b>"+gettext('Welcome')+", "+current_user.username+"!</b>"
         return redirect(url_for("search.index"))
     print(form.errors)
-    return render_template('auth/login.html', own_brand = OWN_BRAND, form=form, new_users_allowed=new_users_allowed)
+    return render_template('auth/login.html', form=form, new_users_allowed=new_users_allowed)
 
 
 
@@ -131,7 +131,7 @@ def signup():
         form = RegistrationForm(request.form)
         form.captcha.data = captcha
         form.captcha_answer.label = captcha
-        return render_template('auth/signup.html', own_brand = OWN_BRAND, form=form, new_users_allowed=new_users_allowed)
+        return render_template('auth/signup.html', form=form, new_users_allowed=new_users_allowed)
 
 @auth.route("/registration-confirm/<token>")
 @login_required
@@ -188,7 +188,7 @@ def password_forgotten():
         flash(gettext("A link has been sent via email to reset your password."), "success")
         return redirect(url_for('auth.login'))
     else:
-        return render_template('auth/password_forgotten.html', own_brand=OWN_BRAND, form=form)
+        return render_template('auth/password_forgotten.html', form=form)
 
 @auth.route("/password-reset-confirm/<token>")
 def password_reset(token):
@@ -199,7 +199,7 @@ def password_reset(token):
     user = User.query.filter_by(email=email).first_or_404()
     if user.email == email:
         login_user(user)
-        return render_template('auth/password_change.html', username=user.username, own_brand=OWN_BRAND, form=form)
+        return render_template('auth/password_change.html', username=user.username, form=form)
     else:
         flash(gettext("The confirmation link is invalid or has expired."), "danger")
         return redirect(url_for("auth.password_forgotten"))
@@ -217,7 +217,7 @@ def password_change():
         flash(gettext("Your password has been successfully changed."), "success")
         return redirect(url_for("search.index"))
     else:
-        return render_template('auth/password_change.html', own_brand=OWN_BRAND, form=form)
+        return render_template('auth/password_change.html', form=form)
 
 
 
@@ -228,5 +228,5 @@ def password_change():
 def inactive():
     if current_user.is_confirmed:
         return redirect(url_for("search.index"))
-    return render_template("auth/inactive.html", own_brand=OWN_BRAND)
+    return render_template("auth/inactive.html")
 
