@@ -156,7 +156,7 @@ VEC_SIZE = len(models[first_lang]['vocab'])
 ########################
 
 app.config['OWN_BRAND'] = True if getenv('OWN_BRAND', "false").lower() == 'true' else False
-app.config['LOGO_PATH'] = getenv('LOGO_PATH', None)
+app.config['LOGO_PATH'] = getenv('LOGO_PATH', join(dir_path,'static','assets'))
 
 @app.context_processor
 def inject_brand():
@@ -164,6 +164,10 @@ def inject_brand():
     (logo on all pages and info on start page.)
     """
     return dict(own_brand=app.config['OWN_BRAND'], logo_path=app.config['LOGO_PATH'])
+
+@app.route('/static/assets/<path:path>')
+def serve_logos(path):
+    return send_from_directory(app.config['LOGO_PATH'], path)
 
 
 

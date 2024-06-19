@@ -44,8 +44,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% block navbar %}
 <nav class="navbar navbar-expand-lg navbar-light">
     <div class="container">
-	{% if logo_path is not none %}
-        <a class="navbar-brand mx-2" href="{{url_for('search.index')}}"><img src="{{logo_path}}/logo.png" height="50px"></a>
+	{% if own_brand %}
+	<a class="navbar-brand mx-2" href="{{url_for('search.index')}}"><img src="{{url_for('serve_logos', path='logo.png')}}" height="50px"></a>
 	{% else %}
         <a class="navbar-brand mx-2" href="{{url_for('search.index')}}"><img src="{{ url_for('static', filename='pears_round.png')}}" height="50px"> PeARS</a>
 	{% endif %}
