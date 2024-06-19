@@ -101,13 +101,13 @@ def get_search_results(query):
         print(">> SEARCH:CONTROLLERS:get_search_results: searching in",lang)
         print(">>>>>>>>>>>>>>>>>>>>>>")
 
-        #try:
-        r, s = score_pages.run_search(clean_query, lang, extended=app.config['EXTEND_QUERY'])
-        #r, s = score_pages.run_search_decentralized(clean_query, lang)
-        results.update(r)
-        scores.extend(s)
-        #except:
-        #    pass
+        try:
+            r, s = score_pages.run_search(clean_query, lang, extended=app.config['EXTEND_QUERY'])
+            #r, s = score_pages.run_search_decentralized(clean_query, lang)
+            results.update(r)
+            scores.extend(s)
+        except:
+            pass
     sorted_scores = np.argsort(scores)[::-1]
     sorted_results = {}
     for i in sorted_scores:
