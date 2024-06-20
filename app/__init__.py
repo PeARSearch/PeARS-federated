@@ -6,7 +6,7 @@ import logging
 from os import getenv, path
 from glob import glob
 from pathlib import Path
-from os.path import join, dirname, realpath
+from os.path import join, dirname, realpath, isfile
 
 # Import flask and template operators
 from flask import Flask, flash, render_template, send_file, send_from_directory, request
@@ -133,7 +133,7 @@ mail = Mail(app)
 
 app.config['OWN_BRAND'] = True if getenv('OWN_BRAND', "false").lower() == 'true' else False
 logo_path = getenv('LOGO_PATH', '')
-if logo_path != '' and os.path.isfile(join(logo_path "logo.png")):
+if logo_path != '' and isfile(join(logo_path, "logo.png")):
     app.config['LOGO_PATH'] = logo_path
 else:
     app.config['LOGO_PATH'] = join(dir_path,'static','assets')
