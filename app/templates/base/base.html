@@ -14,7 +14,7 @@ SPDX-License-Identifier: AGPL-3.0-only
     <meta charset="utf-8">
     <title>PeARS : {% block title %}Search{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="{{ url_for('static', filename='css/bootstrap/bootstrap.min.css')}}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/bootstrap-5.3.3/bootstrap.min.css')}}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/styles.css')}}" rel="stylesheet">
     {% endblock %}
 
@@ -109,13 +109,13 @@ SPDX-License-Identifier: AGPL-3.0-only
     </div>
     <footer class="footer mt-auto py-3 bg-dark">
     <div class="container">
-	    <span class="text-light"><a class="btn btn-dark" href="{{url_for('pages.return_privacy')}}">{{gettext('Privacy policy')}}</a> | <a class="btn btn-dark" href="{{url_for('pages.return_tos')}}">{{gettext('Terms of service')}}</a> | <a class="btn btn-dark" href="{{url_for('pages.return_contact')}}">{{gettext('Impressum')}}</a> | <a class="btn btn-dark" href="{{url_for('pages.return_acknowledgements')}}">{{gettext('Acknowledgments')}}</a>   {% if config['FEEDBACK_FORM'] %}| <a class="btn btn-dark" href="{{url_for('orchard.feedback')}}">Feedback</a> | {% endif %}
+	    <span class="text-light"><a class="btn btn-dark" href="{{url_for('pages.return_privacy')}}">{{gettext('Privacy policy')}}</a> | <a class="btn btn-dark" href="{{url_for('pages.return_tos')}}">{{gettext('Terms of service')}}</a> | <a class="btn btn-dark" href="{{url_for('pages.return_contact')}}">{{gettext('Impressum')}}</a> | <a class="btn btn-dark" href="{{url_for('pages.return_licenses')}}">{{gettext('Licenses')}}</a> | <a class="btn btn-dark" href="{{url_for('pages.return_acknowledgements')}}">{{gettext('Acknowledgments')}}</a>   {% if config['FEEDBACK_FORM'] %}| <a class="btn btn-dark" href="{{url_for('orchard.feedback')}}">Feedback</a> | {% endif %}
 	<a class="btn btn-dark" href="https://github.com/PeARSearch"><ion-icon name="logo-github"></ion-icon></a></span>
     </div>
   </footer>
 <!-- script references -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script src="{{ url_for('static', filename='js/bootstrap/bootstrap.min.js')}}"></script>
+<script src="{{ url_for('static', filename='js/jquery-3.7.1.min.js')}}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap-5.3.3/bootstrap.min.js')}}"></script>
 <script src="{{ url_for('static', filename='js/color.js')}}"></script>
 <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
 <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>

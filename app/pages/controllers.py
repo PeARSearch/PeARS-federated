@@ -19,6 +19,10 @@ def return_faq():
     topic = app.config["SITE_TOPIC"]
     return render_template("pages/faq.html", sitename=sitename, siteurl=siteurl, topic=topic)
 
+@pages.route('/licenses/')
+def return_licenses():
+    return render_template("pages/licenses.html")
+
 
 @pages.route('/acknowledgements/')
 def return_acknowledgements():
