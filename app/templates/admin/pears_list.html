@@ -6,10 +6,6 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 {% extends 'admin/model/list.html' %}
 
-{% block head_css %}
-  {{ super() }}
-  <link href="{{ url_for('static', filename='css/bootstrap.min.css')}}" rel="stylesheet"></link>
-{% endblock %}
 
 {% block page_body %}
     <nav class="navbar navbar-default">
