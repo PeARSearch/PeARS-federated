@@ -22,16 +22,5 @@ DATABASE_CONNECT_OPTIONS = {}
 # operations using the other.
 THREADS_PER_PAGE = 2
 
-# Enable protection agains *Cross-site Request Forgery (CSRF)*
-CSRF_ENABLED = True
-
-# Use a secure, unique and absolutely secret key for
-# signing the data.
-CSRF_SESSION_KEY = "secret"
-
-# Secrets
-SECRET_KEY = config("SECRET_KEY", default="very-important")
-SECURITY_PASSWORD_SALT = config("SECURITY_PASSWORD_SALT", default="very-important")
-
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
