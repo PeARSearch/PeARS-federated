@@ -14,7 +14,7 @@ pod_dir = getenv("PODS_DIR", join(dir_path, 'pods'))
 def get_url_list_for_users(theme):
     urls = []
     url_theme = theme.replace(' ', '_')
-    hfile = join(dir_path, "pods", url_theme + ".pears.txt")
+    hfile = join(pods_dir, url_theme + ".pears.txt")
     f_out = open(hfile,'w', encoding='utf-8')
     for url in Urls.query.filter(Urls.pod.contains(theme+'.u.')).all():
         if not url.pod.startswith(theme+'.u.'):
