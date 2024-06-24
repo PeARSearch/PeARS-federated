@@ -4,7 +4,7 @@ from os.path import join, dirname, realpath
 from app import models
     
 dir_path = dirname(dirname(realpath(__file__)))
-pod_dir = join(dir_path,'pods')
+pod_dir = getenv("PODS_DIR", join(dir_path, 'pods'))
 
 def load_posix(contributor, lang, theme):
     posix_path = join(dir_path, 'pods', contributor, lang)
