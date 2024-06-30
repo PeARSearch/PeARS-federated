@@ -11,7 +11,7 @@ RUN pip install gunicorn
 # Make port 8000 available to the world outside this container
 EXPOSE 8000
 
-# Define environment variable (example placeholder values, replace them as needed)
+# Define environment variable (example placeholder values, replace them as needed in the .env file)
 ENV PEARS_LANGS=en
 ENV TRANSLATION_DIR=/app/translations
 
