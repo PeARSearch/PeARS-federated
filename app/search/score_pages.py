@@ -75,7 +75,7 @@ def mk_vec_matrix(lang):
     for i in range(1,len(npzs)):
         npz = load_npz(npzs[i]).toarray()
         username = npzs[i].split('.u.')[1].replace('.npz','')
-        m = vstack((m, npz))
+        m = vstack((csr_matrix(m), csr_matrix(npz)))
         c+=npz.shape[0]
         bins.append(c)
         idxs = joblib.load(join(pod_dir, username, lang, npzs[i].replace('.npz','')+'.npz.idx'))[1]
