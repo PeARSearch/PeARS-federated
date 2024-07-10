@@ -160,6 +160,7 @@ VEC_SIZE = len(models[first_lang]['vocab'])
 # Jinja global variables
 ########################
 
+dir_path = DEFAULT_PATH
 app.config['OWN_BRAND'] = True if getenv('OWN_BRAND', "false").lower() == 'true' else False
 logo_path = getenv('LOGO_PATH', '')
 if logo_path != '' and path.isfile(join(logo_path, "logo.png")):
