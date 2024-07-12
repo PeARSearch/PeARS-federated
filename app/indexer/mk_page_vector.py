@@ -58,7 +58,7 @@ def compute_vector(url, theme, contributor, url_type):
     if 'text/html' in url_type:
         title, body_str, lang, snippet, cc, error = extract_html(url)
     elif 'application/pdf' in url_type:
-        title, body_str, lang, snippet, cc, error = extract_txt(url)
+        title, body_str, lang, snippet, cc, error = extract_txt(url, contributor)
     else:
         error = ">> INDEXER: MK_PAGE_VECTORS: ERROR: compute_vectors: No supported content type."
     if error is None:
