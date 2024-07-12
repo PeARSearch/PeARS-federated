@@ -93,7 +93,7 @@ def report():
         mail_address = app.config['MAIL_USERNAME']
         send_email(mail_address,'URL report','Report from user '+email+'<br>'+url+'<br>'+user_report)
         flash(gettext("Your report has been sent. Thank you!"), "success")
-        return render_template('search/index.html')
+        return redirect(url_for('search.index'))
     return render_template('orchard/report.html', form=form, email=email)
 
 
@@ -111,7 +111,7 @@ def feedback():
         mail_address = app.config['MAIL_USERNAME']
         send_email(mail_address,'Feedback report', 'Feedback from user '+email+'<br>'+user_report)
         flash(gettext("Your feedback has been sent. Thank you!"), "success")
-        return render_template('search/index.html')
+        return redirect(url_for('search.index'))
     return render_template('orchard/feedback.html', form=form, email=email)
 
 
@@ -137,6 +137,6 @@ def annotate():
         db.session.add(u)
         db.session.commit()
         flash(gettext("Your note has been saved. Thank you!"), "success")
-        return render_template('search/index.html')
+        return redirect(url_for('search.index'))
     else:
         return render_template('orchard/annotate.html', form=form)
