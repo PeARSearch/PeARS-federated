@@ -69,13 +69,13 @@ def extract_txt(url, contributor):
         print("ERROR accessing resource", url, "...")
         return title, body_str, language, snippet, cc, error
     
-    #try:
-    body_str, title = pdf_mine(local_pdf_path)
-    body_str = remove_emails(body_str)
-    #except Exception:
-    #    print("ERROR extracting body text from pdf...")
-    #    remove(local_pdf_path)
-    #    return title, body_str, language, snippet, cc, error
+    try:
+        body_str, title = pdf_mine(local_pdf_path)
+        body_str = remove_emails(body_str)
+    except Exception:
+        print("ERROR extracting body text from pdf...")
+        remove(local_pdf_path)
+        return title, body_str, language, snippet, cc, error
 
     if title == "":
         title = url.split('/')[-1]
