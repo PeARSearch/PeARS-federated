@@ -12,6 +12,7 @@ from app.indexer.access import request_url
 from app.indexer import detect_open
 from app.api.models import installed_languages
 from app import app, LANGUAGE_CODES
+from app.utils import remove_emails
 
 def remove_boilerplates(response, lang):
     text = ""
@@ -111,6 +112,7 @@ def extract_html(url):
             
             # Get body string
             body_str = remove_boilerplates(req, app.config['LANGS'][0]) #Problematic...
+            body_str = remove_emails(body_str)
             logging.debug(body_str[:500])
             try:
                 language = detect(title + " " + body_str)
