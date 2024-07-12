@@ -75,6 +75,7 @@ def extract_txt(url, contributor):
     except Exception:
         print("ERROR extracting body text from pdf...")
         remove(local_pdf_path)
+        remove(local_pdf_path.replace('.pdf','.txt'))
         return title, body_str, language, snippet, cc, error
 
     if title == "":
@@ -86,12 +87,14 @@ def extract_txt(url, contributor):
         title = ""
         error = "ERROR extract_html: Couldn't detect page language."
         remove(local_pdf_path)
+        remove(local_pdf_path.replace('.pdf','.txt'))
         return title, body_str, language, snippet, cc, error
 
     if language not in installed_languages:
         error = "ERROR extract_html: language is not supported."
         title = ""
         remove(local_pdf_path)
+        remove(local_pdf_path.replace('.pdf','.txt'))
         return title, body_str, language, snippet, cc, error
     snippet = ' '.join(body_str.split()[:snippet_length])
     remove(local_pdf_path)
