@@ -94,5 +94,6 @@ def extract_txt(url, contributor):
         remove(local_pdf_path)
         return title, body_str, language, snippet, cc, error
     snippet = ' '.join(body_str.split()[:snippet_length])
-    #remove(local_pdf_path)
+    remove(local_pdf_path)
+    remove(local_pdf_path.replace('.pdf','.txt'))
     return title, body_str, language, snippet, cc, error
