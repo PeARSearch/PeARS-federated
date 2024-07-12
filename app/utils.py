@@ -205,6 +205,10 @@ def parse_query(query):
     print(clean_query, doctype)
     return clean_query, doctype, lang
 
+def remove_emails(doc):
+    """Catch emails in the doc and remove them before processing"""
+    doc = re.sub(r'\S+@\S+\.\S+','',doc)
+    return doc
 
 def beautify_title(title, doctype):
     if doctype == 'stat':
@@ -225,8 +229,9 @@ def beautify_snippet(snippet, query):
         snippet+='...'
     tmp_snippet = snippet
     for w in query.split():
-        tmp_snippet = tmp_snippet.replace(w,'<b>'+w+'</b>')
-        tmp_snippet = tmp_snippet.replace(w.title(),'<b>'+w.title()+'</b>')
+        if len(w) >= 1:
+            tmp_snippet = tmp_snippet.replace(w,'<b>'+w+'</b>')
+            tmp_snippet = tmp_snippet.replace(w.title(),'<b>'+w.title()+'</b>')
     #if img != 'None': #None is str in database
     #    img = join('static','assets',img)
     #    tmp_snippet = "<img src='"+img+"' style='float:left; width:150px; margin-right: 10px'/>"+tmp_snippet
@@ -236,6 +241,9 @@ def beautify_snippet(snippet, query):
     for e in els:
         tmp_snippet+=escape(e)+Markup(tag)
         tag = '</b>' if tag == '<b>' else '<b>'
+    # switch tag one last time to remove the correct end of string
+    tag = '</b>' if tag == '<b>' else '<b>'
+    tmp_snippet = tmp_snippet[:-len(tag)]
     return tmp_snippet
 
 def timer(func):
