@@ -5,7 +5,7 @@ WORKDIR /app
 COPY requirements.txt /tmp/
 RUN pip install --requirement /tmp/requirements.txt
 
-RUN sudo apt-get install -y poppler-utils
+RUN apt-get install -y poppler-utils
 
 # Additionally, install Gunicorn
 RUN pip install gunicorn
