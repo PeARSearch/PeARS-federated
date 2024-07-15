@@ -141,8 +141,8 @@ LANGUAGE_CODES = read_language_codes()
 models = dict()
 for LANG in app.config['LANGS']:
     models[LANG] = {}
-    spm_vocab_path = join(DEFAULT_PATH, f'api/models/{LANG}/{LANG}wiki.lite.16k.vocab')
-    ft_path = join(DEFAULT_PATH, f'api/models/{LANG}/{LANG}wiki.lite.16k.cos')
+    spm_vocab_path = join(DEFAULT_PATH, f'api/models/{LANG}/{LANG}wiki.16k.vocab')
+    ft_path = join(DEFAULT_PATH, f'api/models/{LANG}/{LANG}wiki.16k.cos')
     vocab, inverted_vocab, logprobs = read_vocab(spm_vocab_path)
     vectorizer = CountVectorizer(vocabulary=vocab, lowercase=True, token_pattern='[^ ]+')
     ftcos = read_cosines(ft_path)

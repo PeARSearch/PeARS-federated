@@ -57,9 +57,9 @@ From the PeARS-federated directory, run:
 
 If you want to search and index in several languages at the same time, you can add multilingual support to your English install. To do this:
 
-    python3 install_language.py lc
+    flask pears install-language lc
 
-where you should replace lc with a language code of your choice. For now, we are only supporting English (en), German (de) and French (fr) but more languages are coming!
+where you should replace lc with a language code of your choice. For now, we are only supporting English (en), German (de), French (fr) and Malayalam (ml) but more languages are coming!
 
 
 ##### 5. Set up your .env
