@@ -24,7 +24,7 @@ def tokenize_text(text, lang, stringify = True):
 
     Arguments: the text to be tokenized.
     """
-    sp.load(join(DEFAULT_PATH, f'api/models/{lang}/{lang}wiki.lite.16k.model'))
+    sp.load(join(DEFAULT_PATH, f'api/models/{lang}/{lang}wiki.16k.model'))
     tokens = [wp for wp in sp.encode_as_pieces(text.lower())]
     if stringify:
         text = ' '.join([wp for wp in sp.encode_as_pieces(text.lower())])
