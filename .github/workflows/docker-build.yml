@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - '*'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -22,13 +26,25 @@ jobs:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
+    - name: Determine Docker tag
+      id: docker-tag
+      run: |
+        if [ "${{ github.event_name }}" == "push" ] && [ "${{ github.ref }}" == "refs/heads/main" ]; then
+          echo "::set-output name=tag::latest"
+        elif [ "${{ github.event_name }}" == "pull_request" ]; then
+          echo "::set-output name=tag::pr-${{ github.event.number }}"
+        else
+          BRANCH_NAME=$(echo "${{ github.ref }}" | sed 's/refs\/heads\///')
+          echo "::set-output name=tag::${BRANCH_NAME}"
+        fi
+
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
         context: .
         file: deployment/Dockerfile
         push: true
-        tags: pearsproject/pears-federated:latest
+        tags: pearsproject/pears-federated:${{ steps.docker-tag.outputs.tag }}
 
     - name: Image digest
       run: echo ${{ steps.build.outputs.digest }}
