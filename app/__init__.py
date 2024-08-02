@@ -196,7 +196,7 @@ for LANG in app.config['LANGS']:
 
 
 # All vocabs have the same vector size
-VEC_SIZE = len(models[first_lang]['vocab'])
+VEC_SIZE = len(models[first_lang].get('vocab', ""))
 
 #########
 # Modules
