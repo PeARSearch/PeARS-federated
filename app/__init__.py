@@ -237,24 +237,6 @@ with app.app_context():
 dir_path = dirname(realpath(__file__))
 pod_dir = getenv("PODS_DIR", join(dir_path, 'pods'))
 
-LANGUAGE_CODES = read_language_codes()
-models = dict()
-for LANG in app.config['LANGS']:
-    models[LANG] = {}
-    spm_vocab_file = f'{LANG}/{LANG}wiki.16k.vocab'
-    ft_file = f'{LANG}/{LANG}wiki.16k.cos'
-    spm_vocab_path = join(dir_path, 'api/models/', spm_vocab_file)
-    ft_path = join(dir_path, 'api/models/', ft_file)
-    vocab, inverted_vocab, logprobs = read_vocab(spm_vocab_path)
-    vectorizer = CountVectorizer(vocabulary=vocab, lowercase=True, token_pattern='[^ ]+')
-    ftcos = read_cosines(ft_path)
-    models[LANG]['vocab'] = vocab
-    models[LANG]['inverted_vocab'] = inverted_vocab
-    models[LANG]['logprobs'] = logprobs
-    models[LANG]['vectorizer'] = vectorizer
-    models[LANG]['nns'] = ftcos
-    models[LANG]['stopwords'] = read_stopwords(LANGUAGE_CODES[LANG].lower())
-
 if not app.config['LIVE_MATRIX']:
     from app.search.score_pages import mk_vec_matrix
     for LANG in app.config['LANGS']:
