@@ -167,24 +167,6 @@ from app.readers import read_vocab, read_cosines
 from app.multilinguality import read_language_codes, read_stopwords
 from sklearn.feature_extraction.text import CountVectorizer
 
-LANGUAGE_CODES = read_language_codes()
-models = dict()
-for LANG in app.config['LANGS']:
-    models[LANG] = {}
-    spm_vocab_path = f'app/api/models/{LANG}/{LANG}wiki.16k.vocab'
-    ft_path = f'app/api/models/{LANG}/{LANG}wiki.16k.cos'
-    vocab, inverted_vocab, logprobs = read_vocab(spm_vocab_path)
-    vectorizer = CountVectorizer(vocabulary=vocab, lowercase=True, token_pattern='[^ ]+')
-    ftcos = read_cosines(ft_path)
-    models[LANG]['vocab'] = vocab
-    models[LANG]['inverted_vocab'] = inverted_vocab
-    models[LANG]['logprobs'] = logprobs
-    models[LANG]['vectorizer'] = vectorizer
-    models[LANG]['nns'] = ftcos
-    models[LANG]['stopwords'] = read_stopwords(LANGUAGE_CODES[LANG].lower())
-
-# All vocabs have the same vector size
-VEC_SIZE = len(models[first_lang]['vocab'])
 
 ##########
 # Database
@@ -193,6 +175,28 @@ VEC_SIZE = len(models[first_lang]['vocab'])
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+LANGUAGE_CODES = read_language_codes()
+models = dict()
+for LANG in app.config['LANGS']:
+    models[LANG] = {}
+    spm_vocab_file = f'{LANG}/{LANG}wiki.16k.vocab'
+    ft_file = f'{LANG}/{LANG}wiki.16k.cos'
+    spm_vocab_path = join(dir_path, 'api/models/', spm_vocab_file)
+    ft_path = join(dir_path, 'api/models/', ft_file)
+    if path.exists(spm_vocab_path):
+        vocab, inverted_vocab, logprobs = read_vocab(spm_vocab_path)
+        vectorizer = CountVectorizer(vocabulary=vocab, lowercase=True, token_pattern='[^ ]+')
+        ftcos = read_cosines(ft_path)
+        models[LANG]['vocab'] = vocab
+        models[LANG]['inverted_vocab'] = inverted_vocab
+        models[LANG]['logprobs'] = logprobs
+        models[LANG]['vectorizer'] = vectorizer
+        models[LANG]['nns'] = ftcos
+        models[LANG]['stopwords'] = read_stopwords(LANGUAGE_CODES[LANG].lower())
+
+
+# All vocabs have the same vector size
+VEC_SIZE = len(models[first_lang].get('vocab', ""))
 
 #########
 # Modules
@@ -207,6 +211,7 @@ from app.orchard.controllers import orchard as orchard_module
 from app.pages.controllers import pages as pages_module
 from app.settings.controllers import settings as settings_module
 from app.auth.controllers import auth as auth_module
+
 
 # Register blueprint(s)
 app.register_blueprint(indexer_module)
