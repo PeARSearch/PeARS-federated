@@ -183,7 +183,7 @@ for LANG in app.config['LANGS']:
     ft_file = f'{LANG}/{LANG}wiki.16k.cos'
     spm_vocab_path = join(dir_path, 'api/models/', spm_vocab_file)
     ft_path = join(dir_path, 'api/models/', ft_file)
-    if os.path.exists(spm_vocab_path):
+    if path.exists(spm_vocab_path):
         vocab, inverted_vocab, logprobs = read_vocab(spm_vocab_path)
         vectorizer = CountVectorizer(vocabulary=vocab, lowercase=True, token_pattern='[^ ]+')
         ftcos = read_cosines(ft_path)
