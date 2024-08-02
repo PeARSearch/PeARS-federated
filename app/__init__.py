@@ -175,21 +175,6 @@ from sklearn.feature_extraction.text import CountVectorizer
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-
-#########
-# Modules
-#########
-
-# Import a module / component using its blueprint handler variable (mod_auth)
-from app.indexer.controllers import indexer as indexer_module
-from app.api.controllers import api as api_module
-from app.search.controllers import search as search_module
-#from app.analysis.controllers import analysis as analysis_module
-from app.orchard.controllers import orchard as orchard_module
-from app.pages.controllers import pages as pages_module
-from app.settings.controllers import settings as settings_module
-from app.auth.controllers import auth as auth_module
-
 LANGUAGE_CODES = read_language_codes()
 models = dict()
 for LANG in app.config['LANGS']:
@@ -211,6 +196,21 @@ for LANG in app.config['LANGS']:
 
 # All vocabs have the same vector size
 VEC_SIZE = len(models[first_lang]['vocab'])
+
+#########
+# Modules
+#########
+
+# Import a module / component using its blueprint handler variable (mod_auth)
+from app.indexer.controllers import indexer as indexer_module
+from app.api.controllers import api as api_module
+from app.search.controllers import search as search_module
+#from app.analysis.controllers import analysis as analysis_module
+from app.orchard.controllers import orchard as orchard_module
+from app.pages.controllers import pages as pages_module
+from app.settings.controllers import settings as settings_module
+from app.auth.controllers import auth as auth_module
+
 
 # Register blueprint(s)
 app.register_blueprint(indexer_module)
