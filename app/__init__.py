@@ -183,15 +183,16 @@ for LANG in app.config['LANGS']:
     ft_file = f'{LANG}/{LANG}wiki.16k.cos'
     spm_vocab_path = join(dir_path, 'api/models/', spm_vocab_file)
     ft_path = join(dir_path, 'api/models/', ft_file)
-    vocab, inverted_vocab, logprobs = read_vocab(spm_vocab_path)
-    vectorizer = CountVectorizer(vocabulary=vocab, lowercase=True, token_pattern='[^ ]+')
-    ftcos = read_cosines(ft_path)
-    models[LANG]['vocab'] = vocab
-    models[LANG]['inverted_vocab'] = inverted_vocab
-    models[LANG]['logprobs'] = logprobs
-    models[LANG]['vectorizer'] = vectorizer
-    models[LANG]['nns'] = ftcos
-    models[LANG]['stopwords'] = read_stopwords(LANGUAGE_CODES[LANG].lower())
+    if os.path.exists(spm_vocab_path):
+        vocab, inverted_vocab, logprobs = read_vocab(spm_vocab_path)
+        vectorizer = CountVectorizer(vocabulary=vocab, lowercase=True, token_pattern='[^ ]+')
+        ftcos = read_cosines(ft_path)
+        models[LANG]['vocab'] = vocab
+        models[LANG]['inverted_vocab'] = inverted_vocab
+        models[LANG]['logprobs'] = logprobs
+        models[LANG]['vectorizer'] = vectorizer
+        models[LANG]['nns'] = ftcos
+        models[LANG]['stopwords'] = read_stopwords(LANGUAGE_CODES[LANG].lower())
 
 
 # All vocabs have the same vector size
