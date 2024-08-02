@@ -168,9 +168,6 @@ from app.multilinguality import read_language_codes, read_stopwords
 from sklearn.feature_extraction.text import CountVectorizer
 
 
-# All vocabs have the same vector size
-VEC_SIZE = len(models[first_lang]['vocab'])
-
 ##########
 # Database
 ##########
@@ -210,6 +207,10 @@ for LANG in app.config['LANGS']:
     models[LANG]['vectorizer'] = vectorizer
     models[LANG]['nns'] = ftcos
     models[LANG]['stopwords'] = read_stopwords(LANGUAGE_CODES[LANG].lower())
+
+
+# All vocabs have the same vector size
+VEC_SIZE = len(models[first_lang]['vocab'])
 
 # Register blueprint(s)
 app.register_blueprint(indexer_module)
