@@ -171,8 +171,10 @@ LANGUAGE_CODES = read_language_codes()
 models = dict()
 for LANG in app.config['LANGS']:
     models[LANG] = {}
-    spm_vocab_path = f'app/api/models/{LANG}/{LANG}wiki.16k.vocab'
-    ft_path = f'app/api/models/{LANG}/{LANG}wiki.16k.cos'
+    spm_vocab_file = f'{LANG}/{LANG}wiki.16k.vocab'
+    ft_file = f'{LANG}/{LANG}wiki.16k.cos'
+    spm_vocab_path = join(dir_path, 'app/api/models/', spm_vocab_file)
+    ft_path = join(dir_path, 'app/api/models/', ft_file)
     vocab, inverted_vocab, logprobs = read_vocab(spm_vocab_path)
     vectorizer = CountVectorizer(vocabulary=vocab, lowercase=True, token_pattern='[^ ]+')
     ftcos = read_cosines(ft_path)
