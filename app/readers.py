@@ -4,11 +4,11 @@ def read_vocab(vocab_file):
     vocab = {}
     reverse_vocab = {}
     logprobs = []
-    with open(vocab_file) as f:
+    with open(vocab_file, encoding='utf-8') as f:
         for l in f:
-            l = l.rstrip('\n')
-            vocab_list = l.split()
-            if len(vocab_list) <= 2:
+            l = l.rstrip('\n').strip()  # Remove any trailing newline and extra spaces
+            vocab_list = l.rsplit(maxsplit=1)
+            if len(vocab_list) < 2:
                 print("Couldn't split the line:", l)
                 continue
             wp = vocab_list[0]
