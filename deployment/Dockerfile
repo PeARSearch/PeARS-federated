@@ -23,6 +23,7 @@ RUN mkdir -p /var/lib/pears/data/pod /var/lib/pears/data/userdata
 COPY . /app
 
 RUN chmod +x /app/deployment/entrypoint.sh
+RUN chmod +x /app/deployment/install-lang.py
 
 # Set the entrypoint script to be executed
 ENTRYPOINT ["/app/deployment/entrypoint.sh"]
