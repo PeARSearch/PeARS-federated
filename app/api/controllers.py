@@ -18,7 +18,7 @@ from app.indexer.posix import load_posix, dump_posix
 from app.indexer.vectorizer import scale
 from app.search.controllers import get_search_results, prepare_gui_results
 from app.search.score_pages import mk_podsum_matrix
-from app.utils_db import load_idx_to_url, load_npz_to_idx, rm_from_idx_to_url, delete_pod_representations
+from app.utils_db import delete_pod_representations
 
 # Define the blueprint:
 api = Blueprint('api', __name__, url_prefix='/api')
@@ -89,71 +89,5 @@ def return_specific_url():
     displayresults = prepare_gui_results("",{u:url})
     return render_template('search/results.html', query="", results=displayresults, \
             internal_message=internal_message, searchform=SearchForm())
-
-
-@api.route('/urls/delete', methods=["GET","POST"])
-@login_required
-@check_is_confirmed
-def return_url_delete(path):
-    u = db.session.query(Urls).filter_by(url=path).first()
-    pod_name = u.pod
-    theme, contributor = pod_name.split('.u.')
-    pod = db.session.query(Pods).filter_by(name=pod_name).first()
-    lang = pod.language
-    vocab = models[lang]['vocab']
-
-    #Remove document from main .idx file
-    idx = delete_url_from_url_to_idx(path, contributor)
-
-    #Find out index of url
-    npz_to_idx, npz_to_idx_path = load_npz_to_idx(contributor, lang, theme)
-    print("NPZ_TO_IDX")
-    print(npz_to_idx)
-    j = npz_to_idx[1].index(idx)
-    vid = npz_to_idx[0].index(j)
-    print(theme, contributor)
-    print(path, vid, pod_name)
-
-    #Remove document row from .npz matrix
-    pod_m = load_npz(join(pod_dir, contributor, lang, pod_name+'.npz'))
-    print("pod_m",pod_m.shape)
-    print("vid",vid)
-    m1 = pod_m[:vid]
-    m2 = pod_m[vid+1:]
-    print("m1",m1.shape)
-    print("m2",m2.shape)
-    pod_m = vstack((m1,m2))
-    print("pod_m",pod_m.shape)
-    save_npz(join(pod_dir, contributor, lang, pod_name+'.npz'),pod_m)
-
-    #Remove document from .npz.idx mapping
-    new_npz = npz_to_idx[0][:j]+npz_to_idx[0][j+1:]
-    new_idx = npz_to_idx[1][:j]+npz_to_idx[1][j+1:]
-    npz_to_idx = [new_npz,new_idx]
-    joblib.dump(npz_to_idx, npz_to_idx_path)
-    print("NPZ_TO_IDX")
-    print(npz_to_idx)
-
-    #Remove doc from positional index
-    posindex = load_posix(contributor, lang, theme)
-    new_posindex = []
-    for token in vocab:
-        token_id = vocab[token]
-        tmp = {}
-        for doc_id, posidx in posindex[token_id].items():
-            if doc_id != str(vid):
-                tmp[doc_id] = posidx
-        new_posindex.append(tmp)
-    dump_posix(new_posindex, contributor, lang, theme)
-
-    #Delete from database
-    db.session.delete(u)
-    db.session.commit()
-
-    #If pod is now empty, delete it
-    print(pod_m.shape)
-    if pod_m.shape[0] == 1:
-        return_pod_delete(pod_name)
-    return "Deleted document with vector id"+str(vid)
 
 

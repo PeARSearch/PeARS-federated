@@ -16,15 +16,12 @@ from app import app, db
 from app.api.models import Urls, Pods
 from app.indexer import mk_page_vector
 from app.utils import read_urls, parse_query
-from app.utils_db import (create_idx_to_url, create_pod_in_db, create_pod_npz_pos,
-        add_to_idx_to_url, add_to_npz_to_idx, create_or_replace_url_in_db,
-        delete_url_representations)
+from app.utils_db import create_pod_in_db, create_pod_npz_pos, create_or_replace_url_in_db, delete_url_representations
 from app.indexer.access import request_url
 from app.indexer.posix import posix_doc
 from app.forms import IndexerForm, ManualEntryForm
 
 app_dir_path = dirname(dirname(realpath(__file__)))
-suggestions_dir_path = getenv("SUGGESTIONS_DIR", join(app_dir_path, 'userdata'))
 
 # Define the blueprint:
 indexer = Blueprint('indexer', __name__, url_prefix='/indexer')
@@ -95,13 +92,11 @@ def index_from_url():
     """
     print("\t>> Indexer : from_url")
     contributor = current_user.username
-    create_idx_to_url(contributor)
     pods = Pods.query.all()
     themes = list(set([p.name.split('.u.')[0] for p in pods]))
 
     form = IndexerForm(request.form)
     if form.validate_on_submit():
-        user_url_file = join(suggestions_dir_path, contributor+".suggestions")
         url = request.form.get('suggested_url').strip()
         theme = request.form.get('theme').strip()
         note = request.form.get('note').strip()
@@ -111,9 +106,7 @@ def index_from_url():
         if note is None:
             note = ''
         logging.debug(f"INDEXING URL: {url} THEME: {theme} NOTE: {note} CONTRIBUTOR: {contributor}")
-        with open(user_url_file, 'w', encoding="utf-8") as f:
-            f.write(url + ";" + theme + ";" + note + ";" + contributor + "\n")
-        success, messages, share_url = run_indexer_url(user_url_file, request.host_url)
+        success, messages, share_url = run_indexer_url(url, theme, note, contributor, request.host_url)
         if success:
             return render_template('indexer/success.html', messages=messages, share_url=share_url, url=url, theme=theme, note=note)
         return render_template('indexer/fail.html', messages = messages)
@@ -133,7 +126,6 @@ def index_from_manual():
     """
     print("\t>> Indexer : manual")
     contributor = current_user.username
-    create_idx_to_url(contributor)
 
     form = ManualEntryForm(request.form)
     if form.validate_on_submit():
@@ -159,7 +151,7 @@ def index_from_manual():
 
 
 
-def run_indexer_url(user_url_file, host_url):
+def run_indexer_url(url, theme, note, contributor, host_url):
     """ Run the indexer over the suggested URL.
     This includes checking the robots.txt, and producing 
     representations that include entries in the positional
@@ -174,38 +166,26 @@ def run_indexer_url(user_url_file, host_url):
     messages = []
     indexed = False
     share_url = ''
-    urls, themes, notes, contributors, errors = read_urls(user_url_file)
-    if errors:
-        return indexed, errors, share_url
-    if not urls or not themes:
-        messages.append(gettext('ERROR: Invalid file format.'))
-        return indexed, messages, share_url
-    for url, theme, note, contributor in zip(urls, themes, notes, contributors):
-        access, req, request_errors = request_url(url)
-        if access:
-            try:
-                url_type = req.headers['Content-Type']
-            except:
-                messages.append(gettext('ERROR: Content type could not be retrieved from header.'))
-                continue
-            idx = add_to_idx_to_url(contributor, url)
-            success, text, lang, title, snippet, vid, mgs = \
-                    mk_page_vector.compute_vector(url, theme, contributor, url_type)
-            if success:
-                create_pod_in_db(contributor, theme, lang)
-                posix_doc(text, idx, contributor, lang, theme)
-                add_to_npz_to_idx(theme+'.u.'+contributor, lang, vid, idx)
-                share_url = join(host_url,'api', 'get?url='+url)
-                create_or_replace_url_in_db(\
-                        url, title, snippet, theme, lang, note, share_url, contributor, 'url')
-                indexed = True
-            else:
-                messages.extend(mgs)
+    access, req, request_errors = request_url(url)
+    if access:
+        try:
+            url_type = req.headers['Content-Type']
+        except:
+            messages.append(gettext('ERROR: Content type could not be retrieved from header.'))
+            return indexed, messages, share_url
+        success, text, lang, title, snippet, idv, mgs = \
+                mk_page_vector.compute_vector(url, theme, contributor, url_type)
+        if success:
+            create_pod_in_db(contributor, theme, lang)
+            #posix_doc(text, idx, contributor, lang, theme)
+            share_url = join(host_url,'api', 'get?url='+url)
+            create_or_replace_url_in_db(\
+                    url, title, idv, snippet, theme, lang, note, share_url, contributor, 'url')
+            indexed = True
         else:
-            messages.extend(request_errors)
-        #Only sleep if we are indexing many pages at the same time
-        if url != urls[-1]:
-            sleep(2)
+            messages.extend(mgs)
+    else:
+        messages.extend(request_errors)
     return indexed, messages, share_url
 
 
@@ -220,15 +200,13 @@ def run_indexer_manual(url, title, doc, theme, lang, note, contributor, host_url
     messages = []
     indexed = False
     create_pod_npz_pos(contributor, theme, lang)
-    create_pod_in_db(contributor, theme, lang)
-    idx = add_to_idx_to_url(contributor, url)
-    success, text, snippet, vid = mk_page_vector.compute_vector_local_docs(\
+    success, text, snippet, idv = mk_page_vector.compute_vector_local_docs(\
             title, doc, theme, lang, contributor)
     share_url = join(host_url, url_for('api.return_specific_url')+'?url='+url)
     if success:
-        posix_doc(text, idx, contributor, lang, theme)
-        add_to_npz_to_idx(theme+'.u.'+contributor, lang, vid, idx)
-        create_or_replace_url_in_db(url, title, snippet, theme, lang, note, share_url, contributor, 'doc')
+        create_pod_in_db(contributor, theme, lang)
+        #posix_doc(text, idx, contributor, lang, theme)
+        create_or_replace_url_in_db(url, title, idv, snippet, theme, lang, note, share_url, contributor, 'doc')
         indexed = True
     else:
         messages.append(gettext("There was a problem indexing your entry. Please check the submitted data."))
@@ -242,19 +220,14 @@ def index_doc_from_cli(title, doc, theme, lang, contributor, url, note, host_url
     u = db.session.query(Urls).filter_by(url=url).first()
     if u:
         return False #URL exists already
-    create_idx_to_url(contributor)
     create_pod_npz_pos(contributor, theme, lang)
-    create_pod_in_db(contributor, theme, lang)
-    idx = add_to_idx_to_url(contributor, url)
-    success, text, snippet, vid = \
+    success, text, snippet, idv = \
             mk_page_vector.compute_vector_local_docs(title, doc, theme, lang, contributor)
     if success:
         create_pod_in_db(contributor, theme, lang)
-        posix_doc(text, idx, contributor, lang, theme)
-        add_to_npz_to_idx(theme+'.u.'+contributor, lang, vid, idx)
         share_url = join(host_url,'api', 'get?url='+url)
         create_or_replace_url_in_db(\
-                url, title, snippet, theme, lang, note, share_url, contributor, 'url')
+                url, title, idv, snippet, theme, lang, note, share_url, contributor, 'url')
         return True
     else:
         return False

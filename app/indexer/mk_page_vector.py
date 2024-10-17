@@ -72,8 +72,8 @@ def compute_vector(url, theme, contributor, url_type):
         pod_m, success = compute_and_stack_new_vec(lang, tokenized_text, pod_m)
         if success:
             save_npz(npz_path,pod_m)
-            vid = pod_m.shape[0]
-            return True, tokenized_text, lang, title, snippet, vid, messages
+            idv = pod_m.shape[0]-1
+            return True, tokenized_text, lang, title, snippet, idv, messages
     messages.append(">> INDEXER ERROR: compute_vectors: error during parsing")
     return False, None, None, None, None, None, messages
 
@@ -82,7 +82,8 @@ def compute_vector_local_docs(title, doc, theme, lang, contributor):
     """ Compute vector for manual document and add it to the matrix
     for the user's chosen theme.
     """
-    npz_path = join(pod_dir,contributor, lang, theme+'.u.'+contributor+'.npz')
+    user_dir = join(pod_dir, contributor, lang)
+    npz_path = join(user_dir,theme+'.u.'+contributor+'.npz')
     pod_m = load_npz(npz_path)
     #print("Computing vectors for", target_url, "(",theme,")",lang)
     text = title + ". " + theme + ". " + doc
@@ -94,7 +95,7 @@ def compute_vector_local_docs(title, doc, theme, lang, contributor):
         snippet = title
     if success:
         save_npz(npz_path,pod_m)
-        vid = pod_m.shape[0]
+        vid = pod_m.shape[0]-1
         return True, text, snippet, vid
     return False, text, snippet, None
 

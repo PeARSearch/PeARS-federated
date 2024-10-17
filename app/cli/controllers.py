@@ -5,7 +5,8 @@
 import re
 import requests
 from shutil import copy2, copytree
-from os.path import dirname, realpath, join
+from os import remove
+from os.path import dirname, realpath, join, exists
 from os import getenv
 from glob import glob
 from datetime import datetime
@@ -13,18 +14,18 @@ from pathlib import Path
 from random import shuffle
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
+import numpy as np
 import joblib
 from flask import Blueprint
 import click
 from werkzeug.security import generate_password_hash
-from scipy.sparse import load_npz
+from scipy.sparse import load_npz, save_npz, csr_matrix, vstack
 from app.indexer.controllers import run_indexer_url, index_doc_from_cli
 from app.indexer.access import request_url
 from app.indexer.posix import load_posix
 from app.indexer.htmlparser import extract_links
 from app.orchard.mk_urls_file import get_reindexable_pod_for_admin
-from app.utils_db import create_idx_to_url
-from app import db, User, Urls, Pods
+from app import db, User, Urls, Pods, VEC_SIZE
 
 pears = Blueprint('pears', __name__)
 
@@ -160,7 +161,6 @@ def index(host_url, filepath):
     users = User.query.all()
     for user in users:
         Path(join(pod_dir,user.username)).mkdir(parents=True, exist_ok=True)
-        create_idx_to_url(user.username)
     run_indexer_url(filepath, host_url)
 
 
@@ -227,7 +227,7 @@ def index_wiki(folder, regex, lang, contributor, host_url):
     - host_url: the domain of your instance, e.g. https://mypears.org.
 
     '''
-    corpus_files = glob(join(folder, regex ,'*.doc.txt'))
+    corpus_files = glob(join(folder, f'*{regex}*', '*.doc.txt'))
     for filepath in corpus_files:
         print(f">>Processing {filepath}...")
         with open(filepath, encoding='utf-8') as fin:
@@ -246,7 +246,8 @@ def index_wiki(folder, regex, lang, contributor, host_url):
                 elif "</doc" in l:
                     print(url,theme,title,doc[:30])
                     note = ""
-                    index_doc_from_cli(title, doc, theme, lang, contributor, url, note, host_url)
+                    if not title.startswith("Talk:"):
+                        index_doc_from_cli(title, doc, theme, lang, contributor, url, note, host_url)
                     doc = ""
                 else:
                     doc+=l+' '
@@ -401,3 +402,79 @@ def check_pos_vs_npz_to_idx(pod, username, language):
         print("\t\t> idx  :", set(idx1))
         print("\t\t> posix:", set(idx2))
     return set(idx1), set(idx2)
+
+#####################
+# REBUILD FROM DB
+#####################
+
+@pears.cli.command('rebuildfromdb')
+def rebuild_from_db():
+    idx_paths = []
+    pods = Pods.query.all()
+    for p in pods:
+        print(f"\n\n POD {p.name}")
+        m = np.zeros((1,VEC_SIZE))
+        m = csr_matrix(m)
+        try:
+            urls = db.session.query(Urls).filter_by(pod=p.name).all()
+            username = p.name.split('.u.')[1]
+            idx_path = join(pod_dir, username, username+'.idx')
+            if idx_path not in idx_paths:
+                idx_paths.append(idx_path)
+            idx_to_url = joblib.load(idx_path)
+        except:
+            print(f">> ERROR: CLI: REBUILD FROM DB: npz.idx for {p.name} is corrupted.")
+            print(f">> ERROR: CLI: REBUILD FROM DB: deleting pod {p.name} from the database.")
+            db.session.delete(p)
+            db.session.commit()
+            continue
+        
+        try:
+            npz_idx_path = join(pod_dir, username, p.language, p.name+'.npz.idx')
+            npz_to_idx = joblib.load(npz_idx_path)
+        except:
+            print(f">> ERROR: CLI: REBUILD FROM DB: npz.idx for {p.name} does not exist.")
+            print(f">> ERROR: CLI: REBUILD FROM DB: deleting pod {p.name} from the database.")
+            db.session.delete(p)
+            db.session.commit()
+            continue
+
+        try:
+            npz_path = join(pod_dir, username, p.language, p.name+'.npz')
+            npz = load_npz(npz_path).toarray()
+        except:
+            print(f">> ERROR: CLI: REBUILD FROM DB: npz for {p.name} does not exist.")
+            print(f">> ERROR: CLI: REBUILD FROM DB: deleting pod {p.name} from the database.")
+            db.session.delete(p)
+            db.session.commit()
+            continue
+
+        for u in urls:
+            row = None
+            try:
+                k = idx_to_url[1].index(u.url)
+                idx = idx_to_url[0][k]
+                k = npz_to_idx[1].index(idx)
+                row = npz_to_idx[0][k]
+                v = npz[row]
+            except:
+                print(f">> ERROR: CLI: REBUILD FROM DB: matrix row not found for url {u.url}.")
+                print(f">> ERROR: CLI: REBUILD FROM DB: deleting url {u.url} from the database.")
+                db.session.delete(u)
+                db.session.commit()
+                continue
+            m = vstack((m,v))
+            u.vector = m.shape[0]-1
+            db.session.add(u)
+            db.session.commit()
+
+        # Clean up: save new npz and remove unused files
+        save_npz(npz_path, m)
+        remove(npz_idx_path)
+
+        pos_path = join(pod_dir, username, p.language, p.name+'.pos')
+        if exists(pos_path):
+            remove(pos_path)
+
+    for idx_path in idx_paths:
+        remove(idx_path)

@@ -22,7 +22,6 @@ from app.api.models import Urls
 from app.search.overlap_calculation import (snippet_overlap,
         score_url_overlap, posix, posix_no_seq)
 from app.utils import parse_query, timer
-from app.utils_db import load_idx_to_url, load_npz_to_idx
 from app.indexer.mk_page_vector import compute_query_vectors
 from app.indexer.posix import load_posix
 
@@ -55,38 +54,29 @@ def mk_vec_matrix(lang):
     pod matrices."""
     c = 0
     podnames = []
-    urls = []
     bins = [c]
+    m = []
+    urls = []
+
     npzs = glob(join(pod_dir,'*',lang,'*.u.*npz'))
     for npz in npzs:
         podnames.append(npz.split('/')[-1].replace('.npz',''))
-    m = load_npz(npzs[0]).toarray()
-    c+=m.shape[0]
-    bins.append(c)
-    username = npzs[0].split('.u.')[1].replace('.npz','')
-    idxs = joblib.load(join(pod_dir, username, lang, npzs[0].replace('.npz','')+'.npz.idx'))[1]
-    idx_to_url = joblib.load(join(pod_dir, username, username+'.idx'))
-    for idx in idxs:
-        if idx in idx_to_url[0]:
-            i = idx_to_url[0].index(idx)
-            urls.append(idx_to_url[1][i])
-        else:
-            urls.append('none')
-    for i in range(1,len(npzs)):
-        npz = load_npz(npzs[i]).toarray()
-        username = npzs[i].split('.u.')[1].replace('.npz','')
-        m = vstack((csr_matrix(m), csr_matrix(npz)))
-        c+=npz.shape[0]
-        bins.append(c)
-        idxs = joblib.load(join(pod_dir, username, lang, npzs[i].replace('.npz','')+'.npz.idx'))[1]
-        idx_to_url = joblib.load(join(pod_dir, username, username+'.idx'))
-        for idx in idxs:
-            if idx in idx_to_url[0]:
-                i = idx_to_url[0].index(idx)
-                urls.append(idx_to_url[1][i])
-            else:
-                urls.append('none')
-    m = csr_matrix(m)
+
+    with app.app_context():
+        for i in range(len(podnames)):
+            us = db.session.query(Urls).filter_by(pod=podnames[i]).all()
+            if len(us) == 0:
+                continue
+            upaths = [u.url for u in us if u.vector is not None]
+            idvs = [u.vector for u in us if u.vector is not None]
+            urls.extend(upaths)
+            npz = load_npz(npzs[i]).toarray()
+            npz = npz[idvs,:]
+            m.append(csr_matrix(npz))
+            c+=npz.shape[0]
+            bins.append(c)
+        m = vstack(m)
+        m = csr_matrix(m)
     return m, bins, podnames, urls
 
 
@@ -128,8 +118,12 @@ def compute_scores(query, query_vectors, lang):
 
     snippet_scores = {}
     for u in us:
-        snippet = ' '.join(u.snippet.split()[:snippet_length])
-        snippet_score = snippet_overlap(query, u.title+' '+snippet)
+        if u.snippet is None:
+            u.snippet = ''
+            snippet_score = 0.0
+        else:
+            snippet = ' '.join(u.snippet.split()[:snippet_length])
+            snippet_score = snippet_overlap(query, u.title+' '+snippet)
         snippet_scores[u.url] = snippet_score
 
     for i, u in enumerate(best_urls):

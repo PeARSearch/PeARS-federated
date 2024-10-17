@@ -128,7 +128,6 @@ app.config['EXTEND_QUERY'] = True if getenv("EXTEND_QUERY", "false").lower() == 
 # Make sure user data directories exist
 DEFAULT_PATH = dir_path
 Path(path.join(DEFAULT_PATH,'userdata')).mkdir(parents=True, exist_ok=True)
-Path(path.join(DEFAULT_PATH,'admindata')).mkdir(parents=True, exist_ok=True)
 if getenv("SUGGESTIONS_DIR", "") != "":
     Path(getenv("SUGGESTIONS_DIR")).mkdir(parents=True, exist_ok=True)
 
@@ -259,7 +258,8 @@ if not app.config['LIVE_MATRIX']:
 from flask_admin.contrib.sqla import ModelView
 from app.api.models import Pods, Urls, User, Personalization
 from app.api.controllers import return_pod_delete
-from app.utils_db import delete_url_representations
+from app.utils_db import delete_url_representations, delete_pod_representations, \
+        rm_from_npz, add_to_npz, create_pod_in_db, create_pod_npz_pos, rm_doc_from_pos, update_db_idvs_after_npz_delete
 
 from flask_admin import expose
 from flask_admin.contrib.sqla.view import ModelView
@@ -288,12 +288,11 @@ class MyAdminIndexView(AdminIndexView):
 
 admin = Admin(app, name='PeARS DB', template_mode='bootstrap3', index_view=MyAdminIndexView())
 
-
 class UrlsModelView(ModelView):
     list_template = 'admin/pears_list.html'
-    column_exclude_list = ['vector','snippet','date_created','date_modified']
-    column_searchable_list = ['url', 'title', 'doctype', 'notes', 'pod']
-    column_editable_list = ['notes']
+    column_hide_backrefs = False
+    column_list = ['url', 'title', 'pod', 'notes']
+    column_searchable_list = ['url', 'title', 'pod', 'notes']
     can_edit = True
     page_size = 100
     form_widget_args = {
@@ -301,12 +300,6 @@ class UrlsModelView(ModelView):
             'readonly': True
         },
         'url': {
-            'readonly': True
-        },
-        'pod': {
-            'readonly': True
-        },
-        'snippet': {
             'readonly': True
         },
         'date_created': {
@@ -326,14 +319,66 @@ class UrlsModelView(ModelView):
         except Exception as ex:
             if not self.handle_view_exception(ex):
                 flash(gettext('Failed to delete record. %(error)s', error=str(ex)), 'error')
-
             self.session.rollback()
-
             return False
         else:
             self.after_model_delete(model)
 
         return True
+
+    def update_model(self, form, model):
+        """
+            Update model from form.
+        """
+        try:
+            # at this point model variable has the unmodified values
+            old_pod = model.pod
+            _, contributor = old_pod.split('.u.')
+            if '.u.' not in form.pod.data:
+                form.pod.data+='.u.'+contributor
+            new_pod = form.pod.data
+            new_theme = new_pod.split('.u.')[0]
+            p = db.session.query(Pods).filter_by(name=old_pod).first()
+            lang = p.language
+            form.populate_obj(model)
+
+            # at this point model variable has the form values
+            # your on_model_change is called
+            self._on_model_change(form, model, False)
+
+            # model is now being committed
+            self.session.commit()
+        except Exception as ex:
+            if not self.handle_view_exception(ex):
+                flash(gettext('Failed to update record. %(error)s', error=str(ex)), 'error')
+            self.session.rollback()
+            return False
+        else:
+            # model is now committed to the database
+            if old_pod != new_pod:
+                print(f"Pod name has changed from {old_pod} to {new_pod}!")
+                print("Move vector in npz file")
+                try:
+                    pod_path = create_pod_npz_pos(contributor, new_theme, lang)
+                    create_pod_in_db(contributor, new_theme, lang)
+                    idv, v = rm_from_npz(model.vector, old_pod)
+                    update_db_idvs_after_npz_delete(idv, old_pod)
+                    add_to_npz(v, pod_path+'.npz')
+                    #Removing from pos but not re-adding since current version does not make use of positional index. To fix.
+                    rm_doc_from_pos(model.id, old_pod)
+                    self.session.commit()
+                    #If pod empty, delete
+                    if len(db.session.query(Urls).filter_by(pod=old_pod).all()) == 0:
+                        delete_pod_representations(old_pod)
+
+                except Exception as ex:
+                    if not self.handle_view_exception(ex):
+                        flash(gettext('Failed to update record. %(error)s', error=str(ex)), 'error')
+                    self.session.rollback()
+                    return False
+            self.after_model_change(form, model, False)
+        return True
+
 
 class PodsModelView(ModelView):
     list_template = 'admin/pears_list.html'

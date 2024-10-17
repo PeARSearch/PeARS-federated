@@ -8,6 +8,7 @@ from os.path import dirname, realpath, join, isfile
 from pathlib import Path
 from string import punctuation
 import joblib
+from sqlalchemy import update
 import numpy as np
 from scipy.sparse import csr_matrix, load_npz, vstack, save_npz
 from app import db, models, VEC_SIZE
@@ -29,21 +30,6 @@ def parse_pod_name(pod_name):
 # Creating
 ###########
 
-def create_idx_to_url(contributor):
-    """ Doc ID to URL table initialisation.
-    This happens once when the user indexes
-    for the first time.
-    """
-    # One idx to url dictionary per user
-    user_dir = join(pod_dir,contributor)
-    Path(user_dir).mkdir(parents=True, exist_ok=True)
-    user_path = join(user_dir, contributor+'.idx')
-    if not isfile(user_path):
-        logging.debug(f">> UTILS_DB: create_idx_to_url: Making idx dictionaries for new user.")
-        idx_to_url = [[],[]]
-        joblib.dump(idx_to_url, user_path)
-
-
 def create_pod_npz_pos(contributor, theme, lang):
     """ Pod npz and pos initialisation.
     This happens when the user indexes for the 
@@ -64,12 +50,7 @@ def create_pod_npz_pos(contributor, theme, lang):
         logging.debug(">> UTILS_DB: create_pod_npz_pos: Making empty positional index for new pod")
         posindex = [{} for _ in range(len(vocab))]
         joblib.dump(posindex, pod_path+'.pos')
-
-    if not isfile(pod_path+'.npz.idx'):
-        logging.debug(">> UTILS_DB: create_pod_npz_pos: Making idx dictionaries for new pod")
-        # Lists of lists to make deletions easier
-        npz_to_idx = [[0],[-1]] # For row 0 of the matrix
-        joblib.dump(npz_to_idx, pod_path+'.npz.idx')
+    return pod_path
 
 
 def create_pod_in_db(contributor, theme, lang):
@@ -87,7 +68,7 @@ def create_pod_in_db(contributor, theme, lang):
         db.session.add(p)
         db.session.commit()
 
-def create_or_replace_url_in_db(url, title, snippet, theme, lang, note, share, contributor, entry_type):
+def create_or_replace_url_in_db(url, title, idv, snippet, theme, lang, note, share, contributor, entry_type):
     """Add a new URL to the database or update it.
     Arguments: url, title, snippet, theme, language,
     note warning, username, type (url or doc).
@@ -99,6 +80,7 @@ def create_or_replace_url_in_db(url, title, snippet, theme, lang, note, share, c
     else:
         u = Urls(url=url)
     u.title = title
+    u.vector = idv
     u.snippet = snippet
     u.pod = theme+'.u.'+contributor
     u.language = lang
@@ -114,22 +96,7 @@ def create_or_replace_url_in_db(url, title, snippet, theme, lang, note, share, c
             u.notes = note
     db.session.add(u)
     db.session.commit()
-
-###########
-# Loading
-###########
-
-def load_idx_to_url(contributor):
-    user_dir = join(pod_dir,contributor)
-    path = join(user_dir, contributor+'.idx')
-    idx_to_url = joblib.load(path)
-    return idx_to_url, path
-
-def load_npz_to_idx(contributor, lang, theme):
-    user_dir = join(pod_dir, contributor, lang)
-    pod_path = join(user_dir, theme+'.u.'+contributor+'.npz.idx')
-    npz_to_idx = joblib.load(pod_path)
-    return npz_to_idx, pod_path
+    return u.id
 
 
 ##########
@@ -152,37 +119,6 @@ def add_to_npz(v, pod_path):
     return vid
 
 
-def add_to_idx_to_url(contributor, url):
-    """Add an entry to the IDX to URL map.
-    Arguments: username, url.
-    Return: the newly create IDX for this url.
-    """
-    idx_to_url, pod_path = load_idx_to_url(contributor)
-    if len(idx_to_url[0]) > 0:
-        idx = idx_to_url[0][-1]+1
-    else:
-        idx = 0
-    idx_to_url[0].append(idx)
-    idx_to_url[1].append(url)
-    joblib.dump(idx_to_url, pod_path)
-    return idx
-
-
-def add_to_npz_to_idx(pod_name, lang, vid, idx):
-    """Record the ID of the document given
-    its position in the npz matrix.
-    NB: the lists do not have to be in the
-    order of the matrix.
-    """
-    contributor = pod_name.split('.u.')[1]
-    user_dir = join(pod_dir,contributor)
-    pod_path = join(user_dir, lang, pod_name+'.npz.idx')
-    npz_to_idx = joblib.load(pod_path)
-    npz_to_idx[0] = list(range(vid))
-    npz_to_idx[1].append(idx)
-    joblib.dump(npz_to_idx, pod_path)
-
-
 ############
 # Deleting
 ############
@@ -200,7 +136,6 @@ def delete_pod_representations(pod_name):
     if urls is not None:
         for u in urls:
             #This is going to be slow for many urls...
-            rm_from_idx_to_url(contributor, u.url)
             db.session.delete(u)
             db.session.commit()
     npz_path = join(pod_dir, contributor, lang, pod_name+'.npz')
@@ -223,14 +158,19 @@ def delete_url_representations(url):
     pod = u.pod
     username = pod.split('.u.')[1]
     logging.debug(f">> UTILS_DB: delete_url_representations: POD {pod}, USER {username}")
-    idx = rm_from_idx_to_url(username, url)
-    vid = rm_from_npz_to_idx(pod, idx)
 
     #Remove document row from .npz matrix
-    rm_from_npz(vid, pod)
+    try:
+        idv, _ = rm_from_npz(u.vector, pod)
+        update_db_idvs_after_npz_delete(idv, pod)
+    except:
+        logging.debug(f">> UTILS_DB: delete_url_representations: could not remove vector from npz file.")
 
     #Remove doc from positional index
-    rm_doc_from_pos(idx, pod)
+    try:
+        rm_doc_from_pos(u.id, pod)
+    except:
+        logging.debug(f">> UTILS_DB: delete_url_representations: could not remove vector from pos file.")
 
     #Delete from database
     db.session.delete(u)
@@ -241,35 +181,6 @@ def delete_url_representations(url):
         delete_pod_representations(pod)
     
     return "Deleted document with url "+url
-
-
-def rm_from_idx_to_url(contributor, url):
-    idx_to_url, path = load_idx_to_url(contributor)
-    logging.debug(f">> UTILS_DB: rm_from_idx_to_url: IDX_TO_URL BEFORE RM {idx_to_url}")
-    i = idx_to_url[1].index(url)
-    idx = idx_to_url[0][i]
-    idx_to_url[0].pop(i)
-    idx_to_url[1].pop(i)
-    logging.debug(f">> UTILS_DB: rm_from_idx_to_url: IDX_TO_URL AFTER RM {idx_to_url}")
-    logging.debug(f">> UTILS_DB: rm_from_idx_to_url: INDEX OF REMOVED ITEM {idx}")
-    joblib.dump(idx_to_url, path)
-    return idx
-
-def rm_from_npz_to_idx(pod_name, idx):
-    """Remove doc from npz to idx record.
-    NB: the lists do not have to be in the
-    order of the matrix.
-    """
-    contributor, theme, lang = parse_pod_name(pod_name)
-    npz_to_idx, pod_path = load_npz_to_idx(contributor, lang, theme)
-    logging.debug(f">> UTILS_DB: rm_from_npz_to_idx: NPZ_TO_IDX BEFORE RM: {npz_to_idx}")
-    i = npz_to_idx[1].index(idx)
-    npz_to_idx[1].pop(i)
-    npz_to_idx[0] = list(range(len(npz_to_idx[1])))
-    logging.debug(f">> UTILS_DB: rm_from_npz_to_idx: NPZ_TO_IDX AFTER RM: {npz_to_idx}")
-    logging.debug(f">> UTILS_DB: rm_from_npz_to_idx: INDEX OF REMOVED ITEM {i}")
-    joblib.dump(npz_to_idx, pod_path)
-    return i
 
 
 def rm_from_npz(vid, pod_name):
@@ -291,7 +202,15 @@ def rm_from_npz(vid, pod_name):
     pod_m = vstack((m1,m2))
     logging.debug(f">> UTILS_DB: rm_from_npz: SHAPE OF NPZ MATRIX AFTER RM: {pod_m.shape}")
     save_npz(pod_path, pod_m)
-    return v
+    return vid, v
+
+##############
+# CLEANING
+##############
+def update_db_idvs_after_npz_delete(idv, pod):
+    condition = (Urls.pod == pod) & (Urls.vector > idv)
+    update_stmt = update(Urls).where(condition).values(vector=Urls.vector-1)
+    db.session.execute(update_stmt)
 
 
 def rm_doc_from_pos(vid, pod):
