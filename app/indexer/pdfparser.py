@@ -19,7 +19,6 @@ from app.api.models import installed_languages
 from app.utils import remove_emails
 
 app_dir_path = dirname(dirname(realpath(__file__)))
-suggestions_dir_path = getenv("SUGGESTIONS_DIR", join(app_dir_path, 'userdata'))
 
 
 def pdf_mine(pdf_path, max_pages = 12):
@@ -30,11 +29,13 @@ def pdf_mine(pdf_path, max_pages = 12):
     title = metadata[0]['Title'].decode(encoding='utf-8', errors='ignore').replace('\x00', '')
     #authors = metadata[0]['Author'].decode(encoding='utf-8', errors='ignore').replace('\x00', '')
     if which('pdftotext') is not None:
+        print("Indexing with installed pdftotext")
         subprocess.call(['pdftotext', '-l', str(max_pages), pdf_path])
         txt_path = pdf_path.replace('.pdf','.txt')
         with open(txt_path, 'r') as ftxt:
             body = ftxt.read().replace('\n', ' ')
     else:
+        print("Indexing with pdfminer")
         c = 0
         for page_layout in extract_pages(pdf_path):
             for element in page_layout:
@@ -59,7 +60,7 @@ def extract_txt(url, contributor):
     language = app.config['LANGS'][0]
     error = None
     snippet_length = app.config['SNIPPET_LENGTH']
-    local_pdf_path = join(suggestions_dir_path, contributor+'.'+url.split('/')[-1])
+    local_pdf_path = join(app_dir_path, 'userdata', contributor+'.'+url.split('/')[-1])
     try:
         req = requests.get(url, allow_redirects=True, timeout=30)
         req.encoding = 'utf-8'

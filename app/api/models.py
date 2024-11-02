@@ -47,6 +47,7 @@ class Urls(Base):
     title = db.Column(db.String(1000))
     snippet = db.Column(db.String(1000))
     doctype = db.Column(db.String(1000))
+    vector = db.Column(db.Integer)
     pod = db.Column(db.String(1000))
     notes = db.Column(db.String(1000))
     img = db.Column(db.String(1000))
@@ -58,6 +59,7 @@ class Urls(Base):
                  title=None,
                  snippet=None,
                  doctype=None,
+                 vector=None,
                  pod=None,
                  notes=None,
                  img=None,
@@ -67,6 +69,7 @@ class Urls(Base):
         self.title = title
         self.snippet = snippet
         self.doctype = doctype
+        self.vector = vector
         self.pod = pod
         self.notes = notes
         self.img = img
@@ -84,6 +87,7 @@ class Urls(Base):
             'title': self.title,
             'snippet': self.snippet,
             'doctype': self.doctype,
+            'vector': self.vector,
             'pod': self.pod,
             'notes': self.notes,
             'img': self.img,

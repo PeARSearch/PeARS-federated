@@ -41,5 +41,14 @@ SPDX-License-Identifier: AGPL-3.0-only
 
     <div class="container">
     {{ super() }}
+    <style>
+        .select2-results {
+            max-height: 400px !important;
+        }
+
+        .select2-container {
+            width: 400px !important;
+        }
+    </style>
     </div>
 {% endblock %}

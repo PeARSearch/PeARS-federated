@@ -15,22 +15,21 @@ SPDX-License-Identifier: AGPL-3.0-only
           <div class="alert alert-info alert-dismissible">
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             <div class="d-flex justify-content-start">
-	            {% if session.get('theme') == 'dark' %}
-	             <img src="{{ url_for('static', filename='happy_pears_dark.png')}}" width="40px" style="margin-right:10px">
-	            {% else %}
-	              <img src="{{ url_for('static', filename='happy_pears.png')}}" width="40px" style="margin-right:10px">
+	      {% if session.get('theme') == 'dark' %}
+	        <img src="{{ url_for('static', filename='happy_pears_dark.png')}}" width="40px" style="margin-right:10px">
+	      {% else %}
+	        <img src="{{ url_for('static', filename='happy_pears.png')}}" width="40px" style="margin-right:10px">
               {% endif %}
-            
-	            {{internal_message}}
+	      {{internal_message}}
             </div>
-	        </div>
+	  </div>
         </div>     
         {% endif %}
       <form method="POST" action="{{url_for('search.index')}}" enctype="multipart/form-data" id='searchform'>
         {{ searchform.hidden_tag() }}
         <div class="input-group group mt-4" >
           {{ render_search_field(searchform.query, placeholder) }}
-	        <button class="btn btn-lg btn-success" type="submit" id='searchbutton'><ion-icon name="search-outline"></ion-icon></button>
+	  <button class="btn btn-lg btn-success" type="submit" id='searchbutton'><ion-icon name="search-outline"></ion-icon></button>
           <button class="btn btn-lg btn-success" type="button" id='loadingbutton' style='display:none'>
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
           </button>
@@ -39,54 +38,56 @@ SPDX-License-Identifier: AGPL-3.0-only
       {% if config['FEEDBACK_FORM'] %}
         <p class="small">Help us improve this alpha version of PeARS! <a href={{url_for('orchard.feedback')}}>Send us your feedback.</a></p>
       {% endif %}
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-10">
-	    {% if results == None %}
-	      <p>{{gettext('<b>No results found.</b><br> The reason for this could be that the topic of this PeARS instance is not aligned with your query. 
-	  It could also be that its index is still too small! We would be happy if you contributed to the index by adding your favourite URLs
-	  on your topic.')}}</p>
-	      <br><p>{{gettext('No account yet?')}} <a href={{url_for('auth.signup')}}>{{gettext('Sign up')}}</a></p>
-	    {% else %}
-	      <h3>{{gettext('Search results:')}}</h3>
-        {% for result in results %}
-        <div class="card mt-2">
-          <div class="card-body" style="padding: 20px 0px 20px 0px">
-	          <div class="d-flex justify-content-between">
-		          <div><ion-icon name="globe"></ion-icon> <a href="{{result[1]}}" style="text-decoration: none; font-size: large"><b>{{result[2]}}</b></a></div>
-	            <div>
-	              <a class="btn btn-link" href="{{url_for('orchard.annotate')}}?url={{result[1]}}" data-toggle="tooltip" title="{{gettext('Add a note to this entry')}}"><ion-icon name="chatbubble-outline"></ion-icon></a>  
-	              <a class="btn btn-link" href="{{url_for('orchard.report')}}?url={{result[1]}}"  data-toggle="tooltip" title="{{gettext('Report this entry')}}"><ion-icon name="flag-outline"></ion-icon></a> 
-	              <button class="btn btn-link" data-toggle="tooltip" title="{{gettext('Share this entry')}}" onClick="copyToClipboard('{{result[8]}}', 'copy{{result[0]}}')" id="copy{{result[0]}}"><ion-icon name="share-outline"></ion-icon></button> 
-              </div>
-            </div>
-	          <p class="card-text small"><a href="{{result[1]}}" class="card-link">{{result[1]}}</a></p><!-- explicit link-->
-	          <p class="card-text small" style="margin-top:-10px">
-              <br>{{result[3]|safe}}<!--snippet-->
-              {% if result[6] != None %}
-	              <button class="btn btn-link collapsed" data-bs-toggle="collapse" data-bs-target="#collapse{{result[0]}}" aria-expanded="false" aria-controls="collapse{{result[0]}}">
-	              <img src="{{ url_for('static', filename='note.png')}}" width='30px' />
-                </button>
-              {% endif %}
-            </p>
-            {% if result[6] != None %}<!-- note -->
-              <div class="collapse" id="collapse{{result[0]}}">
-                <p class="card-text small">
-	              {% for note in result[6] %}
-	                {{note}}<br>
-	              {% endfor %}
-	              </p>
-	            </div><!-- note -->
-	          {% endif %}
-            <hr>
-	        </div><!-- div card-body -->
-	      </div><!-- div card mt-2 -->
-        {% endfor %}
-      {% endif %}
       </div><!-- col -->
     </div><!-- row -->
-  </div>
+
+    <div class="row">
+      <div class="col-md-10">
+        {% if results == None %}
+	  <p>{{gettext('<b>No results found.</b><br> The reason for this could be that the topic of this PeARS instance is not aligned with your query. 
+	  It could also be that its index is still too small! We would be happy if you contributed to the index by adding your favourite URLs
+	  on your topic.')}}</p>
+	  <br><p>{{gettext('No account yet?')}} <a href={{url_for('auth.signup')}}>{{gettext('Sign up')}}</a></p>
+	{% else %}
+	  <h3>{{gettext('Search results:')}}</h3>
+          {% for result in results %}
+          <div class="card mt-2">
+            <div class="card-body" style="padding: 20px 0px 20px 0px">
+              <div class="d-flex justify-content-between"><!-- card header: links -->
+	        <div><ion-icon name="globe"></ion-icon> <a href="{{result[1]}}" style="text-decoration: none; font-size: large"><b>{{result[2]}}</b></a></div>
+	        <div>
+	          <a class="btn btn-link" href="{{url_for('orchard.annotate')}}?url={{result[1]}}" data-toggle="tooltip" title="{{gettext('Add a note to this entry')}}"><ion-icon name="chatbubble-outline"></ion-icon></a>  
+	          <a class="btn btn-link" href="{{url_for('orchard.report')}}?url={{result[1]}}"  data-toggle="tooltip" title="{{gettext('Report this entry')}}"><ion-icon name="flag-outline"></ion-icon></a> 
+	          <button class="btn btn-link" data-toggle="tooltip" title="{{gettext('Share this entry')}}" onClick="copyToClipboard('{{result[8]}}', 'copy{{result[0]}}')" id="copy{{result[0]}}"><ion-icon name="share-outline"></ion-icon></button> 
+                </div>
+	      </div><!-- card heard: links -->
+
+	      <p class="card-text small"><a href="{{result[1]}}" class="card-link">{{result[1]}}</a></p><!-- explicit link-->
+	      <p class="card-text small" style="margin-top:-10px">
+              <br>{{result[3]|safe}}<!--snippet-->
+              {% if result[7] != None %}
+	        <button class="btn btn-link collapsed" data-bs-toggle="collapse" data-bs-target="#collapse{{result[0]}}" aria-expanded="false" aria-controls="collapse{{result[0]}}">
+	          <img src="{{ url_for('static', filename='note.png')}}" width='30px' />
+                </button>
+              {% endif %}
+              </p>
+              {% if result[7] != None %}<!-- note -->
+              <div class="collapse" id="collapse{{result[0]}}">
+                <p class="card-text small">
+	          {% for note in result[7] %}
+	            {{note}}<br>
+	          {% endfor %}
+	        </p>
+	      </div>
+	      {% endif %}<!-- note -->
+              <hr>
+	    </div><!-- div card-body -->
+	  </div><!-- div card mt-2 -->
+          {% endfor %}
+        {% endif %}
+      </div><!-- col -->
+    </div><!-- row -->
+</div><!-- container -->
 <script src="{{ url_for('static', filename='js/loading.js')}}"></script>
 <script>
 $(document).ready(function(){

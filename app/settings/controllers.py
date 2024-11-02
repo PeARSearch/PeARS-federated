@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>, 
+# SPDX-FileCopyrightText: 2024 PeARS Project, <community@pearsproject.org>, 
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
@@ -14,7 +14,6 @@ from flask_babel import gettext
 from app import app, db
 from app.api.models import Urls, User
 from app.forms import EmailChangeForm, UsernameChangeForm
-from app.api.controllers import return_url_delete
 from app.utils_db import delete_url_representations
 from app.auth.decorators import check_is_confirmed
 from app.auth.token import send_email
@@ -165,8 +164,7 @@ def delete_account():
     current_user.remove()
     db.session.commit()
     flash(gettext("Your account has successfully been deleted."), "success")
-    placeholder = app.config['SEARCH_PLACEHOLDER']
-    return render_template('search/index.html', own_brand=OWN_BRAND, placeholder=placeholder)
+    return redirect(url_for("search.index"))
 
 
 @settings.route('/change_email', methods=['POST'])
