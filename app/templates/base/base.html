@@ -66,12 +66,11 @@ SPDX-License-Identifier: AGPL-3.0-only
                     <hr class="d-lg-none text-white-50">
                 </li>
                 <li class="nav-item"><a class="nav-link" href="{{url_for('search.index')}}">{{gettext('Search')}}</a></li>
-		{% if current_user.is_authenticated and current_user.is_confirmed %}
+                <li class="nav-item"><a class="nav-link" href="{{url_for('indexer.suggest')}}">{{gettext('Suggest')}}</a></li>
+		{% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
                 <li class="nav-item"><a class="nav-link" href="{{url_for('indexer.index')}}">{{gettext('Index')}}</a></li>
 		{% endif %}
-		{% if current_user.is_authenticated and current_user.is_confirmed %}
-                <li class="nav-item"><a class="nav-link" href="{{url_for('orchard.index')}}">{{gettext('Themes')}}</a></li>
-		{% endif %}
+                <li class="nav-item"><a class="nav-link" href="{{url_for('orchard.index')}}">{{gettext('Categories')}}</a></li>
 		{% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
                 <li class="nav-item"><a class="nav-link" href="{{url_for('admin.index')}}">{{gettext('DB Admin')}}</a></li>          
 		{% endif %}

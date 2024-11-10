@@ -18,7 +18,7 @@ from app.indexer.posix import load_posix, dump_posix
 from app.indexer.vectorizer import scale
 from app.search.controllers import get_search_results, prepare_gui_results
 from app.search.score_pages import mk_podsum_matrix
-from app.utils_db import delete_pod_representations
+from app.utils_db import delete_pod_representations, create_suggestion_in_db
 
 # Define the blueprint:
 api = Blueprint('api', __name__, url_prefix='/api')
@@ -77,7 +77,6 @@ def return_pod_delete(pod_name):
 def return_urls():
     return jsonify(json_list=[i.serialize for i in Urls.query.all()])
 
-
 @api.route('/get', methods=["GET"])
 def return_specific_url():
     internal_message = ""
@@ -90,4 +89,11 @@ def return_specific_url():
     return render_template('search/results.html', query="", results=displayresults, \
             internal_message=internal_message, searchform=SearchForm())
 
-
+@api.route('/suggest/', methods=['POST'])
+def post_suggestion():
+    url = request.form.get('url')
+    theme = request.form.get('theme')
+    note = request.form.get('note')
+    contributor = 'anonymous'
+    create_suggestion_in_db(url=url, pod=theme, notes=note, contributor=contributor)
+    return "Thank you for your suggestion."

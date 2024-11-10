@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2023 PeARS Project, <community@pearsproject.org>,
+# SPDX-FileCopyrightText: 2024 PeARS Project, <community@pearsproject.org>,
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
@@ -7,19 +7,20 @@ from os import getenv
 from os.path import dirname, join, realpath
 from time import sleep
 import hashlib
-from flask import session, Blueprint, request, render_template, url_for, flash
+from flask import session, Blueprint, request, render_template, url_for, flash, redirect
 from flask_login import login_required, current_user
 from flask_babel import gettext
 from langdetect import detect
-from app.auth.decorators import check_is_confirmed
+from app.auth.captcha import mk_captcha, check_captcha
+from app.auth.decorators import check_is_confirmed, check_is_admin
 from app import app, db
 from app.api.models import Urls, Pods
 from app.indexer import mk_page_vector
 from app.utils import read_urls, parse_query
-from app.utils_db import create_pod_in_db, create_pod_npz_pos, create_or_replace_url_in_db, delete_url_representations
+from app.utils_db import create_pod_in_db, create_pod_npz_pos, create_or_replace_url_in_db, delete_url_representations, create_suggestion_in_db
 from app.indexer.access import request_url
 from app.indexer.posix import posix_doc
-from app.forms import IndexerForm, ManualEntryForm
+from app.forms import IndexerForm, ManualEntryForm, SuggestionForm
 
 app_dir_path = dirname(dirname(realpath(__file__)))
 
@@ -30,6 +31,7 @@ indexer = Blueprint('indexer', __name__, url_prefix='/indexer')
 @indexer.route("/", methods=["GET"])
 @login_required
 @check_is_confirmed
+@check_is_admin
 def index():
     """Displays the indexer page.
     Computes and returns the total number
@@ -46,10 +48,23 @@ def index():
     return render_template("indexer/index.html", \
             num_entries=num_db_entries, form1=form1, form2=form2, themes=themes, default_screen=default_screen)
 
+@indexer.route("/suggest", methods=["GET"])
+def suggest():
+    """Suggests a URL without indexing.
+    """
+    captcha = mk_captcha()
+    form = SuggestionForm()
+    form.captcha.data = captcha
+    form.captcha_answer.label = captcha
+    pods = Pods.query.all()
+    themes = list(set([p.name.split('.u.')[0] for p in pods]))
+    return render_template("indexer/suggest.html", form=form, themes=themes)
+
 
 @indexer.route("/amend", methods=["GET"])
 @login_required
 @check_is_confirmed
+@check_is_admin
 def correct_entry():
     """Redisplays the indexer page when the
     user wishes to change their entry.
@@ -83,6 +98,7 @@ def correct_entry():
 @indexer.route("/url", methods=["POST"])
 @login_required
 @check_is_confirmed
+@check_is_admin
 def index_from_url():
     """ Route for URL entry form.
     This is to index a URL that the user
@@ -117,6 +133,7 @@ def index_from_url():
 @indexer.route("/manual", methods=["POST"])
 @login_required
 @check_is_confirmed
+@check_is_admin
 def index_from_manual():
     """ Route for manual (offline) entry form.
     This is to index offline tips that the user
@@ -149,6 +166,40 @@ def index_from_manual():
         return render_template('indexer/fail.html', messages = messages)
     return render_template('indexer/index.html', form1=IndexerForm(request.form), form2=form)
 
+@indexer.route("/suggestion", methods=["POST"])
+def run_suggest_url():
+    """ Save the suggested URL in waiting list.
+    """
+    print(">> INDEXER: run_suggest_url: Save suggested URL.")
+    form = IndexerForm(request.form)
+    if form.validate_on_submit():
+        url = request.form.get('suggested_url').strip()
+        theme = request.form.get('theme').strip()
+        note = request.form.get('note').strip()
+        captcha = request.form.get('captcha')
+        captcha_answer = request.form.get('captcha_answer')
+        if current_user.is_authenticated:
+            contributor = current_user.username
+        else:
+            contributor = 'anonymous'
+        
+        if not check_captcha(captcha, captcha_answer):
+            flash(gettext('The captcha was incorrectly answered.'))
+            return redirect(url_for('indexer.suggest'))
+
+        print(url, theme, note)
+        create_suggestion_in_db(url=url, pod=theme, notes=note, contributor=contributor)
+        flash(gettext('Many thanks for your suggestion'))
+        return redirect(url_for('indexer.suggest'))
+    else:
+        print("FORM ERRORS:", form.errors)
+        captcha = mk_captcha()
+        form = SuggestionForm(request.form)
+        form.captcha.data = captcha
+        form.captcha_answer.label = captcha
+        pods = Pods.query.all()
+        themes = list(set([p.name.split('.u.')[0] for p in pods]))
+        return render_template('indexer/suggest.html', form=form, themes=themes)
 
 
 def run_indexer_url(url, theme, note, contributor, host_url):

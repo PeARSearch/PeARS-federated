@@ -256,7 +256,7 @@ if not app.config['LIVE_MATRIX']:
 #######
 
 from flask_admin.contrib.sqla import ModelView
-from app.api.models import Pods, Urls, User, Personalization
+from app.api.models import Pods, Urls, User, Personalization, Suggestions
 from app.api.controllers import return_pod_delete
 from app.utils_db import delete_url_representations, delete_pod_representations, \
         rm_from_npz, add_to_npz, create_pod_in_db, create_pod_npz_pos, rm_doc_from_pos, update_db_idvs_after_npz_delete
@@ -449,10 +449,17 @@ class PersonalizationModelView(ModelView):
     can_edit = True
     page_size = 50
 
+class SuggestionsModelView(ModelView):
+    list_template = 'admin/pears_list.html'
+    column_searchable_list = ['url', 'pod']
+    can_edit = True
+    page_size = 50
+
 admin.add_view(PodsModelView(Pods, db.session))
 admin.add_view(UrlsModelView(Urls, db.session))
 admin.add_view(UsersModelView(User, db.session))
 admin.add_view(PersonalizationModelView(Personalization, db.session))
+admin.add_view(SuggestionsModelView(Suggestions, db.session))
 
 @app.route('/manifest.json')
 def serve_manifest():

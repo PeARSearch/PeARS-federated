@@ -22,8 +22,6 @@ orchard = Blueprint('orchard', __name__, url_prefix='/orchard')
 
 @orchard.route('/')
 @orchard.route('/index', methods=['GET', 'POST'])
-@login_required
-@check_is_confirmed
 def index():
     #query = db.session.query(Urls.pod.distinct().label("pod"))
     #keywords = [row.pod for row in query.all()]
@@ -48,8 +46,6 @@ def index():
 
 
 @orchard.route('/get-a-pod', methods=['POST', 'GET'])
-@login_required
-@check_is_confirmed
 def get_a_pod():
     query = request.args.get('pod')
     filename, urls = get_url_list_for_users(query)

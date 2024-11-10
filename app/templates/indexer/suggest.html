@@ -1,0 +1,60 @@
+<!--
+SPDX-FileCopyrightText: 2024 PeARS Project, <community@pearsproject.org>, 
+
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
+{% extends "base/base.html" %}
+{% from "base/_formhelpers.html" import render_field %}
+{% from "base/_formhelpers.html" import render_autocomplete_field %}
+{% block body %}
+<div class="container">
+  <div class="row p-3" style="display:block;">
+    <div class="card-group">
+      <div class="card indexer">
+        <div class="card-header text-center"><b>{{gettext("Suggest a URL to index")}}</b></div>
+        <div class="card-body">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="notification is-danger">
+		 {% if session.get('theme') == 'dark' %}
+		 <div class="d-flex justify-content-start"><img src="{{ url_for('static', filename='happy_pears_dark.png')}}" width="30px"><h5>{{gettext(messages[0])}}</h5></div>
+		 {% else %}
+		 <div class="d-flex justify-content-start"><img src="{{ url_for('static', filename='happy_pears.png')}}" width="30px"><h5>{{gettext(messages[0])}}</h5></div>
+		 {% endif %}
+            </div>
+        {% endif %}
+        {% endwith %}
+	<form method="POST" accept-charset="UTF-8" action="{{url_for('indexer.run_suggest_url')}}" enctype="multipart/form-data" autocomplete="off">
+	<datalist id="themes"></datalist>
+        {{ form.hidden_tag() }}
+        <p>{{ render_field(form.suggested_url) }}</p>
+        <p>{{ render_autocomplete_field(form.theme) }}</p>
+        <p>{{ render_field(form.note) }}</p>
+	<p>{{ render_field(form.captcha_answer) }}</p>
+        <div class="form-check">
+          {{ form.accept_tos(class_="form-check-input") }}
+          <label class="form-check-label" for="legal">{{gettext("I confirm that my entry does not contravene the <a href='../terms-of-service'>terms of service</a> of this site.")}}</label>
+        </div>
+      </div><!-- card body -->
+      <div class="card-footer clearfix">
+        <span class="input-group-btn">
+                <input id="submit_button" type="submit" class="btn btn-success" value="{{gettext('Suggest')}}">
+      </div><!-- card footer -->
+    </form>
+    </div>
+   </div>
+  </div>
+
+</div><!-- /.container -->
+
+
+<script>
+  let themes = {{themes|tojson}};
+  let str = '';
+  for (theme of themes) {
+    str += '<option value="' + theme + '" />';
+  }
+  document.getElementById("themes").innerHTML = str;
+</script>
+{% endblock %}

@@ -11,7 +11,9 @@ SPDX-License-Identifier: AGPL-3.0-only
     <div class="card">
 	    <div class="card-header"><b>{{gettext('Theme')}}: {{query}}</b></div>
          <div class="card-body">
+	     {% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
 		 <a href={{url_for('orchard.download_file', filename=location)}} target='_blank' class="btn btn-success" role="button">{{gettext('Download')}}</a><hr>
+	     {% endif %}
 	 {% for url in urls %}
 	 <a href='{{url}}'>{{url}}</a>
 	 <br>

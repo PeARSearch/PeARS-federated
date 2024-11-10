@@ -12,7 +12,7 @@ from sqlalchemy import update
 import numpy as np
 from scipy.sparse import csr_matrix, load_npz, vstack, save_npz
 from app import db, models, VEC_SIZE
-from app.api.models import Urls, Pods
+from app.api.models import Urls, Pods, Suggestions
 from app.indexer.posix import load_posix, dump_posix
 
 dir_path = dirname(dirname(realpath(__file__)))
@@ -67,6 +67,12 @@ def create_pod_in_db(contributor, theme, lang):
         p.registered = True
         db.session.add(p)
         db.session.commit()
+
+def create_suggestion_in_db(url, pod, notes, contributor):
+    '''Add suggestion to database'''
+    s = Suggestions(url=url, pod=pod, notes=notes, contributor=contributor)
+    db.session.add(s)
+    db.session.commit()
 
 def create_or_replace_url_in_db(url, title, idv, snippet, theme, lang, note, share, contributor, entry_type):
     """Add a new URL to the database or update it.
