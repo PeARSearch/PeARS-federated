@@ -283,7 +283,10 @@ def load_user(user_id):
 
 class MyAdminIndexView(AdminIndexView):
     def is_accessible(self):
-        return current_user.is_admin # This does the trick rendering the view only if the user is admin
+        try:
+            return current_user.is_admin # This does the trick rendering the view only if the user is admin
+        except:
+            return False
 
 
 admin = Admin(app, name='PeARS DB', template_mode='bootstrap3', index_view=MyAdminIndexView())
