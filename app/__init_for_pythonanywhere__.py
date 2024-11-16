@@ -9,7 +9,7 @@ from pathlib import Path
 from os.path import join, dirname, realpath
 
 # Import flask and template operators
-from flask import Flask, flash, send_file, send_from_directory, request
+from flask import Flask, flash, send_file, send_from_directory, request, abort
 from flask_migrate import Migrate
 from flask_admin import Admin, AdminIndexView
 from flask_mail import Mail
@@ -275,7 +275,10 @@ def load_user(user_id):
 
 class MyAdminIndexView(AdminIndexView):
     def is_accessible(self):
-        return current_user.is_admin # This does the trick rendering the view only if the user is admin
+        if current_user.is_authenticated and current_user.is_admin:
+            return True # This does the trick rendering the view only if the user is admin
+        else:
+            return abort(404)
 
 
 admin = Admin(app, name='PeARS DB', template_mode='bootstrap3', index_view=MyAdminIndexView())
@@ -401,6 +404,12 @@ admin.add_view(PodsModelView(Pods, db.session))
 admin.add_view(UrlsModelView(Urls, db.session))
 admin.add_view(UsersModelView(User, db.session))
 admin.add_view(PersonalizationModelView(Personalization, db.session))
+
+@app.errorhandler(404)
+def page_not_found(e):
+    # note that we set the 404 status explicitly
+    flash("404. Page not found. Please return to search page.")
+    return render_template("404.html"), 404
 
 
 

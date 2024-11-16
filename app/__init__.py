@@ -283,8 +283,8 @@ def load_user(user_id):
 
 class MyAdminIndexView(AdminIndexView):
     def is_accessible(self):
-        if current_user.is_authenticated:
-            return current_user.is_admin # This does the trick rendering the view only if the user is admin
+        if current_user.is_authenticated and current_user.is_admin:
+            return True # This does the trick rendering the view only if the user is admin
         else:
             return abort(404)
 
@@ -467,7 +467,7 @@ admin.add_view(SuggestionsModelView(Suggestions, db.session))
 @app.errorhandler(404)
 def page_not_found(e):
     # note that we set the 404 status explicitly
-    flash("Page not found. Redirecting to search page.")
+    flash("404. Page not found. Please return to search page.")
     return render_template("404.html"), 404
 
 @app.route('/manifest.json')
