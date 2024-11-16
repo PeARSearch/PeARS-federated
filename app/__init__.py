@@ -9,14 +9,14 @@ from pathlib import Path
 from os.path import join, dirname, realpath, isfile
 
 # Import flask and template operators
-from flask import Flask, flash, render_template, send_file, send_from_directory, request
+from flask import Flask, flash, render_template, send_file, send_from_directory, request, abort
 from flask_admin import Admin, AdminIndexView
 from flask_mail import Mail
 
 # Import SQLAlchemy and LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask_login import LoginManager, current_user
+from flask_login import LoginManager, current_user, login_required
 
 dir_path = dirname(realpath(__file__))
 
@@ -283,10 +283,10 @@ def load_user(user_id):
 
 class MyAdminIndexView(AdminIndexView):
     def is_accessible(self):
-        try:
+        if current_user.is_authenticated:
             return current_user.is_admin # This does the trick rendering the view only if the user is admin
-        except:
-            return False
+        else:
+            return abort(404)
 
 
 admin = Admin(app, name='PeARS DB', template_mode='bootstrap3', index_view=MyAdminIndexView())
@@ -463,6 +463,12 @@ admin.add_view(UrlsModelView(Urls, db.session))
 admin.add_view(UsersModelView(User, db.session))
 admin.add_view(PersonalizationModelView(Personalization, db.session))
 admin.add_view(SuggestionsModelView(Suggestions, db.session))
+
+@app.errorhandler(404)
+def page_not_found(e):
+    # note that we set the 404 status explicitly
+    flash("Page not found. Redirecting to search page.")
+    return render_template("404.html"), 404
 
 @app.route('/manifest.json')
 def serve_manifest():
