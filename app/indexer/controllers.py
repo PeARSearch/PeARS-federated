@@ -58,22 +58,6 @@ def suggest():
     themes = list(set([p.name.split('.u.')[0] for p in pods]))
     return render_template("indexer/suggest.html", form=form, themes=themes)
 
-@indexer.route("/suggest-plus", methods=["GET"])
-@check_permissions(login=True, confirmed=True, admin=True)
-def example_route():
-    """
-    FOR TESTING ONLY
-    Identical to suggest, but only for admins
-    """
-    captcha = mk_captcha()
-    form = SuggestionForm()
-    form.captcha.data = captcha
-    form.captcha_answer_label = captcha
-    pods = Pods.query.all()
-    themes = list(set([p.name.split('.u.')[0] for p in pods]))
-    return render_template("indexer/suggest.html", form=form, themes=themes)
-
-
 @indexer.route("/amend", methods=["GET"])
 @check_permissions(login=True, confirmed=True, admin=True)
 def correct_entry():
