@@ -257,7 +257,6 @@ if not app.config['LIVE_MATRIX']:
 
 from flask_admin.contrib.sqla import ModelView
 from app.api.models import Pods, Urls, User, Personalization, Suggestions
-from app.api.controllers import return_pod_delete
 from app.utils_db import delete_url_representations, delete_pod_representations, \
         rm_from_npz, add_to_npz, create_pod_in_db, create_pod_npz_pos, rm_doc_from_pos, update_db_idvs_after_npz_delete
 
@@ -408,7 +407,7 @@ class PodsModelView(ModelView):
             self.on_model_delete(model)
             print("DELETING",model.name)
             # Add your custom logic here and don't forget to commit any changes e.g.
-            print(return_pod_delete(model.name))
+            delete_pod_representations(model.name)
             self.session.commit()
         except Exception as ex:
             if not self.handle_view_exception(ex):
