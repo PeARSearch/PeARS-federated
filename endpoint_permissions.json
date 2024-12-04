@@ -1,0 +1,497 @@
+{
+    "static": {
+        "login": false,
+        "confirmed": false,
+        "admin": false
+    },
+    "serve_logos": {
+        "login": false,
+        "confirmed": false,
+        "admin": false
+    },
+    "indexer.index": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "indexer.suggest": {
+        "login": false,
+        "confirmed": false,
+        "admin": false
+    },
+    "indexer.example_route": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "indexer.correct_entry": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "indexer.index_from_url": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "indexer.index_from_manual": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "indexer.run_suggest_url": {
+        "login": false,
+        "confirmed": false,
+        "admin": false
+    },
+    "api.return_instance_languages": {
+        "login": false,
+        "confirmed": false,
+        "admin": false
+    },
+    "api.return_instance_signature": {
+        "login": false,
+        "confirmed": false,
+        "admin": false
+    },
+    "api.return_query_results": {
+        "login": false,
+        "confirmed": false,
+        "admin": false
+    },
+    "api.return_pods": {
+        "login": true,
+        "confirmed": true,
+        "admin": false
+    },
+    "api.return_pod": {
+        "login": true,
+        "confirmed": true,
+        "admin": false
+    },
+    "api.return_pod_delete": {
+        "login": true,
+        "confirmed": true,
+        "admin": false
+    },
+    "api.return_urls": {
+        "login": true,
+        "confirmed": true,
+        "admin": false
+    },
+    "api.return_specific_url": {
+        "login": false,
+        "confirmed": false,
+        "admin": false
+    },
+    "api.post_suggestion": {
+        "login": false,
+        "confirmed": false,
+        "admin": false
+    },
+    "search.index": {
+        "login": false,
+        "confirmed": false,
+        "admin": false
+    },
+    "orchard.index": {
+        "login": false,
+        "confirmed": false,
+        "admin": false
+    },
+    "orchard.get_a_pod": {
+        "login": false,
+        "confirmed": false,
+        "admin": false
+    },
+    "orchard.download_file": {
+        "login": true,
+        "confirmed": true,
+        "admin": false
+    },
+    "orchard.rename_pod": {
+        "login": true,
+        "confirmed": true,
+        "admin": false
+    },
+    "orchard.report": {
+        "login": true,
+        "confirmed": true,
+        "admin": false
+    },
+    "orchard.feedback": {
+        "login": true,
+        "confirmed": true,
+        "admin": false
+    },
+    "orchard.annotate": {
+        "login": true,
+        "confirmed": true,
+        "admin": false
+    },
+    "pages.return_faq": {
+        "login": false,
+        "confirmed": false,
+        "admin": false
+    },
+    "pages.return_licenses": {
+        "login": false,
+        "confirmed": false,
+        "admin": false
+    },
+    "pages.return_acknowledgements": {
+        "login": false,
+        "confirmed": false,
+        "admin": false
+    },
+    "pages.return_privacy": {
+        "login": false,
+        "confirmed": false,
+        "admin": false
+    },
+    "pages.return_tos": {
+        "login": false,
+        "confirmed": false,
+        "admin": false
+    },
+    "pages.return_contact": {
+        "login": false,
+        "confirmed": false,
+        "admin": false
+    },
+    "pages.return_maintenance": {
+        "login": false,
+        "confirmed": false,
+        "admin": false
+    },
+    "settings.index": {
+        "login": true,
+        "confirmed": false,
+        "admin": false
+    },
+    "settings.toggle_theme": {
+        "login": false,
+        "confirmed": false,
+        "admin": false
+    },
+    "settings.delete_url": {
+        "login": true,
+        "confirmed": true,
+        "admin": false
+    },
+    "settings.delete_comment": {
+        "login": true,
+        "confirmed": true,
+        "admin": false
+    },
+    "settings.delete_account": {
+        "login": true,
+        "confirmed": false,
+        "admin": false
+    },
+    "settings.change_email": {
+        "login": true,
+        "confirmed": false,
+        "admin": false
+    },
+    "settings.change_username": {
+        "login": true,
+        "confirmed": false,
+        "admin": false
+    },
+    "auth.logout": {
+        "login": true,
+        "confirmed": false,
+        "admin": false
+    },
+    "auth.login": {
+        "login": false,
+        "confirmed": false,
+        "admin": false
+    },
+    "auth.signup": {
+        "login": false,
+        "confirmed": false,
+        "admin": false
+    },
+    "auth.confirm_email": {
+        "login": true,
+        "confirmed": false,
+        "admin": false
+    },
+    "auth.resend_confirmation": {
+        "login": true,
+        "confirmed": false,
+        "admin": false
+    },
+    "auth.password_forgotten": {
+        "login": false,
+        "confirmed": false,
+        "admin": false
+    },
+    "auth.password_reset": {
+        "login": false,
+        "confirmed": false,
+        "admin": false
+    },
+    "auth.password_change": {
+        "login": true,
+        "confirmed": false,
+        "admin": false
+    },
+    "auth.inactive": {
+        "login": true,
+        "confirmed": false,
+        "admin": false
+    },
+    "admin.static": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "admin.index": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "pods.action_view": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "pods.ajax_lookup": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "pods.ajax_update": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "pods.create_view": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "pods.delete_view": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "pods.details_view": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "pods.edit_view": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "pods.export": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "pods.index_view": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "urls.action_view": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "urls.ajax_lookup": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "urls.ajax_update": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "urls.create_view": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "urls.delete_view": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "urls.details_view": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "urls.edit_view": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "urls.export": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "urls.index_view": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "user.action_view": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "user.ajax_lookup": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "user.ajax_update": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "user.create_view": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "user.delete_view": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "user.details_view": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "user.edit_view": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "user.export": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "user.index_view": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "personalization.action_view": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "personalization.ajax_lookup": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "personalization.ajax_update": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "personalization.create_view": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "personalization.delete_view": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "personalization.details_view": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "personalization.edit_view": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "personalization.export": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "personalization.index_view": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "suggestions.action_view": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "suggestions.ajax_lookup": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "suggestions.ajax_update": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "suggestions.create_view": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "suggestions.delete_view": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "suggestions.details_view": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "suggestions.edit_view": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "suggestions.export": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "suggestions.index_view": {
+        "login": true,
+        "confirmed": true,
+        "admin": true
+    },
+    "serve_manifest": {
+        "login": false,
+        "confirmed": false,
+        "admin": false
+    },
+    "serve_sw": {
+        "login": false,
+        "confirmed": false,
+        "admin": false
+    },
+    "static_from_root": {
+        "login": false,
+        "confirmed": false,
+        "admin": false
+    }
+}

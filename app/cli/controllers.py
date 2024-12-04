@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 import re
+import json
 import requests
 from shutil import copy2, copytree
 from os import remove
@@ -15,17 +16,20 @@ from random import shuffle
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 import numpy as np
+import pandas as pd
 import joblib
-from flask import Blueprint
+from flask import Blueprint, url_for
 import click
 from werkzeug.security import generate_password_hash
 from scipy.sparse import load_npz, csr_matrix, vstack
+from app.auth import VIEW_FUNCTIONS_PERMISSIONS
+from app.auth.decorators import get_func_identifier
 from app.indexer.controllers import run_indexer_url, index_doc_from_cli
 from app.indexer.access import request_url
 from app.indexer.posix import load_posix
 from app.indexer.htmlparser import extract_links
 from app.orchard.mk_urls_file import get_reindexable_pod_for_admin
-from app import db, User, Urls, Pods, VEC_SIZE
+from app import app, db, User, Urls, Pods, VEC_SIZE
 
 pears = Blueprint('pears', __name__)
 
@@ -412,6 +416,43 @@ def check_pos_vs_npz_to_idx(pod, username, language):
         print("\t\t> idx  :", set(idx1))
         print("\t\t> posix:", set(idx2))
     return set(idx1), set(idx2)
+
+#####################
+# PERMISSION CHECKER
+#####################
+
+@pears.cli.command('list_endpoint_permissions')
+@click.argument("export_mode")
+def list_endpoints(export_mode=None):
+    
+    assert export_mode in ["csv", "json"]
+
+    endpoint_permissions = {}
+    for ep, func in app.view_functions.items():
+        func_id = get_func_identifier(func)
+        permissions = VIEW_FUNCTIONS_PERMISSIONS.get(func_id)
+        if permissions is None:
+            # admin + DB management endpoints
+            # TODO: find a less hacky way to get the permissions for these
+            if ep.split(".")[0] in ["admin", "pods", "urls", "user", "personalization", "suggestions"]:
+                permissions = {"login": True, "confirmed": True, "admin": True}
+            else:
+                # TODO: is this always true??
+                permissions = {"login": False, "confirmed": False, "admin": False}
+        endpoint_permissions[ep] = permissions
+
+    if export_mode == "csv":
+        rows = []
+        for ep, permissions in endpoint_permissions.items():
+            row_dict = {"endpoint": ep}
+            row_dict.update(permissions)
+            rows.append(row_dict)
+        pd.DataFrame(rows).to_csv("endpoint_permissions.csv")
+
+    elif export_mode == "json":
+        with open("endpoint_permissions.json", "w") as f:
+            json.dump(endpoint_permissions, f, indent=4)
+    
 
 #####################
 # REBUILD FROM DB

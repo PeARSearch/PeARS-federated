@@ -11,7 +11,7 @@ from app.api.models import Urls, Pods
 from app.utils_db import mv_pod
 from app import app, db
 from app.orchard.mk_urls_file import get_url_list_for_users
-from app.auth.decorators import check_is_confirmed
+from app.auth.decorators import check_permissions
 from app.auth.token import send_email
 from app.forms import ReportingForm, AnnotationForm, FeedbackForm
 
@@ -53,8 +53,7 @@ def get_a_pod():
     return render_template('orchard/get-a-pod.html', urls=urls, query=query, location=filename)
 
 @orchard.route("/download", methods=['GET'])
-@login_required
-@check_is_confirmed
+@check_permissions(login=True, confirmed=True)
 def download_file():
     filename = request.args.get('filename')
     print('>> orchard: download_file:',filename)
@@ -62,8 +61,7 @@ def download_file():
 
 
 @orchard.route("/rename", methods=['GET'])
-@login_required
-@check_is_confirmed
+@check_permissions(login=True, confirmed=True)
 def rename_pod():
     podname = request.args.get('oldname')
     newname = request.args.get('newname')
@@ -74,8 +72,7 @@ def rename_pod():
 
 
 @orchard.route("/report", methods=['GET','POST'])
-@login_required
-@check_is_confirmed
+@check_permissions(login=True, confirmed=True)
 def report():
     username = current_user.username
     email = current_user.email
@@ -95,8 +92,7 @@ def report():
 
 
 @orchard.route("/feedback", methods=['GET','POST'])
-@login_required
-@check_is_confirmed
+@check_permissions(login=True, confirmed=True)
 def feedback():
     username = current_user.username
     email = current_user.email
@@ -113,8 +109,7 @@ def feedback():
 
 
 @orchard.route("/annotate", methods=['GET','POST'])
-@login_required
-@check_is_confirmed
+@check_permissions(login=True, confirmed=True)
 def annotate():
     username = current_user.username
     form = AnnotationForm()

@@ -16,7 +16,7 @@ from flask_mail import Mail
 # Import SQLAlchemy and LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask_login import LoginManager, current_user, login_required
+from flask_login import LoginManager, current_user
 
 dir_path = dirname(realpath(__file__))
 

@@ -8,11 +8,10 @@ import numpy as np
 from os import remove, getenv
 from os.path import dirname, join, realpath, isfile
 from flask import Blueprint, jsonify, request, render_template, url_for
-from flask_login import login_required
 from scipy.sparse import vstack, save_npz, load_npz
 from app.forms import SearchForm
 from app.api.models import Urls, Pods
-from app.auth.decorators import check_is_confirmed
+from app.auth.decorators import check_permissions, check_is_confirmed
 from app import app, db, models
 from app.indexer.posix import load_posix, dump_posix
 from app.indexer.vectorizer import scale
@@ -51,29 +50,25 @@ def return_query_results():
     return jsonify(json_list=results)
 
 @api.route('/pods/')
-@login_required
-@check_is_confirmed
+@check_permissions(login=True, confirmed=True)
 def return_pods():
     return jsonify(json_list=[p.serialize for p in Pods.query.all()])
 
 @api.route('/pods/<pod>/')
-@login_required
-@check_is_confirmed
+@check_permissions(login=True, confirmed=True)
 def return_pod(pod):
     pod = pod.replace('+', ' ')
     p = db.session.query(Pods).filter_by(name=pod).first()
     return jsonify(p.serialize)
 
 @api.route('/pods/delete', methods=["GET","POST"])
-@login_required
-@check_is_confirmed
+@check_permissions(login=True, confirmed=True)
 def return_pod_delete(pod_name):
     print("Unsubscribing pod...", pod_name)
     delete_pod_representations(pod_name)
 
 @api.route('/urls/')
-@login_required
-@check_is_confirmed
+@check_permissions(login=True, confirmed=True)
 def return_urls():
     return jsonify(json_list=[i.serialize for i in Urls.query.all()])
 

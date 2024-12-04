@@ -12,7 +12,7 @@ from flask_login import login_required, current_user
 from flask_babel import gettext
 from langdetect import detect
 from app.auth.captcha import mk_captcha, check_captcha
-from app.auth.decorators import check_is_confirmed, check_is_admin
+from app.auth.decorators import check_permissions
 from app import app, db
 from app.api.models import Urls, Pods
 from app.indexer import mk_page_vector
@@ -29,9 +29,7 @@ indexer = Blueprint('indexer', __name__, url_prefix='/indexer')
 
 
 @indexer.route("/", methods=["GET"])
-@login_required
-@check_is_confirmed
-@check_is_admin
+@check_permissions(login=True, confirmed=True, admin=True)
 def index():
     """Displays the indexer page.
     Computes and returns the total number
@@ -60,11 +58,24 @@ def suggest():
     themes = list(set([p.name.split('.u.')[0] for p in pods]))
     return render_template("indexer/suggest.html", form=form, themes=themes)
 
+@indexer.route("/suggest-plus", methods=["GET"])
+@check_permissions(login=True, confirmed=True, admin=True)
+def example_route():
+    """
+    FOR TESTING ONLY
+    Identical to suggest, but only for admins
+    """
+    captcha = mk_captcha()
+    form = SuggestionForm()
+    form.captcha.data = captcha
+    form.captcha_answer_label = captcha
+    pods = Pods.query.all()
+    themes = list(set([p.name.split('.u.')[0] for p in pods]))
+    return render_template("indexer/suggest.html", form=form, themes=themes)
+
 
 @indexer.route("/amend", methods=["GET"])
-@login_required
-@check_is_confirmed
-@check_is_admin
+@check_permissions(login=True, confirmed=True, admin=True)
 def correct_entry():
     """Redisplays the indexer page when the
     user wishes to change their entry.
@@ -96,9 +107,7 @@ def correct_entry():
             num_entries=num_db_entries, form1=form1, form2=form2, themes=themes, default_screen=default_screen)
 
 @indexer.route("/url", methods=["POST"])
-@login_required
-@check_is_confirmed
-@check_is_admin
+@check_permissions(login=True, confirmed=True, admin=True)
 def index_from_url():
     """ Route for URL entry form.
     This is to index a URL that the user
@@ -131,9 +140,7 @@ def index_from_url():
 
 
 @indexer.route("/manual", methods=["POST"])
-@login_required
-@check_is_confirmed
-@check_is_admin
+@check_permissions(login=True, confirmed=True, admin=True)
 def index_from_manual():
     """ Route for manual (offline) entry form.
     This is to index offline tips that the user
