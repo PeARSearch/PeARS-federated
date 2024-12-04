@@ -34,7 +34,7 @@
 32,pages.return_maintenance,FALSE,FALSE,FALSE
 33,settings.index,TRUE,FALSE,FALSE
 34,settings.toggle_theme,FALSE,FALSE,FALSE
-35,settings.delete_url,TRUE,TRUE,FALSE
+35,settings.delete_url,TRUE,TRUE,TRUE
 36,settings.delete_comment,TRUE,TRUE,FALSE
 37,settings.delete_account,TRUE,FALSE,FALSE
 38,settings.change_email,TRUE,FALSE,FALSE
