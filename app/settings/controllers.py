@@ -69,7 +69,7 @@ def toggle_theme():
 
 
 @settings.route('/delete', methods=['GET'])
-@check_permissions(login=True, confirmed=True)
+@check_permissions(login=True, confirmed=True, admin=True)
 def delete_url():
     username = current_user.username
     url = request.args.get('url').split('get?url=')[1]

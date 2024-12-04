@@ -53,7 +53,7 @@ def get_a_pod():
     return render_template('orchard/get-a-pod.html', urls=urls, query=query, location=filename)
 
 @orchard.route("/download", methods=['GET'])
-@check_permissions(login=True, confirmed=True)
+@check_permissions(login=True, confirmed=True, admin=True)
 def download_file():
     filename = request.args.get('filename')
     print('>> orchard: download_file:',filename)
@@ -61,7 +61,7 @@ def download_file():
 
 
 @orchard.route("/rename", methods=['GET'])
-@check_permissions(login=True, confirmed=True)
+@check_permissions(login=True, confirmed=True, admin=True)
 def rename_pod():
     podname = request.args.get('oldname')
     newname = request.args.get('newname')
