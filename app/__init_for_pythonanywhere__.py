@@ -9,7 +9,7 @@ from pathlib import Path
 from os.path import join, dirname, realpath
 
 # Import flask and template operators
-from flask import Flask, flash, send_file, send_from_directory, request
+from flask import Flask, flash, send_file, send_from_directory, request, abort
 from flask_migrate import Migrate
 from flask_admin import Admin, AdminIndexView
 from flask_mail import Mail
@@ -273,9 +273,16 @@ def load_user(user_id):
 
 # Flask and Flask-SQLAlchemy initialization here
 
+def can_access_flaskadmin():
+    if not current_user.is_authenticated:
+        return abort(404)
+    if not current_user.is_admin:
+        return abort(404)
+    return True
+
 class MyAdminIndexView(AdminIndexView):
     def is_accessible(self):
-        return current_user.is_admin # This does the trick rendering the view only if the user is admin
+        return can_access_flaskadmin()
 
 
 admin = Admin(app, name='PeARS DB', template_mode='bootstrap3', index_view=MyAdminIndexView())
@@ -307,6 +314,8 @@ class UrlsModelView(ModelView):
             'readonly': True
         },
     }
+    def is_accessible(self):
+        return can_access_flaskadmin()
     def delete_model(self, model):
         try:
             self.on_model_delete(model)
@@ -346,6 +355,8 @@ class PodsModelView(ModelView):
             'readonly': True
         },
     }
+    def is_accessible(self):
+        return can_access_flaskadmin()
     def delete_model(self, model):
         try:
             self.on_model_delete(model)
@@ -388,12 +399,16 @@ class UsersModelView(ModelView):
             'readonly': True
         },
     }
+    def is_accessible(self):
+        return can_access_flaskadmin()
 
 class PersonalizationModelView(ModelView):
     list_template = 'admin/pears_list.html'
     column_searchable_list = ['feature', 'language']
     can_edit = True
     page_size = 50
+    def is_accessible(self):
+        return can_access_flaskadmin()
 
 
 
