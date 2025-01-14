@@ -427,11 +427,8 @@ def check_pos_vs_npz_to_idx(pod, username, language):
 #####################
 
 @pears.cli.command('list_endpoint_permissions')
-@click.argument("export_mode")
-def list_endpoints(export_mode=None):
+def list_endpoints():
     
-    assert export_mode in ["csv", "json"]
-
     endpoint_permissions = {}
     for ep, func in app.view_functions.items():
         func_id = get_func_identifier(func)
@@ -442,21 +439,22 @@ def list_endpoints(export_mode=None):
             if ep.split(".")[0] in ["admin", "pods", "urls", "user", "personalization", "suggestions"]:
                 permissions = {"login": True, "confirmed": True, "admin": True}
             else:
-                # TODO: is this always true??
                 permissions = {"login": False, "confirmed": False, "admin": False}
         endpoint_permissions[ep] = permissions
 
-    if export_mode == "csv":
-        rows = []
-        for ep, permissions in endpoint_permissions.items():
-            row_dict = {"endpoint": ep}
-            row_dict.update(permissions)
-            rows.append(row_dict)
-        pd.DataFrame(rows).to_csv("endpoint_permissions.csv")
-
-    elif export_mode == "json":
-        with open("endpoint_permissions.json", "w") as f:
-            json.dump(endpoint_permissions, f, indent=4)
+    # export to CSV
+    csv_rows = []
+    for ep, permissions in endpoint_permissions.items():
+        row_dict = {"endpoint": ep}
+        row_dict.update(permissions)
+        row_dict.update({
+            # extra rows to manually fill/adjust
+            "skip": False,  # don't test this endpoint
+            "reset_login": True if ep in ["settings.delete_account", "auth.logout"] else False, # if True, we need to login again after executing test
+            "reset_account": True if ep == "settings.delete_account" else False, # if True, account needs to be recreated after executing test
+        })
+        csv_rows.append(row_dict)
+    pd.DataFrame(csv_rows).to_csv("endpoint_permissions.csv")
 
 @pears.cli.command('create_test_users')
 def create_test_users():
@@ -464,15 +462,23 @@ def create_test_users():
         testusers = json.load(f)
 
     for tu_profile, tu_data in testusers.items():
-        user = User(username=tu_data["username"],
-                    password=generate_password_hash(tu_data["password"], method='scrypt'),
-                    email=tu_data["email"],
-                    is_confirmed=True if tu_profile.startswith("confirmed-") else False,
-                    is_admin=True if tu_profile.endswith("-admin") else False,
-                    confirmed_on=datetime.now())
-        db.session.add(user)
-        db.session.commit()
-        print(f" test user {tu_data['username']} has been registered.")
+            _create_account(
+                tu_data["username"], 
+                tu_data["password"],
+                is_confirmed=True if tu_profile.startswith("confirmed-") else False,
+                is_admin=True if tu_profile.endswith("-admin") else False
+            )
+
+def _create_account(username, password, email, is_confirmed=True, is_admin=False):
+    user = User(username=username,
+                password=generate_password_hash(password, method='scrypt'),
+                email=email,
+                is_confirmed=is_confirmed,
+                is_admin=is_admin,
+                confirmed_on=datetime.now())
+    db.session.add(user)
+    db.session.commit()
+    print(f" test user {username} has been registered.")
 
 @pears.cli.command('test_endpoint_permissions')
 @click.argument("manual")
@@ -480,9 +486,15 @@ def create_test_users():
 def test_endpoint_permissions(manual=False, solve_captcha=False):
     if manual:
         # permissions = pd.read_csv("endpoint_permissions__manual.csv", index_col=0)
-        permissions = pd.read_csv("endpoint_permissions__manual.20241221.csv", index_col=0)
+        permissions = pd.read_csv("endpoint_permissions__manual.csv", index_col=0)
     else:
         permissions = pd.read_csv("endpoint_permissions.csv", index_col=0)
+
+    permissions = (
+        permissions
+        .dropna(subset=["login"])  # drop entries with missing permissions (= endpoints that are marked for deletion)
+        .fillna({"skip": False, "reset_login": False, "reset_account": False}) # fill in False for unspecified skip/reset column entries
+    )
 
     if solve_captcha:
         # secret module! try to reproduce it :) 
@@ -563,139 +575,150 @@ def test_endpoint_permissions(manual=False, solve_captcha=False):
                 "permissions_admin": ep_data["admin"],
                 "arguments": None,
                 "url": None,
-                "received_status": None,
+                "received_status": 0,  # 0 = skipped/not applicable; otherwise: http status code
                 "test_result": 0,  ## 0 = not applicable, -1 = failure, +1 = success 
                 "test_result_note": None,
                 "test_skipped_reason": None
             }
             results.append(endpoint_results)
-
+            if ep_data["skip"]:
+                print(f"\t skipping endpoint {ep} according to instructions")
+                endpoint_results["test_skipped_reason"] = "marked for skipping in permission sheet"
+                continue
             print(ep)
-            if ep == "settings.delete_account": # don't do account deletion because the rest of the tests won't work!
-                print(f"\t skipping delete account endpoint (TODO: test separately!)")
-                endpoint_results["test_skipped_reason"] = "account deletion"
 
-            else:
-                url_args = {}
-                get_args = {}
-                form_args = {} 
-                argtype = ep_data["argtype"]
-                if argtype == "url":
-                    url_args = _parse_endpoint_example_args(ep_data["argex"])
-                elif argtype == "get":
-                    get_args = _parse_endpoint_example_args(ep_data["argex"])
-                elif argtype == "form":
-                    form_args = _parse_endpoint_example_args(ep_data["argex"])
-                    form_args["csrf_token"] = csrf_token
-                url = urls.build(ep, url_args, force_external=True)
-                endpoint_results["url"] = url
-                print("\t", ep, "->", url)
+            url_args = {}
+            get_args = {}
+            form_args = {} 
+            argtype = ep_data["argtype"]
+            if argtype == "url":
+                url_args = _parse_endpoint_example_args(ep_data["argex"])
+            elif argtype == "get":
+                get_args = _parse_endpoint_example_args(ep_data["argex"])
+            elif argtype == "form":
+                form_args = _parse_endpoint_example_args(ep_data["argex"])
+                form_args["csrf_token"] = csrf_token
+            url = urls.build(ep, url_args, force_external=True)
+            endpoint_results["url"] = url
+            print("\t", ep, "->", url)
 
-                # use requests to see if we get the right status code
-                # (selenium can't do this out of the box, cf https://github.com/seleniumhq/selenium-google-code-issue-archive/issues/141)
-                chosen_method = None
-                num_attempts = 5
-                for attempt in range(num_attempts):
-                    try:
-                        methods = endpoints_to_methods[ep]
-                        if "GET" in methods:
-                            chosen_method = "GET"
-                            r = requests.get(url, params=get_args, cookies=cookies)
-                        elif "POST" in methods:
-                            chosen_method = "POST"
-                            if get_args:
-                                raise ValueError("Trying to use GET arguments in POST request!")
-                            form_args["captcha"], form_args["captcha_answer"] = test_solve_captcha()
-                            r = requests.post(url, data=form_args, cookies=cookies)
-                        else:
-                            raise ValueError("Got endpoint that supports neither GET nor POST, don't know what to do!")
-                        break
-                    except ConnectionError:
-                        print(f"\tAttempt {attempt+1}, can't connect to {url}")
-                else: 
-                    print(f"\tNo success after {num_attempts} attemps, giving up on {url}")
-                    endpoint_results["test_skipped_reason"] = "connection_failure"
-                    continue
+            # use requests to see if we get the right status code
+            # (selenium can't do this out of the box, cf https://github.com/seleniumhq/selenium-google-code-issue-archive/issues/141)
+            chosen_method = None
+            num_attempts = 5
+            for attempt in range(num_attempts):
+                try:
+                    methods = endpoints_to_methods[ep]
+                    if "GET" in methods:
+                        chosen_method = "GET"
+                        r = requests.get(url, params=get_args, cookies=cookies)
+                    elif "POST" in methods:
+                        chosen_method = "POST"
+                        if get_args:
+                            raise ValueError("Trying to use GET arguments in POST request!")
+                        form_args["captcha"], form_args["captcha_answer"] = test_solve_captcha()
+                        r = requests.post(url, data=form_args, cookies=cookies)
+                    else:
+                        raise ValueError("Got endpoint that supports neither GET nor POST, don't know what to do!")
+                    break
+                except ConnectionError:
+                    print(f"\tAttempt {attempt+1}, can't connect to {url}")
+            else: 
+                print(f"\tNo success after {num_attempts} attemps, giving up on {url}")
+                endpoint_results["test_skipped_reason"] = "connection_failure"
+                continue
 
-                should_have_access = _should_have_access(tc, ep_data)
-                received_status_code = r.status_code
-                endpoint_results["received_status"] = received_status_code
+            should_have_access = _should_have_access(tc, ep_data)
+            received_status_code = r.status_code
+            endpoint_results["received_status"] = received_status_code
 
-                if received_status_code == 200 and not should_have_access:
-                    # check if we've been redirected to the login/confirmation page
-                    if r.history and r.history[-1].status_code == 302 and (r.url.startswith("http://localhost:8080/auth/login?next=") or r.url.startswith("http://localhost:8080/auth/inactive")):
+            if received_status_code == 200 and not should_have_access:
+                # check if we've been redirected to the login/confirmation page
+                if r.history and r.history[-1].status_code == 302 and (r.url.startswith("http://localhost:8080/auth/login?next=") or r.url.startswith("http://localhost:8080/auth/inactive")):
+                    endpoint_results["test_result"] = 1
+                    endpoint_results["test_result_note"] = "redirected to home page as expected"
+                elif ep_data["admin"] and r.url == "http://localhost:8080/":
+                    # we have been sent back to the home page, let's check if we get the admin-only message
+                    if _selenium_check_admin_warning_displayed(browser, url):
                         endpoint_results["test_result"] = 1
-                        endpoint_results["test_result_note"] = "redirected to home page as expected"
-                    elif ep_data["admin"] and r.url == "http://localhost:8080/":
-                        # we have been sent back to the home page, let's check if we get the admin-only message
-                        if _selenium_check_admin_warning_displayed(browser, url):
-                            endpoint_results["test_result"] = 1
-                            endpoint_results["test_result_note"] = "should not have access, is appropriately redirected to home page with admin-only warning"
-                        else:
-                            endpoint_results["test_result"] = -1
-                            endpoint_results["test_result_note"] = "should not have access, is redirected to home page but without message"
-                    elif r.history and r.history[-1].status_code == 302 and r.url.startswith("http://localhost:8080/admin/"):
-                        # sent back to one of the admin pages?
-                        # check for error code
-                        if _senelium_check_admin_permission_denied_msg(browser, url):
-                            endpoint_results["test_result"] = 1
-                            endpoint_results["test_result_note"] = "sent back to admin page with 'permission denied' message, this is appropriate here"
-                        else:
-                            endpoint_results["test_result"] = 0
-                            endpoint_results["test_result_note"] = "sent to admin page without 'permission denied' message, don't know what's going on"
-
+                        endpoint_results["test_result_note"] = "should not have access, is appropriately redirected to home page with admin-only warning"
                     else:
                         endpoint_results["test_result"] = -1
-                        endpoint_results["test_result_note"] = "appears to have access but should not"
-        
-                elif received_status_code == 200 and should_have_access:
-                    if r.history and r.history[-1].status_code == 302 and (r.url.startswith("http://localhost:8080/auth/login?next=")  or r.url.startswith("http://localhost:8080/auth/inactive")):
-
-                        # exception: some endpoints *should* redirect to /auth/inactive, with a message
-                        if ep == "auth.resend_confirmation" and r.url.startswith("http://localhost:8080/auth/inactive") and _selenium_check_confirmation_mail_sent_displayed(browser, url):
-                            endpoint_results["test_result"] = 1
-                            endpoint_results["test_result_note"] = "should have access, verified flash contents using selenium"
-                        else:
-                            endpoint_results["test_result"] = -1
-                            endpoint_results["test_result_note"] = "should have access but is unexpectedly redirected to login/inactive page"                    
-                    
-                    # have we been redirected to the home page
-                    elif r.history and r.history[-1].status_code == 302 and r.url == "http://localhost:8080/":
-                        if chosen_method == "GET" and _selenium_check_admin_warning_displayed(browser, url):
-                            endpoint_results["test_result"] = -1
-                            endpoint_results["test_result_note"] = "should have access but unexpectedly rerouted to home page with admin warning"
-                        else:
-                            endpoint_results["test_result"] = 1
-                            endpoint_results["test_result_note"] = "rerouted to home page, no warnings found; I'm assuming this means the endpoint was successfully accessed"
-
+                        endpoint_results["test_result_note"] = "should not have access, is redirected to home page but without message"
+                elif r.history and r.history[-1].status_code == 302 and r.url.startswith("http://localhost:8080/admin/"):
                     # sent back to one of the admin pages?
-                    elif r.history and r.history[-1].status_code == 302 and r.url.startswith("http://localhost:8080/admin/"):
-                        # check for error code
-                        if _senelium_check_admin_permission_denied_msg(browser, url):
-                            endpoint_results["test_result"] = -1
-                            endpoint_results["test_result_note"] = "sent back to admin page with 'permission denied' message, while we should have access"
-                        else:
-                            endpoint_results["test_result"] = 0
-                            endpoint_results["test_result_note"] = "sent to admin page without 'permission denied' message, don't know what's going on"
-
-                    else:
+                    # check for error code
+                    if _senelium_check_admin_permission_denied_msg(browser, url):
                         endpoint_results["test_result"] = 1
-                        endpoint_results["test_result_note"] = "should have access and does"
-
-                elif str(received_status_code).startswith("4") and not should_have_access:
-                    endpoint_results["test_result"] = 1
-                    endpoint_results["test_result_note"] = "should not have access and gets 4xx response"
-                
-                elif str(received_status_code).startswith("4") and should_have_access:
-                    endpoint_results["test_result"] = -1
-                    endpoint_results["test_result_note"] = "should have access but gets 4xx response"
+                        endpoint_results["test_result_note"] = "sent back to admin page with 'permission denied' message, this is appropriate here"
+                    else:
+                        endpoint_results["test_result"] = 0
+                        endpoint_results["test_result_note"] = "sent to admin page without 'permission denied' message, don't know what's going on"
 
                 else:
-                    endpoint_results["test_result"] = 0
-                    endpoint_results["test_skipped_reason"] = "can't interpret test outcome"
+                    endpoint_results["test_result"] = -1
+                    endpoint_results["test_result_note"] = "appears to have access but should not"
+    
+            elif received_status_code == 200 and should_have_access:
+                if r.history and r.history[-1].status_code == 302 and (r.url.startswith("http://localhost:8080/auth/login?next=")  or r.url.startswith("http://localhost:8080/auth/inactive")):
 
-                # browser.get(url)
-                # time.sleep(5)
+                    # exception: some endpoints *should* redirect to /auth/inactive, with a message
+                    if ep == "auth.resend_confirmation" and r.url.startswith("http://localhost:8080/auth/inactive") and _selenium_check_confirmation_mail_sent_displayed(browser, url):
+                        endpoint_results["test_result"] = 1
+                        endpoint_results["test_result_note"] = "should have access, verified flash contents using selenium"
+                    else:
+                        endpoint_results["test_result"] = -1
+                        endpoint_results["test_result_note"] = "should have access but is unexpectedly redirected to login/inactive page"                    
+                
+                # have we been redirected to the home page
+                elif r.history and r.history[-1].status_code == 302 and r.url == "http://localhost:8080/":
+                    if chosen_method == "GET" and _selenium_check_admin_warning_displayed(browser, url):
+                        endpoint_results["test_result"] = -1
+                        endpoint_results["test_result_note"] = "should have access but unexpectedly rerouted to home page with admin warning"
+                    else:
+                        endpoint_results["test_result"] = 1
+                        endpoint_results["test_result_note"] = "rerouted to home page, no warnings found; I'm assuming this means the endpoint was successfully accessed"
+
+                # sent back to one of the admin pages?
+                elif r.history and r.history[-1].status_code == 302 and r.url.startswith("http://localhost:8080/admin/"):
+                    # check for error code
+                    if _senelium_check_admin_permission_denied_msg(browser, url):
+                        endpoint_results["test_result"] = -1
+                        endpoint_results["test_result_note"] = "sent back to admin page with 'permission denied' message, while we should have access"
+                    else:
+                        endpoint_results["test_result"] = 0
+                        endpoint_results["test_result_note"] = "sent to admin page without 'permission denied' message, don't know what's going on"
+
+                else:
+                    endpoint_results["test_result"] = 1
+                    endpoint_results["test_result_note"] = "should have access and does"
+
+            elif str(received_status_code).startswith("4") and not should_have_access:
+                endpoint_results["test_result"] = 1
+                endpoint_results["test_result_note"] = "should not have access and gets 4xx response"
+            
+            elif str(received_status_code).startswith("4") and should_have_access:
+                endpoint_results["test_result"] = -1
+                endpoint_results["test_result_note"] = "should have access but gets 4xx response"
+
+            else:
+                endpoint_results["test_result"] = 0
+                endpoint_results["test_skipped_reason"] = "can't interpret test outcome"
+
+            # if the test removed our account (for now: only settings.delete_account): re-create the account
+            if ep_data["reset_account"] and endpoint_results["test_result"] == 1:
+                if user is not None:
+                    _create_account(
+                        user["username"], user["password"], user["email"],
+                        is_confirmed=tc["is_confirmed"], admin=tc["is_admin"]
+                    )
+
+            # if the test logged us out (for now: auth.logout, settings.delete_account): log us back in
+            if ep_data["reset_login"] and endpoint_results["test_result"] == 1:
+                if user is not None:
+                    csrf_token = _selenium_test_login(browser, user)
+                else:
+                    csrf_token = _selenium_get_csrf_without_login(browser)
 
         browser.quit()
         df_results = (
