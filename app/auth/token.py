@@ -16,7 +16,7 @@ def confirm_token(token, expiration=3600):
         )
         return email
     except Exception:
-        return False
+        return None
 
 def send_email(to, subject, template):
     msg = Message(

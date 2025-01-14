@@ -197,13 +197,18 @@ def password_reset(token):
         return redirect(url_for('search.index'))
     form = PasswordChangeForm(request.form)
     email = confirm_token(token)
-    user = User.query.filter_by(email=email).first_or_404()
-    if user.email == email:
-        login_user(user)
-        return render_template('auth/password_change.html', username=user.username, form=form)
+    if email is not None:
+        user = User.query.filter_by(email=email).first()
+        if user.email == email:
+            login_user(user)
+            return render_template('auth/password_change.html', username=user.username, form=form)
+        else:
+            flash(gettext("The confirmation link is invalid or has expired."), "danger")
+            return redirect(url_for("auth.password_forgotten"))
     else:
         flash(gettext("The confirmation link is invalid or has expired."), "danger")
         return redirect(url_for("auth.password_forgotten"))
+
 
 @auth.route("/password-change", methods=['GET', 'POST'])
 @check_permissions(login=True)
