@@ -124,7 +124,7 @@ def signup():
 
         login_user(new_user)
 
-        flash(gettext("A confirmation has been sent via email."), "success")
+        flash(gettext("Welcome! Your signup is almost complete; confirm your email address to fully activate your account."), "success")
         return redirect(url_for("auth.inactive"))
     else:
         print("FORM ERRORS:", form.errors)

@@ -59,7 +59,7 @@ def check_is_confirmed(func):
         if not current_user.is_authenticated:
             return current_app.login_manager.unauthorized()        
         if current_user.is_confirmed is False:
-            flash(gettext("Please confirm your account!"), "warning")
+            flash(gettext("You are trying to access a page that requires your account to be verified."), "warning")
             return render_template("auth/inactive.html"), 403
         return func(*args, **kwargs)
     return decorated_function
