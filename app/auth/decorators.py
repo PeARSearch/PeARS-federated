@@ -3,8 +3,6 @@ from functools import wraps
 from flask import render_template, url_for, flash, current_app
 from flask_babel import gettext
 
-from . import VIEW_FUNCTIONS_PERMISSIONS
-
 
 def get_func_identifier(func):
     return func.__module__ + "." + func.__name__
@@ -32,13 +30,6 @@ def check_permissions(login=False, confirmed=False, admin=False):
 
             # otherwise: no login required, keep the function as is
             return new_func(*args, **kwargs)
-
-
-        VIEW_FUNCTIONS_PERMISSIONS[get_func_identifier(func)] = {
-            "login": login,
-            "confirmed": confirmed,
-            "admin": admin
-        }
 
         return decorated_function
 
