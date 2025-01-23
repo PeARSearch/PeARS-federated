@@ -4,7 +4,7 @@
 
 # Import flask dependencies
 from flask import Blueprint, request, render_template, send_from_directory, flash, redirect, url_for
-from flask_login import login_required, current_user
+from flask_login import current_user
 from flask_babel import gettext
 from os.path import dirname, realpath, join
 from app.api.models import Urls, Pods
