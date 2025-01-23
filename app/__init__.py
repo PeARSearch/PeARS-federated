@@ -284,12 +284,16 @@ def load_user(user_id):
 
 # Flask and Flask-SQLAlchemy initialization here
 
+def can_access_flaskadmin():
+    if not current_user.is_authenticated:
+        return abort(404)
+    if not current_user.is_admin:
+        return abort(404)
+    return True
+
 class MyAdminIndexView(AdminIndexView):
     def is_accessible(self):
-        if current_user.is_authenticated and current_user.is_admin:
-            return True # This does the trick rendering the view only if the user is admin
-        else:
-            return abort(404)
+        return can_access_flaskadmin()
 
 
 admin = Admin(app, name='PeARS DB', template_mode='bootstrap3', index_view=MyAdminIndexView())
@@ -315,6 +319,8 @@ class UrlsModelView(ModelView):
             'readonly': True
         },
     }
+    def is_accessible(self):
+        return can_access_flaskadmin()
     def delete_model(self, model):
         try:
             self.on_model_delete(model)
@@ -406,6 +412,8 @@ class PodsModelView(ModelView):
             'readonly': True
         },
     }
+    def is_accessible(self):
+        return can_access_flaskadmin()
     def delete_model(self, model):
         try:
             self.on_model_delete(model)
@@ -448,18 +456,24 @@ class UsersModelView(ModelView):
             'readonly': True
         },
     }
+    def is_accessible(self):
+        return can_access_flaskadmin()
 
 class PersonalizationModelView(ModelView):
     list_template = 'admin/pears_list.html'
     column_searchable_list = ['feature', 'language']
     can_edit = True
     page_size = 50
+    def is_accessible(self):
+        return can_access_flaskadmin()
 
 class SuggestionsModelView(ModelView):
     list_template = 'admin/pears_list.html'
     column_searchable_list = ['url', 'pod']
     can_edit = True
     page_size = 50
+    def is_accessible(self):
+        return can_access_flaskadmin()
 
 admin.add_view(PodsModelView(Pods, db.session))
 admin.add_view(UrlsModelView(Urls, db.session))
