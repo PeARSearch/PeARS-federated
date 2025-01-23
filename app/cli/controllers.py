@@ -501,6 +501,7 @@ def create_test_users():
             _create_account(
                 tu_data["username"], 
                 tu_data["password"],
+                tu_data["email"],
                 is_confirmed=True if tu_profile.startswith("confirmed-") else False,
                 is_admin=True if tu_profile.endswith("-admin") else False
             )
@@ -521,7 +522,6 @@ def _create_account(username, password, email, is_confirmed=True, is_admin=False
 @click.argument("solve_captcha")
 def test_endpoint_permissions(manual=False, solve_captcha=False):
     if manual:
-        # permissions = pd.read_csv("endpoint_permissions__manual.csv", index_col=0)
         permissions = pd.read_csv("endpoint_permissions__manual.csv", index_col=0)
     else:
         permissions = pd.read_csv("endpoint_permissions.csv", index_col=0)
@@ -538,8 +538,6 @@ def test_endpoint_permissions(manual=False, solve_captcha=False):
     else:
         # get some bogus data to send to the captcha part of the form
         test_solve_captcha = lambda: ("CAPTCHA", "CAPTCHA")
-
-    permissions = permissions.dropna()
 
     # selenium 
     # (setup for firefox: getting the right gecko driver on ubuntu, see https://stackoverflow.com/a/78110627)
@@ -590,13 +588,7 @@ def test_endpoint_permissions(manual=False, solve_captcha=False):
             csrf_token = _selenium_test_login(browser, user)
         else:
             csrf_token = _selenium_get_csrf_without_login(browser)
-        _cookies = browser.get_cookies()
-        
-        if _cookies:
-            cookies = {c["name"]: c["value"] for c in _cookies}
-        else:
-            cookies = {}
-        print(cookies)
+        cookies = _read_cookies(browser)
 
         urls = app.url_map.bind("localhost:8080", "/")
         for _, ep_data in permissions.iterrows():
@@ -746,7 +738,7 @@ def test_endpoint_permissions(manual=False, solve_captcha=False):
                 if user is not None:
                     _create_account(
                         user["username"], user["password"], user["email"],
-                        is_confirmed=tc["is_confirmed"], admin=tc["is_admin"]
+                        is_confirmed=tc["is_confirmed"], is_admin=tc["is_admin"]
                     )
 
             # if the test logged us out (for now: auth.logout, settings.delete_account): log us back in
@@ -755,6 +747,7 @@ def test_endpoint_permissions(manual=False, solve_captcha=False):
                     csrf_token = _selenium_test_login(browser, user)
                 else:
                     csrf_token = _selenium_get_csrf_without_login(browser)
+                cookies = _read_cookies(browser)
 
         browser.quit()
         df_results = (
@@ -774,6 +767,16 @@ def test_endpoint_permissions(manual=False, solve_captcha=False):
         )
         df_results_styled.to_html("permission_tests.html")
         df_results.to_csv("permission_tests.csv")
+
+def _read_cookies(browser):
+    _cookies = browser.get_cookies()
+    
+    if _cookies:
+        cookies = {c["name"]: c["value"] for c in _cookies}
+    else:
+        cookies = {}
+    print(cookies)
+    return cookies
 
 def _selenium_test_login(browser, user):
     # go to login page 
