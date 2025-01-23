@@ -660,80 +660,28 @@ def test_endpoint_permissions(manual=False, solve_captcha=False):
             received_status_code = r.status_code
             endpoint_results["received_status"] = received_status_code
 
-            if received_status_code == 200 and not should_have_access:
-                # check if we've been redirected to the login/confirmation page
-                if r.history and r.history[-1].status_code == 302 and (r.url.startswith("http://localhost:8080/auth/login?next=") or r.url.startswith("http://localhost:8080/auth/inactive")):
-                    endpoint_results["test_result"] = 1
-                    endpoint_results["test_result_note"] = "redirected to home page as expected"
-                elif ep_data["admin"] and r.url == "http://localhost:8080/":
-                    # we have been sent back to the home page, let's check if we get the admin-only message
-                    if _selenium_check_admin_warning_displayed(browser, url):
-                        endpoint_results["test_result"] = 1
-                        endpoint_results["test_result_note"] = "should not have access, is appropriately redirected to home page with admin-only warning"
-                    else:
-                        endpoint_results["test_result"] = -1
-                        endpoint_results["test_result_note"] = "should not have access, is redirected to home page but without message"
-                elif r.history and r.history[-1].status_code == 302 and r.url.startswith("http://localhost:8080/admin/"):
-                    # sent back to one of the admin pages?
-                    # check for error code
-                    if _senelium_check_admin_permission_denied_msg(browser, url):
-                        endpoint_results["test_result"] = 1
-                        endpoint_results["test_result_note"] = "sent back to admin page with 'permission denied' message, this is appropriate here"
-                    else:
-                        endpoint_results["test_result"] = 0
-                        endpoint_results["test_result_note"] = "sent to admin page without 'permission denied' message, don't know what's going on"
-
-                else:
-                    endpoint_results["test_result"] = -1
-                    endpoint_results["test_result_note"] = "appears to have access but should not"
-    
-            elif received_status_code == 200 and should_have_access:
-                if r.history and r.history[-1].status_code == 302 and (r.url.startswith("http://localhost:8080/auth/login?next=")  or r.url.startswith("http://localhost:8080/auth/inactive")):
-
-                    # exception: some endpoints *should* redirect to /auth/inactive, with a message
-                    if ep == "auth.resend_confirmation" and r.url.startswith("http://localhost:8080/auth/inactive") and _selenium_check_confirmation_mail_sent_displayed(browser, url):
-                        endpoint_results["test_result"] = 1
-                        endpoint_results["test_result_note"] = "should have access, verified flash contents using selenium"
-                    else:
-                        endpoint_results["test_result"] = -1
-                        endpoint_results["test_result_note"] = "should have access but is unexpectedly redirected to login/inactive page"                    
-                
-                # have we been redirected to the home page
-                elif r.history and r.history[-1].status_code == 302 and r.url == "http://localhost:8080/":
-                    if chosen_method == "GET" and _selenium_check_admin_warning_displayed(browser, url):
-                        endpoint_results["test_result"] = -1
-                        endpoint_results["test_result_note"] = "should have access but unexpectedly rerouted to home page with admin warning"
-                    else:
-                        endpoint_results["test_result"] = 1
-                        endpoint_results["test_result_note"] = "rerouted to home page, no warnings found; I'm assuming this means the endpoint was successfully accessed"
-
-                # sent back to one of the admin pages?
-                elif r.history and r.history[-1].status_code == 302 and r.url.startswith("http://localhost:8080/admin/"):
-                    # check for error code
-                    if _senelium_check_admin_permission_denied_msg(browser, url):
-                        endpoint_results["test_result"] = -1
-                        endpoint_results["test_result_note"] = "sent back to admin page with 'permission denied' message, while we should have access"
-                    else:
-                        endpoint_results["test_result"] = 0
-                        endpoint_results["test_result_note"] = "sent to admin page without 'permission denied' message, don't know what's going on"
-
-                else:
-                    endpoint_results["test_result"] = 1
-                    endpoint_results["test_result_note"] = "should have access and does"
-
-            elif str(received_status_code).startswith("4") and not should_have_access:
+            if should_have_access and received_status_code == 200:
                 endpoint_results["test_result"] = 1
-                endpoint_results["test_result_note"] = "should not have access and gets 4xx response"
-            
-            elif str(received_status_code).startswith("4") and should_have_access:
+                endpoint_results["test_result_note"] = "should have access, and does have access"
+            elif should_have_access and received_status_code // 100 == 4:  # 400s status code
                 endpoint_results["test_result"] = -1
-                endpoint_results["test_result_note"] = "should have access but gets 4xx response"
-
+                endpoint_results["test_result_note"] = "should have access, but doesn't have access"
+            elif should_have_access and received_status_code == 500:
+                endpoint_results["test_result"] = 0
+                endpoint_results["test_result_note"] = "server error while trying to access endpoint; this is probably not an authentication error but please check this manually!"
+            elif not should_have_access and received_status_code == 200:
+                endpoint_results["test_result"] = -1
+                endpoint_results["test_result_note"] = "should not have access, but does have access"
+            elif not should_have_access and received_status_code // 100 == 4:  # 400s status code
+                endpoint_results["test_result"] = 1
+                endpoint_results["test_result_note"] = "should not have access, and does not have access"
+            elif not should_have_access and received_status_code == 500:
+                endpoint_results["test_result"] = -1
+                endpoint_results["test_result_note"] = "server error while trying to access endpoint; this probably means that authentication (unexpectedly!) succeeded, please check manually"
             else:
                 endpoint_results["test_result"] = 0
-                endpoint_results["test_skipped_reason"] = "can't interpret test outcome"
+                endpoint_results["test_result_note"] = "unexpected status code, please check manually!"                
 
-            # if the test removed our account (for now: only settings.delete_account): re-create the account
             if ep_data["reset_account"] and endpoint_results["test_result"] == 1:
                 if user is not None:
                     _create_account(
@@ -797,37 +745,22 @@ def _selenium_get_csrf_without_login(browser):
     csrf_token = browser.find_element(By.ID, value="csrf_token").get_attribute("value")
     return csrf_token
 
-def _selenium_check_admin_warning_displayed(browser, target_url):
-        browser.get(target_url) # redo the request with selenium
-        divs = browser.find_elements(By.CLASS_NAME, value="notification.is-danger")
-        if divs and "The page you requested is admin only." in divs[0].text:
-            return True
-        return False
-
-def _senelium_check_admin_permission_denied_msg(browser, target_url):
-        browser.get(target_url) # redo the request with selenium
-        divs = browser.find_elements(By.CLASS_NAME, value="alert.alert-danger.alert-dismissable")
-        if divs and "Permission denied." in divs[0].text:
-            return True
-        return False
-
-
-def _selenium_check_confirmation_mail_sent_displayed(browser, target_url):
-    browser.get(target_url) # redo the request with selenium
-    divs = browser.find_elements(By.CLASS_NAME, value="notification.is-danger")
-    
-    if divs and "A new confirmation email has been sent." in divs[0].text:
-        return True
-    return False
-
 def _should_have_access(test_case, endpoint_info):
-    if endpoint_info["login"] and not test_case["logged_in"]:
-        return False
-    if endpoint_info["confirmed"] and not test_case["is_confirmed"]:
-        return False
-    if endpoint_info["admin"] and not test_case["is_admin"]:
-        return False
-    return 200
+    # this mirrors what happens in app.auth.decorators.check_permissions()
+
+    # highest security level: check if user is logged in and has admin priviledges; ignore whether they're confirmed or not
+    if endpoint_info["admin"]: 
+        return test_case["logged_in"] and test_case["is_admin"]
+    
+    # medium security level: check if user is logged in and confirmed
+    if endpoint_info["confirmed"]:
+        return test_case["logged_in"] and test_case["is_confirmed"]
+
+    if endpoint_info["login"]:  
+        return test_case["logged_in"]
+    
+    # no requirements at all: everyone has access
+    return True
 
 def _parse_endpoint_example_args(arg_string):
     args = {}

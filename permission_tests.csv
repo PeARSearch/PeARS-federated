@@ -1,47 +1,466 @@
 ,user,endpoint,methods,permissions_login,permissions_confirmed,permissions_admin,arguments,url,received_status,test_result,test_result_note,test_skipped_reason
-0,,static,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/static/pears_team.png,200,1,should have access and does,
-1,,serve_logos,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/static/assets/README.md,200,1,should have access and does,
-2,,indexer.correct_entry,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/indexer/amend,200,1,redirected to home page as expected,
-3,,indexer.index_from_url,"{'POST', 'OPTIONS'}",True,True,True,,http://localhost:8080/indexer/url,200,1,redirected to home page as expected,
-4,,indexer.index_from_manual,"{'POST', 'OPTIONS'}",True,True,True,,http://localhost:8080/indexer/manual,200,1,redirected to home page as expected,
-5,,indexer.run_suggest_url,"{'POST', 'OPTIONS'}",False,False,False,,http://localhost:8080/indexer/suggestion,200,1,should have access and does,
-6,,api.return_instance_signature,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/api/signature/en/,200,1,should have access and does,
-7,,api.return_query_results,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/api/search,200,1,should have access and does,
-8,,api.return_specific_url,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/api/get,200,1,should have access and does,
-9,,orchard.get_a_pod,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/orchard/get-a-pod,200,1,should have access and does,
-10,,orchard.download_file,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/orchard/download,200,1,redirected to home page as expected,
-11,,orchard.rename_pod,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/orchard/rename,200,1,redirected to home page as expected,
-12,,settings.toggle_theme,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/settings/toggle-theme,200,1,"rerouted to home page, no warnings found; I'm assuming this means the endpoint was successfully accessed",
-13,,settings.delete_url,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/settings/delete,200,1,redirected to home page as expected,
-14,,settings.delete_comment,"{'OPTIONS', 'GET', 'HEAD'}",True,True,False,,http://localhost:8080/settings/delcomment,200,1,redirected to home page as expected,
-15,,auth.confirm_email,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/auth/registration-confirm/thisIsJustAFakeToken,200,1,redirected to home page as expected,
-16,,auth.password_reset,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/auth/password-reset-confirm/thisIsJustAFakeToken,200,1,should have access and does,
-17,,admin.static,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
-18,,pods.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
-19,,urls.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
-20,,user.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
-21,,personalization.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
-22,,suggestions.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
-23,unittest_unconfirmed,static,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/static/pears_team.png,200,1,should have access and does,
-24,unittest_unconfirmed,serve_logos,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/static/assets/README.md,200,1,should have access and does,
-25,unittest_unconfirmed,indexer.correct_entry,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/indexer/amend,200,1,redirected to home page as expected,
-26,unittest_unconfirmed,indexer.index_from_url,"{'POST', 'OPTIONS'}",True,True,True,,http://localhost:8080/indexer/url,200,1,redirected to home page as expected,
-27,unittest_unconfirmed,indexer.index_from_manual,"{'POST', 'OPTIONS'}",True,True,True,,http://localhost:8080/indexer/manual,200,1,redirected to home page as expected,
-28,unittest_unconfirmed,indexer.run_suggest_url,"{'POST', 'OPTIONS'}",False,False,False,,http://localhost:8080/indexer/suggestion,200,1,should have access and does,
-29,unittest_unconfirmed,api.return_instance_signature,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/api/signature/en/,200,1,should have access and does,
-30,unittest_unconfirmed,api.return_query_results,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/api/search,200,1,should have access and does,
-31,unittest_unconfirmed,api.return_specific_url,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/api/get,200,1,should have access and does,
-32,unittest_unconfirmed,orchard.get_a_pod,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/orchard/get-a-pod,200,1,should have access and does,
-33,unittest_unconfirmed,orchard.download_file,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/orchard/download,200,1,redirected to home page as expected,
-34,unittest_unconfirmed,orchard.rename_pod,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/orchard/rename,200,1,redirected to home page as expected,
-35,unittest_unconfirmed,settings.toggle_theme,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/settings/toggle-theme,200,1,"rerouted to home page, no warnings found; I'm assuming this means the endpoint was successfully accessed",
-36,unittest_unconfirmed,settings.delete_url,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/settings/delete,200,1,redirected to home page as expected,
-37,unittest_unconfirmed,settings.delete_comment,"{'OPTIONS', 'GET', 'HEAD'}",True,True,False,,http://localhost:8080/settings/delcomment,200,1,redirected to home page as expected,
-38,unittest_unconfirmed,auth.confirm_email,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/auth/registration-confirm/thisIsJustAFakeToken,200,1,"rerouted to home page, no warnings found; I'm assuming this means the endpoint was successfully accessed",
-39,unittest_unconfirmed,auth.password_reset,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/auth/password-reset-confirm/thisIsJustAFakeToken,200,1,"rerouted to home page, no warnings found; I'm assuming this means the endpoint was successfully accessed",
-40,unittest_unconfirmed,admin.static,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
-41,unittest_unconfirmed,pods.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
-42,unittest_unconfirmed,urls.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
-43,unittest_unconfirmed,user.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
-44,unittest_unconfirmed,personalization.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
-45,unittest_unconfirmed,suggestions.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+0,,static,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/static/pears_team.png,200,1,"should have access, and does have access",
+1,,serve_logos,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/static/assets/README.md,200,1,"should have access, and does have access",
+2,,indexer.index,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/indexer/,404,1,"should not have access, and does not have access",
+3,,indexer.suggest,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/indexer/suggest,200,1,"should have access, and does have access",
+4,,indexer.correct_entry,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/indexer/amend,404,1,"should not have access, and does not have access",
+5,,indexer.index_from_url,"{'POST', 'OPTIONS'}",True,True,True,,http://localhost:8080/indexer/url,404,1,"should not have access, and does not have access",
+6,,indexer.index_from_manual,"{'POST', 'OPTIONS'}",True,True,True,,http://localhost:8080/indexer/manual,404,1,"should not have access, and does not have access",
+7,,indexer.run_suggest_url,"{'POST', 'OPTIONS'}",False,False,False,,http://localhost:8080/indexer/suggestion,200,1,"should have access, and does have access",
+8,,api.return_instance_languages,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/api/languages/,200,1,"should have access, and does have access",
+9,,api.return_instance_signature,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/api/signature/en/,200,1,"should have access, and does have access",
+10,,api.return_query_results,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/api/search,200,1,"should have access, and does have access",
+11,,api.return_specific_url,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/api/get,200,1,"should have access, and does have access",
+12,,search.index,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/,200,1,"should have access, and does have access",
+13,,orchard.index,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/orchard/index,200,1,"should have access, and does have access",
+14,,orchard.get_a_pod,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/orchard/get-a-pod,200,1,"should have access, and does have access",
+15,,orchard.download_file,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/orchard/download,404,1,"should not have access, and does not have access",
+16,,orchard.rename_pod,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/orchard/rename,404,1,"should not have access, and does not have access",
+17,,orchard.report,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,True,False,,http://localhost:8080/orchard/report,404,1,"should not have access, and does not have access",
+18,,orchard.feedback,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,True,False,,http://localhost:8080/orchard/feedback,404,1,"should not have access, and does not have access",
+19,,orchard.annotate,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,True,False,,http://localhost:8080/orchard/annotate,404,1,"should not have access, and does not have access",
+20,,pages.return_faq,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/faq/,200,1,"should have access, and does have access",
+21,,pages.return_licenses,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/licenses/,200,1,"should have access, and does have access",
+22,,pages.return_acknowledgements,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/acknowledgements/,200,1,"should have access, and does have access",
+23,,pages.return_privacy,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/privacy/,200,1,"should have access, and does have access",
+24,,pages.return_tos,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/terms-of-service/,200,1,"should have access, and does have access",
+25,,pages.return_contact,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/impressum/,200,1,"should have access, and does have access",
+26,,pages.return_maintenance,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/maintenance/,200,1,"should have access, and does have access",
+27,,settings.index,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/settings/,404,1,"should not have access, and does not have access",
+28,,settings.toggle_theme,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/settings/toggle-theme,200,1,"should have access, and does have access",
+29,,settings.delete_url,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/settings/delete,404,1,"should not have access, and does not have access",
+30,,settings.delete_comment,"{'OPTIONS', 'GET', 'HEAD'}",True,True,False,,http://localhost:8080/settings/delcomment,404,1,"should not have access, and does not have access",
+31,,settings.delete_account,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/settings/delete_account,404,1,"should not have access, and does not have access",
+32,,settings.change_email,"{'POST', 'OPTIONS'}",True,False,False,,http://localhost:8080/settings/change_email,404,1,"should not have access, and does not have access",
+33,,settings.change_username,"{'POST', 'OPTIONS'}",True,False,False,,http://localhost:8080/settings/change_username,404,1,"should not have access, and does not have access",
+34,,auth.logout,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/auth/logout,404,1,"should not have access, and does not have access",
+35,,auth.login,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/auth/login,200,1,"should have access, and does have access",
+36,,auth.signup,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/auth/signup,200,1,"should have access, and does have access",
+37,,auth.confirm_email,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/auth/registration-confirm/thisIsJustAFakeToken,404,1,"should not have access, and does not have access",
+38,,auth.resend_confirmation,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/auth/resend,404,1,"should not have access, and does not have access",
+39,,auth.password_forgotten,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/auth/password-forgotten,200,1,"should have access, and does have access",
+40,,auth.password_reset,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/auth/password-reset-confirm/thisIsJustAFakeToken,200,1,"should have access, and does have access",
+41,,auth.password_change,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/auth/password-change,404,1,"should not have access, and does not have access",
+42,,auth.inactive,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/auth/inactive,404,1,"should not have access, and does not have access",
+43,,admin.static,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+44,,admin.index,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/,404,1,"should not have access, and does not have access",
+45,,pods.action_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+46,,pods.ajax_lookup,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+47,,pods.ajax_update,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+48,,pods.create_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/pods/new/,404,1,"should not have access, and does not have access",
+49,,pods.delete_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+50,,pods.details_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+51,,pods.edit_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+52,,pods.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+53,,pods.index_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/pods/,404,1,"should not have access, and does not have access",
+54,,urls.action_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+55,,urls.ajax_lookup,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+56,,urls.ajax_update,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+57,,urls.create_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/urls/new/,404,1,"should not have access, and does not have access",
+58,,urls.delete_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+59,,urls.details_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+60,,urls.edit_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+61,,urls.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+62,,urls.index_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/urls/,404,1,"should not have access, and does not have access",
+63,,user.action_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+64,,user.ajax_lookup,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+65,,user.ajax_update,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+66,,user.create_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/user/new/,404,1,"should not have access, and does not have access",
+67,,user.delete_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+68,,user.details_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+69,,user.edit_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+70,,user.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+71,,user.index_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/user/,404,1,"should not have access, and does not have access",
+72,,personalization.action_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+73,,personalization.ajax_lookup,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+74,,personalization.ajax_update,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+75,,personalization.create_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/personalization/new/,404,1,"should not have access, and does not have access",
+76,,personalization.delete_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+77,,personalization.details_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+78,,personalization.edit_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+79,,personalization.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+80,,personalization.index_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/personalization/,404,1,"should not have access, and does not have access",
+81,,suggestions.action_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+82,,suggestions.ajax_lookup,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+83,,suggestions.ajax_update,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+84,,suggestions.create_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/suggestions/new/,404,1,"should not have access, and does not have access",
+85,,suggestions.delete_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+86,,suggestions.details_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+87,,suggestions.edit_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+88,,suggestions.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+89,,suggestions.index_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/suggestions/,404,1,"should not have access, and does not have access",
+90,,serve_manifest,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/manifest.json,200,1,"should have access, and does have access",
+91,,serve_sw,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/sw.js,200,1,"should have access, and does have access",
+92,,static_from_root,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/robots.txt,200,1,"should have access, and does have access",
+93,unittest_unconfirmed,static,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/static/pears_team.png,200,1,"should have access, and does have access",
+94,unittest_unconfirmed,serve_logos,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/static/assets/README.md,200,1,"should have access, and does have access",
+95,unittest_unconfirmed,indexer.index,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/indexer/,404,1,"should not have access, and does not have access",
+96,unittest_unconfirmed,indexer.suggest,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/indexer/suggest,200,1,"should have access, and does have access",
+97,unittest_unconfirmed,indexer.correct_entry,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/indexer/amend,404,1,"should not have access, and does not have access",
+98,unittest_unconfirmed,indexer.index_from_url,"{'POST', 'OPTIONS'}",True,True,True,,http://localhost:8080/indexer/url,404,1,"should not have access, and does not have access",
+99,unittest_unconfirmed,indexer.index_from_manual,"{'POST', 'OPTIONS'}",True,True,True,,http://localhost:8080/indexer/manual,404,1,"should not have access, and does not have access",
+100,unittest_unconfirmed,indexer.run_suggest_url,"{'POST', 'OPTIONS'}",False,False,False,,http://localhost:8080/indexer/suggestion,200,1,"should have access, and does have access",
+101,unittest_unconfirmed,api.return_instance_languages,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/api/languages/,200,1,"should have access, and does have access",
+102,unittest_unconfirmed,api.return_instance_signature,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/api/signature/en/,200,1,"should have access, and does have access",
+103,unittest_unconfirmed,api.return_query_results,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/api/search,200,1,"should have access, and does have access",
+104,unittest_unconfirmed,api.return_specific_url,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/api/get,200,1,"should have access, and does have access",
+105,unittest_unconfirmed,search.index,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/,200,1,"should have access, and does have access",
+106,unittest_unconfirmed,orchard.index,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/orchard/index,200,1,"should have access, and does have access",
+107,unittest_unconfirmed,orchard.get_a_pod,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/orchard/get-a-pod,200,1,"should have access, and does have access",
+108,unittest_unconfirmed,orchard.download_file,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/orchard/download,404,1,"should not have access, and does not have access",
+109,unittest_unconfirmed,orchard.rename_pod,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/orchard/rename,404,1,"should not have access, and does not have access",
+110,unittest_unconfirmed,orchard.report,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,True,False,,http://localhost:8080/orchard/report,403,1,"should not have access, and does not have access",
+111,unittest_unconfirmed,orchard.feedback,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,True,False,,http://localhost:8080/orchard/feedback,403,1,"should not have access, and does not have access",
+112,unittest_unconfirmed,orchard.annotate,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,True,False,,http://localhost:8080/orchard/annotate,403,1,"should not have access, and does not have access",
+113,unittest_unconfirmed,pages.return_faq,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/faq/,200,1,"should have access, and does have access",
+114,unittest_unconfirmed,pages.return_licenses,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/licenses/,200,1,"should have access, and does have access",
+115,unittest_unconfirmed,pages.return_acknowledgements,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/acknowledgements/,200,1,"should have access, and does have access",
+116,unittest_unconfirmed,pages.return_privacy,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/privacy/,200,1,"should have access, and does have access",
+117,unittest_unconfirmed,pages.return_tos,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/terms-of-service/,200,1,"should have access, and does have access",
+118,unittest_unconfirmed,pages.return_contact,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/impressum/,200,1,"should have access, and does have access",
+119,unittest_unconfirmed,pages.return_maintenance,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/maintenance/,200,1,"should have access, and does have access",
+120,unittest_unconfirmed,settings.index,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/settings/,200,1,"should have access, and does have access",
+121,unittest_unconfirmed,settings.toggle_theme,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/settings/toggle-theme,200,1,"should have access, and does have access",
+122,unittest_unconfirmed,settings.delete_url,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/settings/delete,404,1,"should not have access, and does not have access",
+123,unittest_unconfirmed,settings.delete_comment,"{'OPTIONS', 'GET', 'HEAD'}",True,True,False,,http://localhost:8080/settings/delcomment,403,1,"should not have access, and does not have access",
+124,unittest_unconfirmed,settings.delete_account,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/settings/delete_account,200,1,"should have access, and does have access",
+125,unittest_unconfirmed,settings.change_email,"{'POST', 'OPTIONS'}",True,False,False,,http://localhost:8080/settings/change_email,200,1,"should have access, and does have access",
+126,unittest_unconfirmed,settings.change_username,"{'POST', 'OPTIONS'}",True,False,False,,http://localhost:8080/settings/change_username,200,1,"should have access, and does have access",
+127,unittest_unconfirmed,auth.logout,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/auth/logout,200,1,"should have access, and does have access",
+128,unittest_unconfirmed,auth.login,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/auth/login,200,1,"should have access, and does have access",
+129,unittest_unconfirmed,auth.signup,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/auth/signup,200,1,"should have access, and does have access",
+130,unittest_unconfirmed,auth.confirm_email,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/auth/registration-confirm/thisIsJustAFakeToken,200,1,"should have access, and does have access",
+131,unittest_unconfirmed,auth.resend_confirmation,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/auth/resend,200,1,"should have access, and does have access",
+132,unittest_unconfirmed,auth.password_forgotten,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/auth/password-forgotten,200,1,"should have access, and does have access",
+133,unittest_unconfirmed,auth.password_reset,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/auth/password-reset-confirm/thisIsJustAFakeToken,200,1,"should have access, and does have access",
+134,unittest_unconfirmed,auth.password_change,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/auth/password-change,200,1,"should have access, and does have access",
+135,unittest_unconfirmed,auth.inactive,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/auth/inactive,200,1,"should have access, and does have access",
+136,unittest_unconfirmed,admin.static,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+137,unittest_unconfirmed,admin.index,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/,404,1,"should not have access, and does not have access",
+138,unittest_unconfirmed,pods.action_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+139,unittest_unconfirmed,pods.ajax_lookup,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+140,unittest_unconfirmed,pods.ajax_update,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+141,unittest_unconfirmed,pods.create_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/pods/new/,404,1,"should not have access, and does not have access",
+142,unittest_unconfirmed,pods.delete_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+143,unittest_unconfirmed,pods.details_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+144,unittest_unconfirmed,pods.edit_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+145,unittest_unconfirmed,pods.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+146,unittest_unconfirmed,pods.index_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/pods/,404,1,"should not have access, and does not have access",
+147,unittest_unconfirmed,urls.action_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+148,unittest_unconfirmed,urls.ajax_lookup,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+149,unittest_unconfirmed,urls.ajax_update,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+150,unittest_unconfirmed,urls.create_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/urls/new/,404,1,"should not have access, and does not have access",
+151,unittest_unconfirmed,urls.delete_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+152,unittest_unconfirmed,urls.details_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+153,unittest_unconfirmed,urls.edit_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+154,unittest_unconfirmed,urls.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+155,unittest_unconfirmed,urls.index_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/urls/,404,1,"should not have access, and does not have access",
+156,unittest_unconfirmed,user.action_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+157,unittest_unconfirmed,user.ajax_lookup,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+158,unittest_unconfirmed,user.ajax_update,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+159,unittest_unconfirmed,user.create_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/user/new/,404,1,"should not have access, and does not have access",
+160,unittest_unconfirmed,user.delete_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+161,unittest_unconfirmed,user.details_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+162,unittest_unconfirmed,user.edit_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+163,unittest_unconfirmed,user.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+164,unittest_unconfirmed,user.index_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/user/,404,1,"should not have access, and does not have access",
+165,unittest_unconfirmed,personalization.action_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+166,unittest_unconfirmed,personalization.ajax_lookup,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+167,unittest_unconfirmed,personalization.ajax_update,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+168,unittest_unconfirmed,personalization.create_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/personalization/new/,404,1,"should not have access, and does not have access",
+169,unittest_unconfirmed,personalization.delete_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+170,unittest_unconfirmed,personalization.details_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+171,unittest_unconfirmed,personalization.edit_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+172,unittest_unconfirmed,personalization.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+173,unittest_unconfirmed,personalization.index_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/personalization/,404,1,"should not have access, and does not have access",
+174,unittest_unconfirmed,suggestions.action_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+175,unittest_unconfirmed,suggestions.ajax_lookup,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+176,unittest_unconfirmed,suggestions.ajax_update,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+177,unittest_unconfirmed,suggestions.create_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/suggestions/new/,404,1,"should not have access, and does not have access",
+178,unittest_unconfirmed,suggestions.delete_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+179,unittest_unconfirmed,suggestions.details_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+180,unittest_unconfirmed,suggestions.edit_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+181,unittest_unconfirmed,suggestions.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+182,unittest_unconfirmed,suggestions.index_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/suggestions/,404,1,"should not have access, and does not have access",
+183,unittest_unconfirmed,serve_manifest,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/manifest.json,200,1,"should have access, and does have access",
+184,unittest_unconfirmed,serve_sw,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/sw.js,200,1,"should have access, and does have access",
+185,unittest_unconfirmed,static_from_root,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/robots.txt,200,1,"should have access, and does have access",
+186,unittest_confirmed,static,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/static/pears_team.png,200,1,"should have access, and does have access",
+187,unittest_confirmed,serve_logos,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/static/assets/README.md,200,1,"should have access, and does have access",
+188,unittest_confirmed,indexer.index,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/indexer/,404,1,"should not have access, and does not have access",
+189,unittest_confirmed,indexer.suggest,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/indexer/suggest,200,1,"should have access, and does have access",
+190,unittest_confirmed,indexer.correct_entry,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/indexer/amend,404,1,"should not have access, and does not have access",
+191,unittest_confirmed,indexer.index_from_url,"{'POST', 'OPTIONS'}",True,True,True,,http://localhost:8080/indexer/url,404,1,"should not have access, and does not have access",
+192,unittest_confirmed,indexer.index_from_manual,"{'POST', 'OPTIONS'}",True,True,True,,http://localhost:8080/indexer/manual,404,1,"should not have access, and does not have access",
+193,unittest_confirmed,indexer.run_suggest_url,"{'POST', 'OPTIONS'}",False,False,False,,http://localhost:8080/indexer/suggestion,200,1,"should have access, and does have access",
+194,unittest_confirmed,api.return_instance_languages,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/api/languages/,200,1,"should have access, and does have access",
+195,unittest_confirmed,api.return_instance_signature,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/api/signature/en/,200,1,"should have access, and does have access",
+196,unittest_confirmed,api.return_query_results,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/api/search,200,1,"should have access, and does have access",
+197,unittest_confirmed,api.return_specific_url,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/api/get,200,1,"should have access, and does have access",
+198,unittest_confirmed,search.index,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/,200,1,"should have access, and does have access",
+199,unittest_confirmed,orchard.index,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/orchard/index,200,1,"should have access, and does have access",
+200,unittest_confirmed,orchard.get_a_pod,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/orchard/get-a-pod,200,1,"should have access, and does have access",
+201,unittest_confirmed,orchard.download_file,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/orchard/download,404,1,"should not have access, and does not have access",
+202,unittest_confirmed,orchard.rename_pod,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/orchard/rename,404,1,"should not have access, and does not have access",
+203,unittest_confirmed,orchard.report,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,True,False,,http://localhost:8080/orchard/report,200,1,"should have access, and does have access",
+204,unittest_confirmed,orchard.feedback,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,True,False,,http://localhost:8080/orchard/feedback,200,1,"should have access, and does have access",
+205,unittest_confirmed,orchard.annotate,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,True,False,,http://localhost:8080/orchard/annotate,200,1,"should have access, and does have access",
+206,unittest_confirmed,pages.return_faq,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/faq/,200,1,"should have access, and does have access",
+207,unittest_confirmed,pages.return_licenses,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/licenses/,200,1,"should have access, and does have access",
+208,unittest_confirmed,pages.return_acknowledgements,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/acknowledgements/,200,1,"should have access, and does have access",
+209,unittest_confirmed,pages.return_privacy,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/privacy/,200,1,"should have access, and does have access",
+210,unittest_confirmed,pages.return_tos,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/terms-of-service/,200,1,"should have access, and does have access",
+211,unittest_confirmed,pages.return_contact,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/impressum/,200,1,"should have access, and does have access",
+212,unittest_confirmed,pages.return_maintenance,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/maintenance/,200,1,"should have access, and does have access",
+213,unittest_confirmed,settings.index,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/settings/,200,1,"should have access, and does have access",
+214,unittest_confirmed,settings.toggle_theme,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/settings/toggle-theme,200,1,"should have access, and does have access",
+215,unittest_confirmed,settings.delete_url,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/settings/delete,404,1,"should not have access, and does not have access",
+216,unittest_confirmed,settings.delete_comment,"{'OPTIONS', 'GET', 'HEAD'}",True,True,False,,http://localhost:8080/settings/delcomment,500,0,server error while trying to access endpoint; this is probably not an authentication error but please check this manually!,
+217,unittest_confirmed,settings.delete_account,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/settings/delete_account,200,1,"should have access, and does have access",
+218,unittest_confirmed,settings.change_email,"{'POST', 'OPTIONS'}",True,False,False,,http://localhost:8080/settings/change_email,200,1,"should have access, and does have access",
+219,unittest_confirmed,settings.change_username,"{'POST', 'OPTIONS'}",True,False,False,,http://localhost:8080/settings/change_username,200,1,"should have access, and does have access",
+220,unittest_confirmed,auth.logout,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/auth/logout,200,1,"should have access, and does have access",
+221,unittest_confirmed,auth.login,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/auth/login,200,1,"should have access, and does have access",
+222,unittest_confirmed,auth.signup,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/auth/signup,200,1,"should have access, and does have access",
+223,unittest_confirmed,auth.confirm_email,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/auth/registration-confirm/thisIsJustAFakeToken,200,1,"should have access, and does have access",
+224,unittest_confirmed,auth.resend_confirmation,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/auth/resend,200,1,"should have access, and does have access",
+225,unittest_confirmed,auth.password_forgotten,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/auth/password-forgotten,200,1,"should have access, and does have access",
+226,unittest_confirmed,auth.password_reset,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/auth/password-reset-confirm/thisIsJustAFakeToken,200,1,"should have access, and does have access",
+227,unittest_confirmed,auth.password_change,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/auth/password-change,200,1,"should have access, and does have access",
+228,unittest_confirmed,auth.inactive,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/auth/inactive,200,1,"should have access, and does have access",
+229,unittest_confirmed,admin.static,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+230,unittest_confirmed,admin.index,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/,404,1,"should not have access, and does not have access",
+231,unittest_confirmed,pods.action_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+232,unittest_confirmed,pods.ajax_lookup,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+233,unittest_confirmed,pods.ajax_update,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+234,unittest_confirmed,pods.create_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/pods/new/,404,1,"should not have access, and does not have access",
+235,unittest_confirmed,pods.delete_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+236,unittest_confirmed,pods.details_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+237,unittest_confirmed,pods.edit_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+238,unittest_confirmed,pods.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+239,unittest_confirmed,pods.index_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/pods/,404,1,"should not have access, and does not have access",
+240,unittest_confirmed,urls.action_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+241,unittest_confirmed,urls.ajax_lookup,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+242,unittest_confirmed,urls.ajax_update,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+243,unittest_confirmed,urls.create_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/urls/new/,404,1,"should not have access, and does not have access",
+244,unittest_confirmed,urls.delete_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+245,unittest_confirmed,urls.details_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+246,unittest_confirmed,urls.edit_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+247,unittest_confirmed,urls.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+248,unittest_confirmed,urls.index_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/urls/,404,1,"should not have access, and does not have access",
+249,unittest_confirmed,user.action_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+250,unittest_confirmed,user.ajax_lookup,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+251,unittest_confirmed,user.ajax_update,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+252,unittest_confirmed,user.create_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/user/new/,404,1,"should not have access, and does not have access",
+253,unittest_confirmed,user.delete_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+254,unittest_confirmed,user.details_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+255,unittest_confirmed,user.edit_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+256,unittest_confirmed,user.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+257,unittest_confirmed,user.index_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/user/,404,1,"should not have access, and does not have access",
+258,unittest_confirmed,personalization.action_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+259,unittest_confirmed,personalization.ajax_lookup,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+260,unittest_confirmed,personalization.ajax_update,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+261,unittest_confirmed,personalization.create_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/personalization/new/,404,1,"should not have access, and does not have access",
+262,unittest_confirmed,personalization.delete_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+263,unittest_confirmed,personalization.details_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+264,unittest_confirmed,personalization.edit_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+265,unittest_confirmed,personalization.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+266,unittest_confirmed,personalization.index_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/personalization/,404,1,"should not have access, and does not have access",
+267,unittest_confirmed,suggestions.action_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+268,unittest_confirmed,suggestions.ajax_lookup,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+269,unittest_confirmed,suggestions.ajax_update,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+270,unittest_confirmed,suggestions.create_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/suggestions/new/,404,1,"should not have access, and does not have access",
+271,unittest_confirmed,suggestions.delete_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+272,unittest_confirmed,suggestions.details_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+273,unittest_confirmed,suggestions.edit_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+274,unittest_confirmed,suggestions.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+275,unittest_confirmed,suggestions.index_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/suggestions/,404,1,"should not have access, and does not have access",
+276,unittest_confirmed,serve_manifest,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/manifest.json,200,1,"should have access, and does have access",
+277,unittest_confirmed,serve_sw,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/sw.js,200,1,"should have access, and does have access",
+278,unittest_confirmed,static_from_root,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/robots.txt,200,1,"should have access, and does have access",
+279,unittest_unconf_adm,static,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/static/pears_team.png,200,1,"should have access, and does have access",
+280,unittest_unconf_adm,serve_logos,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/static/assets/README.md,200,1,"should have access, and does have access",
+281,unittest_unconf_adm,indexer.index,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/indexer/,200,1,"should have access, and does have access",
+282,unittest_unconf_adm,indexer.suggest,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/indexer/suggest,200,1,"should have access, and does have access",
+283,unittest_unconf_adm,indexer.correct_entry,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/indexer/amend,500,0,server error while trying to access endpoint; this is probably not an authentication error but please check this manually!,
+284,unittest_unconf_adm,indexer.index_from_url,"{'POST', 'OPTIONS'}",True,True,True,,http://localhost:8080/indexer/url,200,1,"should have access, and does have access",
+285,unittest_unconf_adm,indexer.index_from_manual,"{'POST', 'OPTIONS'}",True,True,True,,http://localhost:8080/indexer/manual,500,0,server error while trying to access endpoint; this is probably not an authentication error but please check this manually!,
+286,unittest_unconf_adm,indexer.run_suggest_url,"{'POST', 'OPTIONS'}",False,False,False,,http://localhost:8080/indexer/suggestion,200,1,"should have access, and does have access",
+287,unittest_unconf_adm,api.return_instance_languages,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/api/languages/,200,1,"should have access, and does have access",
+288,unittest_unconf_adm,api.return_instance_signature,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/api/signature/en/,200,1,"should have access, and does have access",
+289,unittest_unconf_adm,api.return_query_results,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/api/search,200,1,"should have access, and does have access",
+290,unittest_unconf_adm,api.return_specific_url,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/api/get,200,1,"should have access, and does have access",
+291,unittest_unconf_adm,search.index,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/,200,1,"should have access, and does have access",
+292,unittest_unconf_adm,orchard.index,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/orchard/index,200,1,"should have access, and does have access",
+293,unittest_unconf_adm,orchard.get_a_pod,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/orchard/get-a-pod,200,1,"should have access, and does have access",
+294,unittest_unconf_adm,orchard.download_file,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/orchard/download,200,1,"should have access, and does have access",
+295,unittest_unconf_adm,orchard.rename_pod,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/orchard/rename,200,1,"should have access, and does have access",
+296,unittest_unconf_adm,orchard.report,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,True,False,,http://localhost:8080/orchard/report,403,1,"should not have access, and does not have access",
+297,unittest_unconf_adm,orchard.feedback,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,True,False,,http://localhost:8080/orchard/feedback,403,1,"should not have access, and does not have access",
+298,unittest_unconf_adm,orchard.annotate,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,True,False,,http://localhost:8080/orchard/annotate,403,1,"should not have access, and does not have access",
+299,unittest_unconf_adm,pages.return_faq,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/faq/,200,1,"should have access, and does have access",
+300,unittest_unconf_adm,pages.return_licenses,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/licenses/,200,1,"should have access, and does have access",
+301,unittest_unconf_adm,pages.return_acknowledgements,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/acknowledgements/,200,1,"should have access, and does have access",
+302,unittest_unconf_adm,pages.return_privacy,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/privacy/,200,1,"should have access, and does have access",
+303,unittest_unconf_adm,pages.return_tos,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/terms-of-service/,200,1,"should have access, and does have access",
+304,unittest_unconf_adm,pages.return_contact,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/impressum/,200,1,"should have access, and does have access",
+305,unittest_unconf_adm,pages.return_maintenance,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/maintenance/,200,1,"should have access, and does have access",
+306,unittest_unconf_adm,settings.index,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/settings/,200,1,"should have access, and does have access",
+307,unittest_unconf_adm,settings.toggle_theme,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/settings/toggle-theme,200,1,"should have access, and does have access",
+308,unittest_unconf_adm,settings.delete_url,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/settings/delete,200,1,"should have access, and does have access",
+309,unittest_unconf_adm,settings.delete_comment,"{'OPTIONS', 'GET', 'HEAD'}",True,True,False,,http://localhost:8080/settings/delcomment,403,1,"should not have access, and does not have access",
+310,unittest_unconf_adm,settings.delete_account,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/settings/delete_account,500,0,server error while trying to access endpoint; this is probably not an authentication error but please check this manually!,
+311,unittest_unconf_adm,settings.change_email,"{'POST', 'OPTIONS'}",True,False,False,,http://localhost:8080/settings/change_email,200,1,"should have access, and does have access",
+312,unittest_unconf_adm,settings.change_username,"{'POST', 'OPTIONS'}",True,False,False,,http://localhost:8080/settings/change_username,200,1,"should have access, and does have access",
+313,unittest_unconf_adm,auth.logout,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/auth/logout,200,1,"should have access, and does have access",
+314,unittest_unconf_adm,auth.login,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/auth/login,200,1,"should have access, and does have access",
+315,unittest_unconf_adm,auth.signup,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/auth/signup,200,1,"should have access, and does have access",
+316,unittest_unconf_adm,auth.confirm_email,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/auth/registration-confirm/thisIsJustAFakeToken,200,1,"should have access, and does have access",
+317,unittest_unconf_adm,auth.resend_confirmation,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/auth/resend,200,1,"should have access, and does have access",
+318,unittest_unconf_adm,auth.password_forgotten,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/auth/password-forgotten,200,1,"should have access, and does have access",
+319,unittest_unconf_adm,auth.password_reset,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/auth/password-reset-confirm/thisIsJustAFakeToken,200,1,"should have access, and does have access",
+320,unittest_unconf_adm,auth.password_change,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/auth/password-change,200,1,"should have access, and does have access",
+321,unittest_unconf_adm,auth.inactive,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/auth/inactive,200,1,"should have access, and does have access",
+322,unittest_unconf_adm,admin.static,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+323,unittest_unconf_adm,admin.index,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/,200,1,"should have access, and does have access",
+324,unittest_unconf_adm,pods.action_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+325,unittest_unconf_adm,pods.ajax_lookup,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+326,unittest_unconf_adm,pods.ajax_update,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+327,unittest_unconf_adm,pods.create_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/pods/new/,200,1,"should have access, and does have access",
+328,unittest_unconf_adm,pods.delete_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+329,unittest_unconf_adm,pods.details_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+330,unittest_unconf_adm,pods.edit_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+331,unittest_unconf_adm,pods.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+332,unittest_unconf_adm,pods.index_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/pods/,200,1,"should have access, and does have access",
+333,unittest_unconf_adm,urls.action_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+334,unittest_unconf_adm,urls.ajax_lookup,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+335,unittest_unconf_adm,urls.ajax_update,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+336,unittest_unconf_adm,urls.create_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/urls/new/,200,1,"should have access, and does have access",
+337,unittest_unconf_adm,urls.delete_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+338,unittest_unconf_adm,urls.details_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+339,unittest_unconf_adm,urls.edit_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+340,unittest_unconf_adm,urls.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+341,unittest_unconf_adm,urls.index_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/urls/,200,1,"should have access, and does have access",
+342,unittest_unconf_adm,user.action_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+343,unittest_unconf_adm,user.ajax_lookup,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+344,unittest_unconf_adm,user.ajax_update,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+345,unittest_unconf_adm,user.create_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/user/new/,200,1,"should have access, and does have access",
+346,unittest_unconf_adm,user.delete_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+347,unittest_unconf_adm,user.details_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+348,unittest_unconf_adm,user.edit_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+349,unittest_unconf_adm,user.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+350,unittest_unconf_adm,user.index_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/user/,200,1,"should have access, and does have access",
+351,unittest_unconf_adm,personalization.action_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+352,unittest_unconf_adm,personalization.ajax_lookup,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+353,unittest_unconf_adm,personalization.ajax_update,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+354,unittest_unconf_adm,personalization.create_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/personalization/new/,200,1,"should have access, and does have access",
+355,unittest_unconf_adm,personalization.delete_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+356,unittest_unconf_adm,personalization.details_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+357,unittest_unconf_adm,personalization.edit_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+358,unittest_unconf_adm,personalization.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+359,unittest_unconf_adm,personalization.index_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/personalization/,200,1,"should have access, and does have access",
+360,unittest_unconf_adm,suggestions.action_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+361,unittest_unconf_adm,suggestions.ajax_lookup,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+362,unittest_unconf_adm,suggestions.ajax_update,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+363,unittest_unconf_adm,suggestions.create_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/suggestions/new/,200,1,"should have access, and does have access",
+364,unittest_unconf_adm,suggestions.delete_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+365,unittest_unconf_adm,suggestions.details_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+366,unittest_unconf_adm,suggestions.edit_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+367,unittest_unconf_adm,suggestions.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+368,unittest_unconf_adm,suggestions.index_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/suggestions/,200,1,"should have access, and does have access",
+369,unittest_unconf_adm,serve_manifest,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/manifest.json,200,1,"should have access, and does have access",
+370,unittest_unconf_adm,serve_sw,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/sw.js,200,1,"should have access, and does have access",
+371,unittest_unconf_adm,static_from_root,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/robots.txt,200,1,"should have access, and does have access",
+372,unittest_conf_admin,static,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/static/pears_team.png,200,1,"should have access, and does have access",
+373,unittest_conf_admin,serve_logos,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/static/assets/README.md,200,1,"should have access, and does have access",
+374,unittest_conf_admin,indexer.index,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/indexer/,200,1,"should have access, and does have access",
+375,unittest_conf_admin,indexer.suggest,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/indexer/suggest,200,1,"should have access, and does have access",
+376,unittest_conf_admin,indexer.correct_entry,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/indexer/amend,500,0,server error while trying to access endpoint; this is probably not an authentication error but please check this manually!,
+377,unittest_conf_admin,indexer.index_from_url,"{'POST', 'OPTIONS'}",True,True,True,,http://localhost:8080/indexer/url,200,1,"should have access, and does have access",
+378,unittest_conf_admin,indexer.index_from_manual,"{'POST', 'OPTIONS'}",True,True,True,,http://localhost:8080/indexer/manual,500,0,server error while trying to access endpoint; this is probably not an authentication error but please check this manually!,
+379,unittest_conf_admin,indexer.run_suggest_url,"{'POST', 'OPTIONS'}",False,False,False,,http://localhost:8080/indexer/suggestion,200,1,"should have access, and does have access",
+380,unittest_conf_admin,api.return_instance_languages,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/api/languages/,200,1,"should have access, and does have access",
+381,unittest_conf_admin,api.return_instance_signature,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/api/signature/en/,200,1,"should have access, and does have access",
+382,unittest_conf_admin,api.return_query_results,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/api/search,200,1,"should have access, and does have access",
+383,unittest_conf_admin,api.return_specific_url,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/api/get,200,1,"should have access, and does have access",
+384,unittest_conf_admin,search.index,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/,200,1,"should have access, and does have access",
+385,unittest_conf_admin,orchard.index,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/orchard/index,200,1,"should have access, and does have access",
+386,unittest_conf_admin,orchard.get_a_pod,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/orchard/get-a-pod,200,1,"should have access, and does have access",
+387,unittest_conf_admin,orchard.download_file,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/orchard/download,200,1,"should have access, and does have access",
+388,unittest_conf_admin,orchard.rename_pod,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/orchard/rename,200,1,"should have access, and does have access",
+389,unittest_conf_admin,orchard.report,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,True,False,,http://localhost:8080/orchard/report,200,1,"should have access, and does have access",
+390,unittest_conf_admin,orchard.feedback,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,True,False,,http://localhost:8080/orchard/feedback,200,1,"should have access, and does have access",
+391,unittest_conf_admin,orchard.annotate,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,True,False,,http://localhost:8080/orchard/annotate,200,1,"should have access, and does have access",
+392,unittest_conf_admin,pages.return_faq,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/faq/,200,1,"should have access, and does have access",
+393,unittest_conf_admin,pages.return_licenses,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/licenses/,200,1,"should have access, and does have access",
+394,unittest_conf_admin,pages.return_acknowledgements,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/acknowledgements/,200,1,"should have access, and does have access",
+395,unittest_conf_admin,pages.return_privacy,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/privacy/,200,1,"should have access, and does have access",
+396,unittest_conf_admin,pages.return_tos,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/terms-of-service/,200,1,"should have access, and does have access",
+397,unittest_conf_admin,pages.return_contact,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/impressum/,200,1,"should have access, and does have access",
+398,unittest_conf_admin,pages.return_maintenance,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/maintenance/,200,1,"should have access, and does have access",
+399,unittest_conf_admin,settings.index,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/settings/,200,1,"should have access, and does have access",
+400,unittest_conf_admin,settings.toggle_theme,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/settings/toggle-theme,200,1,"should have access, and does have access",
+401,unittest_conf_admin,settings.delete_url,"{'OPTIONS', 'GET', 'HEAD'}",True,True,True,,http://localhost:8080/settings/delete,200,1,"should have access, and does have access",
+402,unittest_conf_admin,settings.delete_comment,"{'OPTIONS', 'GET', 'HEAD'}",True,True,False,,http://localhost:8080/settings/delcomment,500,0,server error while trying to access endpoint; this is probably not an authentication error but please check this manually!,
+403,unittest_conf_admin,settings.delete_account,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/settings/delete_account,500,0,server error while trying to access endpoint; this is probably not an authentication error but please check this manually!,
+404,unittest_conf_admin,settings.change_email,"{'POST', 'OPTIONS'}",True,False,False,,http://localhost:8080/settings/change_email,200,1,"should have access, and does have access",
+405,unittest_conf_admin,settings.change_username,"{'POST', 'OPTIONS'}",True,False,False,,http://localhost:8080/settings/change_username,200,1,"should have access, and does have access",
+406,unittest_conf_admin,auth.logout,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/auth/logout,200,1,"should have access, and does have access",
+407,unittest_conf_admin,auth.login,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/auth/login,200,1,"should have access, and does have access",
+408,unittest_conf_admin,auth.signup,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/auth/signup,200,1,"should have access, and does have access",
+409,unittest_conf_admin,auth.confirm_email,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/auth/registration-confirm/thisIsJustAFakeToken,200,1,"should have access, and does have access",
+410,unittest_conf_admin,auth.resend_confirmation,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/auth/resend,200,1,"should have access, and does have access",
+411,unittest_conf_admin,auth.password_forgotten,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/auth/password-forgotten,200,1,"should have access, and does have access",
+412,unittest_conf_admin,auth.password_reset,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/auth/password-reset-confirm/thisIsJustAFakeToken,200,1,"should have access, and does have access",
+413,unittest_conf_admin,auth.password_change,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/auth/password-change,200,1,"should have access, and does have access",
+414,unittest_conf_admin,auth.inactive,"{'OPTIONS', 'GET', 'HEAD'}",True,False,False,,http://localhost:8080/auth/inactive,200,1,"should have access, and does have access",
+415,unittest_conf_admin,admin.static,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+416,unittest_conf_admin,admin.index,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/,200,1,"should have access, and does have access",
+417,unittest_conf_admin,pods.action_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+418,unittest_conf_admin,pods.ajax_lookup,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+419,unittest_conf_admin,pods.ajax_update,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+420,unittest_conf_admin,pods.create_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/pods/new/,200,1,"should have access, and does have access",
+421,unittest_conf_admin,pods.delete_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+422,unittest_conf_admin,pods.details_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+423,unittest_conf_admin,pods.edit_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+424,unittest_conf_admin,pods.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+425,unittest_conf_admin,pods.index_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/pods/,200,1,"should have access, and does have access",
+426,unittest_conf_admin,urls.action_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+427,unittest_conf_admin,urls.ajax_lookup,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+428,unittest_conf_admin,urls.ajax_update,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+429,unittest_conf_admin,urls.create_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/urls/new/,200,1,"should have access, and does have access",
+430,unittest_conf_admin,urls.delete_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+431,unittest_conf_admin,urls.details_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+432,unittest_conf_admin,urls.edit_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+433,unittest_conf_admin,urls.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+434,unittest_conf_admin,urls.index_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/urls/,200,1,"should have access, and does have access",
+435,unittest_conf_admin,user.action_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+436,unittest_conf_admin,user.ajax_lookup,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+437,unittest_conf_admin,user.ajax_update,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+438,unittest_conf_admin,user.create_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/user/new/,200,1,"should have access, and does have access",
+439,unittest_conf_admin,user.delete_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+440,unittest_conf_admin,user.details_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+441,unittest_conf_admin,user.edit_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+442,unittest_conf_admin,user.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+443,unittest_conf_admin,user.index_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/user/,200,1,"should have access, and does have access",
+444,unittest_conf_admin,personalization.action_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+445,unittest_conf_admin,personalization.ajax_lookup,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+446,unittest_conf_admin,personalization.ajax_update,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+447,unittest_conf_admin,personalization.create_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/personalization/new/,200,1,"should have access, and does have access",
+448,unittest_conf_admin,personalization.delete_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+449,unittest_conf_admin,personalization.details_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+450,unittest_conf_admin,personalization.edit_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+451,unittest_conf_admin,personalization.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+452,unittest_conf_admin,personalization.index_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/personalization/,200,1,"should have access, and does have access",
+453,unittest_conf_admin,suggestions.action_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+454,unittest_conf_admin,suggestions.ajax_lookup,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+455,unittest_conf_admin,suggestions.ajax_update,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+456,unittest_conf_admin,suggestions.create_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/suggestions/new/,200,1,"should have access, and does have access",
+457,unittest_conf_admin,suggestions.delete_view,"{'POST', 'OPTIONS'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+458,unittest_conf_admin,suggestions.details_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+459,unittest_conf_admin,suggestions.edit_view,"{'POST', 'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+460,unittest_conf_admin,suggestions.export,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,,0,0,,marked for skipping in permission sheet
+461,unittest_conf_admin,suggestions.index_view,"{'OPTIONS', 'GET', 'HEAD'}",True,False,True,,http://localhost:8080/admin/suggestions/,200,1,"should have access, and does have access",
+462,unittest_conf_admin,serve_manifest,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/manifest.json,200,1,"should have access, and does have access",
+463,unittest_conf_admin,serve_sw,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/sw.js,200,1,"should have access, and does have access",
+464,unittest_conf_admin,static_from_root,"{'OPTIONS', 'GET', 'HEAD'}",False,False,False,,http://localhost:8080/robots.txt,200,1,"should have access, and does have access",
