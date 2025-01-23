@@ -49,27 +49,6 @@ def return_query_results():
     results = get_search_results(query)
     return jsonify(json_list=results)
 
-@api.route('/pods/')
-@login_required
-@check_is_confirmed
-def return_pods():
-    return jsonify(json_list=[p.serialize for p in Pods.query.all()])
-
-@api.route('/pods/<pod>/')
-@login_required
-@check_is_confirmed
-def return_pod(pod):
-    pod = pod.replace('+', ' ')
-    p = db.session.query(Pods).filter_by(name=pod).first()
-    return jsonify(p.serialize)
-
-@api.route('/pods/delete', methods=["GET","POST"])
-@login_required
-@check_is_confirmed
-def return_pod_delete(pod_name):
-    print("Unsubscribing pod...", pod_name)
-    delete_pod_representations(pod_name)
-
 @api.route('/urls/')
 @check_permissions(login=True, confirmed=True)
 def return_urls():
@@ -86,12 +65,3 @@ def return_specific_url():
     displayresults = prepare_gui_results("",{u:url})
     return render_template('search/results.html', query="", results=displayresults, \
             internal_message=internal_message, searchform=SearchForm())
-
-@api.route('/suggest/', methods=['POST'])
-def post_suggestion():
-    url = request.form.get('url')
-    theme = request.form.get('theme')
-    note = request.form.get('note')
-    contributor = 'anonymous'
-    create_suggestion_in_db(url=url, pod=theme, notes=note, contributor=contributor)
-    return "Thank you for your suggestion."
