@@ -456,6 +456,42 @@ def list_endpoints():
         csv_rows.append(row_dict)
     pd.DataFrame(csv_rows).to_csv("endpoint_permissions.csv")
 
+@pears.cli.command('update_manual_permission_sheet')
+@click.argument("old_annotated_sheet")
+def update_manual_permission_sheet(old_annotated_sheet):
+    """
+    Litle helper command that adds extra rows to a manually annotated version of the 
+    endpoint permissions sheet created by list_endpoint_permissions if any new endpoints 
+    have been added after completing the annotation. 
+    """
+    # set the index to endpoint so we can easily look up rows
+    old_annotated_df = pd.read_csv(old_annotated_sheet, index_col=0).set_index("endpoint")
+    new_unannotated_df = pd.read_csv("endpoint_permissions.csv", index_col=0).set_index("endpoint")
+    columns = old_annotated_df.columns
+    assert all(c in columns for c in new_unannotated_df.columns), "Found unknown columns in endpoint_permissions.csv, please update the new sheet manually"
+    old_endpoints = set(old_annotated_df.index)
+    new_endpoints = set(new_unannotated_df.index).difference(old_endpoints)
+    if not new_endpoints:
+        print("No new endpoints found!")
+        return
+    
+    new_rows = []
+    for ep in new_endpoints:
+        new_entry = {"endpoint": ep}
+        new_entry.update({c: "[[NEW!]]" for c in columns})
+        new_entry.update(new_unannotated_df.loc[ep])
+        new_rows.append(new_entry)
+    new_rows_df = pd.DataFrame(new_rows)
+    new_annotated_df = pd.concat([
+        old_annotated_df.reset_index(names=["endpoint"]), # make "endpoint" a normal column so we can concatenate correctly 
+        new_rows_df
+    ])
+    (
+        new_annotated_df
+        .reset_index(drop=True) # redo the index so we have continuous numbering
+        .to_csv("endpoint_permission__annotated_new.csv")
+    )
+
 @pears.cli.command('create_test_users')
 def create_test_users():
     with open("testusers.json") as f:
