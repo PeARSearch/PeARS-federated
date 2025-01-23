@@ -13,6 +13,7 @@ from app import app, db
 from flask import (Blueprint, flash, request, render_template, Response, redirect, url_for)
 from flask_babel import gettext
 from datetime import datetime
+from app.auth.decorators import check_permissions
 from app.auth.token import send_email, send_reset_password_email, generate_token, confirm_token
 from app.auth.captcha import mk_captcha, check_captcha
 
@@ -22,7 +23,7 @@ auth = Blueprint('auth', __name__, url_prefix='/auth')
 ''' LOGGING OUT '''
 
 @auth.route('/logout')
-@login_required
+@check_permissions(login=True)
 def logout():
     logout_user()
     flash(gettext("You have successfully logged out."), "success")
@@ -123,7 +124,7 @@ def signup():
 
         login_user(new_user)
 
-        flash(gettext("A confirmation has been sent via email."), "success")
+        flash(gettext("Welcome! Your signup is almost complete; confirm your email address to fully activate your account."), "success")
         return redirect(url_for("auth.inactive"))
     else:
         print("FORM ERRORS:", form.errors)
@@ -134,7 +135,7 @@ def signup():
         return render_template('auth/signup.html', form=form, new_users_allowed=new_users_allowed)
 
 @auth.route("/registration-confirm/<token>")
-@login_required
+@check_permissions(login=True)
 def confirm_email(token):
     if current_user.is_confirmed:
         flash(gettext("Account already confirmed."), "success")
@@ -152,7 +153,7 @@ def confirm_email(token):
     return redirect(url_for("search.index"))
 
 @auth.route("/resend")
-@login_required
+@check_permissions(login=True)
 def resend_confirmation():
     if current_user.is_confirmed:
         flash(gettext("Your account has already been confirmed."), "success")
@@ -196,16 +197,21 @@ def password_reset(token):
         return redirect(url_for('search.index'))
     form = PasswordChangeForm(request.form)
     email = confirm_token(token)
-    user = User.query.filter_by(email=email).first_or_404()
-    if user.email == email:
-        login_user(user)
-        return render_template('auth/password_change.html', username=user.username, form=form)
+    if email is not None:
+        user = User.query.filter_by(email=email).first()
+        if user.email == email:
+            login_user(user)
+            return render_template('auth/password_change.html', username=user.username, form=form)
+        else:
+            flash(gettext("The confirmation link is invalid or has expired."), "danger")
+            return redirect(url_for("auth.password_forgotten"))
     else:
         flash(gettext("The confirmation link is invalid or has expired."), "danger")
         return redirect(url_for("auth.password_forgotten"))
 
+
 @auth.route("/password-change", methods=['GET', 'POST'])
-@login_required
+@check_permissions(login=True)
 def password_change():
     form = PasswordChangeForm(request.form)
     
@@ -224,7 +230,7 @@ def password_change():
 ''' INACTIVE '''
 
 @auth.route("/inactive")
-@login_required
+@check_permissions(login=True)
 def inactive():
     if current_user.is_confirmed:
         return redirect(url_for("search.index"))

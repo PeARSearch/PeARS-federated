@@ -266,7 +266,11 @@ from flask_admin.contrib.sqla.view import ModelView
 from flask_admin.model.template import EndpointLinkRowAction
 
 # Authentification
-login_manager = LoginManager()
+class MyLoginManager(LoginManager):
+    def unauthorized(self):
+        return abort(404)        
+
+login_manager = MyLoginManager()
 login_manager.login_view = 'auth.login'
 login_manager.init_app(app)
 
@@ -481,7 +485,7 @@ admin.add_view(SuggestionsModelView(Suggestions, db.session))
 @app.errorhandler(404)
 def page_not_found(e):
     # note that we set the 404 status explicitly
-    flash("404. Page not found. Please return to search page.")
+    flash("The page that you are trying to access doesn't exist or you don't have sufficient permissions to access it. If you're not logged in, log in and try accessing the page again. If you're sure the page exists and that you should have access to it, contact the administrators.")
     return render_template("404.html"), 404
 
 @app.route('/manifest.json')

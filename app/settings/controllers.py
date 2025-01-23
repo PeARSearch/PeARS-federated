@@ -9,13 +9,13 @@ from glob import glob
 from os import rename, getenv
 from os.path import dirname, realpath, join, isdir, exists
 from flask import Blueprint, flash, request, render_template, redirect, url_for, session
-from flask_login import login_required, current_user, logout_user
+from flask_login import current_user, logout_user
 from flask_babel import gettext
 from app import app, db
 from app.api.models import Urls, User
 from app.forms import EmailChangeForm, UsernameChangeForm
 from app.utils_db import delete_url_representations
-from app.auth.decorators import check_is_confirmed
+from app.auth.decorators import check_permissions
 from app.auth.token import send_email
 
 
@@ -29,7 +29,7 @@ pod_dir = getenv("PODS_DIR", join(dir_path,'pods'))
 
 # Set the route and accepted methods
 @settings.route("/")
-@login_required
+@check_permissions(login=True)
 def index():
     username = current_user.username
     email = current_user.email
@@ -69,8 +69,7 @@ def toggle_theme():
 
 
 @settings.route('/delete', methods=['GET'])
-@login_required
-@check_is_confirmed
+@check_permissions(login=True, confirmed=True, admin=True)
 def delete_url():
     username = current_user.username
     url = request.args.get('url').split('get?url=')[1]
@@ -88,8 +87,7 @@ def delete_url():
     return redirect(url_for("settings.index"))
 
 @settings.route('/delcomment', methods=['GET'])
-@login_required
-@check_is_confirmed
+@check_permissions(login=True, confirmed=True)
 def delete_comment():
     username = current_user.username
     u = request.args.get('url').split('get?url=')[1]
@@ -147,7 +145,7 @@ def username_exists(username):
 
 
 @settings.route('/delete_account', methods=['GET'])
-@login_required
+@check_permissions(login=True)
 def delete_account():
     username = current_user.username
     users = db.session.query(User).all()
@@ -168,7 +166,7 @@ def delete_account():
 
 
 @settings.route('/change_email', methods=['POST'])
-@login_required
+@check_permissions(login=True)
 def change_email():
     form = EmailChangeForm(request.form)
     if form.validate_on_submit():
@@ -187,7 +185,7 @@ def change_email():
 
 
 @settings.route('/change_username', methods=['POST'])
-@login_required
+@check_permissions(login=True)
 def change_username():
     username = current_user.username
     form = UsernameChangeForm(request.form)
