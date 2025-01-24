@@ -171,7 +171,14 @@ def index(host_url, filepath):
     users = User.query.all()
     for user in users:
         Path(join(pod_dir,user.username)).mkdir(parents=True, exist_ok=True)
-    run_indexer_url(filepath, host_url)
+    with open(filepath, encoding="utf-8") as f:
+        for line in f:
+            m = re.match(r"^(.+?);(.+?);;(.+?)$", line)
+            assert m, "URL file is not formatted correctly!"
+            url = m.group(1)
+            pod = m.group(2)
+            user = m.group(3)
+            run_indexer_url(url, pod, None, user, host_url)
 
 
 @pears.cli.command('randomcrawl')
