@@ -1,8 +1,6 @@
 import secrets
 import string
-import uuid
 import re
-from flask_babel import gettext
 
 def mk_captcha():
     """
