@@ -11,8 +11,8 @@ class RegistrationForm(FlaskForm):
     email = StringField(lazy_gettext('Email Address'), [DataRequired(), Email()])
     password = PasswordField(lazy_gettext('New Password'), [DataRequired(), Length(min=6, max=20, message=lazy_gettext("Your password should have between 6 and 20 characters.")), EqualTo('confirm', message=lazy_gettext('Passwords must match'))])
     confirm = PasswordField(lazy_gettext('Repeat Password'))
-    captcha = HiddenField()
-    captcha_answer = StringField('', [DataRequired()])
+    captcha_id = HiddenField()
+    captcha_answer = StringField(lazy_gettext("Captcha: write down the characters you see in the image below (only lower-case letters, no numbers)."), [DataRequired()])
     accept_tos = BooleanField(lazy_gettext('I accept the TOS and Privacy statement'), [DataRequired()])
 
 class LoginForm(FlaskForm):
@@ -42,8 +42,8 @@ class SuggestionForm(FlaskForm):
     suggested_url = URLField(lazy_gettext('Suggested url.'), [DataRequired(), URL()], render_kw={"placeholder": lazy_gettext("The URL you would like to suggest.")})
     theme = StringField(lazy_gettext('Category'), [DataRequired(), Length(max=50)],  render_kw={"placeholder": lazy_gettext("A category for your URL. Start typing and suggestions will appear, but you can also write your own.")})
     note = StringField(lazy_gettext('Optional note*'), [Length(max=100)],  render_kw={"placeholder": lazy_gettext("Anything extra you would like people to know about this resource.")})
-    captcha = HiddenField()
-    captcha_answer = StringField('', [DataRequired()],  render_kw={"placeholder": lazy_gettext("Write your answer to the captcha.")})
+    captcha_id = HiddenField()
+    captcha_answer = StringField(lazy_gettext("Captcha: write down the characters you see in the image below (only lower-case letters, no numbers)."), [DataRequired()])
     accept_tos = BooleanField(lazy_gettext('I confirm that my suggestion does not contravene the Terms of Service'), [DataRequired()])
 
 class ManualEntryForm(FlaskForm):

@@ -9,13 +9,19 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app.api.models import User
 from app.forms import RegistrationForm, LoginForm, PasswordForgottenForm, PasswordChangeForm
 from app import app, db
-
-from flask import (Blueprint, flash, request, render_template, Response, redirect, url_for)
+from captcha.image import ImageCaptcha
+from flask import (Blueprint, flash, request, render_template, Response, redirect, url_for, session, abort)
 from flask_babel import gettext
 from datetime import datetime
 from app.auth.decorators import check_permissions
+import random
+import string
 from app.auth.token import send_email, send_reset_password_email, generate_token, confirm_token
-from app.auth.captcha import mk_captcha, check_captcha
+from app.auth.captcha import mk_captcha
+
+
+# Initialize captcha library
+image = ImageCaptcha()
 
 # Define the blueprint:
 auth = Blueprint('auth', __name__, url_prefix='/auth')
@@ -81,8 +87,8 @@ def signup():
         email = request.form.get('email')
         username = request.form.get('username')
         password = request.form.get('password')
-        captcha = request.form.get('captcha')
-        captcha_answer = request.form.get('captcha_answer')
+        captcha_id = request.form.get('captcha_id')
+        captcha_user_answer = request.form.get('captcha_answer')
 
         user1 = User.query.filter_by(email=email).first() # if this returns a user, then the email already exists in database
         user2 = User.query.filter_by(username=username).first() # if this returns a user, then the username already exists in database
@@ -95,10 +101,13 @@ def signup():
             flash(gettext('Username already exists.'))
             return redirect(url_for('auth.signup'))
 
-        if not check_captcha(captcha, captcha_answer):
+        captcha_correct_answer = session.get("captcha", {}).get(captcha_id, None) 
+        if captcha_correct_answer is None or captcha_user_answer != captcha_correct_answer:
             flash(gettext('The captcha was incorrectly answered.'))
             return redirect(url_for('auth.signup'))
 
+        # delete the current captcha so it can't be used again
+        del session["captcha"][captcha_id]
         print("Signup form correctly validated.")
 
         # create a new user with the form data. Hash the password so the plaintext version isn't saved.
@@ -128,10 +137,17 @@ def signup():
         return redirect(url_for("auth.inactive"))
     else:
         print("FORM ERRORS:", form.errors)
-        captcha = mk_captcha()
+
+        # generate captcha (public code/private string pair)
+        captcha_id, captcha_correct_answer = mk_captcha()
+
+        # save the captcha in the session
+        session_captcha = session.get("captcha", {})
+        session_captcha[captcha_id] = captcha_correct_answer
+        session["captcha"] = session_captcha
+
         form = RegistrationForm(request.form)
-        form.captcha.data = captcha
-        form.captcha_answer.label = captcha
+        form.captcha_id.data = captcha_id
         return render_template('auth/signup.html', form=form, new_users_allowed=new_users_allowed)
 
 @auth.route("/registration-confirm/<token>")
@@ -236,3 +252,15 @@ def inactive():
         return redirect(url_for("search.index"))
     return render_template("auth/inactive.html")
 
+
+
+''' CAPTCHA '''
+
+@auth.route("/show_captcha/<string:captcha_id>")
+def captcha_view(captcha_id):
+    # add your own logic to generate the code
+    code = session.get("captcha", {}).get(captcha_id, None)
+    if not code:
+        return abort(404)
+    img_data = image.generate(code)
+    return Response(img_data, mimetype="image/png")
