@@ -18,7 +18,7 @@ from app.auth.decorators import check_permissions
 import random
 import string
 from app.auth.token import send_email, send_reset_password_email, generate_token, confirm_token
-from app.auth.captcha import mk_captcha, check_captcha
+from app.auth.captcha import mk_captcha, check_captcha, refresh_captcha
 
 
 # Initialize captcha library
@@ -249,12 +249,22 @@ def inactive():
 
 @auth.route("/show_captcha/<string:captcha_id>")
 def captcha_view(captcha_id):
-    captcha_file = f".captchas/{captcha_id}.txt"
-    if not os.path.isfile(captcha_file):
-        return abort(404)
 
-    with open(captcha_file) as f:
-        captcha_str = f.read()
+    # is this a refresh request?
+    if request.args.get("refresh", "false") == "true":
+        captcha_str = refresh_captcha(captcha_id)
+
+    else:
+        captcha_file = f".captchas/{captcha_id}.txt"
+        if not os.path.isfile(captcha_file):
+            return redirect("/static/captcha-not-found.png")
+
+        with open(captcha_file) as f:
+            captcha_str = f.read()
+
+    # captcha is missing (could happen if you try to refresh an expired captcha)
+    if captcha_str is None:
+        return redirect("/static/captcha-not-found.png")
 
     img_data = image.generate(captcha_str)
     return Response(img_data, mimetype="image/png")

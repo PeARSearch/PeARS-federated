@@ -29,7 +29,18 @@
 {% macro render_captcha_field(field, captcha_id) %}
 <div class="form-group">
         <p>{{ field.label }}</p>
-        <p><img src="/auth/show_captcha/{{captcha_id}}"></p>
+        <p>
+          <script>
+            function refreshCaptcha() {
+              let el = document.getElementById("captcha-img");
+              let origUrl = "/auth/show_captcha/{{captcha_id}}";
+              let timeStamp = new Date().getTime();
+              el.src = origUrl + "?refresh=true&t=" + timeStamp; 
+            }
+          </script>
+          <img id="captcha-img" src="/auth/show_captcha/{{captcha_id}}">
+          <a class="btn btn-success" onclick="refreshCaptcha();">Refresh</a>
+        </p>
         {{ field(class_="form-control input-s", size=32) }}
 </div>
 <dd>{% if field.errors %}
@@ -43,7 +54,7 @@
 {% endmacro %}
 
 {% macro render_password_field(field) %}
-<div class="form-group">
+<div class="form-group">template
 	{{ field.label }} <a class="small" href={{url_for('auth.password_forgotten')}}>{{gettext('Password forgotten?')}}</a> 
         {{ field(class_="form-control input-s", size=32) }}
 </div>

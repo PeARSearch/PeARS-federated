@@ -16,6 +16,13 @@ def delete_old_captchas():
         if timestamp < one_hour_ago:
             os.remove(captcha_file)
 
+
+def generate_captcha_string():
+    # String of letters and numbers (will be stored in the server session and be shown 
+    # to the user only in the captcha image)
+    return "".join([secrets.choice(string.ascii_lowercase) for _ in range(5)])
+
+
 def mk_captcha():
     """
     Generates a pair of a public ID number and a 'secret' string to be shown in the image 
@@ -31,9 +38,7 @@ def mk_captcha():
     timestamp_ns = time.time_ns() 
     captcha_id = f"{timestamp_ns}.{secrets.randbelow(10_000)}"
     
-    # String of letters and numbers (will be stored in the server session and be shown 
-    # to the user only in the captcha image)
-    captcha_str = "".join([secrets.choice(string.ascii_lowercase) for _ in range(5)])
+    captcha_str = generate_captcha_string()
 
     with open(f".captchas/{captcha_id}.txt", "w") as f:
         f.write(captcha_str)
@@ -51,3 +56,15 @@ def check_captcha(captcha_id, captcha_answer):
         caption_str = f.read()
     os.remove(captcha_file)
     return caption_str == captcha_answer
+
+
+def refresh_captcha(captcha_id):
+
+    captcha_file = f".captchas/{captcha_id}.txt"
+    if not os.path.isfile(captcha_file):
+        return None
+
+    new_captcha_str = generate_captcha_string()
+    with open(captcha_file, "w") as f:
+        f.write(new_captcha_str)
+    return new_captcha_str
