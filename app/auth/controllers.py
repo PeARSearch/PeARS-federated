@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 import logging
+import os
 from markupsafe import Markup
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -17,7 +18,7 @@ from app.auth.decorators import check_permissions
 import random
 import string
 from app.auth.token import send_email, send_reset_password_email, generate_token, confirm_token
-from app.auth.captcha import mk_captcha
+from app.auth.captcha import mk_captcha, check_captcha
 
 
 # Initialize captcha library
@@ -101,14 +102,9 @@ def signup():
             flash(gettext('Username already exists.'))
             return redirect(url_for('auth.signup'))
 
-        captcha_correct_answer = session.get("captcha", {}).get(captcha_id, None) 
-        if captcha_correct_answer is None or captcha_user_answer != captcha_correct_answer:
+        if not check_captcha(captcha_id, captcha_user_answer):
             flash(gettext('The captcha was incorrectly answered.'))
             return redirect(url_for('auth.signup'))
-
-        # delete the current captcha so it can't be used again
-        del session["captcha"][captcha_id]
-        print("Signup form correctly validated.")
 
         # create a new user with the form data. Hash the password so the plaintext version isn't saved.
         new_user = User(email=email, username=username, password=generate_password_hash(password, method='scrypt'))
@@ -140,11 +136,6 @@ def signup():
 
         # generate captcha (public code/private string pair)
         captcha_id, captcha_correct_answer = mk_captcha()
-
-        # save the captcha in the session
-        session_captcha = session.get("captcha", {})
-        session_captcha[captcha_id] = captcha_correct_answer
-        session["captcha"] = session_captcha
 
         form = RegistrationForm(request.form)
         form.captcha_id.data = captcha_id
@@ -258,9 +249,12 @@ def inactive():
 
 @auth.route("/show_captcha/<string:captcha_id>")
 def captcha_view(captcha_id):
-    # add your own logic to generate the code
-    code = session.get("captcha", {}).get(captcha_id, None)
-    if not code:
+    captcha_file = f".captchas/{captcha_id}.txt"
+    if not os.path.isfile(captcha_file):
         return abort(404)
-    img_data = image.generate(code)
+
+    with open(captcha_file) as f:
+        captcha_str = f.read()
+
+    img_data = image.generate(captcha_str)
     return Response(img_data, mimetype="image/png")

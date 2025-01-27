@@ -11,7 +11,7 @@ from flask import session, Blueprint, request, render_template, url_for, flash, 
 from flask_login import login_required, current_user
 from flask_babel import gettext
 from langdetect import detect
-from app.auth.captcha import mk_captcha
+from app.auth.captcha import mk_captcha, check_captcha
 from app.auth.decorators import check_permissions
 from app import app, db
 from app.api.models import Urls, Pods
@@ -52,11 +52,6 @@ def suggest():
     """
     # generate captcha (public code/private string pair)
     captcha_id, captcha_correct_answer = mk_captcha()
-
-    # save the captcha in the session
-    session_captcha = session.get("captcha", {})
-    session_captcha[captcha_id] = captcha_correct_answer
-    session["captcha"] = session_captcha
 
     form = SuggestionForm()
     form.captcha_id.data = captcha_id
@@ -180,14 +175,9 @@ def run_suggest_url():
         else:
             contributor = 'anonymous'
         
-        captcha_correct_answer = session.get("captcha", {}).get(captcha_id, None) 
-        captcha_user_answer = request.form.get("captcha_answer")
-        if captcha_correct_answer is None or captcha_user_answer != captcha_correct_answer:
+        if not check_captcha(captcha_id, captcha_user_answer):
             flash(gettext('The captcha was incorrectly answered.'))
             return redirect(url_for('indexer.suggest'))
-
-        # delete the current captcha so it can't be used again
-        del session["captcha"][captcha_id]
 
         print(url, theme, note)
         create_suggestion_in_db(url=url, pod=theme, notes=note, contributor=contributor)
@@ -197,11 +187,6 @@ def run_suggest_url():
         print("FORM ERRORS:", form.errors)
         # generate captcha (public code/private string pair)
         captcha_id, captcha_correct_answer = mk_captcha()
-
-        # save the captcha in the session
-        session_captcha = session.get("captcha", {})
-        session_captcha[captcha_id] = captcha_correct_answer
-        session["captcha"] = session_captcha
 
         form = SuggestionForm()
         form.captcha_id.data = captcha_id
