@@ -17,7 +17,33 @@ SPDX-License-Identifier: AGPL-3.0-only
 		  <a href="{{url_for('user.index_view')}}" class="btn btn-success btn-block">{{gettext('Users')}}</a>
 		  <a href="{{url_for('suggestions.index_view')}}" class="btn btn-success btn-block">{{gettext('Suggestions')}}</a>
 		  <a href="{{url_for('personalization.index_view')}}" class="btn btn-success btn-block">{{gettext('Personalization')}}</a>
+      <a href="{{url_for('accesslogs.index_view')}}" class="btn btn-success btn-block">{{gettext('Access Logs')}}</a>
+
+      <div class="mt-3 alert alert-info">
+        <h2>Daily access summary</h2>
+        <div class="alert alert-warning">
+          All numbers shown are for today ({{access_stats.date}}). 
+          Numbers shown between parentheses show the change of today's numbers for each statistic
+          compared to yesterday.
+          For more details, check out the Access Logs.
+        </div>
+        <div>
+          <ul>
+            <li><b>{{gettext('Total number of requests:')}}</b> {{access_stats.total_requests}} ({{access_stats.total_requests_diff}})</li>
+            <ul>
+              <li><i>{{gettext('Of which successful:')}}</i> {{access_stats.successful_requests}} ({{access_stats.successful_requests_diff}})</li>
+              <li><i>{{gettext('Of which failed:')}}</i> {{access_stats.failed_requests}} ({{access_stats.failed_requests_diff}})</li>
+            </ul>
+            <li><b>{{gettext('Total number of log-in attempts:')}}</b> {{access_stats.total_logins}} ({{access_stats.total_logins_diff}})</li>
+            <ul>
+              <li><i>{{gettext('Of which successful:')}}</i> {{access_stats.successful_logins}} ({{access_stats.successful_logins_diff}})</li>
+              <li><i>{{gettext('Of which failed:')}}</i> {{access_stats.failed_logins}} ({{access_stats.failed_logins_diff}})</li>
+            </ul>
+            <li><b>{{gettext('Unique users:')}}</b> {{access_stats.unique_users}} ({{access_stats.unique_users_diff}})</li>
+          </ul>
+        </div>
       </div>
+    </div>
     </div>
     </div>
 {% endblock %}
