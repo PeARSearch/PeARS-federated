@@ -12,7 +12,7 @@ from sqlalchemy import update
 import numpy as np
 from scipy.sparse import csr_matrix, load_npz, vstack, save_npz
 from app import db, models, VEC_SIZE
-from app.api.models import Urls, Pods, Suggestions
+from app.api.models import AccessLogs, Urls, Pods, Suggestions
 from app.indexer.posix import load_posix, dump_posix
 
 dir_path = dirname(dirname(realpath(__file__)))
@@ -24,6 +24,38 @@ def parse_pod_name(pod_name):
     contributor = pod_name.split('.u.')[1]
     lang = Pods.query.filter_by(name=pod_name).first().language
     return contributor, theme, lang
+
+
+###########
+# Access logging
+###########
+
+def create_access_log_entry(
+    user_logged_in, 
+    user_id, 
+    user_is_confirmed, 
+    user_is_admin,
+    user_email,
+    event_type,
+    endpoint,
+    request_url,
+    response_code,
+    messages
+):
+    log = AccessLogs(
+        user_logged_in,
+        user_id,
+        user_is_confirmed,
+        user_is_admin,
+        user_email,
+        event_type,
+        endpoint,
+        request_url,
+        response_code,
+        messages
+    )
+    db.session.add(log)
+    db.session.commit()
 
 
 ###########

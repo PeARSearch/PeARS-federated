@@ -256,8 +256,8 @@ if not app.config['LIVE_MATRIX']:
 #######
 
 from flask_admin.contrib.sqla import ModelView
-from app.api.models import Pods, Urls, User, Personalization, Suggestions
-from app.utils_db import delete_url_representations, delete_pod_representations, \
+from app.api.models import AccessLogs, Pods, Urls, User, Personalization, Suggestions
+from app.utils_db import create_access_log_entry, delete_url_representations, delete_pod_representations, \
         rm_from_npz, add_to_npz, create_pod_in_db, create_pod_npz_pos, rm_doc_from_pos, update_db_idvs_after_npz_delete
 
 from flask_admin import expose
@@ -266,8 +266,10 @@ from flask_admin.model.template import EndpointLinkRowAction
 
 # Authentification
 class MyLoginManager(LoginManager):
+    unauthorized_status_code = 404
+    
     def unauthorized(self):
-        return abort(404)        
+        return abort(self.unauthorized_status_code)        
 
 login_manager = MyLoginManager()
 login_manager.login_view = 'auth.login'
@@ -281,13 +283,59 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
+# Admin access logs
+@app.after_request
+def log_endpoint_accessed(response):
+    if "/admin/" in request.url:
+        return response
+
+    user_logged_in = user_is_confirmed = user_is_admin = False
+    user_email = None
+    user_id = -1
+    if current_user.is_authenticated:
+        user_id = current_user.id
+        user_logged_in = True
+        user_email = current_user.email
+        user_is_confirmed = current_user.is_confirmed
+        user_is_admin = current_user.is_admin
+
+    endpoint = request.endpoint
+    if endpoint in ["static", "serve_sw"]:
+        event_type = "load_resource"
+    elif endpoint.startswith("api."):
+        event_type = "api_request"
+    elif endpoint.startswith("auth."):
+        event_type = "authentication"
+    elif request.method == "POST":
+        event_type = "form_submit"
+    else:
+        event_type = "view_page"
+
+    create_access_log_entry(
+        user_logged_in, 
+        user_id, 
+        user_is_confirmed,
+        user_is_admin,
+        user_email,
+        event_type,
+        request.endpoint,
+        request.url,
+        response.status_code,
+        None
+    )
+    return response
+
 
 # Flask and Flask-SQLAlchemy initialization here
 
+from app.auth.decorators import log_auth_failure
 def can_access_flaskadmin():
+    # replaces what the authentication decorators do, for modelview endpoints
     if not current_user.is_authenticated:
+        log_auth_failure(404, "unauthenticated user tried to access admin modelview endpoint")    
         return abort(404)
     if not current_user.is_admin:
+        "non-admin user tried to access admin modelview endpoint"
         return abort(404)
     return True
 
@@ -475,11 +523,20 @@ class SuggestionsModelView(ModelView):
     def is_accessible(self):
         return can_access_flaskadmin()
 
+class AccessLogsModelView(ModelView):
+    list_template = 'admin/pears_list.html'
+    column_searchable_list = ['user_id', 'event_type', 'endpoint']
+    can_edit = False
+    page_size = 50
+    def is_accessible(self):
+        return can_access_flaskadmin()
+
 admin.add_view(PodsModelView(Pods, db.session))
 admin.add_view(UrlsModelView(Urls, db.session))
 admin.add_view(UsersModelView(User, db.session))
 admin.add_view(PersonalizationModelView(Personalization, db.session))
 admin.add_view(SuggestionsModelView(Suggestions, db.session))
+admin.add_view(AccessLogsModelView(AccessLogs, db.session))
 
 @app.errorhandler(404)
 def page_not_found(e):

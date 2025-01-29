@@ -41,6 +41,60 @@ class Base(db.Model):
         onupdate=db.func.current_timestamp())
 
 
+class AccessLogs(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    log_date = db.Column(db.DateTime, default=db.func.current_timestamp())
+    user_logged_in = db.Column(db.Boolean)
+    user_id = db.Column(db.Integer)
+    user_email = db.Column(db.String(1000))
+    user_is_confirmed = db.Column(db.Boolean)
+    user_is_admin = db.Column(db.Boolean)
+    event_type = db.Column(db.String(1000))
+    endpoint = db.Column(db.String(1000))
+    requested_url = db.Column(db.String(1000))
+    response_code = db.Column(db.Integer)
+    messages = db.Column(db.String(1000))
+
+    def __init__(
+        self, 
+        logged_in, 
+        user_id, 
+        user_is_confirmed, 
+        user_is_admin, 
+        user_email, 
+        event_type, 
+        endpoint, 
+        requested_url, 
+        response_code, 
+        messages
+    ):
+        self.user_logged_in = logged_in
+        self.user_id = user_id
+        self.user_email = user_email
+        self.user_is_confirmed = user_is_confirmed
+        self.user_is_admin = user_is_admin
+        self.event_type = event_type
+        self.endpoint = endpoint
+        self.requested_url = requested_url
+        self.response_code = response_code
+        self.messages = messages
+
+    @property
+    def serialize(self):
+        return {
+            "id": self.id,
+            "log_date": self.log_date,
+            "logged_in": self.logged_in,
+            "user_id": self.user_id,
+            "user_email": self.user_email,
+            "event_type": self.event_type,
+            "endpoint": self.endpoint,
+            "requested_url": self.requested_url,
+            "response_code": self.response_code,
+            "messages": self.messages
+        }
+
+
 class Suggestions(Base):
     id = db.Column(db.Integer, primary_key=True)
     url = db.Column(db.String(1000))
