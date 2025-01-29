@@ -299,7 +299,10 @@ def log_endpoint_accessed(response):
         user_is_confirmed = current_user.is_confirmed
         user_is_admin = current_user.is_admin
 
-    endpoint = request.endpoint
+    if request.endpoint is None:
+        endpoint = ""
+    else:
+        endpoint = request.endpoint
     if endpoint in ["static", "serve_sw"]:
         event_type = "load_resource"
     elif endpoint.startswith("api."):
