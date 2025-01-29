@@ -304,8 +304,6 @@ def log_endpoint_accessed(response):
         event_type = "load_resource"
     elif endpoint.startswith("api."):
         event_type = "api_request"
-    elif endpoint.startswith("auth."):
-        event_type = "authentication"
     elif request.method == "POST":
         event_type = "form_submit"
     else:
