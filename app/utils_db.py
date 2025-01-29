@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 import logging
+import datetime
 from os import remove, rename, getenv
 from os.path import dirname, realpath, join, isfile
 from pathlib import Path
@@ -56,6 +57,114 @@ def create_access_log_entry(
     )
     db.session.add(log)
     db.session.commit()
+
+
+def compute_daily_access_stats():
+    today = datetime.date.today()
+    yesterday = today - datetime.timedelta(days=1)
+    before_yesterday = today - datetime.timedelta(days=2) 
+    
+    successful_access_logs_today = (
+        db.session.query(AccessLogs)
+        .filter(AccessLogs.log_date > yesterday)
+        .filter(AccessLogs.response_code.between(199,400))
+        .all()
+    )
+    successful_access_logs_yesterday = (
+        db.session.query(AccessLogs)
+        .filter(AccessLogs.log_date
+        .between(before_yesterday, yesterday))
+        .filter(AccessLogs.response_code.between(199,400))
+        .all()
+    )
+
+    failed_access_logs_today = (
+        db.session.query(AccessLogs)
+        .filter(AccessLogs.log_date > yesterday)
+        .filter(AccessLogs.response_code.between(399, 600))
+        .all()
+    )
+
+    failed_access_logs_yesterday = (
+        db.session.query(AccessLogs)
+        .filter(AccessLogs.log_date.between(before_yesterday, yesterday))
+        .filter(AccessLogs.response_code.between(399, 600))
+        .all()
+    )
+
+    total_requests_today = len(successful_access_logs_today) + len(failed_access_logs_today) 
+    total_requests_yesterday = len(successful_access_logs_yesterday) + len(failed_access_logs_yesterday) 
+
+    successful_logins_today = (
+        db.session.query(AccessLogs)
+        .filter(AccessLogs.log_date > yesterday)
+        .filter(AccessLogs.endpoint == "auth.login")
+        .filter(AccessLogs.event_type == "auth_success")
+        .all()
+    )
+
+    successful_logins_yesterday = (
+        db.session.query(AccessLogs)
+        .filter(AccessLogs.log_date.between(before_yesterday, yesterday))
+        .filter(AccessLogs.endpoint == "auth.login")
+        .filter(AccessLogs.event_type == "auth_success")
+        .all()
+    )
+
+    failed_logins_today = (
+        db.session.query(AccessLogs)
+        .filter(AccessLogs.log_date > yesterday)
+        .filter(AccessLogs.endpoint == "auth.login")
+        .filter(AccessLogs.event_type == "auth_failure")
+        .all()
+    )
+
+    failed_logins_yesterday = (
+        db.session.query(AccessLogs)
+        .filter(AccessLogs.log_date.between(before_yesterday, yesterday))
+        .filter(AccessLogs.endpoint == "auth.login")
+        .filter(AccessLogs.event_type == "auth_failure")
+        .all()
+    )
+
+    total_logins_today = len(successful_logins_today) + len(failed_logins_today)
+    total_logins_yesterday = len(successful_logins_yesterday) + len(failed_logins_yesterday)
+
+    unique_users_today = (
+        db.session.query(AccessLogs)
+        .filter(AccessLogs.log_date > yesterday)
+        .filter(AccessLogs.user_id != -1)
+        .group_by(AccessLogs.user_id)
+        .count()
+    )
+
+    unique_users_yesterday = (
+        db.session.query(AccessLogs)
+        .filter(AccessLogs.log_date.between(before_yesterday, yesterday))
+        .filter(AccessLogs.user_id != -1)
+        .group_by(AccessLogs.user_id)
+        .count()
+    )
+
+    return {
+        "date": f"{today.year}-{today.month}-{today.day}",
+        "total_requests": total_requests_today,
+        "total_requests_diff": total_requests_yesterday - total_requests_today,
+        "successful_requests": len(successful_access_logs_today),
+        "successful_requests_diff": len(successful_access_logs_today) - len(successful_access_logs_yesterday),
+        "failed_requests": len(failed_access_logs_today),
+        "failed_requests_diff": len(failed_access_logs_today) - len(failed_access_logs_yesterday),
+        
+        "total_logins": total_logins_today,
+        "total_logins_diff": total_logins_today - total_logins_yesterday,
+        "successful_logins": len(successful_logins_today),
+        "successful_logins_diff": len(successful_logins_today) - len(successful_logins_yesterday),
+        "failed_logins": len(failed_logins_today),
+        "failed_logins_diff": len(failed_logins_today) - len(failed_logins_yesterday),
+
+        "unique_users": unique_users_today,
+        "unique_users_diff": unique_users_today - unique_users_yesterday
+    }
 
 
 ###########

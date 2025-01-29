@@ -257,8 +257,10 @@ if not app.config['LIVE_MATRIX']:
 
 from flask_admin.contrib.sqla import ModelView
 from app.api.models import AccessLogs, Pods, Urls, User, Personalization, Suggestions
-from app.utils_db import create_access_log_entry, delete_url_representations, delete_pod_representations, \
-        rm_from_npz, add_to_npz, create_pod_in_db, create_pod_npz_pos, rm_doc_from_pos, update_db_idvs_after_npz_delete
+from app.utils_db import (
+    create_access_log_entry, compute_daily_access_stats, delete_url_representations, delete_pod_representations, rm_from_npz, add_to_npz, create_pod_in_db, 
+    create_pod_npz_pos, rm_doc_from_pos, update_db_idvs_after_npz_delete
+)
 
 from flask_admin import expose
 from flask_admin.contrib.sqla.view import ModelView
@@ -341,6 +343,22 @@ def can_access_flaskadmin():
     return True
 
 class MyAdminIndexView(AdminIndexView):
+
+    @expose()
+    def index(self):
+        def _format_stats(stats):
+            fmt_stats = {}
+            for stat_name, stat_val in stats.items():
+                if "_diff" in stat_name:
+                    fmt_stats[stat_name] = f"{'+' if stat_val > 0 else ''}{stat_val}"
+                else:
+                    fmt_stats[stat_name] = str(stat_val)
+            return fmt_stats
+
+        access_stats = compute_daily_access_stats()
+
+        return self.render(self._template, access_stats=_format_stats(access_stats))
+    
     def is_accessible(self):
         return can_access_flaskadmin()
 
