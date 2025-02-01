@@ -50,10 +50,11 @@ def index():
 def suggest():
     """Suggests a URL without indexing.
     """
-    captcha = mk_captcha()
+    # generate captcha (public code/private string pair)
+    captcha_id, captcha_correct_answer = mk_captcha()
+
     form = SuggestionForm()
-    form.captcha.data = captcha
-    form.captcha_answer.label = captcha
+    form.captcha_id.data = captcha_id
     pods = Pods.query.all()
     themes = list(set([p.name.split('.u.')[0] for p in pods]))
     return render_template("indexer/suggest.html", form=form, themes=themes)
@@ -167,14 +168,14 @@ def run_suggest_url():
         url = request.form.get('suggested_url').strip()
         theme = request.form.get('theme').strip()
         note = request.form.get('note').strip()
-        captcha = request.form.get('captcha')
-        captcha_answer = request.form.get('captcha_answer')
+        captcha_id = request.form.get('captcha_id')
+        captcha_user_answer = request.form.get('captcha_answer')
         if current_user.is_authenticated:
             contributor = current_user.username
         else:
             contributor = 'anonymous'
         
-        if not check_captcha(captcha, captcha_answer):
+        if not check_captcha(captcha_id, captcha_user_answer):
             flash(gettext('The captcha was incorrectly answered.'))
             return redirect(url_for('indexer.suggest'))
 
@@ -184,10 +185,11 @@ def run_suggest_url():
         return redirect(url_for('indexer.suggest'))
     else:
         print("FORM ERRORS:", form.errors)
-        captcha = mk_captcha()
-        form = SuggestionForm(request.form)
-        form.captcha.data = captcha
-        form.captcha_answer.label = captcha
+        # generate captcha (public code/private string pair)
+        captcha_id, captcha_correct_answer = mk_captcha()
+
+        form = SuggestionForm()
+        form.captcha_id.data = captcha_id
         pods = Pods.query.all()
         themes = list(set([p.name.split('.u.')[0] for p in pods]))
         return render_template('indexer/suggest.html', form=form, themes=themes)
