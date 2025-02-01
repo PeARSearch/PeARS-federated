@@ -95,11 +95,14 @@ app.config['CSRF_ENABLED'] = True
 app.config['CSRF_SESSION_KEY'] = getenv("CSRF_SESSION_KEY")
 
 # Legal
-app.config['ORG_NAME'] = getenv("ORG_NAME")
-app.config['ORG_ADDRESS'] = getenv("ORG_ADDRESS")
-app.config['ORG_EMAIL'] = getenv("ORG_EMAIL")
-app.config['APPLICABLE_LAW'] = getenv("APPLICABLE_LAW")
-app.config['SERVERS'] = getenv("SERVERS")
+app.config['ORG_NAME'] = getenv("ORG_NAME", None)
+app.config['ORG_ADDRESS'] = getenv("ORG_ADDRESS", None)
+app.config['ORG_EMAIL'] = getenv("ORG_EMAIL", None)
+app.config['TAX_OFFICE'] = getenv("TAX_OFFICE", None)
+app.config['VAT_NUMBER'] = getenv("VAT_NUMBER", None)
+app.config['REGISTRATION_NUMBER'] = getenv("REGISTRATION_NUMBER", None)
+app.config['APPLICABLE_LAW'] = getenv("APPLICABLE_LAW", None)
+app.config['SERVERS'] = getenv("SERVERS", None)
 app.config['EU_SPECIFIC'] = True if getenv("EU_SPECIFIC").lower() == 'true' else False
 app.config['SNIPPET_LENGTH'] = int(getenv("SNIPPET_LENGTH"))
 

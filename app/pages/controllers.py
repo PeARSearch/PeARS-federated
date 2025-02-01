@@ -58,7 +58,11 @@ def return_contact():
     address = app.config["ORG_ADDRESS"]
     email = app.config["ORG_EMAIL"]
     eu = app.config["EU_SPECIFIC"]
-    return render_template("pages/contact.html", email=email, orgname=orgname, address=address, eu=eu)
+    tax_office = app.config["TAX_OFFICE"]
+    registration_number = app.config["REGISTRATION_NUMBER"]
+    vat_number = app.config["VAT_NUMBER"]
+    return render_template("pages/contact.html", email=email, orgname=orgname, address=address, eu=eu, \
+            tax_office=tax_office, registration_number=registration_number, vat_number=vat_number)
 
 
 @pages.route('/maintenance/')
