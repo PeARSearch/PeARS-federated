@@ -14,7 +14,15 @@
 
        <p>{{address}}<br>{{email}}.</p>
 
+       {% if tax_office and registration_number %}
+           <p>Registered at {{tax_office}} {{registration_number}}</p>
+       {% endif %}
+       {% if vat_number %}
+           <p>USt. ID {{vat_number}}</p>
+       {% endif %}
        {% if eu %}
+       <p>Point of contact for Member States authorities (Art. 11 DSA): {{email}}</p>
+       <p>Point of contacts for Users (Art. 12 DSA): {{email}}</p>
        <p>The European Commission is providing an <a href="http://ec.europa.eu/consumers/odr/">online dispute resolution platform</a> which consumers can use for dispute resolution and where additional information on the topic of dispute resolution is provided. We are willing to participate in consumer dispute resolution proceedings before a consumer arbitration board in the event of a dispute with a consumer.</p>
        {% endif %}
        </div>
