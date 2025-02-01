@@ -428,6 +428,6 @@ def check_pos_vs_npz_to_idx(pod, username, language):
 @click.argument('basedir')
 def rebuild_from_db(basedir):
     from app.cli.rebuild import rebuild_pods_and_urls, rebuild_users, rebuild_personalization
-    #rebuild_pods_and_urls(pod_dir, basedir)
-    #rebuild_users(basedir)
+    rebuild_pods_and_urls(pod_dir, basedir)
+    rebuild_users(basedir)
     rebuild_personalization(basedir)
