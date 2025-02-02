@@ -1,18 +1,23 @@
+from os.path import basename, join, isdir, isfile, dirname, realpath
+from pathlib import Path
 import secrets
 import string
 import re
 import time
 import os
-import glob
+from glob import glob
+
+app_dir_path = dirname(dirname(dirname(realpath(__file__))))
+captcha_dir = os.getenv("CAPTCHA_DIR", join(app_dir_path, '.captchas')) 
 
 
 def delete_old_captchas():
     cur_time_ns = time.time_ns()
     one_hour_ago = cur_time_ns - 3_600_000_000_000
 
-    for captcha_file in glob.glob(".captchas/*.*.txt"):
-        basename = os.path.basename(captcha_file)
-        timestamp = int(basename.split(".")[0])
+    for captcha_file in glob(join(captcha_dir, "*.*.txt")):
+        base = basename(captcha_file)
+        timestamp = int(base.split(".")[0])
         if timestamp < one_hour_ago:
             os.remove(captcha_file)
 
@@ -28,8 +33,9 @@ def mk_captcha():
     Generates a pair of a public ID number and a 'secret' string to be shown in the image 
     """
 
-    if not os.path.isdir(".captchas"):
-        os.mkdir(".captchas")
+    print(captcha_dir)
+    if not isdir(captcha_dir):
+        Path(captcha_dir).mkdir(parents=True, exist_ok=True)
     else:
         # delete all captchas older than an hour
         delete_old_captchas()
@@ -40,7 +46,7 @@ def mk_captcha():
     
     captcha_str = generate_captcha_string()
 
-    with open(f".captchas/{captcha_id}.txt", "w") as f:
+    with open(join(captcha_dir, f"{captcha_id}.txt"), "w") as f:
         f.write(captcha_str)
 
     return captcha_id, captcha_str
@@ -48,8 +54,8 @@ def mk_captcha():
 
 def check_captcha(captcha_id, captcha_answer):
 
-    captcha_file = f".captchas/{captcha_id}.txt"
-    if not os.path.isfile(captcha_file):
+    captcha_file = join(captcha_dir, f"{captcha_id}.txt")
+    if not isfile(captcha_file):
         return False
 
     with open(captcha_file) as f:
@@ -60,8 +66,8 @@ def check_captcha(captcha_id, captcha_answer):
 
 def refresh_captcha(captcha_id):
 
-    captcha_file = f".captchas/{captcha_id}.txt"
-    if not os.path.isfile(captcha_file):
+    captcha_file = join(captcha_dir, f"{captcha_id}.txt")
+    if not isfile(captcha_file):
         return None
 
     new_captcha_str = generate_captcha_string()
