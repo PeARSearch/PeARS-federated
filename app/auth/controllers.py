@@ -18,7 +18,7 @@ from app.auth.decorators import check_permissions
 import random
 import string
 from app.auth.token import send_email, send_reset_password_email, generate_token, confirm_token
-from app.auth.captcha import mk_captcha, check_captcha, refresh_captcha
+from app.auth.captcha import mk_captcha, check_captcha, refresh_captcha, captcha_dir
 
 
 # Initialize captcha library
@@ -255,7 +255,7 @@ def captcha_view(captcha_id):
         captcha_str = refresh_captcha(captcha_id)
 
     else:
-        captcha_file = f".captchas/{captcha_id}.txt"
+        captcha_file = os.path.join(captcha_dir, f"{captcha_id}.txt")
         if not os.path.isfile(captcha_file):
             return redirect("/static/captcha-not-found.png")
 
