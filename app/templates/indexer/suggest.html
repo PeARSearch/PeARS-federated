@@ -31,10 +31,6 @@ SPDX-License-Identifier: AGPL-3.0-only
         <p>{{ render_autocomplete_field(form.theme) }}</p>
         <p>{{ render_field(form.note) }}</p>
         <p>{{ render_captcha_field(form.captcha_answer, form.captcha_id.data) }}</p>
-        <div class="form-check">
-          {{ form.accept_tos(class_="form-check-input") }}
-          <label class="form-check-label" for="legal">{{gettext("I confirm that my entry does not contravene the <a href='../terms-of-service'>terms of service</a> of this site.")}}</label>
-        </div>
       </div><!-- card body -->
       <div class="card-footer clearfix">
         <span class="input-group-btn">

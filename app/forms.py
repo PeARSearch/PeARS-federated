@@ -44,7 +44,6 @@ class SuggestionForm(FlaskForm):
     note = StringField(lazy_gettext('Optional note*'), [Length(max=100)],  render_kw={"placeholder": lazy_gettext("Anything extra you would like people to know about this resource.")})
     captcha_id = HiddenField()
     captcha_answer = StringField(lazy_gettext("Captcha: write down the characters you see in the image below (only lower-case letters, no numbers)."), [DataRequired()])
-    accept_tos = BooleanField(lazy_gettext('I confirm that my suggestion does not contravene the Terms of Service'), [DataRequired()])
 
 class ManualEntryForm(FlaskForm):
     title = StringField(lazy_gettext('A title for your entry'), [DataRequired(), Length(min=8, max=100, message=lazy_gettext("The title of your entry should have between 4 and 100 characters."))])
