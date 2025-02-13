@@ -40,7 +40,7 @@ class IndexerForm(FlaskForm):
 
 class SuggestionForm(FlaskForm):
     suggested_url = URLField(lazy_gettext('Suggested url.'), [DataRequired(), URL()], render_kw={"placeholder": lazy_gettext("The URL you would like to suggest.")})
-    theme = StringField(lazy_gettext('Category'), [DataRequired(), Length(max=50)],  render_kw={"placeholder": lazy_gettext("A category for your URL. Start typing and suggestions will appear, but you can also write your own.")})
+    theme = StringField(lazy_gettext('Category'), [DataRequired(), Length(max=50)],  render_kw={"placeholder": lazy_gettext("Start typing and suggestions will appear, but you can also write your own.")})
     note = StringField(lazy_gettext('Optional note*'), [Length(max=100)],  render_kw={"placeholder": lazy_gettext("Anything extra you would like people to know about this resource.")})
     captcha_id = HiddenField()
     captcha_answer = StringField(lazy_gettext("Captcha: write down the characters you see in the image below (only lower-case letters, no numbers)."), [DataRequired()])
