@@ -155,16 +155,18 @@ def return_best_urls(doc_scores):
     return best_urls, scores
 
 
-def output(best_urls):
+def output(best_urls, scores):
     results = {}
     urls = Urls.query.filter(Urls.url.in_(best_urls)).all()
     urls = [next(u for u in urls if u.url == best_url) for best_url in best_urls]
-    for u in urls:
+    for i, u in enumerate(urls):
         url = u.url
         if url.startswith('pearslocal'):
             url = url_for('api.return_specific_url')+'?url='+url
         results[url] = u.as_dict()
+        results[url]['score'] = scores[i]
     return results
+
 
 
 def run_search(query, lang, extended=True):
@@ -193,7 +195,7 @@ def run_search(query, lang, extended=True):
             merged_scores[k] = 0.5*extended_document_scores[k]
 
     best_urls, scores = return_best_urls(merged_scores)
-    results = output(best_urls)
+    results = output(best_urls, scores)
     return results, scores
 
 
