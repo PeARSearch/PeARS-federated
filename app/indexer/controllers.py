@@ -163,7 +163,7 @@ def run_suggest_url():
     """ Save the suggested URL in waiting list.
     """
     print(">> INDEXER: run_suggest_url: Save suggested URL.")
-    form = IndexerForm(request.form)
+    form = SuggestionForm(request.form)
     if form.validate_on_submit():
         url = request.form.get('suggested_url').strip()
         theme = request.form.get('theme').strip()
@@ -177,22 +177,28 @@ def run_suggest_url():
         
         if not check_captcha(captcha_id, captcha_user_answer):
             flash(gettext('The captcha was incorrectly answered.'))
-            return redirect(url_for('indexer.suggest'))
+            captcha_id, captcha_correct_answer = mk_captcha()
+            form = SuggestionForm()
+            form.suggested_url.data = request.form.get('suggested_url').strip()
+            form.theme.data = request.form.get('theme').strip()
+            form.note.data = request.form.get('note').strip()
+            form.captcha_answer.data = ""
+            form.captcha_id.data = captcha_id
+            pods = Pods.query.all()
+            themes = list(set([p.name.split('.u.')[0] for p in pods]))
+            return render_template('indexer/suggest.html', form=form, themes=themes)
 
         print(url, theme, note)
         create_suggestion_in_db(url=url, pod=theme, notes=note, contributor=contributor)
         flash(gettext('Many thanks for your suggestion'))
         return redirect(url_for('indexer.suggest'))
-    else:
-        print("FORM ERRORS:", form.errors)
-        # generate captcha (public code/private string pair)
-        captcha_id, captcha_correct_answer = mk_captcha()
-
-        form = SuggestionForm()
-        form.captcha_id.data = captcha_id
-        pods = Pods.query.all()
-        themes = list(set([p.name.split('.u.')[0] for p in pods]))
-        return render_template('indexer/suggest.html', form=form, themes=themes)
+    print("FORM ERRORS:", form.errors)
+    # generate captcha (public code/private string pair)
+    captcha_id, captcha_correct_answer = mk_captcha()
+    form.captcha_id.data = captcha_id
+    pods = Pods.query.all()
+    themes = list(set([p.name.split('.u.')[0] for p in pods]))
+    return render_template('indexer/suggest.html', form=form, themes=themes)
 
 
 def run_indexer_url(url, theme, note, contributor, host_url):

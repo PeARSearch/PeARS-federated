@@ -27,14 +27,12 @@ SPDX-License-Identifier: AGPL-3.0-only
 	<form method="POST" accept-charset="UTF-8" action="{{url_for('indexer.run_suggest_url')}}" enctype="multipart/form-data" autocomplete="off">
 	<datalist id="themes"></datalist>
         {{ form.hidden_tag() }}
+	<p>Thank you for suggesting a resource to this PeARS instance! PeARS is a curated search engine. An admin will review your entry asap. Suggestions are normally accepted 
+	unless they contain offensive content or do not match the theme of the instance. We aim at indexing your entry within 24-48 hours.</p>
         <p>{{ render_field(form.suggested_url) }}</p>
         <p>{{ render_autocomplete_field(form.theme) }}</p>
         <p>{{ render_field(form.note) }}</p>
         <p>{{ render_captcha_field(form.captcha_answer, form.captcha_id.data) }}</p>
-        <div class="form-check">
-          {{ form.accept_tos(class_="form-check-input") }}
-          <label class="form-check-label" for="legal">{{gettext("I confirm that my entry does not contravene the <a href='../terms-of-service'>terms of service</a> of this site.")}}</label>
-        </div>
       </div><!-- card body -->
       <div class="card-footer clearfix">
         <span class="input-group-btn">
