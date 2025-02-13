@@ -1,14 +1,53 @@
 from os.path import basename, join, isdir, isfile, dirname, realpath
 from pathlib import Path
+import operator
+from functools import reduce
 import secrets
 import string
 import re
 import time
 import os
+import random
 from glob import glob
+from captcha.audio import AudioCaptcha, mix_wave, WAVE_SAMPLE_RATE, BEEP, SILENCE, END_BEEP
 
 app_dir_path = dirname(dirname(dirname(realpath(__file__))))
 captcha_dir = os.getenv("CAPTCHA_DIR", join(app_dir_path, '.captchas')) 
+
+
+class AudioCaptchaWithOptionalNoise(AudioCaptcha):
+    """
+    Minor modifications to the orignal class to make the background noise optional
+    """
+    use_noise = False
+
+    def create_wave_body(self, chars: str) -> bytearray:
+        voices: t.List[bytearray] = []
+        inters: t.List[int] = []
+        for c in chars:
+            voices.append(self._twist_pick(c))
+            i = random.randint(WAVE_SAMPLE_RATE, WAVE_SAMPLE_RATE * 3)
+            inters.append(i)
+
+        durations = map(lambda a: len(a), voices)
+        length = max(durations) * len(chars) + reduce(operator.add, inters)
+        if self.use_noise:
+            bg = self.create_background_noise(length, chars)
+        else:
+            bg = bytearray(length)
+
+        # begin
+        pos: int = inters[0]
+        for i, v in enumerate(voices):
+            end = pos + len(v) + 1
+            if self.use_noise:
+                bg[pos:end] = mix_wave(v, bg[pos:end])
+            else:
+                bg[pos:end] = v
+            pos = end + inters[i]
+
+        return BEEP + SILENCE + BEEP + SILENCE + BEEP + bg + END_BEEP
+
 
 
 def delete_old_captchas():
@@ -25,7 +64,7 @@ def delete_old_captchas():
 def generate_captcha_string():
     # String of letters and numbers (will be stored in the server session and be shown 
     # to the user only in the captcha image)
-    return "".join([secrets.choice(string.ascii_lowercase) for _ in range(5)])
+    return "".join([secrets.choice(string.digits) for _ in range(5)])
 
 
 def mk_captcha():

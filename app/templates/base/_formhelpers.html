@@ -29,19 +29,61 @@
 {% macro render_captcha_field(field, captcha_id) %}
 <div class="form-group">
         <p>{{ field.label }}</p>
-        <p>
+        {% set explain_image = gettext("To verify that you are a human being, we ask you to write down the sequence of numbers that you see in the image below. If the sequence is too hard, click \'Refresh\' to get a new one, or click \'Switch to audio captcha\' to get a new sequence as an audio file.") %}
+        {% set explain_audio = gettext("To verify that you are a human being, we ask you to write down the sequence of numbers that you hear in the audio file below. If the audio player doesn't load, you can also download the file. If the sequence is too hard, click \'Refresh\' to get a new one, or click \'Switch to image captcha\' to get a new sequence as an image.") %}
+        <p class="alert alert-info"><small id="captcha-alert">{{explain_image}}</small></p>
+        <div>
           <script>
+            let contentType = "image";
+            let buttonText = "";
+            let alertText = "";
+            function toggleContentType() {
+              if (contentType === "image") {
+                contentType = "audio";
+                buttonText = '{{gettext("Switch to image captcha")}}';
+                alertText = "{{explain_audio}}";
+              } 
+              else {
+                contentType = "image";
+                buttonText = '{{gettext("Switch to audio captcha")}}';
+                alertText = "{{explain_image}}";
+              }
+              $("#captcha-switch").text(buttonText);
+              $("#captcha-alert").text(alertText);
+              refreshCaptcha();
+            }
             function refreshCaptcha() {
-              let el = document.getElementById("captcha-img");
               let origUrl = "/auth/show_captcha/{{captcha_id}}";
               let timeStamp = new Date().getTime();
-              el.src = origUrl + "?refresh=true&t=" + timeStamp; 
+
+              // empty the existing captcha
+              let $display = $("#captcha-display");
+              $display.empty();
+
+              // generate new image
+              if (contentType === "image") {
+                let newUrl = origUrl + "?refresh=true&t=" + timeStamp;
+                $display.append(`<img src="${newUrl}">`); 
+              }
+
+              // generate new audio
+              else {
+                let newUrl = origUrl + "?audio=true&refresh=true&t=" + timeStamp;
+                $display.append(`<audio controls src="${newUrl}"></audio>`)
+                downloadUrl = origUrl + "?audio=true";
+                $display.append(`<br><a class="btn btn-sm btn-primary" title="{{gettext("Download the audio file in case the player doesn't load")}}" href="${downloadUrl}">{{gettext("Download as .wav")}}</a>`)
+              }
             }
           </script>
-          <img id="captcha-img" src="/auth/show_captcha/{{captcha_id}}">
-          <a class="btn btn-success" onclick="refreshCaptcha();">Refresh</a>
-        </p>
-        {{ field(class_="form-control input-s", size=32) }}
+          <div id="captcha-display" class="mb-3">
+            <img src="/auth/show_captcha/{{captcha_id}}">
+          </div>
+          <div class="mb-3">
+          <a class="btn btn-success" id="captcha-switch" onclick="toggleContentType();">{{gettext("Switch to audio captcha")}}</a>
+            <a class="btn btn-success" onclick="refreshCaptcha();">Refresh</a>
+          </div>
+        </div>
+        {{ field(class_="form-control input-s", size=32, placeholder=gettext("Enter the numbers you saw/heard here.")) }}
 </div>
 <dd>{% if field.errors %}
     <ul class=errors>

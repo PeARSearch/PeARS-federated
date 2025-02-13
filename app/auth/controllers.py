@@ -4,6 +4,7 @@
 
 import logging
 import os
+import io
 from markupsafe import Markup
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -18,11 +19,12 @@ from app.auth.decorators import check_permissions
 import random
 import string
 from app.auth.token import send_email, send_reset_password_email, generate_token, confirm_token
-from app.auth.captcha import mk_captcha, check_captcha, refresh_captcha, captcha_dir
+from app.auth.captcha import AudioCaptchaWithOptionalNoise, mk_captcha, check_captcha, refresh_captcha, captcha_dir
 
 
 # Initialize captcha library
 image = ImageCaptcha()
+audio = AudioCaptchaWithOptionalNoise()
 
 # Define the blueprint:
 auth = Blueprint('auth', __name__, url_prefix='/auth')
@@ -265,6 +267,10 @@ def captcha_view(captcha_id):
     # captcha is missing (could happen if you try to refresh an expired captcha)
     if captcha_str is None:
         return redirect("/static/captcha-not-found.png")
+
+    if request.args.get("audio", "false") == "true":
+        audio_data = io.BytesIO(audio.generate(captcha_str))
+        return Response(audio_data, mimetype="audio/wav")
 
     img_data = image.generate(captcha_str)
     return Response(img_data, mimetype="image/png")
