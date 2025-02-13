@@ -54,7 +54,7 @@
 {% endmacro %}
 
 {% macro render_password_field(field) %}
-<div class="form-group">template
+<div class="form-group">
 	{{ field.label }} <a class="small" href={{url_for('auth.password_forgotten')}}>{{gettext('Password forgotten?')}}</a> 
         {{ field(class_="form-control input-s", size=32) }}
 </div>
