@@ -31,7 +31,7 @@ def filter_instances_by_language():
         if this_instance_language not in languages:
             continue
 
-        print(url, languages, this_instance_language)
+        #print(url, languages, this_instance_language)
 
         url = join(i, 'api', 'signature', this_instance_language)
         try:
@@ -40,7 +40,6 @@ def filter_instances_by_language():
             print(f"\t>> ERROR: filter_instances_by_language: request failed trying to access {url}...")
             continue
         signature = np.array(resp.json())
-        print(signature)
         filtered_instances[i] = signature
     return filtered_instances
 
@@ -50,6 +49,9 @@ def get_cross_instance_results(query, instances):
     for i in instances:
         url = join(i, 'api', 'search?q='+query)
         resp = requests.get(url, timeout=30, headers=headers)
-        r = resp.json()
+        r = resp.json()['json_list'][1]
+        for url, d in r.items():
+            if 'score' not in d:
+                r[url]['score'] = 0.5
         results.update(r)
     return results

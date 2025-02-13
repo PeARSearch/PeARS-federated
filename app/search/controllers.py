@@ -17,6 +17,7 @@ from app.search import score_pages
 from app.utils import parse_query, beautify_title, beautify_snippet
 from app import app, models, db
 from app.api.models import Personalization
+from app.search.cross_instance_search import get_cross_instance_results
 
 # Define the blueprint:
 search = Blueprint('search', __name__, url_prefix='')
@@ -79,12 +80,12 @@ def prepare_gui_results(query, results):
             r['notes'] = None
         else:
             r['notes'] = r['notes'].split('<br>')
-        values = list(r.values())
-        displayresults.append(values)
+        displayresults.append(r)
     return displayresults
 
 
 def get_search_results(query):
+    from app import instance_signatures
     results = {}
     scores = []
     query, _, lang = parse_query(query.lower())
@@ -102,10 +103,16 @@ def get_search_results(query):
         print(">>>>>>>>>>>>>>>>>>>>>>")
 
         try:
+            print("\n Getting results on this instance")
             r, s = score_pages.run_search(clean_query, lang, extended=app.config['EXTEND_QUERY'])
-            #r, s = score_pages.run_search_decentralized(clean_query, lang)
             results.update(r)
             scores.extend(s)
+            print("\n Getting results cross-instances")
+            r = get_cross_instance_results(clean_query, list(instance_signatures.keys()))
+            for url, dic in r.items():
+                if url not in results:
+                    results[url] = dic
+                    scores.append(dic['score'])
         except:
             pass
     sorted_scores = np.argsort(scores)[::-1]
@@ -115,4 +122,5 @@ def get_search_results(query):
         sorted_results[url] = results[url]
     logging.debug(f"SORTED RESULTS: {sorted_results}")
     return clean_query, sorted_results
+
 
