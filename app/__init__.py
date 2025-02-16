@@ -254,7 +254,7 @@ if not app.config['LIVE_MATRIX']:
 
 from app.search.cross_instance_search import filter_instances_by_language
 
-instance_signatures = filter_instances_by_language()
+instances, M  = filter_instances_by_language()
 
 
 #######

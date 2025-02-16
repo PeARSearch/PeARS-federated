@@ -8,6 +8,7 @@ from os.path import dirname, join, realpath
 from glob import glob
 import numpy as np
 from random import shuffle
+from urllib.parse import urlparse
 from markupsafe import Markup
 from flask import Blueprint, request, render_template, flash, url_for, redirect
 from flask_login import current_user
@@ -80,12 +81,17 @@ def prepare_gui_results(query, results):
             r['notes'] = None
         else:
             r['notes'] = r['notes'].split('<br>')
+        sitename = urlparse(request.base_url).hostname
+        if sitename in r['share']:
+            r['instance'] = sitename
+        else:
+            r['instance'] = urlparse(r['share']).hostname
         displayresults.append(r)
     return displayresults
 
 
 def get_search_results(query):
-    from app import instance_signatures
+    from app import instances
     results = {}
     scores = []
     query, _, lang = parse_query(query.lower())
@@ -108,7 +114,7 @@ def get_search_results(query):
             results.update(r)
             scores.extend(s)
             print("\n Getting results cross-instances")
-            r = get_cross_instance_results(clean_query, list(instance_signatures.keys()))
+            r = get_cross_instance_results(clean_query, instances)
             for url, dic in r.items():
                 if url not in results:
                     results[url] = dic

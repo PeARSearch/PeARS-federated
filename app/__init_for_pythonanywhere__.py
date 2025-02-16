@@ -242,11 +242,14 @@ if not app.config['LIVE_MATRIX']:
         models[LANG]['podnames'] = podnames
         models[LANG]['urls'] = urls
 
-# Legacy
-#if app.config['LOADED_POS_INDEX'] > 0:
-#    from app.indexer.posix import load_posindices
-#    for LANG in LANGS:
-#        models[LANG]['posix'] = load_posindices(LANG, n=app.config['LOADED_POS_INDEX'])
+
+#######################
+# Decentralized search
+#######################
+
+from app.search.cross_instance_search import filter_instances_by_language
+
+instances, M  = filter_instances_by_language()
 
 
 #######
