@@ -92,6 +92,7 @@ def prepare_gui_results(query, results):
 
 def get_search_results(query):
     from app import instances
+    clean_query = ""
     results = {}
     scores = []
     query, _, lang = parse_query(query.lower())
@@ -100,9 +101,6 @@ def get_search_results(query):
     else:
         languages = [lang]
     for lang in languages:
-        npzs = glob(join(pod_dir,'*',lang,'*.npz'))
-        if len(npzs) == 0:
-            continue
         clean_query = ' '.join([w for w in query.split() if w not in models[lang]['stopwords']])
         print("\n\n>>>>>>>>>>>>>>>>>>>>>>")
         print(">> SEARCH:CONTROLLERS:get_search_results: searching in",lang)
@@ -113,6 +111,10 @@ def get_search_results(query):
             r, s = score_pages.run_search(clean_query, lang, extended=app.config['EXTEND_QUERY'])
             results.update(r)
             scores.extend(s)
+        except:
+            pass
+        
+        try:
             print("\n Getting results cross-instances")
             r = get_cross_instance_results(clean_query, instances)
             for url, dic in r.items():
