@@ -20,10 +20,6 @@ mastodon = Mastodon(
     api_base_url='https://hol.ogra.ph/'
 )
 
-def handle_mention(status):
-    bot_username = app.config["MASTODON_USERNAME"]
-    if bot_username in status.content and "pearsbot-suggest" in status.content:
-        mastodon.status_post("'@' + status.account.username + ' pearsbot is not working yet [[automated message]]'")
 
 def process_new_notifications():
 
