@@ -89,7 +89,6 @@ def get_cross_instance_results(query, instances):
         for url, d in r.items():
             if 'score' not in d:
                 if any(w in d['title'] for w in query.lower().split()) or any(w in d['snippet'].lower() for w in query.lower().split()):
-                    print(query, d['title'])
                     r[url]['score'] = 2
                 else:
                     r[url]['score'] = 0
