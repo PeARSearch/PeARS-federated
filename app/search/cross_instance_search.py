@@ -1,6 +1,7 @@
 from urllib.parse import urlparse
 import numpy as np
 import requests
+from requests.exceptions import ConnectionError
 from os.path import dirname, realpath, join, exists
 from scipy.spatial import distance
 from app import app, LANGUAGE_CODES
@@ -106,9 +107,13 @@ def get_cross_instance_results(query, instances):
     headers = {'User-Agent': app.config['USER-AGENT']}
     for i in best_instances:
         url = join(i["url"], 'api', 'search?q='+query)
-        resp = requests.get(url, timeout=30, headers=headers)
-        r = resp.json()['json_list'][1]
-        
+        try:
+            resp = requests.get(url, timeout=30, headers=headers)
+            r = resp.json()['json_list'][1]
+        except ConnectionError:
+            print(f"Can't connect to {url}")
+            r = {}
+
         for url, d in r.items():
             r[url]["x_instance_info"] = i
             # The following is only temporary until all instances have been updated to return page scores
