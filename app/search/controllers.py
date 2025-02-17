@@ -67,16 +67,13 @@ def index():
 
 
 def prepare_gui_results(query, results):
-    snippet_length = app.config['SNIPPET_LENGTH']
     if results is None or len(results) == 0:
         return None
     displayresults = []
     for url, r in results.items():
-        r['title'] = r['title'][:70]
+        r['title'] = ' '.join(r['title'].split()[:10])
         r['snippet'] = beautify_snippet(r['snippet'], query)
         logging.debug(f"RESULT URL {url}")
-        if 'url=pearslocal' not in url:
-            r['snippet'] = ' '.join(r['snippet'].split()[:snippet_length])
         if r['notes'] == 'None':
             r['notes'] = None
         else:

@@ -156,6 +156,7 @@ def return_best_urls(doc_scores):
 
 
 def output(best_urls, scores):
+    snippet_length = app.config['SNIPPET_LENGTH']
     results = {}
     urls = Urls.query.filter(Urls.url.in_(best_urls)).all()
     urls = [next(u for u in urls if u.url == best_url) for best_url in best_urls]
@@ -165,6 +166,8 @@ def output(best_urls, scores):
             url = url_for('api.return_specific_url')+'?url='+url
         results[url] = u.as_dict()
         results[url]['score'] = scores[i]
+        if not url.startswith('pearslocal'):
+            results[url]['snippet'] = ' '.join(results[url]['snippet'].split()[:snippet_length])
     return results
 
 
