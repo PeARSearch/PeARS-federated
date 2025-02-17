@@ -62,3 +62,4 @@ Werkzeug==3.0.1
 WTForms==3.1.2
 zipp==3.18.1
 captcha==0.6.0
+Mastodon.py==2.0.0
