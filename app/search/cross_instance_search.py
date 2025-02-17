@@ -1,3 +1,4 @@
+from urllib.parse import urlparse
 import numpy as np
 import requests
 from os.path import dirname, realpath, join, exists
@@ -39,6 +40,7 @@ def filter_instances_by_language():
 
         #print(url, languages, this_instance_language)
 
+        # first get the signature of the instance
         url = join(i, 'api', 'signature', this_instance_language)
         try:
             resp = requests.get(url, timeout=30, headers=headers)
@@ -46,7 +48,29 @@ def filter_instances_by_language():
             print(f"\t>> ERROR: filter_instances_by_language: request failed trying to access {url}...")
             continue
         signature = np.array(resp.json())
-        filtered_instances.append(i)
+        
+        # retrieve instance metadata
+        identity_info_url = join(i, 'api', 'identity')
+        try:
+            identity_info = requests.get(identity_info_url, timeout=30, headers=headers).json()
+            identity_info["url"] = i
+        except Exception:
+            print(f"\t>> ERROR: filter_instances_by_language: request failed trying to access {identity_info_url}...")
+            identity_info = {
+                "url": i,
+                "sitename": urlparse(i).hostname,
+                "site_topic": None,
+                "organization": None
+            }
+
+        # make sure that we're not trying to index with ourselves
+        # N.B.: in a typical setup, this check does nothing because this
+        # script is meant to be run at startup time and if the server isn't already running, we won't be able to reach /api/signature anyway. Therefore, always manually check that the current instance isn't listed in .known_instances.txt. 
+        # The scenario that this failsafe is meant for is for more sophisticated server setups (e.g. with hot reloading)
+        if identity_info["sitename"] == app.config["SITENAME"]:
+            raise RuntimeError("Federating with yourself is not possible.Remove the current instance from .known_instances.txt and re-run the application.")
+
+        filtered_instances.append(identity_info)
         filtered_matrix.append(signature)
     filtered_matrix = np.array(filtered_matrix)
     return filtered_instances, filtered_matrix
@@ -70,7 +94,7 @@ def get_best_instances(query, lang, instances, m, top_k=3):
     # Get instances
     document_scores = {}
     best_instances = [instances[i] for i in idx][:top_k]
-    print("BEST INSTANCES", best_instances)
+    print("BEST INSTANCES", [i["url"] for i in best_instances])
 
     return best_instances
 
@@ -81,12 +105,13 @@ def get_cross_instance_results(query, instances):
     results = {}
     headers = {'User-Agent': app.config['USER-AGENT']}
     for i in best_instances:
-        url = join(i, 'api', 'search?q='+query)
+        url = join(i["url"], 'api', 'search?q='+query)
         resp = requests.get(url, timeout=30, headers=headers)
         r = resp.json()['json_list'][1]
         
-        # The following is only temporary until all instances have been updated to return page scores
         for url, d in r.items():
+            r[url]["x_instance_info"] = i
+            # The following is only temporary until all instances have been updated to return page scores
             if 'score' not in d:
                 if any(w in d['title'] for w in query.lower().split()) or any(w in d['snippet'].lower() for w in query.lower().split()):
                     r[url]['score'] = 2

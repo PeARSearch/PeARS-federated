@@ -54,7 +54,13 @@ SPDX-License-Identifier: AGPL-3.0-only
           <div class="card mt-2">
             <div class="card-body" style="padding: 20px 0px 20px 0px">
               <div class="d-flex justify-content-between"><!-- card header: links -->
-	        <div><ion-icon name="globe"></ion-icon> <a href="{{result['url']}}" style="text-decoration: none; font-size: large"><b>{{result['title']}}</b></a> <span class="badge rounded-pill text-bg-warning">{{result['instance']}}</span></div>
+	        <div><ion-icon name="globe"></ion-icon> <a href="{{result['url']}}" style="text-decoration: none; font-size: large"><b>{{result['title']}}</b></a> 
+          {% if result['instance_is_local']%}
+          <span class="badge rounded-pill text-bg-info" title="{{result['instance_info_text']}}">{{result['instance']}}</span>
+          {% else %}
+          <span class="badge rounded-pill text-bg-warning" title="{{result['instance_info_text']}}">{{result['instance']}}</span>
+          {% endif %}
+          </div>
 	        <div>
 	          <a class="btn btn-link" href="{{url_for('orchard.annotate')}}?url={{result['url']}}" data-toggle="tooltip" title="{{gettext('Add a note to this entry')}}"><ion-icon name="chatbubble-outline"></ion-icon></a>  
 	          <a class="btn btn-link" href="{{url_for('orchard.report')}}?url={{result['url']}}"  data-toggle="tooltip" title="{{gettext('Report this entry')}}"><ion-icon name="flag-outline"></ion-icon></a> 

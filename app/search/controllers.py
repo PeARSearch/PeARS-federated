@@ -79,10 +79,25 @@ def prepare_gui_results(query, results):
         else:
             r['notes'] = r['notes'].split('<br>')
         sitename = urlparse(request.base_url).hostname
+        # results from our own instance
         if sitename in r['share']:
             r['instance'] = sitename
+            r['instance_is_local'] = True
+            r['instance_info_text'] = gettext("This result originates from the local PeARS instance.")
+        # cross-instance results
         else:
-            r['instance'] = urlparse(r['share']).hostname
+            assert "x_instance_info" in r, "Instance meta-info is missing"
+            r['instance'] = r["x_instance_info"]["sitename"]
+            r['instance_is_local'] = False
+            instance_organization_text = r["x_instance_info"]["organization"] or "an unknown organization"
+            instance_topic_text = r["x_instance_info"]["site_topic"]
+            if instance_topic_text:
+                _instance_info_text = gettext("This result originates from the remote PeARS instance \"{}\" ({}), which is maintained by {} and discusses the topic: {}")
+                r["instance_info_text"] = _instance_info_text.format(r["instance"], r["x_instance_info"]["url"], instance_organization_text, instance_topic_text)
+            else:
+                _instance_info_text = gettext("This result originates from the remote PeARS instance \"{}\" ({}), which is maintained by {}.")
+                r["instance_info_text"] = _instance_info_text.format(r["instance"], r["x_instance_info"]["url"], instance_organization_text)
+
         displayresults.append(r)
     return displayresults
 
