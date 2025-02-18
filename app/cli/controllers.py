@@ -108,6 +108,17 @@ def install_language(lang):
             print("Request failed when trying to access", path, "...")
 
 
+
+###########################
+# DIAGNOSES
+###########################
+
+@pears.cli.command('diagnose')
+def diagnose():
+    from app.cli.diagnose import check_sitename
+    check_sitename()
+
+
 ###########################
 # BACKUP STUFF
 ###########################
@@ -272,7 +283,7 @@ def index_wiki(folder, regex, lang, contributor, host_url):
 
 
 ######################
-# CLEAN UP CODE
+# CLEAN THINGS UP
 ######################
 
 @pears.cli.command('deletedbonly')
@@ -431,3 +442,13 @@ def rebuild_from_db(basedir):
     rebuild_pods_and_urls(pod_dir, basedir)
     rebuild_users(basedir)
     rebuild_personalization(basedir)
+
+@pears.cli.command('updateinstancename')
+@click.argument('oldname')
+@click.argument('newname')
+def update_instance_name(oldname, newname):
+    urls = Urls.query.all()
+    for u in urls:
+        u.share = u.share.replace(oldname, newname)
+        db.session.add(u)
+        db.session.commit()
