@@ -66,7 +66,8 @@ def filter_instances_by_language():
 
         # make sure that we're not trying to index with ourselves
         # N.B.: in a typical setup, this check does nothing because this
-        # script is meant to be run at startup time and if the server isn't already running, we won't be able to reach /api/signature anyway. Therefore, always manually check that the current instance isn't listed in .known_instances.txt. 
+        # script is meant to be run at startup time and if the server isn't already running, we won't be able to reach /api/signature anyway. 
+        # Therefore, always manually check that the current instance isn't listed in .known_instances.txt. 
         # The scenario that this failsafe is meant for is for more sophisticated server setups (e.g. with hot reloading)
         if identity_info["sitename"] == app.config["SITENAME"]:
             raise RuntimeError("Federating with yourself is not possible.Remove the current instance from .known_instances.txt and re-run the application.")
