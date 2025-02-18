@@ -78,7 +78,7 @@ def prepare_gui_results(query, results):
             r['notes'] = None
         else:
             r['notes'] = r['notes'].split('<br>')
-        sitename = urlparse(request.base_url).hostname
+        sitename = app.config['SITENAME']
         # results from our own instance
         if sitename in r['share']:
             r['instance'] = sitename
