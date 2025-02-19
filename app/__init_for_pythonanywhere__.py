@@ -122,10 +122,6 @@ babel = Babel(app)
 app.config['LIVE_MATRIX'] = True if getenv("LIVE_MATRIX", "false").lower() == 'true' else False
 app.config['EXTEND_QUERY'] = True if getenv("EXTEND_QUERY", "false").lower() == 'true' else False
 
-#Legacy
-#app.config['MAX_PODS'] = int(getenv("MAX_PODS"))
-#app.config['LOADED_POS_INDEX'] = int(getenv("LOADED_POS_INDEX"))
-
 # Mail
 mail = Mail(app)
 
@@ -154,7 +150,10 @@ for LANG in app.config['LANGS']:
     models[LANG]['logprobs'] = logprobs
     models[LANG]['vectorizer'] = vectorizer
     models[LANG]['nns'] = ftcos
-    models[LANG]['stopwords'] = read_stopwords(LANGUAGE_CODES[LANG].lower())
+    if LANG in LANGUAGE_CODES:
+        models[LANG]['stopwords'] = read_stopwords(LANGUAGE_CODES[LANG].lower())
+    else:
+        models[LANG]['stopwords'] = []
   
 # All vocabs have the same vector size
 VEC_SIZE = len(models[first_lang]['vocab'])
@@ -241,12 +240,6 @@ if not app.config['LIVE_MATRIX']:
         models[LANG]['mbins'] = bins
         models[LANG]['podnames'] = podnames
         models[LANG]['urls'] = urls
-
-# Legacy
-#if app.config['LOADED_POS_INDEX'] > 0:
-#    from app.indexer.posix import load_posindices
-#    for LANG in LANGS:
-#        models[LANG]['posix'] = load_posindices(LANG, n=app.config['LOADED_POS_INDEX'])
 
 
 #######
