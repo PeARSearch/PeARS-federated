@@ -7,12 +7,28 @@ import logging
 import requests
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
+import justext
 from langdetect import detect
 from app.indexer.access import request_url
 from app.indexer import detect_open
 from app import app, LANGUAGE_CODES
 from app.utils import remove_emails
 
+def remove_boilerplates(response, lang):
+    text = ""
+    print("REMOVING BOILERPLATES FOR LANG",lang,"(",LANGUAGE_CODES[lang],").")
+    paragraphs = justext.justext(
+        response.content,
+        justext.get_stoplist(LANGUAGE_CODES[lang]),
+        max_link_density=0.3,
+        stopwords_low=0.1,
+        stopwords_high=0.3,
+        length_low=30,
+        length_high=100)
+    for paragraph in paragraphs:
+        if not paragraph.is_boilerplate:
+            text += paragraph.text + " "
+    return text
 
 def BS_parse(url):
     bs_obj = None
@@ -62,6 +78,17 @@ def extract_links(url):
     return links
 
 
+def naive_text_extract(bs_obj):
+    body_str = ""
+    ps = bs_obj.findAll(['h1','h2','h3','h4','p','span'])
+    for p in ps:
+        text = re.sub(r'{{[^}]*}}','',p.text.strip())
+        text = text.strip().replace('\n',' ')
+        if text not in ['',':']:
+            body_str+=text+' '
+    return body_str
+
+
 def extract_html(url):
     '''From history info, extract url, title and body of page,
     cleaned with BeautifulSoup'''
@@ -94,14 +121,17 @@ def extract_html(url):
             title = ' '.join(title.split()[:snippet_length])
             
             # Get body string
-            if og_description:
-                body_str = ' '.join(og_description['content'].split()[:100])
-            ps = bs_obj.findAll(['h1','h2','h3','h4','p','span'])
-            for p in ps:
-                text = re.sub(r'{{[^}]*}}','',p.text.strip())
-                text = text.strip().replace('\n',' ')
-                if text not in ['',':']:
-                    body_str+=text+' '
+            tmp_body_str = naive_text_extract(bs_obj)
+            try:
+                language = detect(title + " " + tmp_body_str)
+            except:
+                language = app.config['LANGS'][0]
+            try:
+                body_str = remove_boilerplates(req, language)
+            except:
+                if og_description:
+                    body_str = ' '.join(og_description['content'].split()[:100])+' '
+                body_str+=tmp_body_str
             body_str = remove_emails(body_str)
             logging.debug(body_str[:500])
             try:
@@ -114,8 +144,6 @@ def extract_html(url):
             if language not in app.config['LANGS']:
                 logging.error(f"\t>> ERROR: extract_html: language {language} is not supported. Moving to default language.")
                 language = app.config['LANGS'][0]
-                #title = ""
-                #return title, body_str, language, snippet, cc, error
             # Process snippet
             if og_description:
                 snippet = og_description['content'][:1000]
