@@ -127,7 +127,12 @@ def extract_html(url):
             except:
                 language = app.config['LANGS'][0]
             try:
-                body_str = remove_boilerplates(req, language)
+                if language in app.config['LANGS']:
+                    body_str = remove_boilerplates(req, language)
+                else:
+                    if og_description:
+                        body_str = ' '.join(og_description['content'].split()[:100])+' '
+                    body_str+=tmp_body_str
             except:
                 if og_description:
                     body_str = ' '.join(og_description['content'].split()[:100])+' '
