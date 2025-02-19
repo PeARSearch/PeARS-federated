@@ -137,6 +137,9 @@ if getenv("SUGGESTIONS_DIR", "") != "":
 # Mail
 mail = Mail(app)
 
+# Mastodon bot (optional)
+app.config["MASTODON_API_TOKEN"] = getenv("MASTODON_API_TOKEN")
+app.config["MASTODON_USERNAME"] = getenv("MASTODON_USERNAME")
 
 ########################
 # Jinja global variables
