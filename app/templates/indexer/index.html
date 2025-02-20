@@ -72,6 +72,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 	<form method="POST" action="{{url_for('indexer.index_from_manual')}}" enctype="multipart/form-data">
         {{ form2.hidden_tag() }}
         <p>{{ render_field(form2.title) }}</p>
+        <p>{{ render_field(form2.related_url) }}</p>
         <p>{{ render_field(form2.description) }}</p>
 	<div class="form-check">
 	  {{ form2.accept_tos(class_="form-check-input") }}
