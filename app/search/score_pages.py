@@ -163,6 +163,7 @@ def output(best_urls):
         url = u.url
         if url.startswith('pearslocal'):
             url = url_for('api.return_specific_url')+'?url='+url
+            u.url = url
         results[url] = u.as_dict()
     return results
 
