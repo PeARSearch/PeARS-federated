@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import BooleanField, StringField, TextAreaField, PasswordField, HiddenField, URLField
-from wtforms.validators import Length, DataRequired, InputRequired, EqualTo, Email, URL
+from wtforms.validators import Length, Optional, DataRequired, InputRequired, EqualTo, Email, URL
 from flask_babel import lazy_gettext
 
 class SearchForm(FlaskForm):
@@ -47,6 +47,7 @@ class SuggestionForm(FlaskForm):
 
 class ManualEntryForm(FlaskForm):
     title = StringField(lazy_gettext('A title for your entry'), [DataRequired(), Length(min=8, max=100, message=lazy_gettext("The title of your entry should have between 4 and 100 characters."))])
+    related_url = URLField(lazy_gettext('An optional URL*'), [Optional(), URL()], render_kw={"placeholder": lazy_gettext("If you enter a URL in this field, your entry will automatically link to it.")})
     description = TextAreaField(lazy_gettext('Description'), [DataRequired(), Length(max=1000)],  render_kw={"placeholder": lazy_gettext("Anything extra you would like people to know about this resource. (Max 1000 characters.)")})
     accept_tos = BooleanField(lazy_gettext('I confirm that my entry does not contravene the Terms of Service'), [DataRequired()])
 
