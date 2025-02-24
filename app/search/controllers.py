@@ -80,7 +80,8 @@ def prepare_gui_results(query, results):
             r['notes'] = r['notes'].split('<br>')
         sitename = app.config['SITENAME']
         # results from our own instance
-        if sitename in r['share']:
+        our_host_url = request.host_url
+        if r['share'].startswith(our_host_url):
             r['instance'] = sitename
             r['instance_is_local'] = True
             r['instance_info_text'] = gettext("This result originates from the local PeARS instance.")
