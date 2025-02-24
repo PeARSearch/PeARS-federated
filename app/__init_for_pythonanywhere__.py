@@ -248,6 +248,7 @@ if not app.config['LIVE_MATRIX']:
 #######################
 
 from app.search.cross_instance_search import filter_instances_by_language
+from flask import url_for
 
 instances, M  = filter_instances_by_language()
 
