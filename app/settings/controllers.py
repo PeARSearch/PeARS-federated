@@ -26,6 +26,19 @@ dir_path = dirname(dirname(realpath(__file__)))
 pod_dir = getenv("PODS_DIR", join(dir_path,'pods'))
 
 
+# Abusing this controller to set maintenance mode
+@settings.route("/maintenance")
+@check_permissions(login=True, confirmed=True, admin=True)
+def toggle_maintenance_mode():
+    print("Current status of maintenance:", app.config['MAINTENANCE'])
+    if not app.config['MAINTENANCE']:
+        print("Switching on maintenance")
+        app.config['MAINTENANCE'] = True
+    else:
+        print("Switching off maintenance")
+        app.config['MAINTENANCE'] = False
+    return redirect(url_for("search.index"))
+
 
 # Set the route and accepted methods
 @settings.route("/")

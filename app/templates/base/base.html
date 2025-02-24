@@ -90,6 +90,9 @@ SPDX-License-Identifier: AGPL-3.0-only
 				{% endif %}
 			</a>
 		</li>
+		{% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
+                <li class="nav-item"><a class="nav-link" href="{{url_for('settings.toggle_maintenance_mode')}}" data-toggle="tooltip" title="{{gettext('Toggle maintenance mode.')}}" onclick="return confirm('Are you sure you want to toggle maintenance mode?')"><ion-icon name="hammer-outline"></ion-icon></a></li>          
+		{% endif %}
                 <hr class="d-lg-none text-white-50">
 		{% if not current_user.is_authenticated %}
                 <li class="nav-item"><a class="nav-link active" href="{{url_for('auth.login')}}">{{gettext('Login')}}</a></li>
