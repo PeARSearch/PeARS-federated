@@ -251,6 +251,15 @@ from app.search.cross_instance_search import filter_instances_by_language
 
 instances, M  = filter_instances_by_language()
 
+_sitename_check_completed = False
+@app.before_request
+def check_sitename_and_hostname():
+    global _sitename_check_completed
+    if not _sitename_check_completed: # only do this once
+        host_url = url_for("search.index", _external=True)
+        if host_url.rstrip("/") != app.config["SITENAME"]:
+            logging.error("`host_url` and `SITENAME` do not match -- this can cause errors, correct this unless you know what you are doing!")
+        _sitename_check_completed = True
 
 #######
 # Admin
