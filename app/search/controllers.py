@@ -79,9 +79,12 @@ def prepare_gui_results(query, results):
         else:
             r['notes'] = r['notes'].split('<br>')
         sitename = app.config['SITENAME']
+        
         # results from our own instance
         share_url = r['share']
-        if not share_url.startswith("https://"):
+        if share_url.startswith("http://"):
+            share_url = share_url.replace("http://", "https://", 1)
+        elif not share_url.startswith("https://"):
             share_url = "https://" + share_url
         print(f"share_url={share_url}, sitename={sitename}")
         if share_url.startswith(sitename):
@@ -90,7 +93,7 @@ def prepare_gui_results(query, results):
             r['instance_info_text'] = gettext("This result originates from the local PeARS instance.")
         # cross-instance results
         else:
-            assert "x_instance_info" in r, f"Instance meta-info is missing in result:\n{r}"
+            assert "x_instance_info" in r, f"Instance meta-info is missing in result:\n{r}\nThis might indicate a problem with your sitename."
             r['instance'] = r["x_instance_info"]["sitename"]
             r['instance_is_local'] = False
             instance_organization_text = r["x_instance_info"]["organization"] or "an unknown organization"
