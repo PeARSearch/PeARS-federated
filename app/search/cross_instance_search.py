@@ -35,6 +35,9 @@ def filter_instances_by_language():
         except Exception:
             print(f"\t>> ERROR: filter_instances_by_language: request failed trying to access {url}...")
             continue
+        if resp.status_code != 200:
+            print(f"\t>> ERROR: filter_instances_by_language: got non-200 status code when trying to access {url}...")    
+            continue        
         languages = resp.json()['json_list']
         if this_instance_language not in languages:
             continue
@@ -110,9 +113,14 @@ def get_cross_instance_results(query, instances):
         url = join(i["url"], 'api', 'search?q='+query)
         try:
             resp = requests.get(url, timeout=30, headers=headers)
-            r = resp.json()['json_list'][1]
         except ConnectionError:
             print(f"Can't connect to {url}")
+            r = {}
+
+        if resp.status_code == 200:
+            r = resp.json()['json_list'][1]
+        else:
+            print(f"Got non-200 status code from {url}")
             r = {}
 
         for url, d in r.items():
