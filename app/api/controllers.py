@@ -15,7 +15,7 @@ from app.auth.decorators import check_permissions, check_is_confirmed
 from app import app, db, models
 from app.indexer.posix import load_posix, dump_posix
 from app.indexer.vectorizer import scale
-from app.search.controllers import get_search_results, prepare_gui_results
+from app.search.controllers import get_local_search_results, prepare_gui_results
 from app.search.score_pages import mk_podsum_matrix
 from app.utils_db import delete_pod_representations, create_suggestion_in_db
 
@@ -54,7 +54,7 @@ def return_query_results():
     """Returns the results for a query in a json format.
     For use by other PeARS instances."""
     query = request.args.get('q')
-    _, results = get_search_results(query)
+    _, results = get_local_search_results(query)
     return jsonify(json_list=results)
 
 @api.route('/urls/')

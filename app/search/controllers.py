@@ -103,6 +103,36 @@ def prepare_gui_results(query, results):
     return displayresults
 
 
+def get_local_search_results(query):
+    clean_query = ""
+    results = {}
+    scores = []
+    query, _, lang = parse_query(query.lower())
+    if lang is None:
+        languages = app.config['LANGS']
+    else:
+        languages = [lang]
+    for lang in languages:
+        clean_query = ' '.join([w for w in query.split() if w not in models[lang]['stopwords']])
+        print("\n\n>>>>>>>>>>>>>>>>>>>>>>")
+        print(">> SEARCH:CONTROLLERS:get_local_search_results: searching in",lang)
+        print(">>>>>>>>>>>>>>>>>>>>>>")
+
+        print("\n Getting results on this instance")
+        r, s = score_pages.run_search(clean_query, lang, extended=app.config['EXTEND_QUERY'])
+        for res in r.values():
+            res["instance"] = app.config["SITENAME"]  # to distinguish local results from remote ones later on
+        results.update(r)
+        scores.extend(s)
+    sorted_scores = np.argsort(scores)[::-1]
+    sorted_results = {}
+    for i in sorted_scores:
+        url = list(results.keys())[i]
+        sorted_results[url] = results[url]
+    logging.debug(f"SORTED LOCAL RESULTS: {sorted_results}")
+    return clean_query, sorted_results
+
+
 def get_search_results(query):
     from app import instances
     clean_query = ""
