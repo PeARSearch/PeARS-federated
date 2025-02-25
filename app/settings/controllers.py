@@ -6,7 +6,7 @@
 # Import flask dependencies
 import logging
 from glob import glob
-from os import rename, getenv, environ
+from os import rename, getenv
 from os.path import dirname, realpath, join, isdir, exists
 from flask import Blueprint, flash, request, render_template, redirect, url_for, session
 from flask_login import current_user, logout_user
