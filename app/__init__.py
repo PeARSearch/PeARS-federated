@@ -145,8 +145,9 @@ def check_under_maintenance():
     if reroute_for_maintenance(request.path):
         abort(503)
 
+from app.settings.controllers import get_maintance_mode
 def reroute_for_maintenance(path):
-    if not app.config["MAINTENANCE"]:
+    if not get_maintance_mode():
         return False
     if path in [url_for('settings.toggle_maintenance_mode'), url_for('auth.login'), url_for('auth.logout')]:
         return False

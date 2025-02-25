@@ -5,7 +5,6 @@ def run_config(app):
     app.config.from_object('config')
 
     load_dotenv()
-    app.config['MAINTENANCE'] = False
     app.config['MAIL_DEFAULT_SENDER'] = getenv("MAIL_DEFAULT_SENDER")
     app.config['MAIL_SERVER'] = getenv("MAIL_SERVER")
     app.config['MAIL_PORT'] = getenv("MAIL_PORT")
