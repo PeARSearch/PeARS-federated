@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 PeARS Project, <community@pearsproject.org> 
+# SPDX-FileCopyrightText: 2025 PeARS Project, <community@pearsproject.org>
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
@@ -9,7 +9,7 @@ from os.path import join, dirname, realpath
 import logging
 
 # Import flask and template operators
-from flask import Flask, flash, send_file, send_from_directory, request, abort
+from flask import Flask, flash, send_file, send_from_directory, request, abort, render_template, url_for
 from flask_migrate import Migrate
 from flask_admin import Admin, AdminIndexView
 from flask_mail import Mail
@@ -27,6 +27,9 @@ DEFAULT_PATH = f'/home/{USERNAME}/PeARS-federated/app/'
 ####################################
 
 app = Flask(__name__, static_folder='static')
+
+from app.init_logging import run_logging
+mail_logger = run_logging()
 
 ################
 # Configurations
@@ -71,7 +74,7 @@ for LANG in app.config['LANGS']:
         models[LANG]['stopwords'] = read_stopwords(LANGUAGE_CODES[LANG].lower())
     else:
         models[LANG]['stopwords'] = []
-  
+
 # All vocabs have the same vector size
 VEC_SIZE = len(models[first_lang]['vocab'])
 
