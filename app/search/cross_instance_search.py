@@ -114,17 +114,18 @@ def get_cross_instance_results(query, instances):
     headers = {'User-Agent': app.config['USER-AGENT']}
     for i in best_instances:
         url = join(i["url"], 'api', 'search?q='+query)
+        req_success = False
         try:
             t_before = time()
             resp = requests.get(url, timeout=30, headers=headers)
+            req_success = True
             t_after = time()
             t_delta = t_after - t_before
             print(f"Request to remote instance (url={url}) took {t_delta:.3f}s")
         except Exception as e:
             print(f"Error when connecting to {url}, error message: {e}")
-            r = {}
 
-        if resp.status_code == 200:
+        if req_success and resp.status_code == 200:
             json_result = resp.json()['json_list']
             # legacy code for older instances
             if type(json_result) is list:
