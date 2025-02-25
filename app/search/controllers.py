@@ -81,14 +81,8 @@ def prepare_gui_results(query, results):
         sitename = app.config['SITENAME']
         
         # results from our own instance
-        share_url = r['share']
-        if share_url.startswith("http://"):
-            share_url = share_url.replace("http://", "https://", 1)
-        elif not share_url.startswith("https://"):
-            share_url = "https://" + share_url
-        print(f"share_url={share_url}, sitename={sitename}")
-        if share_url.startswith(sitename):
-            r['instance'] = urlparse(sitename).hostname
+        if r['instance'] == sitename:
+            r['instance'] = urlparse(sitename).hostname # make the name nicer to read
             r['instance_is_local'] = True
             r['instance_info_text'] = gettext("This result originates from the local PeARS instance.")
         # cross-instance results
@@ -128,6 +122,8 @@ def get_search_results(query):
         try:
             print("\n Getting results on this instance")
             r, s = score_pages.run_search(clean_query, lang, extended=app.config['EXTEND_QUERY'])
+            for res in r.values():
+                res["instance"] = app.config["SITENAME"]  # to distinguish local results from remote ones later on
             results.update(r)
             scores.extend(s)
         except Exception as e:
