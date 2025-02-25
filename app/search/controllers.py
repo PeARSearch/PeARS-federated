@@ -81,7 +81,7 @@ def prepare_gui_results(query, results):
         sitename = app.config['SITENAME']
         
         # results from our own instance
-        if r['instance'] == sitename:
+        if 'instance' in r and r['instance'] == sitename:
             r['instance'] = urlparse(sitename).hostname # make the name nicer to read
             r['instance_is_local'] = True
             r['instance_info_text'] = gettext("This result originates from the local PeARS instance.")
