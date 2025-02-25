@@ -6,6 +6,7 @@ from os import getenv, path
 from glob import glob
 from pathlib import Path
 from os.path import join, dirname, realpath
+import logging
 
 # Import flask and template operators
 from flask import Flask, flash, send_file, send_from_directory, request, abort
