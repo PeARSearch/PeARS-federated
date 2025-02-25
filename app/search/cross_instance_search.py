@@ -1,3 +1,4 @@
+from time import time
 from urllib.parse import urlparse
 import numpy as np
 import requests
@@ -114,7 +115,11 @@ def get_cross_instance_results(query, instances):
     for i in best_instances:
         url = join(i["url"], 'api', 'search?q='+query)
         try:
+            t_before = time()
             resp = requests.get(url, timeout=30, headers=headers)
+            t_after = time()
+            t_delta = t_after - t_before
+            print(f"Request to remote instance (url={url}) took {t_delta:.3f}s")
         except ConnectionError:
             print(f"Can't connect to {url}")
             r = {}
