@@ -51,6 +51,10 @@ def filter_instances_by_language():
         except Exception:
             print(f"\t>> ERROR: filter_instances_by_language: request failed trying to access {url}...")
             continue
+        if resp.status_code != 200:
+            print(f"\t>> ERROR: filter_instances_by_language: got an error code trying to access {url}...")
+            continue
+
         signature = np.array(resp.json())
         
         # retrieve instance metadata
