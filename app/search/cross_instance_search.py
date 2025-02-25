@@ -39,8 +39,8 @@ def filter_instances_by_language():
         url = join(i, 'api', 'languages')
         try:
             resp = requests.get(url, timeout=30, headers=headers)
-        except Exception:
-            print(f"\t>> ERROR: filter_instances_by_language: request failed trying to access {url}...")
+        except Exception as e:
+            print(f"\t>> ERROR: filter_instances_by_language: request failed trying to access {url}; error message {e}")
             continue
         if resp.status_code != 200:
             print(f"\t>> ERROR: filter_instances_by_language: got non-200 status code when trying to access {url}...")    
@@ -55,8 +55,8 @@ def filter_instances_by_language():
         url = join(i, 'api', 'signature', this_instance_language)
         try:
             resp = requests.get(url, timeout=30, headers=headers)
-        except Exception:
-            print(f"\t>> ERROR: filter_instances_by_language: request failed trying to access {url}...")
+        except Exception as e:
+            print(f"\t>> ERROR: filter_instances_by_language: request failed trying to access {url}; error message: {e}")
             continue
         if resp.status_code != 200:
             print(f"\t>> ERROR: filter_instances_by_language: got an error code trying to access {url}...")
@@ -69,8 +69,8 @@ def filter_instances_by_language():
         try:
             identity_info = requests.get(identity_info_url, timeout=30, headers=headers).json()
             identity_info["url"] = i
-        except Exception:
-            print(f"\t>> ERROR: filter_instances_by_language: request failed trying to access {identity_info_url}...")
+        except Exception as e:
+            print(f"\t>> ERROR: filter_instances_by_language: request failed trying to access {identity_info_url}, error message: {e}")
             identity_info = {
                 "url": i,
                 "sitename": urlparse(i).hostname,
@@ -114,18 +114,25 @@ def get_cross_instance_results(query, instances):
     headers = {'User-Agent': app.config['USER-AGENT']}
     for i in best_instances:
         url = join(i["url"], 'api', 'search?q='+query)
+        req_success = False
         try:
             t_before = time()
             resp = requests.get(url, timeout=30, headers=headers)
+            req_success = True
             t_after = time()
             t_delta = t_after - t_before
             print(f"Request to remote instance (url={url}) took {t_delta:.3f}s")
-        except ConnectionError:
-            print(f"Can't connect to {url}")
-            r = {}
+        except Exception as e:
+            print(f"Error when connecting to {url}, error message: {e}")
 
-        if resp.status_code == 200:
-            r = resp.json()['json_list'][1]
+        if req_success and resp.status_code == 200:
+            json_result = resp.json()['json_list']
+            # legacy code for older instances
+            if type(json_result) is list:
+                r = json_result[1]
+            # up-to-date instances
+            else:
+                r = json_result
         else:
             print(f"Got non-200 status code from {url}")
             r = {}
