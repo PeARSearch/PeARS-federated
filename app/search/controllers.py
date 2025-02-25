@@ -136,8 +136,8 @@ def get_search_results(query):
                 if url not in results:
                     results[url] = dic
                     scores.append(dic['score'])
-        except:
-            pass
+        except Exception as e:
+            print(f"Unknown error during remote search: {e}")
     sorted_scores = np.argsort(scores)[::-1]
     sorted_results = {}
     for i in sorted_scores:
