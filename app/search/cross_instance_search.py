@@ -69,6 +69,8 @@ def filter_instances_by_language():
         try:
             identity_info = requests.get(identity_info_url, timeout=30, headers=headers).json()
             identity_info["url"] = i
+            if identity_info["sitename"].startswith("http"):
+                identity_info["sitename"] = urlparse(identity_info["sitename"]).hostname
         except Exception as e:
             print(f"\t>> ERROR: filter_instances_by_language: request failed trying to access {identity_info_url}, error message: {e}")
             identity_info = {
