@@ -85,7 +85,7 @@ def prepare_gui_results(query, results):
             share_url = "https://" + share_url
         print(f"share_url={share_url}, sitename={sitename}")
         if share_url.startswith(sitename):
-            r['instance'] = sitename
+            r['instance'] = urlparse(sitename).hostname
             r['instance_is_local'] = True
             r['instance_info_text'] = gettext("This result originates from the local PeARS instance.")
         # cross-instance results
