@@ -28,6 +28,12 @@ def filter_instances_by_language():
     filtered_matrix = []
     headers = {'User-Agent': app.config['USER-AGENT']}
     for i in instances:
+
+        # make sure that we're not trying to index with ourselves
+        if i.rstrip("/") == app.config["SITENAME"].rstrip("/"):
+            print(f"WARNING: It seems like you're trying to federate with yourself. Consider removing the name of your local site from .known_hosts.txt if it's on it. For now, I'm skipping this instance ({i}).")
+            continue
+
         resp = None
         url = join(i, 'api', 'languages')
         try:
@@ -70,14 +76,6 @@ def filter_instances_by_language():
                 "site_topic": None,
                 "organization": None
             }
-
-        # make sure that we're not trying to index with ourselves
-        # N.B.: in a typical setup, this check does nothing because this
-        # script is meant to be run at startup time and if the server isn't already running, we won't be able to reach /api/signature anyway. 
-        # Therefore, always manually check that the current instance isn't listed in .known_instances.txt. 
-        # The scenario that this failsafe is meant for is for more sophisticated server setups (e.g. with hot reloading)
-        if identity_info["sitename"] == app.config["SITENAME"]:
-            raise RuntimeError("Federating with yourself is not possible.Remove the current instance from .known_instances.txt and re-run the application.")
 
         filtered_instances.append(identity_info)
         filtered_matrix.append(signature)
