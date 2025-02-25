@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2024 PeARS Project, <community@pearsproject.org>, 
+# SPDX-FileCopyrightText: 2024 PeARS Project, <community@pearsproject.org>,
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
@@ -34,21 +34,21 @@ def index():
     results = []
     internal_message = ""
     searchform = SearchForm()
-    
+
     if searchform.validate_on_submit():
         query = request.form.get('query').strip()
         messages = db.session.query(Personalization).filter_by(feature='tip').all()
         if messages:
             shuffle(messages)
             internal_message = messages[0].text
-        
-       
+
+
         clean_query, results = get_search_results(query)
         displayresults = prepare_gui_results(clean_query, results)
         return render_template('search/results.html', query=query, results=displayresults, \
                 internal_message=internal_message, searchform=searchform)
 
-    
+
     placeholder = app.config['SEARCH_PLACEHOLDER']
     searchform.query(render_kw={"placeholder": placeholder})
     if current_user.is_authenticated and not current_user.is_confirmed:
@@ -63,7 +63,7 @@ def index():
 
     return render_template("search/index.html", internal_message=internal_message, \
             placeholder=placeholder, searchform=searchform)
-    
+
 
 
 def prepare_gui_results(query, results):
@@ -80,14 +80,17 @@ def prepare_gui_results(query, results):
             r['notes'] = r['notes'].split('<br>')
         sitename = app.config['SITENAME']
         # results from our own instance
-        our_host_url = request.host_url
-        if r['share'].startswith(sitename):
+        share_url = r['share']
+        if not share_url.startswith("https://"):
+            share_url = "https://" + share_url
+        print(f"share_url={share_url}, sitename={sitename}")
+        if share_url.startswith(sitename):
             r['instance'] = sitename
             r['instance_is_local'] = True
             r['instance_info_text'] = gettext("This result originates from the local PeARS instance.")
         # cross-instance results
         else:
-            assert "x_instance_info" in r, "Instance meta-info is missing"
+            assert "x_instance_info" in r, f"Instance meta-info is missing in result:\n{r}"
             r['instance'] = r["x_instance_info"]["sitename"]
             r['instance_is_local'] = False
             instance_organization_text = r["x_instance_info"]["organization"] or "an unknown organization"
@@ -124,9 +127,9 @@ def get_search_results(query):
             r, s = score_pages.run_search(clean_query, lang, extended=app.config['EXTEND_QUERY'])
             results.update(r)
             scores.extend(s)
-        except:
-            pass
-        
+        except Exception as e:
+            print(f"Error during local search: {e}")
+
         try:
             print("\n Getting results cross-instances")
             r = get_cross_instance_results(clean_query, instances)
