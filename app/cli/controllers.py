@@ -108,6 +108,17 @@ def install_language(lang):
             print("Request failed when trying to access", path, "...")
 
 
+
+###########################
+# DIAGNOSES
+###########################
+
+@pears.cli.command('diagnose')
+def diagnose():
+    from app.cli.diagnose import check_sitename
+    check_sitename()
+
+
 ###########################
 # BACKUP STUFF
 ###########################
@@ -276,7 +287,7 @@ def index_wiki(folder, regex, lang, contributor, host_url):
 
 
 ######################
-# CLEAN UP CODE
+# CLEAN THINGS UP
 ######################
 
 @pears.cli.command('deletedbonly')

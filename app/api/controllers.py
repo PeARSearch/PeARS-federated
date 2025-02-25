@@ -31,6 +31,14 @@ def return_instance_languages():
     For use by other PeARS instances."""
     return jsonify(json_list=app.config['LANGS'])
 
+@api.route('/identity', methods=["GET", "POST"])
+def return_identity_info():
+    return jsonify({
+        "sitename": app.config["SITENAME"],
+        "site_topic": app.config["SITE_TOPIC"],
+        "organization": app.config["ORG_NAME"] 
+    })
+
 @api.route('/signature/<lang>/', methods=["GET", "POST"])
 def return_instance_signature(lang):
     """Returns the signature of this instance for a language.
@@ -46,7 +54,7 @@ def return_query_results():
     """Returns the results for a query in a json format.
     For use by other PeARS instances."""
     query = request.args.get('q')
-    results = get_search_results(query)
+    _, results = get_search_results(query)
     return jsonify(json_list=results)
 
 @api.route('/urls/')
