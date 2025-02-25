@@ -67,6 +67,7 @@ def return_specific_url():
     internal_message = ""
     u = request.args.get('url')
     url = db.session.query(Urls).filter_by(url=u).first().as_dict()
+    url["instance"] = app.config["SITENAME"]
     if u.startswith('pearslocal'):
         u = url_for('api.return_specific_url')+'?url='+u
         url['url'] = u
