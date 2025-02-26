@@ -11,3 +11,4 @@ app.db
 .env
 .captchas/
 .mastodon/
+.maintenance_mode

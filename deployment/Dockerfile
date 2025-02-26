@@ -18,6 +18,7 @@ ENV LOGO_PATH="/var/lib/pears/data"
 ENV PODS_DIR="/var/lib/pears/data/pods"
 ENV SUGGESTIONS_DIR="/var/lib/pears/data/userdata"
 ENV CAPTCHA_DIR="/var/lib/pears/data/.captchas"
+ENV MAINTENANCE_MODE_FILE="/var/lib/pears/data/.maintenance_mode"
 
 RUN mkdir -p /var/lib/pears/data/pod /var/lib/pears/data/userdata /var/lib/pears/data/.captchas
 

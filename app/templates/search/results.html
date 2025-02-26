@@ -54,27 +54,35 @@ SPDX-License-Identifier: AGPL-3.0-only
           <div class="card mt-2">
             <div class="card-body" style="padding: 20px 0px 20px 0px">
               <div class="d-flex justify-content-between"><!-- card header: links -->
-	        <div><ion-icon name="globe"></ion-icon> <a href="{{result[1]}}" style="text-decoration: none; font-size: large"><b>{{result[2]}}</b></a></div>
+	        <div><ion-icon name="globe"></ion-icon> <a href="{{result['url']}}" style="text-decoration: none; font-size: large"><b>{{result['title']}}</b></a> 
+          {% if result['instance_is_local']%}
+          <span class="badge rounded-pill text-bg-info" title="{{result['instance_info_text']}}">{{result['instance']}}</span>
+          {% else %}
+          <span class="badge rounded-pill text-bg-warning" title="{{result['instance_info_text']}}">{{result['instance']}}</span>
+          {% endif %}
+          </div>
 	        <div>
-	          <a class="btn btn-link" href="{{url_for('orchard.annotate')}}?url={{result[1]}}" data-toggle="tooltip" title="{{gettext('Add a note to this entry')}}"><ion-icon name="chatbubble-outline"></ion-icon></a>  
-	          <a class="btn btn-link" href="{{url_for('orchard.report')}}?url={{result[1]}}"  data-toggle="tooltip" title="{{gettext('Report this entry')}}"><ion-icon name="flag-outline"></ion-icon></a> 
-	          <button class="btn btn-link" data-toggle="tooltip" title="{{gettext('Share this entry')}}" onClick="copyToClipboard('{{result[9]}}', 'copy{{result[0]}}')" id="copy{{result[0]}}"><ion-icon name="share-outline"></ion-icon></button> 
+            {% if result['instance_is_local']%}
+	          <a class="btn btn-link" href="{{url_for('orchard.annotate')}}?url={{result['url']}}" data-toggle="tooltip" title="{{gettext('Add a note to this entry')}}"><ion-icon name="chatbubble-outline"></ion-icon></a>  
+	          <a class="btn btn-link" href="{{url_for('orchard.report')}}?url={{result['url']}}"  data-toggle="tooltip" title="{{gettext('Report this entry')}}"><ion-icon name="flag-outline"></ion-icon></a>
+            {% endif %} 
+	          <button class="btn btn-link" data-toggle="tooltip" title="{{gettext('Share this entry')}}" onClick="copyToClipboard('{{result['share']}}', 'copy{{result['id']}}')" id="copy{{result['id']}}"><ion-icon name="share-outline"></ion-icon></button> 
                 </div>
 	      </div><!-- card heard: links -->
 
-	      <p class="card-text small"><a href="{{result[1]}}" class="card-link">{{result[1]}}</a></p><!-- explicit link-->
+	      <p class="card-text small"><a href="{{result['url']}}" class="card-link">{{result['url']}}</a></p><!-- explicit link-->
 	      <p class="card-text small" style="margin-top:-10px">
-              <br>{{result[3]|safe}}<!--snippet-->
-              {% if result[7] != None %}
-	        <button class="btn btn-link collapsed" data-bs-toggle="collapse" data-bs-target="#collapse{{result[0]}}" aria-expanded="false" aria-controls="collapse{{result[0]}}">
+              <br>{{result['snippet']|safe}}<!--snippet-->
+              {% if result['notes'] != None %}
+	        <button class="btn btn-link collapsed" data-bs-toggle="collapse" data-bs-target="#collapse{{result['id']}}" aria-expanded="false" aria-controls="collapse{{result['id']}}">
 	          <img src="{{ url_for('static', filename='note.png')}}" width='30px' />
                 </button>
               {% endif %}
               </p>
-              {% if result[7] != None %}<!-- note -->
-              <div class="collapse" id="collapse{{result[0]}}">
+              {% if result['notes'] != None %}<!-- note -->
+              <div class="collapse" id="collapse{{result['id']}}">
                 <p class="card-text small">
-	          {% for note in result[7] %}
+	          {% for note in result['notes'] %}
 	            {{note}}<br>
 	          {% endfor %}
 	        </p>

@@ -23,8 +23,39 @@ from app.auth.token import send_email
 settings = Blueprint('settings', __name__, url_prefix='/settings')
 
 dir_path = dirname(dirname(realpath(__file__)))
+app_dir_path = dirname(dir_path)
+maintenance_mode_file = getenv("MAINTENANCE_MODE_FILE", join(app_dir_path, '.maintenance_mode')) 
 pod_dir = getenv("PODS_DIR", join(dir_path,'pods'))
 
+
+def get_maintance_mode():
+    if not exists(maintenance_mode_file):
+        return False
+    with open(maintenance_mode_file) as f:
+        maintenance_setting = f.read().strip()
+        assert maintenance_setting in ["TRUE", "FALSE"], "Maintenance setting file got corrupted, please change the file content manually back to 'TRUE' or 'FALSE'!"
+        return maintenance_setting == "TRUE"
+
+def set_maintenance_mode(mode):
+    with open(maintenance_mode_file, "w") as f:
+        if mode:
+            f.write("TRUE")
+        else:
+            f.write("FALSE")
+
+# Abusing this controller to set maintenance mode
+@settings.route("/maintenance")
+@check_permissions(login=True, confirmed=True, admin=True)
+def toggle_maintenance_mode():
+    maintenance_mode = get_maintance_mode()
+    print("Current status of maintenance:", maintenance_mode)
+    if not maintenance_mode:
+        print("Switching on maintenance")
+        set_maintenance_mode(True)
+    else:
+        print("Switching off maintenance")
+        set_maintenance_mode(False)
+    return redirect(url_for("search.index"))
 
 
 # Set the route and accepted methods

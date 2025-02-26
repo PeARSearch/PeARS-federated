@@ -108,6 +108,17 @@ def install_language(lang):
             print("Request failed when trying to access", path, "...")
 
 
+
+###########################
+# DIAGNOSES
+###########################
+
+@pears.cli.command('diagnose')
+def diagnose():
+    from app.cli.diagnose import check_sitename
+    check_sitename()
+
+
 ###########################
 # BACKUP STUFF
 ###########################
@@ -168,6 +179,10 @@ def index(host_url, filepath):
     with one url per line.
     Use from CLI with flask pears index <your site's domain> <path>
     '''
+    # make sure the host_url starts with https:// so that it can be parsed correctly by urllib.parse.urlparse 
+    if not host_url.startswith("https://"):
+        host_url = "https://" + host_url
+
     users = User.query.all()
     for user in users:
         Path(join(pod_dir,user.username)).mkdir(parents=True, exist_ok=True)
@@ -272,7 +287,7 @@ def index_wiki(folder, regex, lang, contributor, host_url):
 
 
 ######################
-# CLEAN UP CODE
+# CLEAN THINGS UP
 ######################
 
 @pears.cli.command('deletedbonly')
