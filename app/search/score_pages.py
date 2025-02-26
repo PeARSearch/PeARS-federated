@@ -164,6 +164,7 @@ def output(best_urls, scores):
         url = u.url
         if url.startswith('pearslocal'):
             url = url_for('api.return_specific_url')+'?url='+url
+            u.url = url
         results[url] = u.as_dict()
         results[url]['score'] = scores[i]
         if not url.startswith('pearslocal'):
