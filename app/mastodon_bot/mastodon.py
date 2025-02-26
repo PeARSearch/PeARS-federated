@@ -24,10 +24,11 @@ mastodon = Mastodon(
 class PeARSBotStreamListener(StreamListener):
     def on_notification(self, n):
         if n.type == "mention" and n.status:
-            link, info = process_mention(n.status, n.status.in_reply_to_id)
+            link, info = process_mention(n.status, n.status.in_reply_to_id, "@" + n.account.acct)
             if link:
                 print(f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] processed link {link}")
             print(f"\tinfo:{info}")
+
 
 def process_new_notifications():
 
@@ -45,7 +46,7 @@ def process_new_notifications():
         if os.path.isfile(f".mastodon/{n.id}.txt"):
             continue
 
-        processed_link, info = process_mention(n.status, n.status.in_reply_to_id)
+        processed_link, info = process_mention(n.status, n.status.in_reply_to_id, "@" + n.account.acct)
         if processed_link:
             with open(f".mastodon/{n.id}.txt", "w") as f:
                 f.write(f"[{n.created_at}] Notification from {n.account.acct}, status {n.status.uri}\n")
@@ -57,7 +58,7 @@ def process_new_notifications():
                 f.write(f"Info {info}")
 
 
-def process_mention(status, is_reply):
+def process_mention(status, is_reply, user_handle, visibility="direct"):
     if "pearsbot-silent" in status.content:
         return None, "found 'pearsbot-silent', did nothing"
 
@@ -77,23 +78,27 @@ def process_mention(status, is_reply):
                 if not links:
                     link = None
                 else:
-                    link = links[-1]["href"]
+                    links_not_hashtags_or_usernames = [l["href"] for l in links if not l.text.startswith("#") or l.text.startswith("@")]
+                    if links_not_hashtags_or_usernames:
+                        link = links_not_hashtags_or_usernames[-1]
+                    else:
+                        link = None
             except MastodonUnauthorizedError as e:
                 link = None
                 print(e.message)
 
         if link:
             create_suggestion_in_db(link, "mastodon-bot-suggestions", f"from {status.uri}", "mastodon-bot")
-            mastodon.status_post(f"Beep beep, thanks for your suggestion! I recorded the URL {link}. (Is this not what you intended? You can manually submit the correct URL instead - see link in bio.) The URL will be added to the index if the admins approve it, usually this happens within 48 hours.", in_reply_to_id=status.id)
+            mastodon.status_post(f"Beep beep, thanks for your suggestion, {user_handle}! I recorded the URL {link}. (Is this not what you intended? You can manually submit the correct URL instead - see link in bio.) The URL will be added to the index if the admins approve it, usually this happens within 48 hours.", in_reply_to_id=status.id, visibility=visibility)
         
         else:
-            mastodon.status_post("Sorry, I couldn't find a link either in this post or in the post that you're replying to. You can try again by mentioning me and including \"pearsbot-suggest https://your-link-to-index.com\" OR by mentioning me when replying to a message that has a link in it. Alternatively, submit your URL manually or contact the admins - see link in bio.", in_reply_to_id=status.id)
+            mastodon.status_post(f"Sorry {user_handle}, I couldn't find a link either in this post or in the post that you're replying to. You can try again by mentioning me and including \"pearsbot-suggest https://your-link-to-index.com\" OR by mentioning me when replying to a message that has a link in it. Alternatively, submit your URL manually or contact the admins - see link in bio.", in_reply_to_id=status.id, visibility=visibility)
         if link:
             return link, "found 'pearsbot-suggest', successfully processed link"
         else:
             return None, "found 'pearsbot-suggest', but couldn't find a link to process"
     
-    mastodon.status_post("Beep beep, this is a friendly PeARS-bot. If you were trying to send a suggestion, something went wrong. Please include \"pearsbot-suggest\" in your message (see instructions in bio), or include \"pearsbot-silent\" if your message is meant for the (human!) admins and don't want an automated reply.", in_reply_to_id=status.id)
+    mastodon.status_post(f"Hi {user_handle}, this is a friendly PeARS-bot. If you were trying to send a suggestion, something went wrong. Please include \"pearsbot-suggest\" in your message (see instructions in bio), or include \"pearsbot-silent\" if your message is meant for the (human!) admins and don't want an automated reply.", in_reply_to_id=status.id, visibility=visibility)
 
     return None, "no instructions found, sent default message"
 
@@ -120,10 +125,16 @@ def find_link_in_mention(mention_content, keyword="pearsbot-suggest"):
 
 
 def run_forever():
+    start_time = time.time()
+    # ideally, use the mastodon streaming API
     try:
         print(f"Listening for mentions of {app.config['MASTODON_USERNAME']} via the streaming API")
         mastodon.stream_user(PeARSBotStreamListener())
-    except MastodonNetworkError:
+    # if it's not available, there's an alternative method
+    except MastodonNetworkError as e:
+        # only do the alternative if streaming fails right away
+        if time.time() - start_time > 10:
+            raise e
         print("Streaming API seems to be unavailable (for your instance and/or at this moment)")
         print("Trying to listen for notifications manually...")
         while True:
