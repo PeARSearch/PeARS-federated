@@ -78,7 +78,7 @@ def process_mention(status, is_reply, user_handle, visibility="direct"):
                 if not links:
                     link = None
                 else:
-                    links_not_hashtags_or_usernames = [l["href"] for l in links if not l.text.startswith("#") or l.text.startswith("@")]
+                    links_not_hashtags_or_usernames = [l["href"] for l in links if not (l.text.startswith("#") or l.text.startswith("@"))]
                     if links_not_hashtags_or_usernames:
                         link = links_not_hashtags_or_usernames[-1]
                     else:
