@@ -27,12 +27,14 @@ def filter_instances_by_language():
     instances = get_known_instances()
     filtered_instances = []
     filtered_matrix = []
+    skipped_instances = []
     headers = {'User-Agent': app.config['USER-AGENT']}
     for i in instances:
 
         # make sure that we're not trying to index with ourselves
         if i.rstrip("/") == app.config["SITENAME"].rstrip("/"):
             print(f"WARNING: It seems like you're trying to federate with yourself. Consider removing the name of your local site from .known_hosts.txt if it's on it. For now, I'm skipping this instance ({i}).")
+            skipped_instances.append({"instance": i, "reason": "it seems like you're trying to federate with yourself"})
             continue
 
         resp = None
@@ -41,9 +43,11 @@ def filter_instances_by_language():
             resp = requests.get(url, timeout=30, headers=headers)
         except Exception as e:
             print(f"\t>> ERROR: filter_instances_by_language: request failed trying to access {url}; error message {e}")
+            skipped_instances.append({"instance": i, "reason": "connection error for /api/languages"})
             continue
         if resp.status_code != 200:
             print(f"\t>> ERROR: filter_instances_by_language: got non-200 status code when trying to access {url}...")    
+            skipped_instances.append({"instance": i, "reason": f"status code {resp.status_code} for /api/languages"})
             continue        
         languages = resp.json()['json_list']
         if this_instance_language not in languages:
@@ -57,9 +61,11 @@ def filter_instances_by_language():
             resp = requests.get(url, timeout=30, headers=headers)
         except Exception as e:
             print(f"\t>> ERROR: filter_instances_by_language: request failed trying to access {url}; error message: {e}")
+            skipped_instances.append({"instance": i, "reason": "connection error for /api/signature"})
             continue
         if resp.status_code != 200:
             print(f"\t>> ERROR: filter_instances_by_language: got an error code trying to access {url}...")
+            skipped_instances.append({"instance": i, "reason": f"status code {resp.status_code} for /api/signature"})
             continue
 
         signature = np.array(resp.json())
@@ -83,7 +89,7 @@ def filter_instances_by_language():
         filtered_instances.append(identity_info)
         filtered_matrix.append(signature)
     filtered_matrix = np.array(filtered_matrix)
-    return filtered_instances, filtered_matrix
+    return filtered_instances, filtered_matrix, skipped_instances
 
 
 def get_best_instances(query, lang, instances, m, top_k=3):
