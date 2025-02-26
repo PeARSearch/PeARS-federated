@@ -64,9 +64,9 @@ def toggle_maintenance_mode():
 def refresh_remote_instances():
     try:
         app_module.instances, app_module.M = filter_instances_by_language()
-        flash(gettext(f"An error occurred while refreshing the list of remote instances: {e}"), "error")
-    except Exception as e:
         flash(gettext("The list of remote instances was successfully refreshed."), "success")
+    except Exception as e:
+        flash(gettext(f"An error occurred while refreshing the list of remote instances: {e}"), "error")
     return redirect(url_for("search.index"))
 
 
