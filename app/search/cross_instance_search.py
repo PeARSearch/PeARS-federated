@@ -27,12 +27,14 @@ def filter_instances_by_language():
     instances = get_known_instances()
     filtered_instances = []
     filtered_matrix = []
+    skipped_instances = []
     headers = {'User-Agent': app.config['USER-AGENT']}
     for i in instances:
 
         # make sure that we're not trying to index with ourselves
         if i.rstrip("/") == app.config["SITENAME"].rstrip("/"):
             print(f"WARNING: It seems like you're trying to federate with yourself. Consider removing the name of your local site from .known_hosts.txt if it's on it. For now, I'm skipping this instance ({i}).")
+            skipped_instances.append({"instance": i, "reason": "it seems like you're trying to federate with yourself"})
             continue
 
         resp = None
@@ -41,9 +43,11 @@ def filter_instances_by_language():
             resp = requests.get(url, timeout=30, headers=headers)
         except Exception as e:
             print(f"\t>> ERROR: filter_instances_by_language: request failed trying to access {url}; error message {e}")
+            skipped_instances.append({"instance": i, "reason": "connection error for /api/languages"})
             continue
         if resp.status_code != 200:
             print(f"\t>> ERROR: filter_instances_by_language: got non-200 status code when trying to access {url}...")    
+            skipped_instances.append({"instance": i, "reason": f"status code {resp.status_code} for /api/languages"})
             continue        
         languages = resp.json()['json_list']
         if this_instance_language not in languages:
@@ -57,9 +61,11 @@ def filter_instances_by_language():
             resp = requests.get(url, timeout=30, headers=headers)
         except Exception as e:
             print(f"\t>> ERROR: filter_instances_by_language: request failed trying to access {url}; error message: {e}")
+            skipped_instances.append({"instance": i, "reason": "connection error for /api/signature"})
             continue
         if resp.status_code != 200:
             print(f"\t>> ERROR: filter_instances_by_language: got an error code trying to access {url}...")
+            skipped_instances.append({"instance": i, "reason": f"status code {resp.status_code} for /api/signature"})
             continue
 
         signature = np.array(resp.json())
@@ -83,7 +89,7 @@ def filter_instances_by_language():
         filtered_instances.append(identity_info)
         filtered_matrix.append(signature)
     filtered_matrix = np.array(filtered_matrix)
-    return filtered_instances, filtered_matrix
+    return filtered_instances, filtered_matrix, skipped_instances
 
 
 def get_best_instances(query, lang, instances, m, top_k=3):
@@ -114,8 +120,8 @@ def get_cross_instance_results(query, instances):
     best_instances = get_best_instances(query, 'en', instances, M, top_k=2)
     results = {}
     headers = {'User-Agent': app.config['USER-AGENT']}
-    for i in best_instances:
-        url = join(i["url"], 'api', 'search?q='+query)
+    for instance in best_instances:
+        url = join(instance["url"], 'api', 'search?q='+query)
         req_success = False
         try:
             t_before = time()
@@ -131,21 +137,32 @@ def get_cross_instance_results(query, instances):
             json_result = resp.json()['json_list']
             # legacy code for older instances
             if type(json_result) is list:
-                r = json_result[1]
+                remote_results = json_result[1]
             # up-to-date instances
             else:
-                r = json_result
+                remote_results = json_result
         else:
             print(f"Got non-200 status code from {url}")
-            r = {}
+            remote_results = {}
 
-        for url, d in r.items():
-            r[url]["x_instance_info"] = i
+        remote_results_updated = {}
+        for url, result_data in remote_results.items():
+            result_data_updated = {k: v for k, v in result_data.items()}
+            result_data_updated["x_instance_info"] = instance
+            # make sure pearslocal URLs point to the remote instance
+            remote_results_updated[url] = result_data_updated
+            if result_data["url"].startswith("pearslocal"):
+                del remote_results_updated[url]
+                url = join(instance["url"], "api", "get?url=") + result_data["url"]
+                result_data_updated["url"] = url
+                result_data_updated["share"] = url
+                remote_results_updated[url] = result_data_updated
+
             # The following is only temporary until all instances have been updated to return page scores
-            if 'score' not in d:
-                if any(w in d['title'] for w in query.lower().split()) or any(w in d['snippet'].lower() for w in query.lower().split()):
-                    r[url]['score'] = 2
+            if 'score' not in result_data_updated:
+                if any(w in result_data['title'] for w in query.lower().split()) or any(w in result_data['snippet'].lower() for w in query.lower().split()):
+                    result_data_updated['score'] = 2
                 else:
-                    r[url]['score'] = 0
-        results.update(r)
+                    result_data_updated['score'] = 0
+        results.update(remote_results_updated)
     return results

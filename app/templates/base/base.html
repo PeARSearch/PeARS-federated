@@ -91,7 +91,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 			</a>
 		</li>
 		{% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
-                <li class="nav-item"><a class="nav-link" href="{{url_for('settings.toggle_maintenance_mode')}}" data-toggle="tooltip" title="{{gettext('Toggle maintenance mode.')}}" onclick="return confirm('Are you sure you want to toggle maintenance mode?')"><ion-icon name="hammer-outline"></ion-icon></a></li>          
+                <li class="nav-item"><a class="nav-link" href="{{url_for('settings.toggle_maintenance_mode')}}" data-toggle="tooltip" title="{{gettext('Toggle maintenance mode.')}}" onclick="return confirm('Are you sure you want to toggle maintenance mode?')"><ion-icon name="hammer-outline"></ion-icon></a></li>
+                <li class="nav-item"><a class="nav-link" href="{{url_for('settings.refresh_remote_instances')}}" data-toggle="tooltip" title="{{gettext('Refresh remote instances.')}}" onclick="return confirm('Are you sure you want to refresh the list of available remote instances?')"><ion-icon name="planet-outline"></ion-icon></a></li>          
 		{% endif %}
                 <hr class="d-lg-none text-white-50">
 		{% if not current_user.is_authenticated %}
