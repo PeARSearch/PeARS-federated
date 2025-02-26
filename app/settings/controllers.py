@@ -11,7 +11,9 @@ from os.path import dirname, realpath, join, isdir, exists
 from flask import Blueprint, flash, request, render_template, redirect, url_for, session
 from flask_login import current_user, logout_user
 from flask_babel import gettext
+import app as app_module
 from app import app, db
+from app.search.cross_instance_search import filter_instances_by_language
 from app.api.models import Urls, User
 from app.forms import EmailChangeForm, UsernameChangeForm
 from app.utils_db import delete_url_representations
@@ -56,6 +58,17 @@ def toggle_maintenance_mode():
         print("Switching off maintenance")
         set_maintenance_mode(False)
     return redirect(url_for("search.index"))
+
+@settings.route("refresh_remotes")
+@check_permissions(login=True, confirmed=True, admin=True)
+def refresh_remote_instances():
+    try:
+        app_module.instances, app_module.M = filter_instances_by_language()
+        flash(gettext("The list of remote instances was successfully refreshed."), "success")
+    except Exception as e:
+        flash(gettext(f"An error occurred while refreshing the list of remote instances: {e}"), "error")
+    return redirect(url_for("search.index"))
+
 
 
 # Set the route and accepted methods
