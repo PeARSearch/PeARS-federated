@@ -45,6 +45,12 @@ babel = Babel(app)
 
 mail = Mail(app)
 
+# Mastodon bot (optional)
+app.config["MASTODON_API_TOKEN"] = getenv("MASTODON_API_TOKEN")
+app.config["MASTODON_USERNAME"] = getenv("MASTODON_USERNAME")
+app.config["MASTODON_INSTANCE"] = getenv("MASTODON_INSTANCE")
+
+
 # Make sure user data directories exist
 Path(path.join(DEFAULT_PATH,'userdata')).mkdir(parents=True, exist_ok=True)
 

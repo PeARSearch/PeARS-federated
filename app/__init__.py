@@ -53,6 +53,7 @@ mail = Mail(app)
 # Mastodon bot (optional)
 app.config["MASTODON_API_TOKEN"] = getenv("MASTODON_API_TOKEN")
 app.config["MASTODON_USERNAME"] = getenv("MASTODON_USERNAME")
+app.config["MASTODON_INSTANCE"] = getenv("MASTODON_INSTANCE")
 
 ########################
 # Jinja global variables
