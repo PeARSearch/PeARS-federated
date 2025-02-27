@@ -107,7 +107,7 @@ def compute_scores(query, query_vectors, lang):
     # Document ids with non-zero values (match at least one subword)
     idx = np.where(cos!=0)[0]
 
-    # Sort document ids with non-zero values
+    # Sort document ids with non-zero values and take top 50
     idx = np.argsort(cos)[-len(idx):][::-1][:50]
 
     # Get urls
@@ -124,6 +124,15 @@ def compute_scores(query, query_vectors, lang):
         else:
             snippet = ' '.join(u.snippet.split()[:snippet_length])
             snippet_score = snippet_overlap(query, u.title+' '+snippet)
+        loc = urlparse(u.url).netloc.split('.')[0]
+
+        #Big boost in case the query word is the url
+        if query == loc:
+            snippet_score+=0.5
+        #Little boost in case the query words are in the url
+        for w in query.split():
+            if w in u.url:
+                snippet_score+=0.1
         snippet_scores[u.url] = snippet_score
 
     for i, u in enumerate(best_urls):
@@ -136,17 +145,17 @@ def compute_scores(query, query_vectors, lang):
 def return_best_urls(doc_scores):
     best_urls = []
     scores = []
-    netlocs_used = []  # Don't return 100 pages from the same site
+    #netlocs_used = []  # Don't return 100 pages from the same site
     c = 0
     for w in sorted(doc_scores, key=doc_scores.get, reverse=True):
-        loc = urlparse(w).netloc
+        #loc = urlparse(w).netloc
         if c < 50:
             if doc_scores[w] >= 0.5:
                 #if netlocs_used.count(loc) < 10:
                 #print("DOC SCORE",w,doc_scores[w])
                 best_urls.append(w)
                 scores.append(doc_scores[w])
-                netlocs_used.append(loc)
+                #netlocs_used.append(loc)
                 c += 1
             else:
                 break
