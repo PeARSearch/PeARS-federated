@@ -10,3 +10,4 @@ app/__pycache__/
 app.db
 .env
 .captchas/
+.maintenance_mode

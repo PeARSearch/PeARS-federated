@@ -8,10 +8,13 @@ import logging
 from glob import glob
 from os import rename, getenv
 from os.path import dirname, realpath, join, isdir, exists
+from markupsafe import Markup
 from flask import Blueprint, flash, request, render_template, redirect, url_for, session
 from flask_login import current_user, logout_user
 from flask_babel import gettext
+import app as app_module
 from app import app, db
+from app.search.cross_instance_search import filter_instances_by_language
 from app.api.models import Urls, User
 from app.forms import EmailChangeForm, UsernameChangeForm
 from app.utils_db import delete_url_representations
@@ -23,7 +26,57 @@ from app.auth.token import send_email
 settings = Blueprint('settings', __name__, url_prefix='/settings')
 
 dir_path = dirname(dirname(realpath(__file__)))
+app_dir_path = dirname(dir_path)
+maintenance_mode_file = getenv("MAINTENANCE_MODE_FILE", join(app_dir_path, '.maintenance_mode')) 
 pod_dir = getenv("PODS_DIR", join(dir_path,'pods'))
+
+
+def get_maintance_mode():
+    if not exists(maintenance_mode_file):
+        return False
+    with open(maintenance_mode_file) as f:
+        maintenance_setting = f.read().strip()
+        assert maintenance_setting in ["TRUE", "FALSE"], "Maintenance setting file got corrupted, please change the file content manually back to 'TRUE' or 'FALSE'!"
+        return maintenance_setting == "TRUE"
+
+def set_maintenance_mode(mode):
+    with open(maintenance_mode_file, "w") as f:
+        if mode:
+            f.write("TRUE")
+        else:
+            f.write("FALSE")
+
+# Abusing this controller to set maintenance mode
+@settings.route("/maintenance")
+@check_permissions(login=True, confirmed=True, admin=True)
+def toggle_maintenance_mode():
+    maintenance_mode = get_maintance_mode()
+    print("Current status of maintenance:", maintenance_mode)
+    if not maintenance_mode:
+        print("Switching on maintenance")
+        set_maintenance_mode(True)
+    else:
+        print("Switching off maintenance")
+        set_maintenance_mode(False)
+    return redirect(url_for("search.index"))
+
+@settings.route("refresh_remotes")
+@check_permissions(login=True, confirmed=True, admin=True)
+def refresh_remote_instances():
+    try:
+        app_module.instances, app_module.M, skipped_instances = filter_instances_by_language()
+        skip_text = gettext('<li class="list-group-item list-group-item-secondary"><small><a href="{}">{}</a><br><span class="badge text-bg-warning"><code>{}</code></span></small></li>')
+        message = "The list of remote instances was successfully refreshed."
+        if skipped_instances:
+            message += '<br>Some instances were skipped: <ul class="list-group">'
+        for skipped in skipped_instances:
+            message += skip_text.format(skipped["instance"], skipped["instance"], skipped["reason"])
+        if skipped_instances:
+            message += "</ul>"
+        flash(Markup(message), "success")
+    except Exception as e:
+        flash(gettext(f"An error occurred while refreshing the list of remote instances: {e}"), "error")
+    return redirect(url_for("search.index"))
 
 
 

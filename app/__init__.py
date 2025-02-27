@@ -1,15 +1,15 @@
-# SPDX-FileCopyrightText: 2024 PeARS Project, <community@pearsproject.org> 
+# SPDX-FileCopyrightText: 2025 PeARS Project, <community@pearsproject.org> 
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-import logging
 from os import getenv, path
 from glob import glob
 from pathlib import Path
 from os.path import join, dirname, realpath, isfile
+import logging
 
 # Import flask and template operators
-from flask import Flask, flash, render_template, send_file, send_from_directory, request, abort
+from flask import Flask, flash, render_template, send_file, send_from_directory, request, abort, url_for
 from flask_admin import Admin, AdminIndexView
 from flask_mail import Mail
 
@@ -20,44 +20,6 @@ from flask_login import LoginManager, current_user
 
 dir_path = dirname(realpath(__file__))
 
-#########
-# Logging
-#########
-
-# Set up basic logging configuration for the root logger
-formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-logging.basicConfig(level=logging.ERROR, filename="system.log", format='%(asctime)s | %(levelname)s : %(message)s')
-logging.getLogger('werkzeug').setLevel(logging.ERROR)
-logging.error("Checking system logs on init.")
-
-# Define a custom log level
-MAILING = 55
-logging.MAILING = MAILING
-logging.addLevelName(logging.MAILING, 'MAILING')
-
-# Define a custom logging method for the new level
-def mailing(self, message, *args, **kwargs):
-    if self.isEnabledFor(logging.MAILING):
-        self._log(logging.MAILING, message, args, **kwargs)
-
-# Add the custom logging method to the logger class
-logging.Logger.mailing = mailing
-
-# Set up logger
-def setup_logger(name, log_file, level=logging.INFO):
-    """To setup as many loggers as you want"""
-
-    handler = logging.FileHandler(log_file)        
-    handler.setFormatter(formatter)
-
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-    logger.addHandler(handler)
-
-    return logger
-
-mail_logger = setup_logger('mailing_logger', 'mailing.log', level=logging.MAILING)
-mail_logger.mailing("Checking mailing logs on init.")
 
 ####################################
 # Define the WSGI application object
@@ -65,65 +27,19 @@ mail_logger.mailing("Checking mailing logs on init.")
 
 app = Flask(__name__, static_folder='static')
 
+from app.init_logging import run_logging
+mail_logger = run_logging()
+
 
 ################
 # Configurations
 ################
-from dotenv import load_dotenv
-app.config.from_object('config')
 
-load_dotenv()
-app.config['SESSION_COOKIE_SECURE'] = True
-app.config['MAIL_DEFAULT_SENDER'] = getenv("MAIL_DEFAULT_SENDER")
-app.config['MAIL_SERVER'] = getenv("MAIL_SERVER")
-app.config['MAIL_PORT'] = getenv("MAIL_PORT")
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USE_SSL'] = False
-app.config['MAIL_DEBUG'] = False
-app.config['MAIL_USERNAME'] = getenv("EMAIL_USER")
-app.config['MAIL_PASSWORD'] = getenv("EMAIL_PASSWORD")
-app.config['SITENAME'] = getenv("SITENAME")
-app.config['SITE_TOPIC'] = getenv("SITE_TOPIC")
-app.config['SEARCH_PLACEHOLDER'] = getenv("SEARCH_PLACEHOLDER")
-app.config['SQLALCHEMY_DATABASE_URI'] = getenv("SQLALCHEMY_DATABASE_URI", app.config.get("SQLALCHEMY_DATABASE_URI"))
-app.config['USER-AGENT'] = "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; PeARSbot/0.1; +https://www.pearsproject.org/) Chrome/126.0.6478.114 Safari/537.36"
-
-# Secrets
-app.config['SECRET_KEY'] = getenv("SECRET_KEY")                         
-app.config['SECURITY_PASSWORD_SALT'] = getenv("SECURITY_PASSWORD_SALT")
-app.config['SESSION_COOKIE_HTTPONLY'] = False
-app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-app.config['CSRF_ENABLED'] = True
-app.config['CSRF_SESSION_KEY'] = getenv("CSRF_SESSION_KEY")
-
-# Legal
-app.config['ORG_NAME'] = getenv("ORG_NAME", None)
-app.config['ORG_ADDRESS'] = getenv("ORG_ADDRESS", None)
-app.config['ORG_EMAIL'] = getenv("ORG_EMAIL", None)
-app.config['TAX_OFFICE'] = getenv("TAX_OFFICE", None)
-app.config['VAT_NUMBER'] = getenv("VAT_NUMBER", None)
-app.config['REGISTRATION_NUMBER'] = getenv("REGISTRATION_NUMBER", None)
-app.config['APPLICABLE_LAW'] = getenv("APPLICABLE_LAW", None)
-app.config['SERVERS'] = getenv("SERVERS", None)
-app.config['EU_SPECIFIC'] = True if getenv("EU_SPECIFIC", "false").lower() == 'true' else False
-app.config['SNIPPET_LENGTH'] = int(getenv("SNIPPET_LENGTH"))
-
-# User-related settings
-app.config['NEW_USERS'] = True if getenv("NEW_USERS_ALLOWED", "false").lower() == 'true' else False
-app.config['FEEDBACK_FORM'] = True if getenv("FEEDBACK_FORM", "false").lower() == 'true' else False
-
-# Localization
+from app.init_config import run_config
 from flask_babel import Babel, gettext
-app.config['LANGS'] = getenv('PEARS_LANGS', "en").split(',')
+app = run_config(app)
 first_lang = app.config['LANGS'][0]
-app.config['BABEL_DEFAULT_LOCALE'] = first_lang
-app.config['BABEL_TRANSLATION_DIRECTORIES'] = getenv("TRANSLATION_DIR")
 babel = Babel(app)
-
-# Optimization
-app.config['LIVE_MATRIX'] = True if getenv("LIVE_MATRIX", "false").lower() == 'true' else False
-app.config['EXTEND_QUERY'] = True if getenv("EXTEND_QUERY", "false").lower() == 'true' else False
-
 
 # Make sure user data directories exist
 DEFAULT_PATH = dir_path
@@ -204,7 +120,6 @@ migrate = Migrate(app, db)
 from app.indexer.controllers import indexer as indexer_module
 from app.api.controllers import api as api_module
 from app.search.controllers import search as search_module
-#from app.analysis.controllers import analysis as analysis_module
 from app.orchard.controllers import orchard as orchard_module
 from app.pages.controllers import pages as pages_module
 from app.settings.controllers import settings as settings_module
@@ -214,7 +129,6 @@ from app.auth.controllers import auth as auth_module
 app.register_blueprint(indexer_module)
 app.register_blueprint(api_module)
 app.register_blueprint(search_module)
-#app.register_blueprint(analysis_module)
 app.register_blueprint(orchard_module)
 app.register_blueprint(pages_module)
 app.register_blueprint(settings_module)
@@ -226,6 +140,21 @@ app.register_blueprint(auth_module)
 # db.drop_all()
 with app.app_context():
     db.create_all()
+
+@app.before_request
+def check_under_maintenance():
+    if reroute_for_maintenance(request.path):
+        abort(503)
+
+from app.settings.controllers import get_maintance_mode
+def reroute_for_maintenance(path):
+    if not get_maintance_mode():
+        return False
+    if path in [url_for('settings.toggle_maintenance_mode'), url_for('auth.login'), url_for('auth.logout')]:
+        return False
+    if '/static/' in path:
+        return False
+    return True
 
 
 ##############
@@ -247,6 +176,25 @@ if not app.config['LIVE_MATRIX']:
         models[LANG]['podnames'] = podnames
         models[LANG]['urls'] = urls
 
+
+#######################
+# Decentralized search
+#######################
+
+from app.search.cross_instance_search import filter_instances_by_language
+from flask import url_for
+
+instances, M, _  = filter_instances_by_language()
+
+_sitename_check_completed = False
+@app.before_request
+def check_sitename_and_hostname():
+    global _sitename_check_completed
+    if not _sitename_check_completed: # only do this once
+        host_url = url_for("search.index", _external=True)
+        if host_url.rstrip("/") != app.config["SITENAME"]:
+            logging.error("`host_url` and `SITENAME` do not match -- this can cause errors, correct this unless you know what you are doing!")
+        _sitename_check_completed = True
 
 
 #######
@@ -270,8 +218,6 @@ class MyLoginManager(LoginManager):
 login_manager = MyLoginManager()
 login_manager.login_view = 'auth.login'
 login_manager.init_app(app)
-
-from app.api.models import User
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -481,9 +427,13 @@ admin.add_view(SuggestionsModelView(Suggestions, db.session))
 
 @app.errorhandler(404)
 def page_not_found(e):
-    # note that we set the 404 status explicitly
     flash("The page that you are trying to access doesn't exist or you don't have sufficient permissions to access it. If you're not logged in, log in and try accessing the page again. If you're sure the page exists and that you should have access to it, contact the administrators.")
     return render_template("404.html"), 404
+
+@app.errorhandler(503)
+def maintenance_mode(e):
+    flash("We are doing some (hopefully) quick maintenance on this instance. Please check back later!")
+    return render_template("503.html"), 503
 
 @app.route('/manifest.json')
 def serve_manifest():
