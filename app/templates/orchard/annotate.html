@@ -24,7 +24,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 	<br>
       <form method="POST" action="/orchard/annotate" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
-        <p>{{ render_field(form.url) }}</p>
+        <p>{{ render_field(form.url, disabled=True) }}</p>
         <p>{{ render_field(form.note) }}</p>
 	<div class="form-check">
 	  {{ form.accept_tos(class_="form-check-input") }}
