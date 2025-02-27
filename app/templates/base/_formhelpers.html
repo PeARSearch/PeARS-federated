@@ -11,10 +11,10 @@
 {% endmacro %}
 
 
-{% macro render_field(field, disabled=False) %}
+{% macro render_field(field, readonly=False) %}
 <div class="form-group">
         {{ field.label }}
-        {{ field(class_="form-control input-s", disabled=disabled, size=32) }}
+        {{ field(class_="form-control input-s", readonly=readonly, size=32) }}
 </div>
 <dd>{% if field.errors %}
     <ul class=errors>
