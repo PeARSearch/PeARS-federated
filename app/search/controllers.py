@@ -42,8 +42,10 @@ def index():
             shuffle(messages)
             internal_message = messages[0].text
 
-
-        clean_query, results = get_search_results(query)
+        if "!here" in query.split():
+            clean_query, results = get_local_search_results(query)
+        else:
+            clean_query, results = get_search_results(query)
         displayresults = prepare_gui_results(clean_query, results)
         return render_template('search/results.html', query=query, results=displayresults, \
                 internal_message=internal_message, searchform=searchform)
