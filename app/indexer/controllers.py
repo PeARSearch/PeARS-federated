@@ -257,10 +257,7 @@ def run_indexer_manual(url, title, doc, theme, lang, note, contributor, host_url
     create_pod_npz_pos(contributor, theme, lang)
     success, text, snippet, idv = mk_page_vector.compute_vector_local_docs(\
             title, doc, theme, lang, contributor)
-    if url.startswith('pearslocal'):
-        share_url = join(host_url, url_for('api.return_specific_url')+'?url='+url)
-    else:
-        share_url = join(host_url,'api', 'get?url='+url)
+    share_url = join(host_url,'api', 'get?url='+url)
     if success:
         create_pod_in_db(contributor, theme, lang)
         #posix_doc(text, idx, contributor, lang, theme)
