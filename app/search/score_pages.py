@@ -162,9 +162,6 @@ def output(best_urls, scores):
     urls = [next(u for u in urls if u.url == best_url) for best_url in best_urls]
     for i, u in enumerate(urls):
         url = u.url
-        if url.startswith('pearslocal'):
-            url = url_for('api.return_specific_url')+'?url='+url
-            u.url = url
         results[url] = u.as_dict()
         results[url]['score'] = scores[i]
         if not url.startswith('pearslocal'):

@@ -1,7 +1,22 @@
 from flask_wtf import FlaskForm
 from wtforms import BooleanField, StringField, TextAreaField, PasswordField, HiddenField, URLField
-from wtforms.validators import Length, Optional, DataRequired, InputRequired, EqualTo, Email, URL
+from wtforms.validators import Length, Optional, DataRequired, InputRequired, EqualTo, Email, URL, ValidationError
 from flask_babel import lazy_gettext
+
+
+class URL_or_pearslocal(URL):
+    """
+    Validator that accepts real URLs as well as pearslocal strings
+    """
+    def __init__(self, *args):
+        super().__init__(*args)
+
+    def __call__(self, form, field):
+        data = field.data or ""
+        if data.startswith("pearslocal"):
+            return
+        super().__call__(form, field)
+
 
 class SearchForm(FlaskForm):
     query = StringField("", [DataRequired()])
@@ -52,7 +67,7 @@ class ManualEntryForm(FlaskForm):
     accept_tos = BooleanField(lazy_gettext('I confirm that my entry does not contravene the Terms of Service'), [DataRequired()])
 
 class ReportingForm(FlaskForm):
-    url = StringField(lazy_gettext('The url you are reporting'), [DataRequired(), URL()])
+    url = StringField(lazy_gettext('The url you are reporting'), [DataRequired(), URL_or_pearslocal()])
     report = TextAreaField(lazy_gettext('Description of the issue'), [DataRequired(), Length(max=1000)],  render_kw={"placeholder": lazy_gettext("Max 1000 characters.")})
     accept_tos = BooleanField(lazy_gettext('I confirm that I may be contacted in relation to my report.'), [DataRequired()])
 
@@ -61,6 +76,6 @@ class FeedbackForm(FlaskForm):
     accept_tos = BooleanField(lazy_gettext('I confirm that I may be contacted in relation to my report.'), [DataRequired()])
 
 class AnnotationForm(FlaskForm):
-    url = StringField(lazy_gettext('The url you wish to annotate'), [DataRequired(), URL()])
+    url = StringField(lazy_gettext('The url you wish to annotate'), [DataRequired(), URL_or_pearslocal()])
     note = TextAreaField(lazy_gettext('Your note (max 1000 characters)'), [DataRequired(), Length(max=1000)])
     accept_tos = BooleanField(lazy_gettext('I confirm that my comment can be openly published.'), [DataRequired()])
