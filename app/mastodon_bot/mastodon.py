@@ -151,7 +151,19 @@ def run_forever():
 
 
 def toot_new_page(url, title, theme, lang):
-    mastodon.status_post(f"Beep beep, I just indexed a new page! 🤖\n\n 📰 Title: {title}\n🍐 Theme: {theme}\n 💻 PeARS URL: {url}")
+    post_text = (
+        f"Beep beep, I just indexed a new page! 🤖\n"
+        "\n"
+        f"📰 Title: {title}\n"
+        f"🍐 Theme: {theme}\n"
+        f"💻 URL: {url}\n" 
+        "\n"
+        "[If you are the owner of this URL and don't like it being indexed," 
+        "please get in touch with us]"
+    )
+    
+    post = mastodon.status_post(post_text)
+    print(f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Tooted about new URL: {post.url}")
 
 if __name__ == "__main__":
     with app.app_context():

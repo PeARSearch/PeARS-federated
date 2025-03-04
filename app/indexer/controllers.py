@@ -239,7 +239,10 @@ def run_indexer_url(url, theme, note, contributor, host_url):
                     url, title, idv, snippet, theme, lang, note, share_url, contributor, 'url')
             indexed = True
             if app.config["MASTODON_TOOT_ABOUT_NEW_INDEXED_PAGES"]:
-                toot_new_page(url, title, theme, lang)
+                try:
+                    toot_new_page(url, title, theme, lang)
+                except Exception as e:
+                    error.log(f"Error while trying to make mastodon post about page: {e}")        
         else:
             messages.extend(mgs)
     else:
@@ -267,7 +270,14 @@ def run_indexer_manual(url, title, doc, theme, lang, note, contributor, host_url
         create_or_replace_url_in_db(url, title, idv, snippet, theme, lang, note, share_url, contributor, 'doc')
         indexed = True
         if app.config["MASTODON_TOOT_ABOUT_NEW_INDEXED_PAGES"]:
-            toot_new_page(url, title, theme, lang)
+            if url.startswith("pearslocal"):
+                url_for_mastodon = share_url
+            else:
+                url_for_mastodon = url
+            try:
+                toot_new_page(url_for_mastodon, title, theme, lang)
+            except Exception as e:
+                error.log(f"Error while trying to make mastodon post about page: {e}")
     else:
         messages.append(gettext("There was a problem indexing your entry. Please check the submitted data."))
         messages.append(gettext("Your entry:"), doc)
