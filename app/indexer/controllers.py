@@ -80,10 +80,12 @@ def correct_entry():
 
     url = session['index_url']
     delete_url_representations(url)
-    if url.startswith('pearslocal'):
+    if 'index_description' in session:
         form2.title.data = session['index_title']
+        form2.related_url.data = session['index_url']
         form2.description.data = session['index_description']
         default_screen = "manual"
+        session.pop('index_description')
     else:
         form1.url.data = url
         form1.theme.data = session['index_theme']
@@ -105,6 +107,7 @@ def index_from_url():
     contributor = current_user.username
     pods = Pods.query.all()
     themes = list(set([p.name.split('.u.')[0] for p in pods]))
+    default_screen = "url"
 
     form = IndexerForm(request.form)
     if form.validate_on_submit():
@@ -121,7 +124,7 @@ def index_from_url():
         if success:
             return render_template('indexer/success.html', messages=messages, share_url=share_url, url=url, theme=theme, note=note)
         return render_template('indexer/fail.html', messages = messages)
-    return render_template('indexer/index.html', form1=form, form2=ManualEntryForm(request.form), themes=themes)
+    return render_template('indexer/index.html', form1=form, form2=ManualEntryForm(request.form), themes=themes, default_screen=default_screen)
 
 
 
@@ -136,18 +139,24 @@ def index_from_manual():
     """
     print("\t>> Indexer : manual")
     contributor = current_user.username
+    pods = Pods.query.all()
+    themes = list(set([p.name.split('.u.')[0] for p in pods]))
+    default_screen = "manual"
 
     form = ManualEntryForm(request.form)
     if form.validate_on_submit():
         title = request.form.get('title').strip()
         snippet = request.form.get('description').strip()
+        url = request.form.get('related_url').strip()
+        print("MANUAL URL",url)
         lang = detect(snippet)
         # Hack if language of contribution is not recognized
         if lang not in app.config['LANGS']:
             lang = app.config['LANGS'][0]
-        h = hashlib.new('sha256')
-        h.update(snippet.encode())
-        url = 'pearslocal'+h.hexdigest()
+        if not url:
+            h = hashlib.new('sha256')
+            h.update(snippet.encode())
+            url = 'pearslocal'+h.hexdigest()
         theme = 'Tips'
         note = ''
         session['index_url'] = url
@@ -157,7 +166,7 @@ def index_from_manual():
         if success:
             return render_template('indexer/success.html', messages=messages, share_url=share_url,  theme=theme, note=snippet)
         return render_template('indexer/fail.html', messages = messages)
-    return render_template('indexer/index.html', form1=IndexerForm(request.form), form2=form)
+    return render_template('indexer/index.html', form1=IndexerForm(request.form), form2=form, themes=themes, default_screen=default_screen)
 
 @indexer.route("/suggestion", methods=["POST"])
 def run_suggest_url():
@@ -251,7 +260,7 @@ def run_indexer_manual(url, title, doc, theme, lang, note, contributor, host_url
     create_pod_npz_pos(contributor, theme, lang)
     success, text, snippet, idv = mk_page_vector.compute_vector_local_docs(\
             title, doc, theme, lang, contributor)
-    share_url = join(host_url, url_for('api.return_specific_url')+'?url='+url)
+    share_url = join(host_url,'api', 'get?url='+url)
     if success:
         create_pod_in_db(contributor, theme, lang)
         #posix_doc(text, idx, contributor, lang, theme)

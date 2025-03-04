@@ -42,8 +42,10 @@ def index():
             shuffle(messages)
             internal_message = messages[0].text
 
-
-        clean_query, results = get_search_results(query)
+        if "!here" in query.split():
+            clean_query, results = get_local_search_results(query)
+        else:
+            clean_query, results = get_search_results(query)
         displayresults = prepare_gui_results(clean_query, results)
         return render_template('search/results.html', query=query, results=displayresults, \
                 internal_message=internal_message, searchform=searchform)
@@ -71,6 +73,14 @@ def prepare_gui_results(query, results):
         return None
     displayresults = []
     for url, r in results.items():
+
+        # display version of URL: should be clickable
+        # (for pearslocal URLs: "/api/get?url=pearslocal..."; for other URLs: identical to the actual URL)
+        # r["url"] keeps the original version of the URL as stored in the DB
+        if url.startswith('pearslocal'):
+            r["display_url"] = url_for('api.return_specific_url')+'?url='+url
+        else:
+            r["display_url"] = url
         r['title'] = ' '.join(r['title'].split()[:10])
         r['snippet'] = beautify_snippet(r['snippet'], query)
         logging.debug(f"RESULT URL {url}")
