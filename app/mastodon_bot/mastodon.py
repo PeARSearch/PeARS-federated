@@ -14,11 +14,14 @@ from app.utils_db import create_suggestion_in_db
 if not os.path.isdir(".mastodon"):
     os.mkdir(".mastodon")
 
-# Create an instance of the Mastodon class
-mastodon = Mastodon(
-    access_token=app.config["MASTODON_API_TOKEN"],
-    api_base_url=app.config["MASTODON_INSTANCE"]
-)
+if app.config["MASTODON_API_TOKEN"]:
+    # Create an instance of the Mastodon class
+    mastodon = Mastodon(
+        access_token=app.config["MASTODON_API_TOKEN"],
+        api_base_url=app.config["MASTODON_INSTANCE"]
+    )
+else:
+    mastodon = None
 
 
 class PeARSBotStreamListener(StreamListener):
@@ -145,6 +148,10 @@ def run_forever():
             diff = len(new_notifications) - len(old_notifications)
             print(f"\tprocessed {diff} notifications!")
             time.sleep(10)
+
+
+def toot_new_page(url, title, theme, lang):
+    mastodon.status_post(f"Beep beep, I just indexed a new page! 🤖\n\n 📰 Title: {title}\n🍐 Theme: {theme}\n 💻 PeARS URL: {url}")
 
 if __name__ == "__main__":
     with app.app_context():
