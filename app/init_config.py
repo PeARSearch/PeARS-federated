@@ -52,4 +52,11 @@ def run_config(app):
     # Optimization
     app.config['LIVE_MATRIX'] = True if getenv("LIVE_MATRIX", "false").lower() == 'true' else False
     app.config['EXTEND_QUERY'] = True if getenv("EXTEND_QUERY", "false").lower() == 'true' else False
+
+    # Mastodon bot (optional)
+    app.config["MASTODON_API_TOKEN"] = getenv("MASTODON_API_TOKEN")
+    app.config["MASTODON_USERNAME"] = getenv("MASTODON_USERNAME")
+    app.config["MASTODON_INSTANCE"] = getenv("MASTODON_INSTANCE")
+    app.config["MASTODON_TOOT_ABOUT_NEW_INDEXED_PAGES"] = getenv("MASTODON_TOOT_ABOUT_NEW_INDEXED_PAGES")
+
     return app
