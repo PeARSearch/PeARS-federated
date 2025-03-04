@@ -158,7 +158,7 @@ def toot_new_page(url, title, theme, lang):
         f"🍐 Theme: {theme}\n"
         f"💻 URL: {url}\n" 
         "\n"
-        "[If you are the owner of this URL and don't like it being indexed," 
+        "[If you are the owner of this URL and don't like it being indexed, " 
         "please get in touch with us]"
     )
     
