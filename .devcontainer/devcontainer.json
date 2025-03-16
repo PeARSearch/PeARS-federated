@@ -1,0 +1,41 @@
+{
+	"name": "PeARS-federated",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"context": ".."
+	},
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"python.defaultInterpreterPath": "/usr/local/bin/python",
+				"python.linting.enabled": true,
+				"python.analysis.typeCheckingMode": "basic",
+				"[python]": {
+					"editor.formatOnSave": true
+				},
+				"editor.codeActionsOnSave": {
+					"source.organizeImports": "explicit"
+				},
+				"python.testing.pytestEnabled": true
+			},
+			"extensions": [
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"ms-python.black-formatter",
+				"ms-python.isort",
+				"ms-toolsai.jupyter",
+				"ms-azuretools.vscode-docker"
+			]
+		}
+	},
+	"forwardPorts": [],
+	"postCreateCommand": "pip install --user -r requirements.txt",
+	"remoteUser": "vscode",
+	"runArgs": [
+		"--init",
+		"--privileged"
+	],
+	"mounts": [
+		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+	]
+}
