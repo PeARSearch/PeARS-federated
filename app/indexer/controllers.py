@@ -248,15 +248,27 @@ def index_url_ajax():
 @indexer.route("index_suggestions/", methods=["GET", "POST"])
 @check_permissions(login=True, confirmed=True, admin=True)
 def index_suggestions():
+    hide_already_indexed_urls = request.args.get("hide_already_indexed", "y") == "y"
+
     suggestions = (
         db.session
         .query(Suggestions)
         .order_by(Suggestions.url, Suggestions.date_created.desc())
     )
+
     # use python itertools for grouping/summarizing because it's more flexible
     grouped_by_url = itertools.groupby(suggestions, lambda s: s.url)
     suggestions_summary = []
     for url, suggestions_with_url in grouped_by_url:
+        if hide_already_indexed_urls:
+            existing_url = (
+                db.session
+                .query(Urls)
+                .filter_by(url=url)
+                .first()
+            )
+            if existing_url is not None:
+                continue
         total_count = 0
         pod_counts = {}
         created_dates = []
@@ -270,7 +282,7 @@ def index_suggestions():
         created_dates_sorted = sorted(created_dates)
         suggestions_summary.append({"url": url, "total_count": total_count, "suggestions_by_pod": pod_counts, "first_created": created_dates_sorted[0], "last_created": created_dates_sorted[-1]})
 
-    return render_template("indexer/index_suggestions.html", suggestions=suggestions_summary)
+    return render_template("indexer/index_suggestions.html", suggestions=suggestions_summary, hide_already_indexed_urls=hide_already_indexed_urls)
 
 
 def run_indexer_url(url, theme, note, contributor, host_url):
