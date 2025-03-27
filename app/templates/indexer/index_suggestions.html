@@ -1,0 +1,106 @@
+<!--
+SPDX-FileCopyrightText: 2024 PeARS Project, <community@pearsproject.org>, 
+
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
+{% extends "base/base.html" %}
+{% from "base/_formhelpers.html" import render_field, render_autocomplete_field, render_captcha_field %}
+{% block body %}
+<div class="container">
+  <div class="row p-3" style="display:block;">
+    <div class="card-group">
+      <div class="card indexer">
+        <div class="card-header text-center"><b>{{gettext("For instance admins: see suggested URLS and index/remove them")}}</b></div>
+        <div class="card-body">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="notification is-danger">
+		 {% if session.get('theme') == 'dark' %}
+		 <div class="d-flex justify-content-start"><img src="{{ url_for('static', filename='happy_pears_dark.png')}}" width="30px"><h5>{{gettext(messages[0])}}</h5></div>
+		 {% else %}
+		 <div class="d-flex justify-content-start"><img src="{{ url_for('static', filename='happy_pears.png')}}" width="30px"><h5>{{gettext(messages[0])}}</h5></div>
+		 {% endif %}
+            </div>
+        {% endif %}
+        {% endwith %}
+      </div>    
+    </div>
+   </div>
+  </div>
+  <div class="row">
+    <div class="col-md-10 mb-5">
+      {% for suggestion in suggestions %}
+      <div class="card mt-4">
+        <div class="card-header border-secondary bg-secondary">
+          <button class="btn btn-primary">
+            <span title="Total number of times that this url was suggested" class="badge text-bg-secondary">{{suggestion.total_count}}x</span>
+          </button>
+          {% for pod, pod_count in suggestion.suggestions_by_pod.items() %}
+          <span class="btn btn-sm btn-dark">
+            {{pod_count}}x in <b>{{pod}}</b>
+          </span>  
+          {% endfor %}
+        </div>
+        <div class="card-body border-dark bg-dark">
+          <p><span class="badge text-bg-secondary">url</span> <a class="text-light" href="{{suggestion.url}}">{{suggestion.url}}</a></p>
+          <p>
+            <span class="badge text-bg-secondary">first</span> <span class="text-light">{{suggestion.first_created.year}}-{{suggestion.first_created.month}}-{{suggestion.first_created.day}}</span>
+            <span class="badge text-bg-secondary">last</span> <span class="text-light">{{suggestion.last_created.year}}-{{suggestion.last_created.month}}-{{suggestion.last_created.day}}</span>
+          </p>
+          <div class="form-group form-inline">
+            <div class="input-group mb-3">
+              <select id="suggestion-pod-{{loop.index}}" class="form-control form-select">
+                {% for pod, _ in suggestion.suggestions_by_pod.items() %}
+                  <option value="{{pod}}">Add to pod: {{pod}}</option>
+                {% endfor %}
+              </select>
+              <button class="btn btn-success index-suggestion" id="suggestion-{{loop.index}}" onclick="indexSuggestion({{loop.index}}, '{{suggestion.url}}')">Index</button>
+            </div>
+            <div class="input-group mb-3">
+              <input class="form-control bg-danger" id="delete-reason-{{loop.index}}" placeholder="Optionally, add a note about why this entry should be deleted">
+              <button class="btn btn-danger border border-light">Delete</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+          <script>
+            function indexSuggestion(suggestionID, url) {
+              let $button = $(`#suggestion-${suggestionID}`);
+              let theme = $(`#suggestion-pod-${suggestionID}`).val();
+              $button.prop("disabled", true);
+              $button.text("Indexing...")
+              $.ajax({
+                url: "/indexer/index_from_suggestion_ajax",
+                type: "POST",
+                contentType: "application/json",
+                dataType: "json",
+                data: JSON.stringify({
+                  url: url,
+                  theme: theme,
+                  notes: ""
+                })
+              }).done((respData) => {
+                console.log(respData);
+                if (respData.success) {
+                  $button.text(`Indexing succesful`);
+                } else {
+                  $button
+                    .prop("disabled", false)
+                    .text(`Indexing unsuccessful, click to try again`)
+                    .parent()
+                    .after(
+                      $(`<div class="alert alert-danger mt-1">`)
+                      .text(respData.messages.join("<br>"))
+                    );
+                }
+              });
+            };
+        </script>
+    </div>  
+  </div>
+
+</div><!-- /.container -->
+
+{% endblock %}

@@ -6,15 +6,16 @@ import logging
 from os import getenv
 from os.path import dirname, join, realpath
 from time import sleep
+import itertools
 import hashlib
-from flask import session, Blueprint, request, render_template, url_for, flash, redirect
+from flask import session, Blueprint, request, render_template, url_for, flash, redirect, jsonify
 from flask_login import login_required, current_user
 from flask_babel import gettext
 from langdetect import detect
 from app.auth.captcha import mk_captcha, check_captcha
 from app.auth.decorators import check_permissions
 from app import app, db
-from app.api.models import Urls, Pods
+from app.api.models import Urls, Pods, Suggestions
 from app.indexer import mk_page_vector
 from app.utils import read_urls, parse_query
 from app.utils_db import create_pod_in_db, create_pod_npz_pos, create_or_replace_url_in_db, delete_url_representations, create_suggestion_in_db
@@ -125,8 +126,6 @@ def index_from_url():
         return render_template('indexer/fail.html', messages = messages)
     return render_template('indexer/index.html', form1=form, form2=ManualEntryForm(request.form), themes=themes, default_screen=default_screen)
 
-
-
 @indexer.route("/manual", methods=["POST"])
 @check_permissions(login=True, confirmed=True, admin=True)
 def index_from_manual():
@@ -208,6 +207,70 @@ def run_suggest_url():
     pods = Pods.query.all()
     themes = list(set([p.name.split('.u.')[0] for p in pods]))
     return render_template('indexer/suggest.html', form=form, themes=themes)
+
+@indexer.route("index_from_suggestion_ajax/", methods=["POST"])
+@check_permissions(login=True, confirmed=True, admin=True)
+def index_url_ajax():
+    url = request.json.get('url').strip()
+    theme = request.json.get('theme').strip()
+    notes = request.json.get('notes').strip()
+    existing_url = (
+        db.session
+        .query(Urls)
+        .filter_by(url=url)
+        .first()
+    )
+    if existing_url:
+        return jsonify({
+            "success": False,
+            "messages": [f"url {url} already exists (pod={existing_url.pod}, contributor={existing_url.contributor})"] 
+        })
+    
+    suggestion = (
+        db.session
+        .query(Suggestions)
+        .filter_by(url=url, pod=theme)
+        .order_by(Suggestions.date_created.desc())
+        .first()
+    )
+    if not suggestion:
+        return jsonify ({
+            "success": False,
+            "messages": [f"could not find suggestion with url {url}"]
+        })
+
+    s_success, s_messages, _ = run_indexer_url(url, theme, notes, current_user.username, request.host_url)
+    return jsonify({
+        "success": s_success, 
+        "messages": s_messages
+    })
+
+@indexer.route("index_suggestions/", methods=["GET", "POST"])
+@check_permissions(login=True, confirmed=True, admin=True)
+def index_suggestions():
+    suggestions = (
+        db.session
+        .query(Suggestions)
+        .order_by(Suggestions.url, Suggestions.date_created.desc())
+    )
+    # use python itertools for grouping/summarizing because it's more flexible
+    grouped_by_url = itertools.groupby(suggestions, lambda s: s.url)
+    suggestions_summary = []
+    for url, suggestions_with_url in grouped_by_url:
+        total_count = 0
+        pod_counts = {}
+        created_dates = []
+        grouped_by_pod = itertools.groupby(suggestions_with_url, lambda s: s.pod)
+        for pod, suggestions_with_pod in grouped_by_pod:
+            suggestion_list = list(suggestions_with_pod)
+            created_dates.extend([s.date_created for s in suggestion_list])
+            pod_count = len(suggestion_list)
+            pod_counts[pod] = pod_count
+            total_count += pod_count
+        created_dates_sorted = sorted(created_dates)
+        suggestions_summary.append({"url": url, "total_count": total_count, "suggestions_by_pod": pod_counts, "first_created": created_dates_sorted[0], "last_created": created_dates_sorted[-1]})
+
+    return render_template("indexer/index_suggestions.html", suggestions=suggestions_summary)
 
 
 def run_indexer_url(url, theme, note, contributor, host_url):
