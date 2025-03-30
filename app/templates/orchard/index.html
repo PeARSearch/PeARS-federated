@@ -25,7 +25,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 		  <a href="{{url_for('orchard.get_a_pod')}}?pod={{p[0]}}" class="btn btn-success">{{gettext("View")}}</a>
 		  {% if p[0] != 'Tips' %}
 		  {% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
-	          <button class="btn btn-link collapsed" data-bs-toggle="collapse" data-bs-target="#collapse{{p[2]}}" aria-expanded="false" aria-controls="collapse{{p[2]}}"><ion-icon name="pencil-outline"></ion-icon></button>
+	          <button class="btn btn-link collapsed" data-bs-toggle="collapse" data-bs-target="#collapse{{p[2]}}" aria-expanded="false" aria-controls="collapse{{p[2]}}"><img src="{{ url_for('static', filename='assets/ionicons/pencil-outline.svg')}}" class='ion-icon'/></button>
 		  {% endif %}
 		  {% endif %}
               </div>

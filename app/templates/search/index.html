@@ -27,7 +27,7 @@ SPDX-License-Identifier: AGPL-3.0-only
         {{ searchform.hidden_tag() }}
         <div class="input-group group mt-4" >
           {{ render_search_field(searchform.query, placeholder) }}
-	  <button class="btn btn-lg btn-success" type="submit" id='searchbutton'><ion-icon name="search-outline"></ion-icon></button>
+	  <button class="btn btn-lg btn-success" type="submit" id='searchbutton'><img src="{{ url_for('static', filename='assets/ionicons/search-outline.svg')}}" class='ion-icon'/></button>
           <button class="btn btn-lg btn-success" type="button" id='loadingbutton' style='display:none'>
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
           </button>
