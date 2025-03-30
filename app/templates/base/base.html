@@ -84,15 +84,15 @@ SPDX-License-Identifier: AGPL-3.0-only
                     <div class="vr d-none d-lg-flex h-100 mx-lg-2 text-white"></div>
                 <li class="nav-item"><a class="nav-link" href="{{url_for('settings.toggle_theme', current_page=request.path)}}">
 				{% if session.get('theme') == 'dark' %}
-				<img src="{{ url_for('static', filename='assets/ionicons/sunny-outline.svg')}}" class='ion-icon-nav'/>
+				<img src="{{ url_for('static', filename='sunny-outline.svg')}}" class='ion-icon-nav'/>
 				{% else %}
-				<img src="{{ url_for('static', filename='assets/ionicons/moon-outline.svg')}}" class='ion-icon-nav'/>
+				<img src="{{ url_for('static', filename='moon-outline.svg')}}" class='ion-icon-nav'/>
 				{% endif %}
 			</a>
 		</li>
 		{% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
-                <li class="nav-item"><a class="nav-link" href="{{url_for('settings.toggle_maintenance_mode')}}" data-toggle="tooltip" title="{{gettext('Toggle maintenance mode.')}}" onclick="return confirm('Are you sure you want to toggle maintenance mode?')"><img src="{{ url_for('static', filename='assets/ionicons/hammer-outline.svg')}}" class='ion-icon-nav'/></a></li>
-                <li class="nav-item"><a class="nav-link" href="{{url_for('settings.refresh_remote_instances')}}" data-toggle="tooltip" title="{{gettext('Refresh remote instances.')}}" onclick="return confirm('Are you sure you want to refresh the list of available remote instances?')"><img src="{{ url_for('static', filename='assets/ionicons/planet-outline.svg')}}" class='ion-icon-nav'/></a></li>
+                <li class="nav-item"><a class="nav-link" href="{{url_for('settings.toggle_maintenance_mode')}}" data-toggle="tooltip" title="{{gettext('Toggle maintenance mode.')}}" onclick="return confirm('Are you sure you want to toggle maintenance mode?')"><img src="{{ url_for('static', filename='hammer-outline.svg')}}" class='ion-icon-nav'/></a></li>
+                <li class="nav-item"><a class="nav-link" href="{{url_for('settings.refresh_remote_instances')}}" data-toggle="tooltip" title="{{gettext('Refresh remote instances.')}}" onclick="return confirm('Are you sure you want to refresh the list of available remote instances?')"><img src="{{ url_for('static', filename='planet-outline.svg')}}" class='ion-icon-nav'/></a></li>
 		{% endif %}
                 <hr class="d-lg-none text-white-50">
 		{% if not current_user.is_authenticated %}
@@ -113,7 +113,7 @@ SPDX-License-Identifier: AGPL-3.0-only
     <footer class="footer mt-auto py-3 bg-dark">
     <div class="container">
 	    <span class="text-light"><a class="btn btn-dark" href="{{url_for('pages.return_privacy')}}">{{gettext('Privacy policy')}}</a> | <a class="btn btn-dark" href="{{url_for('pages.return_tos')}}">{{gettext('Terms of service')}}</a> | <a class="btn btn-dark" href="{{url_for('pages.return_contact')}}">{{gettext('Impressum')}}</a> | <a class="btn btn-dark" href="{{url_for('pages.return_licenses')}}">{{gettext('Licenses')}}</a> | <a class="btn btn-dark" href="{{url_for('pages.return_acknowledgements')}}">{{gettext('Acknowledgments')}}</a>   {% if config['FEEDBACK_FORM'] %}| <a class="btn btn-dark" href="{{url_for('orchard.feedback')}}">Feedback</a> | {% endif %}
-	<a class="btn btn-dark" href="https://github.com/PeARSearch"><img src="{{ url_for('static', filename='assets/ionicons/logo-github.svg')}}" class='ion-icon'/></a></span>
+	<a class="btn btn-dark" href="https://github.com/PeARSearch"><img src="{{ url_for('static', filename='logo-github.svg')}}" class='ion-icon'/></a></span>
     </div>
   </footer>
 </body>
