@@ -39,12 +39,12 @@
             function toggleContentType() {
               if (contentType === "image") {
                 contentType = "audio";
-                buttonText = '<img src="{{ url_for('static', filename='assets/ionicons/eye-outline.svg')}}" class="ion-icon-suggest"/>';
+                buttonText = '<img src="{{ url_for('static', filename='eye-outline.svg')}}" class="ion-icon-suggest"/>';
                 alertText = "{{explain_audio}}";
               } 
               else {
                 contentType = "image";
-                buttonText = '<img src="{{ url_for('static', filename='assets/ionicons/ear-outline.svg')}}" class="ion-icon-suggest"/>';
+                buttonText = '<img src="{{ url_for('static', filename='ear-outline.svg')}}" class="ion-icon-suggest"/>';
                 alertText = "{{explain_image}}";
               }
               $("#captcha-switch").html(buttonText);
@@ -76,8 +76,8 @@
           </script>
           <div class="mb-3">
 		  <span id="captcha-display"><img src="/auth/show_captcha/{{captcha_id}}"></span>
-	    <a class="btn btn-lg btn-light" onclick="refreshCaptcha();" title="refresh"><img src="{{ url_for('static', filename='assets/ionicons/refresh-circle-outline.svg')}}" class='ion-icon-suggest'/></a>
-            <a class="btn btn-lg btn-light" id="captcha-switch" onclick="toggleContentType();" title="toggle image/audio captcha"><img src="{{ url_for('static', filename='assets/ionicons/ear-outline.svg')}}" class='ion-icon-suggest'/></a>
+	    <a class="btn btn-lg btn-light" onclick="refreshCaptcha();" title="refresh"><img src="{{ url_for('static', filename='refresh-circle-outline.svg')}}" class='ion-icon-suggest'/></a>
+            <a class="btn btn-lg btn-light" id="captcha-switch" onclick="toggleContentType();" title="toggle image/audio captcha"><img src="{{ url_for('static', filename='ear-outline.svg')}}" class='ion-icon-suggest'/></a>
           </div>
         </div>
         {{ field(class_="form-control input-s", size=32, placeholder=gettext("Enter the numbers you saw/heard here.")) }}

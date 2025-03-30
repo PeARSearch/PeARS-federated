@@ -29,7 +29,7 @@ SPDX-License-Identifier: AGPL-3.0-only
         {{ searchform.hidden_tag() }}
         <div class="input-group group mt-4" >
           {{ render_search_field(searchform.query, placeholder) }}
-	  <button class="btn btn-lg btn-success" type="submit" id='searchbutton'><img src="{{ url_for('static', filename='assets/ionicons/search-outline.svg')}}" class='ion-icon'/></button>
+	  <button class="btn btn-lg btn-success" type="submit" id='searchbutton'><img src="{{ url_for('static', filename='search-outline.svg')}}" class='ion-icon'/></button>
           <button class="btn btn-lg btn-success" type="button" id='loadingbutton' style='display:none'>
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
           </button>
@@ -63,10 +63,10 @@ SPDX-License-Identifier: AGPL-3.0-only
           </div>
 	        <div>
             {% if result['instance_is_local']%}
-	          <a class="btn btn-link" href="{{url_for('orchard.annotate')}}?url={{result['url']}}" data-toggle="tooltip" title="{{gettext('Add a note to this entry')}}"><img src="{{ url_for('static', filename='assets/ionicons/chatbubble-outline.svg')}}" class='ion-icon'/></a>  
-	          <a class="btn btn-link" href="{{url_for('orchard.report')}}?url={{result['url']}}"  data-toggle="tooltip" title="{{gettext('Report this entry')}}"><img src="{{ url_for('static', filename='assets/ionicons/flag-outline.svg')}}" class='ion-icon'/></a>
+	          <a class="btn btn-link" href="{{url_for('orchard.annotate')}}?url={{result['url']}}" data-toggle="tooltip" title="{{gettext('Add a note to this entry')}}"><img src="{{ url_for('static', filename='chatbubble-outline.svg')}}" class='ion-icon'/></a>  
+	          <a class="btn btn-link" href="{{url_for('orchard.report')}}?url={{result['url']}}"  data-toggle="tooltip" title="{{gettext('Report this entry')}}"><img src="{{ url_for('static', filename='flag-outline.svg')}}" class='ion-icon'/></a>
             {% endif %} 
-	          <button class="btn btn-link" data-toggle="tooltip" title="{{gettext('Share this entry')}}" onClick="copyToClipboard('{{result['share']}}', 'copy{{result['id']}}')" id="copy{{result['id']}}"><img src="{{ url_for('static', filename='assets/ionicons/share-outline.svg')}}" class='ion-icon'/></button> 
+	          <button class="btn btn-link" data-toggle="tooltip" title="{{gettext('Share this entry')}}" onClick="copyToClipboard('{{result['share']}}', 'copy{{result['id']}}')" id="copy{{result['id']}}"><img src="{{ url_for('static', filename='share-outline.svg')}}" class='ion-icon'/></button> 
                 </div>
 	      </div><!-- card heard: links -->
 
@@ -108,9 +108,9 @@ $(document).ready(function(){
         navigator.clipboard.writeText(link);
 	el = document.getElementById(idx);
 	console.log(el);
-	el.innerHTML = '<img src="{{ url_for('static', filename='assets/ionicons/checkmark-done-outline.svg')}}" class="ion-icon"/>';
+	el.innerHTML = '<img src="{{ url_for('static', filename='checkmark-done-outline.svg')}}" class="ion-icon"/>';
 	setTimeout( function() {
-	el.innerHTML = '<img src="{{ url_for('static', filename='assets/ionicons/share-outline.svg')}}" class="ion-icon"/>';
+	el.innerHTML = '<img src="{{ url_for('static', filename='share-outline.svg')}}" class="ion-icon"/>';
     }, 3000);
 
     }
