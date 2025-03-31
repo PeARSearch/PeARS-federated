@@ -12,6 +12,8 @@
     --link-color: #414141;
     --hover-color: black;
     --text-color: black;
+    --is-light-theme: initial;
+    --is-dark-theme: ;
  } 
 
 :root.dark {
@@ -21,6 +23,8 @@
     --link-color: orange;
     --hover-color: #f6b17a;
     --text-color: #fbf2f2;
+    --is-light-theme: ;
+    --is-dark-theme: initial;
  }
 
 
@@ -44,8 +48,21 @@ h2, h3 {
   color: black;
  }
 
-ion-icon {
-  font-size: 20px;
+.ion-icon {
+  height: 20px;
+  filter: var(--is-dark-theme, invert(100%));
+}
+
+.ion-icon:hover {
+  filter: invert(60%);
+}
+
+.ion-icon-nav {
+  height: 20px;
+}
+
+.ion-icon-suggest {
+  height: 40px;
 }
 
 .navbar-light {
