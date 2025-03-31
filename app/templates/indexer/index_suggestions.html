@@ -8,33 +8,6 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% from "base/_formhelpers.html" import render_field, render_autocomplete_field, render_captcha_field %}
 {% block body %}
 <div class="container">
-  <div class="row p-3" style="display:block;">
-    <div class="card-group">
-      <div class="card indexer">
-        <div class="card-header text-center"><b>{{gettext("For instance admins: see suggested URLS and index/remove
-            them")}}</b></div>
-        <div class="card-body">
-          {% with messages = get_flashed_messages() %}
-          {% if messages %}
-          <div class="notification is-danger">
-            {% if session.get('theme') == 'dark' %}
-            <div class="d-flex justify-content-start"><img src="{{ url_for('static', filename='happy_pears_dark.png')}}"
-                width="30px">
-              <h5>{{gettext(messages[0])}}</h5>
-            </div>
-            {% else %}
-            <div class="d-flex justify-content-start"><img src="{{ url_for('static', filename='happy_pears.png')}}"
-                width="30px">
-              <h5>{{gettext(messages[0])}}</h5>
-            </div>
-            {% endif %}
-          </div>
-          {% endif %}
-          {% endwith %}
-        </div>
-      </div>
-    </div>
-  </div>
   <div class="row">
     <div class="col-md-10 mb-5">
       <div class="form-check form-switch" id="hide-already-indexed-suggestions-switch">
@@ -87,9 +60,10 @@ SPDX-License-Identifier: AGPL-3.0-only
                 onclick="indexSuggestion({{loop.index}}, '{{suggestion.url}}')">Index</button>
             </div>
             <div class="input-group mb-3">
-              <input class="form-control bg-danger" id="delete-reason-{{loop.index}}"
-                placeholder="Optionally, add a note about why this entry should be deleted">
-              <button class="btn btn-danger border border-light">Delete</button>
+              <input class="form-control bg-danger text-white" id="reject-reason-{{loop.index}}"
+                placeholder="Optionally, add a note about why this entry should be rejected">
+              <button class="btn btn-danger border border-light" id="suggestion-rej-{{loop.index}}"
+              onclick="deleteSuggestion({{loop.index}}, '{{suggestion.url}}')">Reject</button>
             </div>
           </div>
         </div>
@@ -115,10 +89,45 @@ SPDX-License-Identifier: AGPL-3.0-only
             console.log(respData);
             if (respData.success) {
               $button.text(`Indexing succesful`);
+              location.reload();
             } else {
               $button
                 .prop("disabled", false)
                 .text(`Indexing unsuccessful, click to try again`)
+                .parent()
+                .after(
+                  $(`<div class="alert alert-danger mt-1">`)
+                    .text(respData.messages.join("<br>"))
+                );
+            }
+          });
+        };
+
+        function deleteSuggestion(suggestionID, url) {
+          let $button = $(`#suggestion-rej-${suggestionID}`);
+          $button.prop("disabled", true);
+          $button.text("Processing...");
+          $reasonField = $(`#reject-reason-${suggestionID}`);
+          let reason = $reasonField.val();
+          $.ajax({
+            url: "/indexer/reject_suggestion_ajax",
+            type: "POST",
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify({
+              url: url,
+              reason: reason
+            })
+          }).done((respData) => {
+            console.log(respData);
+            if (respData.success) {
+              $button.text(`Rejection succesful`);
+              $reasonField.val(null);
+              location.reload();
+            } else {
+              $button
+                .prop("disabled", false)
+                .text(`Rejection unsuccessful, click to try again`)
                 .parent()
                 .after(
                   $(`<div class="alert alert-danger mt-1">`)

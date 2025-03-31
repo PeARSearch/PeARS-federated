@@ -15,7 +15,7 @@ from langdetect import detect
 from app.auth.captcha import mk_captcha, check_captcha
 from app.auth.decorators import check_permissions
 from app import app, db
-from app.api.models import Urls, Pods, Suggestions
+from app.api.models import Urls, Pods, Suggestions, RejectedSuggestions
 from app.indexer import mk_page_vector
 from app.utils import read_urls, parse_query
 from app.utils_db import create_pod_in_db, create_pod_npz_pos, create_or_replace_url_in_db, delete_url_representations, create_suggestion_in_db
@@ -244,6 +244,43 @@ def index_url_ajax():
         "success": s_success, 
         "messages": s_messages
     })
+
+
+@indexer.route("reject_suggestion_ajax/", methods=["POST"])
+@check_permissions(login=True, confirmed=True, admin=True)
+def reject_suggestion_ajax():
+    url = request.json.get  ('url').strip()
+    reason = request.json.get('reason').strip()
+    matching_suggestions = (
+        db.session
+        .query(Suggestions)
+        .filter_by(url=url)
+        .all()
+    )
+    if not matching_suggestions:
+        return jsonify({
+            "success": False,
+            "messages": [f"url {url} does not exist in the suggestion database"]
+        })
+
+    # record rejected suggestion
+    rs_ids = []
+    for s in matching_suggestions:
+        rs = RejectedSuggestions(url=url, pod=s.pod, notes=s.notes, contributor=s.contributor, rejection_reason=reason)
+        rs_ids.append(rs_ids)
+        db.session.add(rs)
+
+        # remove original suggestion from DB
+        db.session.delete(s)
+
+        # commit changes
+        db.session.commit()
+
+    return jsonify({
+        "success": True,
+        "messages": [f"Created entries in RejectedSuggestions with ids {rs_ids}"]
+    })
+
 
 @indexer.route("index_suggestions/", methods=["GET", "POST"])
 @check_permissions(login=True, confirmed=True, admin=True)
