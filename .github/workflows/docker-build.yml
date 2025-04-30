@@ -37,13 +37,19 @@ jobs:
           BRANCH_NAME=$(echo "${{ github.ref }}" | sed 's/refs\/heads\///')
           echo "::set-output name=tag::${BRANCH_NAME}"
         fi
-
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+  
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
         context: .
         file: deployment/Dockerfile
         push: true
+        platforms: linux/amd64,linux/arm64
         tags: pearsproject/pears-federated:${{ steps.docker-tag.outputs.tag }}
 
     - name: Image digest
