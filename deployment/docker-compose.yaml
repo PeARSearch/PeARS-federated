@@ -18,11 +18,8 @@ services:
       - ${PEARS_DIR}/.env
     image: pearsproject/pears-network:latest
     environment:
-      - BIND_ADDR=0.0.0.0:7947
-      - RPC_ADDR=0.0.0.0:7374
-      - PEARS_URL=https://${DOMAIN}
-      - LIGHTHOUSE_URL=${LIGHTHOUSE_URL:-}
-      - PEARS_LIST_FILE="/var/lib/pears/network/known_instances.txt"
+      - PEARS_LIST_FILE=/var/lib/pears/network/known_instances.txt
+    entrypoint: ["/app/pears-network", "run", "--bind-addr", "0.0.0.0:7947", "--rpc-addr", "0.0.0.0:7374", "--pears-url", "https://test.local", "--pears-list-file", "/var/lib/pears/network/known_instances.txt"]
     ports:
       - "6789:6789"
     volumes:
