@@ -5,10 +5,30 @@ services:
     env_file:
       - ${PEARS_DIR}/.env
     image: pearsproject/pears-federated:latest
+    environment:
+      - PEARS_LIST_FILE="/var/lib/pears/network/known_instances.txt"
     ports:
       - "8000:8000"
     volumes:
       - ${PEARS_DIR}/data:/var/lib/pears/data
+      - pears-network-data:/var/lib/pears/network
+
+  pears-network:
+    env_file:
+      - ${PEARS_DIR}/.env
+    image: pearsproject/pears-network:latest
+    environment:
+      - BIND_ADDR=0.0.0.0:7947
+      - RPC_ADDR=0.0.0.0:7374
+      - PEARS_URL=https://${DOMAIN}
+      - LIGHTHOUSE_URL=${LIGHTHOUSE_URL:-}
+      - PEARS_LIST_FILE="/var/lib/pears/network/known_instances.txt"
+    ports:
+      - "6789:6789"
+    volumes:
+      - pears-network-data:/var/lib/pears/network
+    depends_on:
+      - pears-federated
 
   https-portal:
     env_file:
@@ -27,3 +47,4 @@ services:
 
 volumes:
   https-portal-data:  # Persistent storage for HTTPS certificates and other HTTPS-Portal data
+  pears-network-data:  # Persistent storage for network-specific data

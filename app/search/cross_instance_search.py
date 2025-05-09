@@ -1,23 +1,46 @@
+from os import getenv
+from os.path import dirname, exists, join, realpath
 from time import time
 from urllib.parse import urlparse
+
 import numpy as np
 import requests
 from requests.exceptions import ConnectionError
-from os.path import dirname, realpath, join, exists
 from scipy.spatial import distance
-from app import app, LANGUAGE_CODES
+
+from app import LANGUAGE_CODES, app
 from app.search.score_pages import compute_query_vectors
 
 base_dir_path = dirname(dirname(dirname(realpath(__file__))))
 
+
+# get_known_instances() gathers the pears instances from the local file and from the file populated by pears-network
 def get_known_instances():
-    known_instances = []
-    known_instances_file = join(base_dir_path, '.known_instances.txt')
-    if not exists(known_instances_file):
-        return known_instances
-    with open(known_instances_file, 'r', encoding='utf-8') as f:
-        known_instances = f.read().splitlines()
-    return known_instances
+    # Get instances from environment variable file if available
+    network_file_path = getenv("PEARS_LIST_FILE")
+    local_file_path = join(base_dir_path, ".known_instances.txt")
+
+    known_instances = set()  # Use a set to avoid duplicates
+
+    # Read from environment variable file if it exists
+    if network_file_path and exists(network_file_path):
+        try:
+            with open(network_file_path, "r", encoding="utf-8") as f:
+                known_instances.update(f.read().splitlines())
+        except Exception as e:
+            print(f"Error reading from {network_file_path}: {e}")
+
+    # Read from local file if it exists
+    if exists(local_file_path):
+        try:
+            with open(local_file_path, "r", encoding="utf-8") as f:
+                known_instances.update(f.read().splitlines())
+        except Exception as e:
+            print(f"Error reading from {local_file_path}: {e}")
+
+    # Convert back to a list and return
+    return list(known_instances)
+
 
 def filter_instances_by_language():
     ''' Return only instances that match the main language
