@@ -18,3 +18,12 @@ check-%: # detection of required software.
 ## build: Build the container image
 build: check-docker
 	@docker buildx build --no-cache --pull -f deployment/Dockerfile -t ${PROJECTNAME}:local-build .
+
+test:
+	pytest -v
+
+test-docker:
+	bash tests/run_tests_docker.sh
+
+test-cov:
+	pytest --cov=app tests/ -v
