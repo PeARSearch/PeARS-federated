@@ -38,7 +38,7 @@ def run_config(app):
     app.config['APPLICABLE_LAW'] = getenv("APPLICABLE_LAW", None)
     app.config['SERVERS'] = getenv("SERVERS", None)
     app.config['EU_SPECIFIC'] = True if getenv("EU_SPECIFIC", "false").lower() == 'true' else False
-    app.config['SNIPPET_LENGTH'] = int(getenv("SNIPPET_LENGTH"))
+    app.config['SNIPPET_LENGTH'] = int(getenv("SNIPPET_LENGTH", 10))
 
     # User-related settings
     app.config['NEW_USERS'] = True if getenv("NEW_USERS_ALLOWED", "false").lower() == 'true' else False
