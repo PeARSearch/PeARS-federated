@@ -8,6 +8,7 @@ from os.path import dirname, join, realpath
 from time import sleep
 import itertools
 import hashlib
+import numpy as np
 from flask import session, Blueprint, request, render_template, url_for, flash, redirect, jsonify
 from flask_login import login_required, current_user
 from flask_babel import gettext
@@ -309,15 +310,30 @@ def index_suggestions():
         total_count = 0
         pod_counts = {}
         created_dates = []
+        notes = []
         grouped_by_pod = itertools.groupby(suggestions_with_url, lambda s: s.pod)
         for pod, suggestions_with_pod in grouped_by_pod:
             suggestion_list = list(suggestions_with_pod)
             created_dates.extend([s.date_created for s in suggestion_list])
+            notes.extend([s.notes for s in suggestion_list])
             pod_count = len(suggestion_list)
             pod_counts[pod] = pod_count
             total_count += pod_count
-        created_dates_sorted = sorted(created_dates)
-        suggestions_summary.append({"url": url, "total_count": total_count, "suggestions_by_pod": pod_counts, "first_created": created_dates_sorted[0], "last_created": created_dates_sorted[-1]})
+        sort_by_date_idx = np.argsort(created_dates)
+        created_dates_sorted = np.array(created_dates)[sort_by_date_idx]
+        notes_sorted = np.array(notes)[sort_by_date_idx]
+        notes_combined = "\n\n".join(notes_sorted)
+        _notes_preview = " | ".join(notes_sorted)[:50]
+        notes_preview = _notes_preview if len(_notes_preview) < 50 else _notes_preview + "..."
+        suggestions_summary.append({
+            "url": url, 
+            "total_count": total_count, 
+            "suggestions_by_pod": pod_counts, 
+            "first_created": created_dates_sorted[0], 
+            "last_created": created_dates_sorted[-1], 
+            "notes": notes_combined,
+            "notes_preview": notes_preview 
+        })
 
     return render_template("indexer/index_suggestions.html", suggestions=suggestions_summary, hide_already_indexed_urls=hide_already_indexed_urls)
 

@@ -49,6 +49,31 @@ SPDX-License-Identifier: AGPL-3.0-only
             <span class="badge text-bg-secondary">last</span> <span
               class="text-light">{{suggestion.last_created.year}}-{{suggestion.last_created.month}}-{{suggestion.last_created.day}}</span>
           </p>
+          <div class="accordion mb-3" id="notes-accordion-{{loop.index}}">
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed bg-info" type="button" data-bs-toggle="collapse" data-bs-target="#notes-collapse-{{loop.index}}">
+                <strong>Notes:</strong>&nbsp;<small><em>(click to expand)</em></small>
+                &nbsp;<span class="badge text-light"></span>{{suggestion.notes_preview}}</span>
+              </button>
+            </h2>
+            <div id="notes-collapse-{{loop.index}}" class="accordion-collapse collapse" data-bs-parent="notes-accordion-{{loop.index}}">
+              <div class="accordion-body">
+                <div class="form-group">
+                  <div class="mb-3">
+                    <label for="notes-{{loop.index}}" class="form-label">
+                      <small>By default, this shows the concatenated notes of all the users that suggested this URL. Please remove/edit as desired before indexing.</small>
+                    </label>
+                    <textarea class="form-control" id="notes-{{loop.index}}" rows="3">
+                      {{suggestion.notes}}
+                    </textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+
           <div class="form-group form-inline">
             <div class="input-group mb-3">
               <select id="suggestion-pod-{{loop.index}}" class="form-control form-select">
@@ -73,6 +98,7 @@ SPDX-License-Identifier: AGPL-3.0-only
         function indexSuggestion(suggestionID, url) {
           let $button = $(`#suggestion-${suggestionID}`);
           let theme = $(`#suggestion-pod-${suggestionID}`).val();
+          let notes = $(`#notes-${suggestionID}`).val();
           $button.prop("disabled", true);
           $button.text("Indexing...")
           $.ajax({
@@ -83,7 +109,7 @@ SPDX-License-Identifier: AGPL-3.0-only
             data: JSON.stringify({
               url: url,
               theme: theme,
-              notes: ""
+              notes: notes
             })
           }).done((respData) => {
             console.log(respData);
