@@ -215,6 +215,7 @@ def index_url_ajax():
     url = request.json.get('url').strip()
     theme = request.json.get('theme').strip()
     notes = request.json.get('notes').strip()
+    custom_theme = request.json.get('customTheme', 'n') == 'y'
     existing_url = (
         db.session
         .query(Urls)
@@ -227,13 +228,23 @@ def index_url_ajax():
             "messages": [f"url {url} already exists (pod={existing_url.pod}, contributor={existing_url.contributor})"] 
         })
     
-    suggestion = (
-        db.session
-        .query(Suggestions)
-        .filter_by(url=url, pod=theme)
-        .order_by(Suggestions.date_created.desc())
-        .first()
-    )
+    if custom_theme: # custom pod chosen by admin
+        suggestion = (
+            db.session
+            .query(Suggestions)
+            .filter_by(url=url)
+            .order_by(Suggestions.date_created.desc())
+            .first()
+        )
+    else:  # pod was chosen from the list of suggested themes 
+        suggestion = (
+            db.session
+            .query(Suggestions)
+            .filter_by(url=url, pod=theme)
+            .order_by(Suggestions.date_created.desc())
+            .first()
+        )
+    
     if not suggestion:
         return jsonify ({
             "success": False,

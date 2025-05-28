@@ -28,7 +28,7 @@ SPDX-License-Identifier: AGPL-3.0-only
       </div>
 
       {% for suggestion in suggestions %}
-      <div class="card mt-4">
+      <form class="card mt-4">
         <div class="card-header border-secondary bg-secondary">
           <button class="btn btn-primary">
             <span title="Total number of times that this url was suggested"
@@ -78,11 +78,17 @@ SPDX-License-Identifier: AGPL-3.0-only
             <div class="input-group mb-3">
               <select id="suggestion-pod-{{loop.index}}" class="form-control form-select">
                 {% for pod, _ in suggestion.suggestions_by_pod.items() %}
-                <option value="{{pod}}">Add to pod: {{pod}}</option>
+                <option value="{{pod}}">Suggested pod: {{pod}}</option>
                 {% endfor %}
               </select>
               <button class="btn btn-success index-suggestion" id="suggestion-{{loop.index}}"
-                onclick="indexSuggestion({{loop.index}}, '{{suggestion.url}}')">Index</button>
+                onclick="indexSuggestion({{loop.index}}, '{{suggestion.url}}', false)">Index with suggested pod</button>
+            </div>
+            <div class="input-group mb-3">
+              <input class="form-control" id="suggestion-custom-pod-{{loop.index}}"
+                placeholder="... or specify a custom pod">
+              <button class="btn btn-success" id="suggestion-custom-pod-btn-{{loop.index}}"
+              onclick="indexSuggestion({{loop.index}}, '{{suggestion.url}}', true)">Index with custom pod</button>
             </div>
             <div class="input-group mb-3">
               <input class="form-control bg-danger text-white" id="reject-reason-{{loop.index}}"
@@ -92,13 +98,20 @@ SPDX-License-Identifier: AGPL-3.0-only
             </div>
           </div>
         </div>
-      </div>
+      </form>
       {% endfor %}
       <script>
-        function indexSuggestion(suggestionID, url) {
+        function indexSuggestion(suggestionID, url, customPod) {
           let $button = $(`#suggestion-${suggestionID}`);
-          let theme = $(`#suggestion-pod-${suggestionID}`).val();
-          let notes = $(`#notes-${suggestionID}`).val();
+          let $customThemeInput = $(`#suggestion-custom-pod-${suggestionID}`);
+          let $deleteReasonField = $(`#reject-reason-${suggestionID}`);
+          let theme = $(`#suggestion-pod-${suggestionID}`).val();          
+          if (customPod) {
+            $button = $(`#suggestion-custom-pod-btn-${suggestionID}`);
+            theme = $customThemeInput.val();
+          }
+          let $notesField = $(`#notes-${suggestionID}`);
+          let notes = $notesField.val();
           $button.prop("disabled", true);
           $button.text("Indexing...")
           $.ajax({
@@ -109,12 +122,14 @@ SPDX-License-Identifier: AGPL-3.0-only
             data: JSON.stringify({
               url: url,
               theme: theme,
-              notes: notes
+              notes: notes,
+              customTheme: customPod ? 'y' : 'n'
             })
           }).done((respData) => {
             console.log(respData);
             if (respData.success) {
               $button.text(`Indexing succesful`);
+              $("form").each(function() {this.reset();});
               location.reload();
             } else {
               $button
@@ -133,8 +148,8 @@ SPDX-License-Identifier: AGPL-3.0-only
           let $button = $(`#suggestion-rej-${suggestionID}`);
           $button.prop("disabled", true);
           $button.text("Processing...");
-          $reasonField = $(`#reject-reason-${suggestionID}`);
-          let reason = $reasonField.val();
+          let $deleteReasonField = $(`#reject-reason-${suggestionID}`);
+          let reason = $deleteReasonField.val();
           $.ajax({
             url: "/indexer/reject_suggestion_ajax",
             type: "POST",
@@ -148,7 +163,7 @@ SPDX-License-Identifier: AGPL-3.0-only
             console.log(respData);
             if (respData.success) {
               $button.text(`Rejection succesful`);
-              $reasonField.val(null);
+              $("form").each(function() {this.reset();});
               location.reload();
             } else {
               $button
