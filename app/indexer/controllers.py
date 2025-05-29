@@ -215,6 +215,13 @@ def index_url_ajax():
     url = request.json.get('url').strip()
     theme = request.json.get('theme').strip()
     notes = request.json.get('notes').strip()
+
+    if not theme:
+        return jsonify({
+            "success": False,
+            "messages": ["Pod name cannot be empty"]
+        })
+
     custom_theme = request.json.get('customTheme', 'n') == 'y'
     existing_url = (
         db.session
