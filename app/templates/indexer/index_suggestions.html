@@ -27,6 +27,11 @@ SPDX-License-Identifier: AGPL-3.0-only
         </script>
       </div>
 
+      {% if not suggestions %}
+        <div class="alert alert-warning mb-3">
+          {{gettext("Suggestions that still need to be indexed (or rejected) will appear here.")}}
+        </div>
+      {% endif %}
       {% for suggestion in suggestions %}
       <form class="card mt-4">
         <div class="card-header border-secondary bg-secondary">
@@ -41,6 +46,14 @@ SPDX-License-Identifier: AGPL-3.0-only
           {% endfor %}
         </div>
         <div class="card-body border-dark bg-dark">
+          {% for existing_pod in suggestion.already_indexed_in %}
+          <div class="alert alert-warning mb-1">
+            <small>
+              {{gettext("This URL is already indexed under: ")}} {{existing_pod}}.
+            </small>
+          </div>
+          {% endfor %}
+
           <p><span class="badge text-bg-secondary">url</span> <a class="text-light"
               href="{{suggestion.url}}">{{suggestion.url}}</a></p>
           <p>

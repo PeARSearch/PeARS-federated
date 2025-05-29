@@ -316,15 +316,17 @@ def index_suggestions():
     grouped_by_url = itertools.groupby(suggestions, lambda s: s.url)
     suggestions_summary = []
     for url, suggestions_with_url in grouped_by_url:
-        if hide_already_indexed_urls:
-            existing_url = (
-                db.session
-                .query(Urls)
-                .filter_by(url=url)
-                .first()
-            )
-            if existing_url is not None:
-                continue
+        
+        # check if this URL was already indexed
+        existing_urls = (
+            db.session
+            .query(Urls)
+            .filter_by(url=url)
+            .all()
+        )
+        if existing_urls and hide_already_indexed_urls:
+            continue
+        
         total_count = 0
         pod_counts = {}
         created_dates = []
@@ -350,7 +352,8 @@ def index_suggestions():
             "first_created": created_dates_sorted[0], 
             "last_created": created_dates_sorted[-1], 
             "notes": notes_combined,
-            "notes_preview": notes_preview 
+            "notes_preview": notes_preview,
+            "already_indexed_in": [u.pod for u in existing_urls]
         })
 
     return render_template("indexer/index_suggestions.html", suggestions=suggestions_summary, hide_already_indexed_urls=hide_already_indexed_urls)
