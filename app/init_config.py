@@ -13,6 +13,7 @@ def run_config(app):
     app.config['MAIL_DEBUG'] = False
     app.config['MAIL_USERNAME'] = getenv("EMAIL_USER")
     app.config['MAIL_PASSWORD'] = getenv("EMAIL_PASSWORD")
+    app.config['SEND_MAIL_ON_SUGGESTION'] = getenv("SEND_EMAIL_ON_SUGGESTION") == "true"
     app.config['SITENAME'] = getenv("SITENAME")
     app.config['SITE_TOPIC'] = getenv("SITE_TOPIC")
     app.config['SEARCH_PLACEHOLDER'] = getenv("SEARCH_PLACEHOLDER")

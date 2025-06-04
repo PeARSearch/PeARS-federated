@@ -11,6 +11,7 @@ from flask import session, Blueprint, request, render_template, url_for, flash, 
 from flask_login import login_required, current_user
 from flask_babel import gettext
 from langdetect import detect
+from app.auth.token import send_email
 from app.auth.captcha import mk_captcha, check_captcha
 from app.auth.decorators import check_permissions
 from app import app, db
@@ -57,6 +58,7 @@ def suggest():
     form.captcha_id.data = captcha_id
     pods = Pods.query.all()
     themes = list(set([p.name.split('.u.')[0] for p in pods]))
+
     return render_template("indexer/suggest.html", form=form, themes=themes)
 
 @indexer.route("/amend", methods=["GET"])
@@ -198,6 +200,18 @@ def run_suggest_url():
             return render_template('indexer/suggest.html', form=form, themes=themes)
 
         print(url, theme, note)
+
+        # alert admin (assume for now the admin's address is the default sender)
+        if app.config["SEND_MAIL_ON_SUGGESTION"]:
+            admin_mail = app.config["MAIL_DEFAULT_SENDER"]
+            sitename = app.config["SITENAME"]
+            subject = f"New suggestion on your PeARS instance: {sitename}"
+            html = (
+                f"Hi! A new suggestion was just submitted to your instance {sitename}.<br><br>" +  
+                f"User: {contributor}<br>Suggested page: {url}<br>Pod: {theme}<br>Notes: {note}"
+            )
+            send_email(admin_mail, subject, html)
+
         create_suggestion_in_db(url=url, pod=theme, notes=note, contributor=contributor)
         flash(gettext('Many thanks for your suggestion'))
         return redirect(url_for('indexer.suggest'))
