@@ -33,7 +33,7 @@ SPDX-License-Identifier: AGPL-3.0-only
         </div>
       {% endif %}
       {% for suggestion in suggestions %}
-      <form class="card mt-4">
+      <form class="card mt-4" onsubmit="return false;">
         <div class="card-header border-secondary bg-secondary">
           <button class="btn btn-primary">
             <span title="Total number of times that this url was suggested"
