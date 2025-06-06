@@ -62,3 +62,5 @@ Werkzeug==3.0.1
 WTForms==3.1.2
 zipp==3.18.1
 captcha==0.6.0
+pytest==7.4.0
+pytest-mock==3.11.1

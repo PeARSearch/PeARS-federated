@@ -11,3 +11,5 @@ app.db
 .env
 .captchas/
 .maintenance_mode
+*.log
+tests/test_data/*
