@@ -11,7 +11,7 @@ from flask import Blueprint, jsonify, request, render_template, url_for
 from scipy.sparse import vstack, save_npz, load_npz
 from app.forms import SearchForm
 from app.api.models import Urls, Pods
-from app.auth.decorators import check_permissions, check_is_confirmed
+from app.auth.decorators import check_permissions, check_is_confirmed, requires_api_key
 from app import app, db, models
 from app.indexer.posix import load_posix, dump_posix
 from app.indexer.vectorizer import scale
@@ -74,3 +74,24 @@ def return_specific_url():
     displayresults = prepare_gui_results("",{u:url})
     return render_template('search/results.html', query="", results=displayresults, \
             internal_message=internal_message, searchform=SearchForm())
+
+@api.route("/auth_test", methods=["POST"])
+@requires_api_key
+def api_auth_test():
+    return jsonify({"message": "authentication successful"})
+
+
+@api.route("/suggest", methods=["POST"])
+@requires_api_key
+def record_suggestion():
+    username = request.get_json()["username"]
+
+    try:
+        url = request.get_json()["url"]
+        pod = request.get_json()["pod"]
+        notes = request.get_json()["notes"]
+    except KeyError:
+        return jsonify({"suggestion_success": False, "message": "Invalid input. Required fields: url, pod, notes"})
+    
+    create_suggestion_in_db(url, pod, notes, username)
+    return jsonify({"suggestion_success": True, "message": "Suggestion recorded successfully"})

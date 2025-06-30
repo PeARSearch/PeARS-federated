@@ -10,27 +10,34 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% block body %}
 <div class="container">
   <div class="row p-3">
+
+      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+          <div class="alert alert-danger">
+          {{ messages[0] }}
+          </div>
+      {% endif %}
+      {% endwith %}
+
+
     <div class="card-group">
       <div class="card">
         <div class="card-header text-center"><b>{{gettext("Your profile")}}</b></div>
           <div class="card-body">
+
 	    <p>{{gettext("Username:")}} {{username}}</p>
 	    <p>{{gettext("Email:")}} {{email}}</p>
 	    <p>{{gettext("#Contributions:")}} {{num_contributions}}</p>
 	    <p><a href='{{url_for('settings.delete_account')}}' class='btn btn-warning' onclick="return confirm('DANGER: Are you sure you want to delete your account completely?')">Delete account</a></p>
+      <p class="pt-3"><em>{{gettext("When using external applications (such as browser extensions), you can manage your API tokens here:")}}</em></p>
+      <p><a href='{{url_for('settings.request_api_token')}}' class='btn btn-primary'>Request API token</a></p>
+	    <p><a href='{{url_for('settings.invalidate_api_tokens')}}' class='btn btn-primary' onclick="return confirm('DANGER: This will invalidate all your API tokens and log you out of any linked apps (such as browser extensions) that you\'re using. Do this only if you think one of your tokens has been compromised. Contact your instance admin in case of doubt.')">Reset API tokens</a></p>
           </div>
           <div class="card-footer clearfix" style="height:38px"></div>
       </div>
     <div class="card">
       <div class="card-header text-center"><b>{{gettext("Change your personal data")}}</b></div>
       <div class="card-body">
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <div class="notification is-danger">
-            {{ messages[0] }}</a>
-            </div>
-        {% endif %}
-        {% endwith %}
       <form method="POST" action="/settings/change_email" enctype="multipart/form-data">
         {{ emailform.hidden_tag() }}
         <p>{{ render_field(emailform.email) }}</p>
@@ -54,13 +61,7 @@ SPDX-License-Identifier: AGPL-3.0-only
   <div class="card">
     <div class="card-header text-center"><b>{{gettext("Your contributions")}}</b></div>
       <div class="card-body">
- 
-         {% with messages = get_flashed_messages() %}
-         {% if messages %}
-            <div class="notification is-danger"><br><b>{{ messages[0] }}</b></div>
-         {% endif %}
-         {% endwith %}
-         <hr>
+      <hr>
         
 	 {% if session.get('theme') == 'dark' %}
 	 <div class="d-flex justify-content-start"><img src="{{ url_for('static', filename='happy_pears_dark.png')}}" width="30px"><h5>{{gettext('Web content')}}</h5></div><hr>

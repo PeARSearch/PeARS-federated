@@ -12,7 +12,7 @@ from app.utils_db import mv_pod
 from app import app, db
 from app.orchard.mk_urls_file import get_url_list_for_users
 from app.auth.decorators import check_permissions
-from app.auth.token import send_email
+from app.auth.email_token import send_email
 from app.forms import ReportingForm, AnnotationForm, FeedbackForm
 
 dir_path = dirname(dirname(realpath(__file__)))

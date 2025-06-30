@@ -172,7 +172,8 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(1000))
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
     is_confirmed = db.Column(db.Boolean, nullable=False, default=False)
-    confirmed_on = db.Column(db.DateTime, nullable=True)
+    confirmed_on = db.Column(db.DateTime, nullable=True)  
+    api_key_salt = db.Column(db.String(1000), nullable=True) # string that is used when generating API keys for the user. exists to provide a way to invalidate all of the user's keys if necessary (e.g. in case one is compromised)
     
     def __init__(self,
                  email=None,
@@ -187,6 +188,7 @@ class User(UserMixin, db.Model):
         self.is_admin = is_admin
         self.is_confirmed = is_confirmed
         self.confirmed_on = confirmed_on
+        self.api_key_salt = User.generate_api_key_salt()
 
     @property
     def serialize(self):
@@ -196,11 +198,12 @@ class User(UserMixin, db.Model):
             'username': self.username,
             'is_admin': self.is_admin,
             'is_confirmed': self.is_confirmed,
-            'confirmed_on': self.confirmed_on
+            'confirmed_on': self.confirmed_on,
+            'api_key_salt': self.api_key_salt
         }
     def remove(self):
         db.session.delete(self)
-
+                    
 
 class Personalization(Base):
     id = db.Column(db.Integer, primary_key=True)

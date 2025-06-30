@@ -18,7 +18,7 @@ from datetime import datetime
 from app.auth.decorators import check_permissions
 import random
 import string
-from app.auth.token import send_email, send_reset_password_email, generate_token, confirm_token
+from app.auth.email_token import send_email, send_reset_password_email, generate_token, confirm_token
 from app.auth.captcha import AudioCaptchaWithOptionalNoise, mk_captcha, check_captcha, refresh_captcha, captcha_dir
 
 

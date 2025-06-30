@@ -1,7 +1,9 @@
 from flask_login import current_user
 from functools import wraps
-from flask import render_template, url_for, flash, current_app
+from flask import render_template, url_for, flash, current_app, request, jsonify 
 from flask_babel import gettext
+
+from app.auth.api_token import validate_api_token
 
 
 def get_func_identifier(func):
@@ -64,4 +66,15 @@ def check_is_admin(func):
             return current_app.login_manager.unauthorized()
         return func(*args, **kwargs)
 
+    return decorated_function
+
+
+def requires_api_key(func):
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        post_data = request.get_json()
+        user, message = validate_api_token(post_data["username"], post_data["api_token"])
+        if not user:
+            return jsonify({"auth_success": False, "message": message}), 401
+        return func(*args, **kwargs)
     return decorated_function

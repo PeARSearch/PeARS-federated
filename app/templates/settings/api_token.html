@@ -1,0 +1,15 @@
+{% extends "base/base.html" %}
+
+{% block body %}
+<div class="container">
+  <div class="row p-3">
+  <h3>API token request</h3>
+  <p>{{gettext("If you got to this page, it's probably because you are trying to register an external app (e.g. a browser extension or bot). If this is the case, copy the token below and follow the instructions in the app you're trying to register. If you want to use the token more than once, make sure to save it somewhere secure, because after you close this page you won't be able to see it again (but you can always generate a new one). Also, after the indicated expiry date of your token, you'll have to request a new one. If you got to this page by mistake, don't worry, nothing scary is happening!")}}</p>
+  <div class="alert alert-danger">API keys are equivalent to passwords. Don't give them to anyone that you don't trust!</div>
+  <p class="pt-3"><em>Your token is:</em></p>
+  <h6><strong>{{token}}</strong></h6>
+  <p><small>Expiry date: 2025-07-30</small></p>
+  </div>
+</div>
+
+{% endblock%}

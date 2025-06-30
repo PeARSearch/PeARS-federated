@@ -19,7 +19,8 @@ from app.api.models import Urls, User
 from app.forms import EmailChangeForm, UsernameChangeForm
 from app.utils_db import delete_url_representations
 from app.auth.decorators import check_permissions
-from app.auth.token import send_email
+from app.auth.email_token import send_email
+import app.auth.api_token as api_token
 
 
 # Define the blueprint:
@@ -256,4 +257,22 @@ def change_username():
         flash(gettext("Your username has been successfully modified."))
         return redirect(url_for("settings.index"))
     print(form.errors)
+    return redirect(url_for("settings.index"))
+
+
+@settings.route('/request_api_token')
+@check_permissions(login=True, confirmed=True)
+def request_api_token():
+    token = api_token.generate_api_token(current_user)
+    return render_template("settings/api_token.html", token=token)
+
+@settings.route('/invalidate_api_tokens')
+@check_permissions(login=True, confirmed=False)
+def invalidate_api_tokens():
+    new_api_salt = api_token.generate_api_key_salt()
+    email_html = render_template("auth/api_key_reset.html")
+    send_email(current_user.email, "PeARS - API tokens reset", email_html)
+    current_user.api_key_salt = new_api_salt
+    db.session.commit()
+    flash(gettext("Your API tokens have been successfully reset."))
     return redirect(url_for("settings.index"))

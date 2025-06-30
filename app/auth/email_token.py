@@ -37,4 +37,3 @@ def send_reset_password_email(to, subject, template):
     )
     mail.send(msg)
     mail_logger.mailing(f"Mailed {to} with subject {subject}.")
-
