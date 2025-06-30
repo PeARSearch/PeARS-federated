@@ -10,6 +10,7 @@ import joblib
 from glob import glob
 from os.path import join, isdir, exists, dirname, realpath
 import sentencepiece as spm
+import app.auth.api_token as api_token
 
 sp = spm.SentencePieceProcessor()
 
@@ -188,7 +189,7 @@ class User(UserMixin, db.Model):
         self.is_admin = is_admin
         self.is_confirmed = is_confirmed
         self.confirmed_on = confirmed_on
-        self.api_key_salt = User.generate_api_key_salt()
+        self.api_key_salt = api_token.generate_api_key_salt()
 
     @property
     def serialize(self):
