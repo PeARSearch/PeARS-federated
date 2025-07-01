@@ -6,15 +6,17 @@ import logging
 from os import getenv
 from os.path import dirname, join, realpath
 from time import sleep
+import itertools
 import hashlib
-from flask import session, Blueprint, request, render_template, url_for, flash, redirect
+import numpy as np
+from flask import session, Blueprint, request, render_template, url_for, flash, redirect, jsonify
 from flask_login import login_required, current_user
 from flask_babel import gettext
 from langdetect import detect
 from app.auth.captcha import mk_captcha, check_captcha
 from app.auth.decorators import check_permissions
 from app import app, db
-from app.api.models import Urls, Pods
+from app.api.models import Urls, Pods, Suggestions, RejectedSuggestions
 from app.indexer import mk_page_vector
 from app.utils import read_urls, parse_query
 from app.utils_db import create_pod_in_db, create_pod_npz_pos, create_or_replace_url_in_db, delete_url_representations, create_suggestion_in_db
@@ -125,8 +127,6 @@ def index_from_url():
         return render_template('indexer/fail.html', messages = messages)
     return render_template('indexer/index.html', form1=form, form2=ManualEntryForm(request.form), themes=themes, default_screen=default_screen)
 
-
-
 @indexer.route("/manual", methods=["POST"])
 @check_permissions(login=True, confirmed=True, admin=True)
 def index_from_manual():
@@ -208,6 +208,155 @@ def run_suggest_url():
     pods = Pods.query.all()
     themes = list(set([p.name.split('.u.')[0] for p in pods]))
     return render_template('indexer/suggest.html', form=form, themes=themes)
+
+@indexer.route("index_from_suggestion_ajax/", methods=["POST"])
+@check_permissions(login=True, confirmed=True, admin=True)
+def index_url_ajax():
+    url = request.json.get('url').strip()
+    theme = request.json.get('theme').strip()
+    notes = request.json.get('notes').strip()
+
+    if not theme:
+        return jsonify({
+            "success": False,
+            "messages": ["Pod name cannot be empty"]
+        })
+
+    custom_theme = request.json.get('customTheme', 'n') == 'y'
+    existing_url = (
+        db.session
+        .query(Urls)
+        .filter_by(url=url)
+        .first()
+    )
+    if existing_url:
+        return jsonify({
+            "success": False,
+            "messages": [f"url {url} already exists (pod={existing_url.pod}, contributor={existing_url.contributor})"] 
+        })
+    
+    if custom_theme: # custom pod chosen by admin
+        suggestion = (
+            db.session
+            .query(Suggestions)
+            .filter_by(url=url)
+            .order_by(Suggestions.date_created.desc())
+            .first()
+        )
+    else:  # pod was chosen from the list of suggested themes 
+        suggestion = (
+            db.session
+            .query(Suggestions)
+            .filter_by(url=url, pod=theme)
+            .order_by(Suggestions.date_created.desc())
+            .first()
+        )
+    
+    if not suggestion:
+        return jsonify ({
+            "success": False,
+            "messages": [f"could not find suggestion with url {url}"]
+        })
+
+    s_success, s_messages, _ = run_indexer_url(url, theme, notes, current_user.username, request.host_url)
+    return jsonify({
+        "success": s_success, 
+        "messages": s_messages
+    })
+
+
+@indexer.route("reject_suggestion_ajax/", methods=["POST"])
+@check_permissions(login=True, confirmed=True, admin=True)
+def reject_suggestion_ajax():
+    url = request.json.get  ('url').strip()
+    reason = request.json.get('reason').strip()
+    matching_suggestions = (
+        db.session
+        .query(Suggestions)
+        .filter_by(url=url)
+        .all()
+    )
+    if not matching_suggestions:
+        return jsonify({
+            "success": False,
+            "messages": [f"url {url} does not exist in the suggestion database"]
+        })
+
+    # record rejected suggestion
+    rs_ids = []
+    for s in matching_suggestions:
+        rs = RejectedSuggestions(url=url, pod=s.pod, notes=s.notes, contributor=s.contributor, rejection_reason=reason)
+        rs_ids.append(rs_ids)
+        db.session.add(rs)
+
+        # remove original suggestion from DB
+        db.session.delete(s)
+
+        # commit changes
+        db.session.commit()
+
+    return jsonify({
+        "success": True,
+        "messages": [f"Created entries in RejectedSuggestions with ids {rs_ids}"]
+    })
+
+
+@indexer.route("index_suggestions/", methods=["GET", "POST"])
+@check_permissions(login=True, confirmed=True, admin=True)
+def index_suggestions():
+    hide_already_indexed_urls = request.args.get("hide_already_indexed", "y") == "y"
+
+    suggestions = (
+        db.session
+        .query(Suggestions)
+        .order_by(Suggestions.url, Suggestions.date_created.desc())
+    )
+
+    # use python itertools for grouping/summarizing because it's more flexible
+    grouped_by_url = itertools.groupby(suggestions, lambda s: s.url)
+    suggestions_summary = []
+    for url, suggestions_with_url in grouped_by_url:
+        
+        # check if this URL was already indexed
+        existing_urls = (
+            db.session
+            .query(Urls)
+            .filter_by(url=url)
+            .all()
+        )
+        if existing_urls and hide_already_indexed_urls:
+            continue
+        
+        total_count = 0
+        pod_counts = {}
+        created_dates = []
+        notes = []
+        grouped_by_pod = itertools.groupby(suggestions_with_url, lambda s: s.pod)
+        for pod, suggestions_with_pod in grouped_by_pod:
+            suggestion_list = list(suggestions_with_pod)
+            created_dates.extend([s.date_created for s in suggestion_list])
+            notes.extend([s.notes for s in suggestion_list])
+            pod_count = len(suggestion_list)
+            pod_counts[pod] = pod_count
+            total_count += pod_count
+        sort_by_date_idx = np.argsort(created_dates)
+        created_dates_sorted = np.array(created_dates)[sort_by_date_idx]
+        notes_sorted = np.array(notes)[sort_by_date_idx]
+        notes_combined = "\n\n".join(notes_sorted)
+        _notes_preview = " | ".join(notes_sorted)[:50]
+        notes_preview = _notes_preview if len(_notes_preview) < 50 else _notes_preview + "..."
+        suggestions_summary.append({
+            "url": url, 
+            "total_count": total_count, 
+            "suggestions_by_pod": pod_counts, 
+            "first_created": created_dates_sorted[0], 
+            "last_created": created_dates_sorted[-1], 
+            "notes": notes_combined,
+            "notes_preview": notes_preview,
+            "already_indexed_in": [u.pod for u in existing_urls]
+        })
+
+    return render_template("indexer/index_suggestions.html", suggestions=suggestions_summary, hide_already_indexed_urls=hide_already_indexed_urls)
 
 
 def run_indexer_url(url, theme, note, contributor, host_url):

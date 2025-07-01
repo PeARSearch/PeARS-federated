@@ -68,7 +68,13 @@ SPDX-License-Identifier: AGPL-3.0-only
                 <li class="nav-item"><a class="nav-link" href="{{url_for('search.index')}}">{{gettext('Search')}}</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{url_for('indexer.suggest')}}">{{gettext('Suggest')}}</a></li>
 		{% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
-                <li class="nav-item"><a class="nav-link" href="{{url_for('indexer.index')}}">{{gettext('Index')}}</a></li>
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Indexer</a>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="{{url_for('indexer.index')}}">{{gettext('Index new pages')}}</a></li>
+                    <li><a class="dropdown-item" href="{{url_for('indexer.index_suggestions')}}">{{gettext('Index suggested pages')}}</a></li>
+                  </ul>
+                </li>
 		{% endif %}
                 <li class="nav-item"><a class="nav-link" href="{{url_for('orchard.index')}}">{{gettext('Categories')}}</a></li>
 		{% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
@@ -119,7 +125,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 </body>
 <!-- script references -->
 <script src="{{ url_for('static', filename='js/jquery-3.7.1.min.js')}}"></script>
-<script src="{{ url_for('static', filename='js/bootstrap-5.3.3/bootstrap.min.js')}}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap-5.3.3/bootstrap.bundle.min.js')}}"></script>
 <script src="{{ url_for('static', filename='js/color.js')}}"></script>
 
 </html>

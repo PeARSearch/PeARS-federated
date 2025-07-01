@@ -70,6 +70,38 @@ class Suggestions(Base):
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
 
 
+class RejectedSuggestions(Base):
+    id = db.Column(db.Integer, primary_key=True)
+    url = db.Column(db.String(1000))
+    pod = db.Column(db.String(1000))
+    notes = db.Column(db.String(1000))
+    contributor = db.Column(db.String(1000))
+    rejection_reason = db.Column(db.String(1000))
+
+    def __init__(self, url=None, pod=None, notes=None, contributor=None, rejection_reason=None):
+        self.url = url
+        self.pod = pod
+        self.notes = notes
+        self.contributor = contributor
+        self.rejection_reason = rejection_reason
+
+    def __repr__(self):
+        return self.url
+
+    @property
+    def serialize(self):
+        return {
+            'id': self.id,
+            'pod': self.pod,
+            'notes': self.notes,
+            'contributor': self.contributor,
+            'rejection_reason': self.rejection_reason
+        }
+
+    def as_dict(self):
+        return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
+
+
 class Urls(Base):
     id = db.Column(db.Integer, primary_key=True)
     url = db.Column(db.String(1000))
