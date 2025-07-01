@@ -62,9 +62,16 @@ If you want to search and index in several languages at the same time, you can a
 where you should replace lc with a language code of your choice. For now, we are only supporting English (en), German (de), French (fr) and Malayalam (ml) but more languages are coming!
 
 
-##### 5. Set up your .env
+##### 5. Set up your configuration
 
 There is a .env template file at *.env-template* in the root directory of the repository. You should copy it to *.env* and fill in the information for your setup.
+
+You should also create an admin user to run your PeARS. You can do so by using the following commands:
+
+```
+flask pears create-user <username> <password> <email>
+flask pears setadmin <username>
+```
 
 
 ##### 6. Run your pear!
