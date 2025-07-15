@@ -62,6 +62,10 @@ def mk_vec_matrix(lang):
     for npz in npzs:
         podnames.append(npz.split('/')[-1].replace('.npz',''))
 
+    # deal with languages for which no pods exist (yet)
+    if not podnames:
+        return None, [], [], []
+
     with app.app_context():
         for i in range(len(podnames)):
             us = db.session.query(Urls).filter_by(pod=podnames[i]).all()
@@ -71,11 +75,17 @@ def mk_vec_matrix(lang):
             idvs = [u.vector for u in us if u.vector is not None]
             urls.extend(upaths)
             npz = load_npz(npzs[i]).toarray()
-            npz = npz[idvs,:]
-            m.append(csr_matrix(npz))
+            try:
+                npz = npz[idvs,:]
+                m.append(csr_matrix(npz))
+            except IndexError as e:
+                raise RuntimeError(f"pod {npzs[i]} seems to be corrupt - {e}")
             c+=npz.shape[0]
             bins.append(c)
-        m = vstack(m)
+        try:
+            m = vstack(m)
+        except ValueError as e:
+            raise RuntimeError(f"error stacking these pods: {npzs} - {e}")
         m = csr_matrix(m)
     return m, bins, podnames, urls
 
@@ -88,7 +98,8 @@ def load_vec_matrix(lang):
         urls = models[lang]['urls']
     else:
         m, bins, podnames, urls = mk_vec_matrix(lang)
-    m = m.todense()
+    if m is not None:
+        m = m.todense()
     return m, bins, podnames, urls
 
 
@@ -97,6 +108,8 @@ def load_vec_matrix(lang):
 def compute_scores(query, query_vectors, lang):
     snippet_length = app.config['SNIPPET_LENGTH']
     m, bins, podnames, urls = load_vec_matrix(lang)
+    if m is None:
+        return {}
     query_vector = np.sum(query_vectors, axis=0)
     
     # Only compute cosines over the dimensions of interest
@@ -252,6 +265,8 @@ def score_pods(query_words, query_vectors, extended_q_vectors, lang):
     pod_scores = {}
 
     m, bins, podnames = load_vec_matrix(lang)
+    if not m:
+        return {}
 
     tmp_best_pods = []
     tmp_best_scores = []
