@@ -11,13 +11,13 @@ dir_path = dirname(dirname(realpath(__file__)))
 pod_dir = getenv("PODS_DIR", join(dir_path, 'pods'))
 
 
-def get_url_list_for_users(theme):
+def get_url_list_for_users(theme, lang):
     urls = []
     url_theme = theme.replace(' ', '_')
     hfile = join(pod_dir, url_theme + ".pears.txt")
     f_out = open(hfile,'w', encoding='utf-8')
-    for url in Urls.query.filter(Urls.pod.contains(theme+'.u.')).all():
-        if not url.pod.startswith(theme+'.u.'):
+    for url in Urls.query.filter(Urls.pod.contains(theme+'.l.'+lang+'.u.')).all():
+        if not url.pod.startswith(theme+'.l.'+lang+'.u.'):
             continue
         if url.url.startswith('pearslocal'):
             url = join(request.host_url,'api','get?url='+url.url)
@@ -31,10 +31,10 @@ def get_url_list_for_users(theme):
     return filename, urls
 
 
-def get_reindexable_pod_for_admin(theme):
+def get_reindexable_pod_for_admin(theme, lang):
     urls = []
-    for url in Urls.query.filter(Urls.pod.contains(theme+'.u.')).all():
-        if not url.pod.startswith(theme+'.u.'):
+    for url in Urls.query.filter(Urls.pod.contains(theme+'.l.'+lang+'.u.')).all():
+        if not url.pod.startswith(theme+'.l.'+lang+'.u.'):
             continue
         user = url.contributor
         user = user.replace('@','') #legacy fix

@@ -132,6 +132,8 @@ def get_local_search_results(query):
         r, s = score_pages.run_search(clean_query, lang, extended=app.config['EXTEND_QUERY'])
         for res in r.values():
             res["instance"] = app.config["SITENAME"]  # to distinguish local results from remote ones later on
+        if any(_r for _r in r if _r in results):
+            print({_r for _r in r if _r in results})
         results.update(r)
         scores.extend(s)
     sorted_scores = np.argsort(scores)[::-1]
@@ -164,6 +166,8 @@ def get_search_results(query):
             r, s = score_pages.run_search(clean_query, lang, extended=app.config['EXTEND_QUERY'])
             for res in r.values():
                 res["instance"] = app.config["SITENAME"]  # to distinguish local results from remote ones later on
+            if any(_r for _r in r if _r in results):
+                print({_r for _r in r if _r in results})
             results.update(r)
             scores.extend(s)
         except Exception as e:

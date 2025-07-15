@@ -20,9 +20,8 @@ pod_dir = getenv("PODS_DIR", join(dir_path, 'app', 'pods'))
 
 def parse_pod_name(pod_name):
     logging.debug(f">> UTILS_DB: parse_pod_name: {pod_name}")
-    theme = pod_name.split('.u.')[0]
-    contributor = pod_name.split('.u.')[1]
-    lang = Pods.query.filter_by(name=pod_name).first().language
+    theme, lang_and_user = pod_name.split('.l.')
+    lang, contributor = lang_and_user.split('.u.')
     return contributor, theme, lang
 
 
@@ -37,7 +36,7 @@ def create_pod_npz_pos(contributor, theme, lang):
     """
     user_dir = join(pod_dir,contributor, lang)
     Path(user_dir).mkdir(parents=True, exist_ok=True)
-    pod_path = join(user_dir, theme+'.u.'+contributor )
+    pod_path = join(user_dir, theme + '.l.' + lang +'.u.'+contributor)
     vocab = models[lang]['vocab']
     if not isfile(pod_path+'.npz'):
         logging.debug(">> UTILS_DB: create_pod_npz_pos: Making 0 CSR matrix for new pod")
@@ -56,8 +55,7 @@ def create_pod_npz_pos(contributor, theme, lang):
 def create_pod_in_db(contributor, theme, lang):
     '''If the pod does not exist, create it in the database.
     '''
-    if contributor is not None:
-        theme = theme+'.u.'+contributor
+    theme = theme + ".l." + lang + '.u.' + contributor
     url = join("http://localhost:8080/api/pods/",contributor,lang,theme.replace(' ', '+'))
     if not db.session.query(Pods).filter_by(url=url).all():
         p = Pods(url=url)
@@ -88,7 +86,7 @@ def create_or_replace_url_in_db(url, title, idv, snippet, theme, lang, note, sha
     u.title = title
     u.vector = idv
     u.snippet = snippet
-    u.pod = theme+'.u.'+contributor
+    u.pod = theme + '.l.' + lang + '.u.' + contributor
     u.language = lang
     u.share = share
     u.contributor = contributor
@@ -130,14 +128,15 @@ def add_to_npz(v, pod_path):
 ############
 
 def delete_pod_representations(pod_name):
-    if '.u.' in pod_name:
-        theme, contributor = pod_name.split('.u.')
-        logging.debug(theme, contributor)
-    else:
-        theme = pod_name
+    if '.l.' in pod_name and '.u' in pod_name:
+        theme, lang_and_user = pod_name.split('.l.')
+        lang, contributor = lang_and_user.split('.u.') 
+    elif '.l.' in pod_name:
+        theme, lang = pod_name.split('.l.')
         contributor = None
+    else:
+        raise ValueError("Cannot delete pod without language code in name!")
     pod = db.session.query(Pods).filter_by(name=pod_name).first()
-    lang = pod.language
     urls = db.session.query(Urls).filter_by(pod=pod_name).all()
     if urls is not None:
         for u in urls:
@@ -252,34 +251,29 @@ def rm_doc_from_pos(vid, pod):
 ##########
 
 
-def mv_pod(src, target, contributor=None):
+def mv_pod(src, target, lang, contributor):
     if any(x in punctuation for x in target):
         return "Disallowed characters in new pod name. Please do not use punctuation."
     pods = db.session.query(Pods).all()
     contributor_pods = []
     for pod in pods:
-        if pod.name[-len(contributor)-3:] == '.u.'+contributor:
+        if contributor is not None and pod.name[-len(contributor)-3:] == '.u.'+contributor:
             contributor_pods.append(pod.name.split('.u.')[0])
     #logging.debug(src,contributor_pods)
-    if src not in contributor_pods:
+    if src + ".l." + lang not in contributor_pods:
         return "You cannot rename pods that you have never made a contribution to."
-    if target in contributor_pods:
+    if target + ".l." + lang in contributor_pods:
         return "You cannot use a pod name that you have already created in the past." #TODO: change this.
-    lang = Pods.query.filter_by(name=src+'.u.'+contributor).first().language
+    
     pod_path = join(pod_dir, contributor, lang)
     try:
-        src = src+'.u.'+contributor
-        target = target+'.u.'+contributor
+        src = src + '.l.' + lang +'.u.' + contributor
+        target = target + '.l.' + lang + '.u.' + contributor
         p = db.session.query(Pods).filter_by(name=src).first()
 
         #Rename npz
         src_path = join(pod_path,src+'.npz')
         target_path = join(pod_path,target+'.npz')
-        rename(src_path, target_path)
-
-        #Rename npz to idx
-        src_path = join(pod_path,src+'.npz.idx')
-        target_path = join(pod_path,target+'.npz.idx')
         rename(src_path, target_path)
 
         #Rename pos
@@ -303,4 +297,4 @@ def mv_pod(src, target, contributor=None):
             db.session.commit()
     except:
         return "Renaming failed. Contact your administrator."
-    return "Moved pod "+src.split('.u.')[0]+" to "+target.split('.u.')[0]
+    return f"Renamed pod {src.split('.l.')[0]} ({lang}) to {target.split('.l.')[0]} ({lang})"

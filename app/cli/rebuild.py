@@ -52,9 +52,8 @@ def rebuild_pods_and_urls(pod_dir, basedir):
         print(f"\n\n POD {p['name']}")
         dfu = pd.read_sql_table('urls', cnx)
         urls = dfu.loc[dfu['pod'] == p['name']]
-        theme = p['name'].split('.u.')[0]
-        username = p['name'].split('.u.')[1]
-        lang = p['language']
+        theme_and_lang, username = p['name'].split('.u.')
+        theme, lang = theme_and_lang.split('.l.')
         try:
             idx_path = join(source_pod_dir, username, username+'.idx')
             idx_to_url = joblib.load(idx_path)

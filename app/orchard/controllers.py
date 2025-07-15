@@ -26,31 +26,32 @@ def index():
     #query = db.session.query(Urls.pod.distinct().label("pod"))
     #keywords = [row.pod for row in query.all()]
     pods = db.session.query(Pods).all()
-    themes = [p.name.split('.u.')[0] for p in pods]
+    podnames_without_usernames = [p.name.split('.u.')[0] for p in pods] # for the purposes of the orchard, keep language codes but not usernames (e.g. `news.l.en.u.contributor` -> `news.l.en`)
     pod_urls = [p.url for p in pods]
     pears = []
     recorded = []
-    for i in range(len(themes)):
-        theme = themes[i]
+    for i in range(len(podnames_without_usernames)):
+        podname = podnames_without_usernames[i]
+        theme, lang = podname.split('.l.')
         pod_sig = ''.join([char for char in pod_urls[i] if char.isalpha()]) #Make signature from pod url for collapse function
-        if theme in recorded: #don't record same theme several times
+        if podname in recorded: #don't record same theme several times
             continue
         urls = []
-        for u in Urls.query.filter(Urls.pod.contains(theme+'.u.')).all():
-            if u.pod.startswith(theme+'.u.'):
-                urls.append(u)
-        pear = [theme, len(urls), pod_sig]
+        for u in Urls.query.filter(Urls.pod.contains(theme + '.l.' + lang + '.u.')).all():
+            urls.append(u)
+        pear = [theme, len(urls), pod_sig, lang]
         pears.append(pear)
-        recorded.append(theme) 
+        recorded.append(podname) 
     return render_template('orchard/index.html', pears=pears)
 
 
 @orchard.route('/get-a-pod', methods=['POST', 'GET'])
 def get_a_pod():
-    query = request.args.get('pod')
-    filename, urls = get_url_list_for_users(query)
+    theme = request.args.get('theme')
+    lang = request.args.get('lang')
+    filename, urls = get_url_list_for_users(theme, lang)
     print("\t>> Orchard: get_a_pod: generated", filename)
-    return render_template('orchard/get-a-pod.html', urls=urls, query=query, location=filename)
+    return render_template('orchard/get-a-pod.html', urls=urls, query=theme, location=filename)
 
 @orchard.route("/download", methods=['GET'])
 @check_permissions(login=True, confirmed=True, admin=True)
@@ -65,8 +66,9 @@ def download_file():
 def rename_pod():
     podname = request.args.get('oldname')
     newname = request.args.get('newname')
+    lang = request.args.get('lang')
     username = current_user.username
-    message = mv_pod(podname, newname, username)
+    message = mv_pod(podname, newname, lang, username)
     flash(message)
     return redirect(url_for('orchard.index'))
 

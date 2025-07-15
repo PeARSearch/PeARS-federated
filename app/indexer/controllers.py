@@ -43,7 +43,7 @@ def index():
     form1 = IndexerForm(request.form)
     form2 = ManualEntryForm(request.form)
     pods = Pods.query.all()
-    themes = list(set([p.name.split('.u.')[0] for p in pods]))
+    themes = list(set([p.name.split('.l.')[0] for p in pods]))
     default_screen = 'url'
     return render_template("indexer/index.html", \
             num_entries=num_db_entries, form1=form1, form2=form2, themes=themes, default_screen=default_screen)
@@ -58,7 +58,7 @@ def suggest():
     form = SuggestionForm()
     form.captcha_id.data = captcha_id
     pods = Pods.query.all()
-    themes = list(set([p.name.split('.u.')[0] for p in pods]))
+    themes = list(set([p.name.split('.l.')[0] for p in pods]))
     return render_template("indexer/suggest.html", form=form, themes=themes)
 
 @indexer.route("/amend", methods=["GET"])
@@ -71,7 +71,7 @@ def correct_entry():
     form1 = IndexerForm(request.form)
     form2 = ManualEntryForm(request.form)
     pods = Pods.query.all()
-    themes = list(set([p.name.split('.u.')[0] for p in pods]))
+    themes = list(set([p.name.split('.l.')[0] for p in pods]))
     default_screen = "url"
     
     if not session['index_url']:
@@ -107,7 +107,7 @@ def index_from_url():
     print("\t>> Indexer : from_url")
     contributor = current_user.username
     pods = Pods.query.all()
-    themes = list(set([p.name.split('.u.')[0] for p in pods]))
+    themes = list(set([p.name.split('.l.')[0] for p in pods]))
     default_screen = "url"
 
     form = IndexerForm(request.form)
@@ -139,7 +139,7 @@ def index_from_manual():
     print("\t>> Indexer : manual")
     contributor = current_user.username
     pods = Pods.query.all()
-    themes = list(set([p.name.split('.u.')[0] for p in pods]))
+    themes = list(set([p.name.split('.l.')[0] for p in pods]))
     default_screen = "manual"
 
     form = ManualEntryForm(request.form)
@@ -194,7 +194,7 @@ def run_suggest_url():
             form.captcha_answer.data = ""
             form.captcha_id.data = captcha_id
             pods = Pods.query.all()
-            themes = list(set([p.name.split('.u.')[0] for p in pods]))
+            themes = list(set([p.name.split('.l.')[0] for p in pods]))
             return render_template('indexer/suggest.html', form=form, themes=themes)
 
         print(url, theme, note)
@@ -206,7 +206,7 @@ def run_suggest_url():
     captcha_id, captcha_correct_answer = mk_captcha()
     form.captcha_id.data = captcha_id
     pods = Pods.query.all()
-    themes = list(set([p.name.split('.u.')[0] for p in pods]))
+    themes = list(set([p.name.split('.l.')[0] for p in pods]))
     return render_template('indexer/suggest.html', form=form, themes=themes)
 
 @indexer.route("index_from_suggestion_ajax/", methods=["POST"])

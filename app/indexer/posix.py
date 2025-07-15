@@ -9,17 +9,17 @@ pod_dir = getenv("PODS_DIR", join(dir_path, 'pods'))
 
 def load_posix(contributor, lang, theme):
     posix_path = join(pod_dir, contributor, lang)
-    pod_name = theme+'.u.'+contributor
+    pod_name = theme+'.l.'+lang+'.u.'+contributor
     posix = joblib.load(join(posix_path,pod_name+'.pos'))
     return posix
 
 def dump_posix(posindex, contributor, lang, theme):
     posix_path = join(pod_dir, contributor, lang)
-    pod_name = theme+'.u.'+contributor
+    pod_name = theme+'.l.'+lang+'.u.'+contributor
     joblib.dump(posindex, join(posix_path,pod_name+'.pos'))
 
 def posix_doc(text, doc_id, contributor, lang, theme):
-    pod_name = theme+'.u.'+contributor
+    pod_name = theme+'.l.'+lang+'.u.'+contributor
     posindex = load_posix(contributor, lang, theme)
     vocab = models[lang]['vocab']
     for pos, token in enumerate(text.split()):
@@ -37,8 +37,10 @@ def get_pod_sizes(pod_paths, lang):
     pod_sizes = {}
     for path in pod_paths:
         filename = path.split('/')[-1]
-        theme, contributor = filename.replace('.pos','').split('.u.')
-        _, idx = joblib.load(join(pod_dir, contributor, lang, theme+'.u.'+contributor+'.npz.idx'))
+        podname = filename.replace('.pos','')
+        theme_and_lang, contributor = podname.split('.u.')
+        theme, lang = theme_and_lang.split('.l.')
+        _, idx = joblib.load(join(pod_dir, contributor, lang, theme+'.l.'+lang+'.u.'+contributor+'.npz.idx'))
         pod_sizes[filename] = len(idx)
     pod_sizes = dict(sorted(pod_sizes.items(), key=lambda item: item[1], reverse=True))
     return pod_sizes
@@ -49,13 +51,17 @@ def load_posindices(lang, n = -1):
     if n == -1:
         for path in pod_paths:
             filename = path.split('/')[-1]
-            theme, contributor = filename.replace('.pos','').split('.u.')
+            podname = filename.replace('.pos','')
+            theme_and_lang, contributor = podname.split('.u.')
+            theme, _ = theme_and_lang.split(".l.")
             posindices[theme] = load_posix(contributor, lang, theme)
     else:
         pod_sizes = get_pod_sizes(pod_paths, lang)
         n_pod_names = dict(list(pod_sizes.items())[:n])
         for filename, size in n_pod_names.items():
-            theme, contributor = filename.replace('.pos','').split('.u.')
+            podname = filename.replace('.pos','')
+            theme_and_lang, contributor = podname.split('.u.')
+            theme, _ = theme_and_lang.split('.l.')
             print("Loading pod", theme, contributor, size)
             posindices[theme] = load_posix(contributor, lang, theme)
     return posindices

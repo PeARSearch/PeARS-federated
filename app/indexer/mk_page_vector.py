@@ -65,7 +65,7 @@ def compute_vector(url, theme, contributor, url_type):
         logging.info(f"TITLE {title} SNIPPET {snippet} CC {cc} ERROR {error}")
         create_pod_npz_pos(contributor, theme, lang)
         user_dir = join(pod_dir, contributor, lang)
-        npz_path = join(user_dir,theme+'.u.'+contributor+'.npz')
+        npz_path = join(user_dir,theme+'.l.'+lang+'.u.'+contributor+'.npz')
         pod_m = load_npz(npz_path)
         text = title + " " + body_str
         tokenized_text = tokenize_text(text, lang)
@@ -83,7 +83,7 @@ def compute_vector_local_docs(title, doc, theme, lang, contributor):
     for the user's chosen theme.
     """
     user_dir = join(pod_dir, contributor, lang)
-    npz_path = join(user_dir,theme+'.u.'+contributor+'.npz')
+    npz_path = join(user_dir, theme+'.l.'+lang+'.u.'+contributor+'.npz')
     pod_m = load_npz(npz_path)
     #print("Computing vectors for", target_url, "(",theme,")",lang)
     text = title + ". " + theme + ". " + doc

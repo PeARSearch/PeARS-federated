@@ -288,11 +288,15 @@ class UrlsModelView(ModelView):
         try:
             # at this point model variable has the unmodified values
             old_pod = model.pod
-            _, contributor = old_pod.split('.u.')
+            theme, lang_and_user = old_pod.split(".l.")
+            language, contributor = lang_and_user.split('.u.')
             if '.u.' not in form.pod.data:
                 form.pod.data+='.u.'+contributor
+            if '.l.' not in form.pod.data:
+                _theme, _user = form.pod.data.split(".u.")
+                form.pod.data = _theme + ".l." + language + ".u." + _user
             new_pod = form.pod.data
-            new_theme = new_pod.split('.u.')[0]
+            new_theme, new_lang_and_user = new_pod.split('.l.')
             p = db.session.query(Pods).filter_by(name=old_pod).first()
             lang = p.language
             form.populate_obj(model)

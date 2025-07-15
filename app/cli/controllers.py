@@ -131,8 +131,9 @@ def export_urls():
     urls = []
     pods = Pods.query.all()
     for pod in pods:
-        name = pod.name.split('.u.')[0]
-        urls.extend(get_reindexable_pod_for_admin(name))
+        theme_and_lang, _ = pod.name.split('.u.')
+        theme, lang = theme_and_lang.split('.l.')
+        urls.extend(get_reindexable_pod_for_admin(theme, lang))
     with open(filepath, 'w', encoding='utf-8') as f:
         for url in urls:
             f.write(url+'\n')

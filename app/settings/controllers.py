@@ -94,7 +94,7 @@ def index():
 
     for i in db.session.query(Urls).filter_by(contributor=username).all():
         url = join(request.host_url,'api','get?url='+i.url)
-        if i.pod.split('.u.')[0] == 'Tips':
+        if i.pod.split('.l.')[0] == 'Tips':
             tips.append([url, i.title])
         else:
             contributions.append([url, i.title])
