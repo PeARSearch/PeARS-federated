@@ -39,11 +39,13 @@ SPDX-License-Identifier: AGPL-3.0-only
             <span title="Total number of times that this url was suggested"
               class="badge text-bg-secondary">{{suggestion.total_count}}x</span>
           </button>
-          {% for pod, pod_count in suggestion.suggestions_by_pod.items() %}
-          <span class="btn btn-sm btn-dark">
-            {{pod_count}}x in <b>{{pod}}</b>
-          </span>
-          {% endfor %}
+          {% if not single_pod_indexing %}
+            {% for pod, pod_count in suggestion.suggestions_by_pod.items() %}
+            <span class="btn btn-sm btn-dark">
+              {{pod_count}}x in <b>{{pod}}</b>
+            </span>
+            {% endfor %}
+          {% endif %}
         </div>
         <div class="card-body border-dark bg-dark">
           {% for existing_pod in suggestion.already_indexed_in %}
@@ -88,21 +90,30 @@ SPDX-License-Identifier: AGPL-3.0-only
           </div>
 
           <div class="form-group form-inline">
-            <div class="input-group mb-3">
-              <select id="suggestion-pod-{{loop.index}}" class="form-control form-select">
-                {% for pod, _ in suggestion.suggestions_by_pod.items() %}
-                <option value="{{pod}}">Suggested pod: {{pod}}</option>
-                {% endfor %}
-              </select>
-              <button class="btn btn-success index-suggestion" id="suggestion-{{loop.index}}"
-                onclick="indexSuggestion({{loop.index}}, '{{suggestion.url}}', false)">Index with suggested pod</button>
-            </div>
-            <div class="input-group mb-3">
-              <input class="form-control" id="suggestion-custom-pod-{{loop.index}}"
-                placeholder="... or specify a custom pod">
-              <button class="btn btn-success" id="suggestion-custom-pod-btn-{{loop.index}}"
-              onclick="indexSuggestion({{loop.index}}, '{{suggestion.url}}', true)">Index with custom pod</button>
-            </div>
+
+            {% if single_pod_indexing %}
+              <div class="btn btn-success mb-3">
+                <input type="hidden" id="suggestion-custom-pod-{{loop.index}}" value="{{single_pod_name}}">
+                <button class="btn btn-success index-suggestion" id="suggestion-custom-pod-btn-{{loop.index}}"
+                  onclick="indexSuggestion({{loop.index}}, '{{suggestion.url}}', true)">Index this url</button>
+              </div>
+            {% else%}
+              <div class="input-group mb-3">
+                <select id="suggestion-pod-{{loop.index}}" class="form-control form-select">
+                  {% for pod, _ in suggestion.suggestions_by_pod.items() %}
+                  <option value="{{pod}}">Suggested pod: {{pod}}</option>
+                  {% endfor %}
+                </select>
+                <button class="btn btn-success index-suggestion" id="suggestion-{{loop.index}}"
+                  onclick="indexSuggestion({{loop.index}}, '{{suggestion.url}}', false)">Index with suggested pod</button>
+              </div>
+              <div class="input-group mb-3">
+                <input class="form-control" id="suggestion-custom-pod-{{loop.index}}"
+                  placeholder="... or specify a custom pod">
+                <button class="btn btn-success" id="suggestion-custom-pod-btn-{{loop.index}}"
+                onclick="indexSuggestion({{loop.index}}, '{{suggestion.url}}', true)">Index with custom pod</button>
+              </div>
+            {% endif %}
             <div class="input-group mb-3">
               <input class="form-control bg-danger text-white" id="reject-reason-{{loop.index}}"
                 placeholder="Optionally, add a note about why this entry should be rejected">

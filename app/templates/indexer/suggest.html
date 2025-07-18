@@ -30,7 +30,9 @@ SPDX-License-Identifier: AGPL-3.0-only
 	<p>Thank you for suggesting a resource to this PeARS instance! PeARS is a curated search engine. An admin will review your entry asap. Suggestions are normally accepted 
 	unless they contain offensive content or do not match the theme of the instance. We aim at indexing your entry within 24-48 hours.</p>
         <p>{{ render_field(form.suggested_url) }}</p>
-        <p>{{ render_autocomplete_field(form.theme) }}</p>
+        {% if not single_pod_indexing %}
+          <p>{{ render_autocomplete_field(form.theme) }}</p>
+        {% endif %}
         <p>{{ render_field(form.note) }}</p>
         <p>{{ render_captcha_field(form.captcha_answer, form.captcha_id.data) }}</p>
       </div><!-- card body -->

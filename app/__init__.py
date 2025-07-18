@@ -69,10 +69,18 @@ def inject_brand():
     """
     return dict(own_brand=app.config['OWN_BRAND'], logo_path=app.config['LOGO_PATH'])
 
+@app.context_processor
+def inject_single_pod_indexing_vars():
+    """Inject variables related to single pod indexing status
+    """
+    return {
+        "single_pod_indexing": app.config["SINGLE_POD_INDEXING"],
+        "single_pod_name": app.config["SINGLE_POD_NAME"]
+    }
+
 @app.route('/static/assets/<path:path>')
 def serve_logos(path):
     return send_from_directory(app.config['LOGO_PATH'], path)
-
 
 ########################
 # Load pretrained models
@@ -209,6 +217,14 @@ from app.utils_db import delete_url_representations, delete_pod_representations,
 from flask_admin import expose
 from flask_admin.contrib.sqla.view import ModelView
 from flask_admin.model.template import EndpointLinkRowAction
+
+
+# Single-pod instance check
+if app.config['SINGLE_POD_INDEXING']:
+    with app.app_context():
+        all_pods = db.session.query(Pods).all()
+        if any(pod for pod in all_pods if not pod.name.startswith(f"{app.config['SINGLE_POD_NAME']}.l.")):
+            raise ValueError("Non-global pods detected. Please repopulate your instance or turn off the SINGLE_POD_INDEXING flag.") 
 
 # Authentification
 class MyLoginManager(LoginManager):

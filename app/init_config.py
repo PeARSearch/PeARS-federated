@@ -5,6 +5,8 @@ def run_config(app):
     app.config.from_object('config')
 
     load_dotenv()
+    app.config['SINGLE_POD_INDEXING'] = getenv("SINGLE_POD_INDEXING", "false") == "true"
+    app.config['SINGLE_POD_NAME'] = getenv("SINGLE_POD_NAME", "global")
     app.config['MAIL_DEFAULT_SENDER'] = getenv("MAIL_DEFAULT_SENDER")
     app.config['MAIL_SERVER'] = getenv("MAIL_SERVER")
     app.config['MAIL_PORT'] = getenv("MAIL_PORT")

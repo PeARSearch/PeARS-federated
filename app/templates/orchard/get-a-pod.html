@@ -9,7 +9,11 @@ SPDX-License-Identifier: AGPL-3.0-only
 <div class="container">
   <div class="row">
     <div class="card">
-	    <div class="card-header"><b>{{gettext('Theme')}}: {{query}}</b></div>
+		{% if single_pod_indexing %}
+		    <div class="card-header"><b>{{gettext('Language')}}: {{language}}</b></div>
+		{% else %}
+		    <div class="card-header"><b>{{gettext('Theme')}}: {{theme}} ({{language}})</b></div>
+		{% endif %}
          <div class="card-body">
 	     {% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
 		 <a href={{url_for('orchard.download_file', filename=location)}} target='_blank' class="btn btn-success" role="button">{{gettext('Download')}}</a><hr>

@@ -51,7 +51,7 @@ def get_a_pod():
     lang = request.args.get('lang')
     filename, urls = get_url_list_for_users(theme, lang)
     print("\t>> Orchard: get_a_pod: generated", filename)
-    return render_template('orchard/get-a-pod.html', urls=urls, query=theme, location=filename)
+    return render_template('orchard/get-a-pod.html', urls=urls, theme=theme, language=lang, location=filename)
 
 @orchard.route("/download", methods=['GET'])
 @check_permissions(login=True, confirmed=True, admin=True)

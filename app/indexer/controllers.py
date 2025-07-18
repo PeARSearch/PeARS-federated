@@ -43,7 +43,11 @@ def index():
     form1 = IndexerForm(request.form)
     form2 = ManualEntryForm(request.form)
     pods = Pods.query.all()
-    themes = list(set([p.name.split('.l.')[0] for p in pods]))
+
+    if app.config["SINGLE_POD_INDEXING"]:
+        themes = []
+    else:
+        themes = list(set([p.name.split('.l.')[0] for p in pods]))
     default_screen = 'url'
     return render_template("indexer/index.html", \
             num_entries=num_db_entries, form1=form1, form2=form2, themes=themes, default_screen=default_screen)
@@ -58,7 +62,10 @@ def suggest():
     form = SuggestionForm()
     form.captcha_id.data = captcha_id
     pods = Pods.query.all()
-    themes = list(set([p.name.split('.l.')[0] for p in pods]))
+    if app.config["SINGLE_POD_INDEXING"]:
+        themes = []
+    else:
+        themes = list(set([p.name.split('.l.')[0] for p in pods]))
     return render_template("indexer/suggest.html", form=form, themes=themes)
 
 @indexer.route("/amend", methods=["GET"])
@@ -71,7 +78,10 @@ def correct_entry():
     form1 = IndexerForm(request.form)
     form2 = ManualEntryForm(request.form)
     pods = Pods.query.all()
-    themes = list(set([p.name.split('.l.')[0] for p in pods]))
+    if app.config["SINGLE_POD_INDEXING"]:
+        themes = []
+    else:
+        themes = list(set([p.name.split('.l.')[0] for p in pods]))
     default_screen = "url"
     
     if not session['index_url']:
@@ -88,8 +98,9 @@ def correct_entry():
         default_screen = "manual"
         session.pop('index_description')
     else:
-        form1.url.data = url
-        form1.theme.data = session['index_theme']
+        form1.suggested_url.data = url
+        if not app.config["SINGLE_POD_INDEXING"]:
+            form1.theme.data = session['index_theme']
         if session['index_note']:
             form1.theme.data = session['index_note']
     return render_template("indexer/index.html", \
@@ -107,13 +118,21 @@ def index_from_url():
     print("\t>> Indexer : from_url")
     contributor = current_user.username
     pods = Pods.query.all()
-    themes = list(set([p.name.split('.l.')[0] for p in pods]))
+
+    if app.config["SINGLE_POD_INDEXING"]:
+        themes = []
+    else:
+        themes = list(set([p.name.split('.l.')[0] for p in pods]))
+
     default_screen = "url"
 
     form = IndexerForm(request.form)
     if form.validate_on_submit():
         url = request.form.get('suggested_url').strip()
-        theme = request.form.get('theme').strip()
+        if app.config["SINGLE_POD_INDEXING"]:
+            theme = app.config["SINGLE_POD_NAME"]
+        else:
+            theme = request.form.get('theme').strip()
         note = request.form.get('note').strip()
         session['index_url'] = url
         session['index_theme'] = theme
@@ -139,7 +158,10 @@ def index_from_manual():
     print("\t>> Indexer : manual")
     contributor = current_user.username
     pods = Pods.query.all()
-    themes = list(set([p.name.split('.l.')[0] for p in pods]))
+    if app.config["SINGLE_POD_INDEXING"]:
+        themes = []
+    else:
+        themes = list(set([p.name.split('.l.')[0] for p in pods]))
     default_screen = "manual"
 
     form = ManualEntryForm(request.form)
@@ -156,7 +178,12 @@ def index_from_manual():
             h = hashlib.new('sha256')
             h.update(snippet.encode())
             url = 'pearslocal'+h.hexdigest()
-        theme = 'Tips'
+        
+        if app.config["SINGLE_POD_INDEXING"]:
+            theme = app.config["SINGLE_POD_NAME"]
+        else:
+            theme = 'Tips'
+
         note = ''
         session['index_url'] = url
         session['index_title'] = title
@@ -175,7 +202,10 @@ def run_suggest_url():
     form = SuggestionForm(request.form)
     if form.validate_on_submit():
         url = request.form.get('suggested_url').strip()
-        theme = request.form.get('theme').strip()
+        if app.config["SINGLE_POD_INDEXING"]:
+            theme = app.config["SINGLE_POD_NAME"]
+        else:
+            theme = request.form.get('theme').strip()
         note = request.form.get('note').strip()
         captcha_id = request.form.get('captcha_id')
         captcha_user_answer = request.form.get('captcha_answer')
@@ -189,12 +219,16 @@ def run_suggest_url():
             captcha_id, captcha_correct_answer = mk_captcha()
             form = SuggestionForm()
             form.suggested_url.data = request.form.get('suggested_url').strip()
-            form.theme.data = request.form.get('theme').strip()
+            if not app.config["SINGLE_POD_INDEXING"]:
+                form.theme.data = request.form.get('theme').strip()
             form.note.data = request.form.get('note').strip()
             form.captcha_answer.data = ""
             form.captcha_id.data = captcha_id
             pods = Pods.query.all()
-            themes = list(set([p.name.split('.l.')[0] for p in pods]))
+            if app.config["SINGLE_POD_INDEXING"]:
+                themes = []
+            else:
+                themes = list(set([p.name.split('.l.')[0] for p in pods]))
             return render_template('indexer/suggest.html', form=form, themes=themes)
 
         print(url, theme, note)
@@ -206,7 +240,10 @@ def run_suggest_url():
     captcha_id, captcha_correct_answer = mk_captcha()
     form.captcha_id.data = captcha_id
     pods = Pods.query.all()
-    themes = list(set([p.name.split('.l.')[0] for p in pods]))
+    if app.config["SINGLE_POD_INDEXING"]:
+        themes = []
+    else:
+        themes = list(set([p.name.split('.l.')[0] for p in pods]))
     return render_template('indexer/suggest.html', form=form, themes=themes)
 
 @indexer.route("index_from_suggestion_ajax/", methods=["POST"])
@@ -216,10 +253,15 @@ def index_url_ajax():
     theme = request.json.get('theme').strip()
     notes = request.json.get('notes').strip()
 
-    if not theme:
+    if not app.config["SINGLE_POD_INDEXING"] and not theme:
         return jsonify({
             "success": False,
             "messages": ["Pod name cannot be empty"]
+        })
+    if app.config["SINGLE_POD_INDEXING"] and theme != app.config["SINGLE_POD_NAME"]:
+        return jsonify({
+            "success": False,
+            "messages": [f"This is a single-pod instance, pod name must be \"{app.config['SINGLE_POD_NAME']}\""]
         })
 
     custom_theme = request.json.get('customTheme', 'n') == 'y'
@@ -235,13 +277,14 @@ def index_url_ajax():
             "messages": [f"url {url} already exists (pod={existing_url.pod}, contributor={existing_url.contributor})"] 
         })
     
+    # check if the suggestion actually exists (to avoid conflicts with deleted suggestions)
     if custom_theme: # custom pod chosen by admin
         suggestion = (
             db.session
             .query(Suggestions)
             .filter_by(url=url)
             .order_by(Suggestions.date_created.desc())
-            .first()
+            .first() # get the most recent instance of this URL being suggested
         )
     else:  # pod was chosen from the list of suggested themes 
         suggestion = (
@@ -249,7 +292,7 @@ def index_url_ajax():
             .query(Suggestions)
             .filter_by(url=url, pod=theme)
             .order_by(Suggestions.date_created.desc())
-            .first()
+            .first() # get the most recent instance of this URL being suggested with the chosen theme
         )
     
     if not suggestion:
@@ -421,6 +464,9 @@ def run_indexer_manual(url, title, doc, theme, lang, note, contributor, host_url
 
 def index_doc_from_cli(title, doc, theme, lang, contributor, url, note, host_url):
     """ Index a single doc, to be called by a CLI function."""
+    if app.config["SINGLE_POD_INDEXING"] and theme != app.config["SINGLE_POD_NAME"]:
+        return False
+    
     u = db.session.query(Urls).filter_by(url=url).first()
     if u:
         return False #URL exists already

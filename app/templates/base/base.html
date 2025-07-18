@@ -76,8 +76,12 @@ SPDX-License-Identifier: AGPL-3.0-only
                   </ul>
                 </li>
 		{% endif %}
+    {% if single_pod_indexing %}
+                <li class="nav-item"><a class="nav-link" href="{{url_for('orchard.index')}}">{{gettext('Indexed Pages')}}</a></li>
+    {% else %}
                 <li class="nav-item"><a class="nav-link" href="{{url_for('orchard.index')}}">{{gettext('Categories')}}</a></li>
-		{% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
+		{% endif %}
+    {% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
                 <li class="nav-item"><a class="nav-link" href="{{url_for('admin.index')}}">{{gettext('DB Admin')}}</a></li>          
 		{% endif %}
             </ul>
