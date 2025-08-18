@@ -209,7 +209,7 @@ def run_suggest_url():
     themes = list(set([p.name.split('.u.')[0] for p in pods]))
     return render_template('indexer/suggest.html', form=form, themes=themes)
 
-@indexer.route("index_from_suggestion_ajax/", methods=["POST"])
+@indexer.route("/index_from_suggestion_ajax", methods=["POST"])
 @check_permissions(login=True, confirmed=True, admin=True)
 def index_url_ajax():
     url = request.json.get('url').strip()
@@ -265,7 +265,7 @@ def index_url_ajax():
     })
 
 
-@indexer.route("reject_suggestion_ajax/", methods=["POST"])
+@indexer.route("/reject_suggestion_ajax", methods=["POST"])
 @check_permissions(login=True, confirmed=True, admin=True)
 def reject_suggestion_ajax():
     url = request.json.get  ('url').strip()
@@ -301,7 +301,7 @@ def reject_suggestion_ajax():
     })
 
 
-@indexer.route("index_suggestions/", methods=["GET", "POST"])
+@indexer.route("/index_suggestions", methods=["GET", "POST"])
 @check_permissions(login=True, confirmed=True, admin=True)
 def index_suggestions():
     hide_already_indexed_urls = request.args.get("hide_already_indexed", "y") == "y"
