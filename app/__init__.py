@@ -202,7 +202,7 @@ def check_sitename_and_hostname():
 #######
 
 from flask_admin.contrib.sqla import ModelView
-from app.api.models import Pods, Urls, User, Personalization, Suggestions
+from app.api.models import Pods, Urls, User, Personalization, Suggestions, RejectedSuggestions
 from app.utils_db import delete_url_representations, delete_pod_representations, \
         rm_from_npz, add_to_npz, create_pod_in_db, create_pod_npz_pos, rm_doc_from_pos, update_db_idvs_after_npz_delete
 
@@ -419,11 +419,22 @@ class SuggestionsModelView(ModelView):
     def is_accessible(self):
         return can_access_flaskadmin()
 
+class RejectedSuggestionsModelView(ModelView):
+    list_template = 'admin/pears_list.html'
+    column_searchable_list = ['url', 'pod', 'rejection_reason']
+    can_edit = True
+    page_size = 50
+    def is_accessible(self):
+        return can_access_flaskadmin()
+
+
 admin.add_view(PodsModelView(Pods, db.session))
 admin.add_view(UrlsModelView(Urls, db.session))
 admin.add_view(UsersModelView(User, db.session))
 admin.add_view(PersonalizationModelView(Personalization, db.session))
 admin.add_view(SuggestionsModelView(Suggestions, db.session))
+admin.add_view(RejectedSuggestionsModelView(RejectedSuggestions, db.session))
+
 
 @app.errorhandler(404)
 def page_not_found(e):
