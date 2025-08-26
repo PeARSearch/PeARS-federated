@@ -10,12 +10,15 @@ from app.search.score_pages import compute_query_vectors
 
 base_dir_path = dirname(dirname(dirname(realpath(__file__))))
 
-def get_known_instances():
+
+def get_known_instances(
+    base_dir=base_dir_path, known_instances_file=".known_instances.txt"
+):
     known_instances = []
-    known_instances_file = join(base_dir_path, '.known_instances.txt')
+    known_instances_file = join(base_dir, known_instances_file)
     if not exists(known_instances_file):
         return known_instances
-    with open(known_instances_file, 'r', encoding='utf-8') as f:
+    with open(known_instances_file, "r", encoding="utf-8") as f:
         known_instances = f.read().splitlines()
     return known_instances
 
