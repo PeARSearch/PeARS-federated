@@ -16,7 +16,7 @@ from langdetect import detect
 from app.auth.captcha import mk_captcha, check_captcha
 from app.auth.decorators import check_permissions
 from app import app, db
-from app.api.models import Urls, Pods, Suggestions, RejectedSuggestions
+from app.api.models import Urls, Pods, Suggestions, RejectedSuggestions, Personalization
 from app.indexer import mk_page_vector
 from app.utils import read_urls, parse_query
 from app.utils_db import create_pod_in_db, create_pod_npz_pos, create_or_replace_url_in_db, delete_url_representations, create_suggestion_in_db
@@ -59,7 +59,11 @@ def suggest():
     form.captcha_id.data = captcha_id
     pods = Pods.query.all()
     themes = list(set([p.name.split('.u.')[0] for p in pods]))
-    return render_template("indexer/suggest.html", form=form, themes=themes)
+    internal_message = db.session.query(Personalization).filter_by(feature='suggestions_info').first()
+    if internal_message:
+        print("MSG",internal_message)
+        internal_message = internal_message.text
+    return render_template("indexer/suggest.html", form=form, themes=themes, internal_message=internal_message)
 
 @indexer.route("/amend", methods=["GET"])
 @check_permissions(login=True, confirmed=True, admin=True)
