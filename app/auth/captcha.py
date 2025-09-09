@@ -64,7 +64,8 @@ def delete_old_captchas():
 def generate_captcha_string():
     # String of letters and numbers (will be stored in the server session and be shown 
     # to the user only in the captcha image)
-    return "".join([secrets.choice(string.digits) for _ in range(5)])
+    # NB: Avoiding 1 and 7, which are too easily confused in captcha
+    return "".join([secrets.choice("23456890") for _ in range(5)])
 
 
 def mk_captcha():
