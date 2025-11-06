@@ -53,15 +53,27 @@ SPDX-License-Identifier: AGPL-3.0-only
             </small>
           </div>
           {% endfor %}
-
-          <p><span class="badge text-bg-secondary">url</span> <a class="text-light"
-              href="{{suggestion.url}}">{{suggestion.url}}</a></p>
           <p>
             <span class="badge text-bg-secondary">first</span> <span
               class="text-light">{{suggestion.first_created.year}}-{{suggestion.first_created.month}}-{{suggestion.first_created.day}}</span>
             <span class="badge text-bg-secondary">last</span> <span
               class="text-light">{{suggestion.last_created.year}}-{{suggestion.last_created.month}}-{{suggestion.last_created.day}}</span>
           </p>
+          <p class="text-light">
+            <small>Optionally, edit the URL before indexing. By default, any URL parameters are removed.</small>
+          </p>
+          <div class="input-group input-group-sm mb-3">
+            <div class="input-group-prepend">
+              <span class="input-group-text"><small><a class="text-dark" href="{{suggestion.url}}">Original URL</a></small></span>
+            </div>
+            <input id="orig-url-{{loop.index}}" type="text" class="form-control bg-dark text-white" value="{{suggestion.url}}" readonly>
+          </div>
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <span class="input-group-text"><a class="text-dark" href="{{suggestion.cleaned_url}}">Edited URL</a></span>
+            </div>
+            <input id="edited-url-{{loop.index}}" type="text" class="form-control" value="{{suggestion.cleaned_url}}">
+          </div>
           <div class="accordion mb-3" id="notes-accordion-{{loop.index}}">
           <div class="accordion-item">
             <h2 class="accordion-header">
@@ -93,29 +105,31 @@ SPDX-License-Identifier: AGPL-3.0-only
                 {% endfor %}
               </select>
               <button class="btn btn-success index-suggestion" id="suggestion-{{loop.index}}"
-                onclick="indexSuggestion({{loop.index}}, '{{suggestion.url}}', false)">Index with suggested pod</button>
+                onclick="indexSuggestion({{loop.index}}, false)">Index with suggested pod</button>
             </div>
             <div class="input-group mb-3">
               <input class="form-control" id="suggestion-custom-pod-{{loop.index}}"
                 placeholder="... or specify a custom pod">
               <button class="btn btn-success" id="suggestion-custom-pod-btn-{{loop.index}}"
-              onclick="indexSuggestion({{loop.index}}, '{{suggestion.url}}', true)">Index with custom pod</button>
+              onclick="indexSuggestion({{loop.index}}, true)">Index with custom pod</button>
             </div>
             <div class="input-group mb-3">
               <input class="form-control bg-danger text-white" id="reject-reason-{{loop.index}}"
                 placeholder="Optionally, add a note about why this entry should be rejected">
               <button class="btn btn-danger border border-light" id="suggestion-rej-{{loop.index}}"
-              onclick="deleteSuggestion({{loop.index}}, '{{suggestion.url}}')">Reject</button>
+              onclick="deleteSuggestion({{loop.index}})">Reject</button>
             </div>
           </div>
         </div>
       </form>
       {% endfor %}
       <script>
-        function indexSuggestion(suggestionID, url, customPod) {
+        function indexSuggestion(suggestionID, customPod) {
           let $button = $(`#suggestion-${suggestionID}`);
           let $customThemeInput = $(`#suggestion-custom-pod-${suggestionID}`);
           let $deleteReasonField = $(`#reject-reason-${suggestionID}`);
+          let url = $(`#edited-url-${suggestionID}`).val();
+          let origUrl = $(`#orig-url-${suggestionID}`).val();
           let theme = $(`#suggestion-pod-${suggestionID}`).val();          
           if (customPod) {
             $button = $(`#suggestion-custom-pod-btn-${suggestionID}`);
@@ -132,6 +146,7 @@ SPDX-License-Identifier: AGPL-3.0-only
             dataType: "json",
             data: JSON.stringify({
               url: url,
+              origUrl: origUrl,
               theme: theme,
               notes: notes,
               customTheme: customPod ? 'y' : 'n'
@@ -155,11 +170,13 @@ SPDX-License-Identifier: AGPL-3.0-only
           });
         };
 
-        function deleteSuggestion(suggestionID, url) {
+        function deleteSuggestion(suggestionID) {
           let $button = $(`#suggestion-rej-${suggestionID}`);
           $button.prop("disabled", true);
           $button.text("Processing...");
           let $deleteReasonField = $(`#reject-reason-${suggestionID}`);
+          let url = $(`#edited-url-${suggestionID}`).val();
+          let origUrl = $(`#orig-url-${suggestionID}`).val();
           let reason = $deleteReasonField.val();
           $.ajax({
             url: "/indexer/reject_suggestion_ajax",
@@ -168,6 +185,7 @@ SPDX-License-Identifier: AGPL-3.0-only
             dataType: "json",
             data: JSON.stringify({
               url: url,
+              origUrl: origUrl,
               reason: reason
             })
           }).done((respData) => {

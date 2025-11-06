@@ -6,8 +6,10 @@ import logging
 from os import getenv
 from os.path import dirname, join, realpath
 from time import sleep
+from datetime import datetime
 import itertools
 import hashlib
+from urllib.parse import urljoin, urlparse
 import numpy as np
 from flask import session, Blueprint, request, render_template, url_for, flash, redirect, jsonify
 from flask_login import login_required, current_user
@@ -217,6 +219,7 @@ def run_suggest_url():
 @check_permissions(login=True, confirmed=True, admin=True)
 def index_url_ajax():
     url = request.json.get('url').strip()
+    orig_url = request.json.get('origUrl').strip()
     theme = request.json.get('theme').strip()
     notes = request.json.get('notes').strip()
 
@@ -243,7 +246,7 @@ def index_url_ajax():
         suggestion = (
             db.session
             .query(Suggestions)
-            .filter_by(url=url)
+            .filter_by(url=orig_url)
             .order_by(Suggestions.date_created.desc())
             .first()
         )
@@ -251,7 +254,7 @@ def index_url_ajax():
         suggestion = (
             db.session
             .query(Suggestions)
-            .filter_by(url=url, pod=theme)
+            .filter_by(url=orig_url, pod=theme)
             .order_by(Suggestions.date_created.desc())
             .first()
         )
@@ -259,10 +262,18 @@ def index_url_ajax():
     if not suggestion:
         return jsonify ({
             "success": False,
-            "messages": [f"could not find suggestion with url {url}"]
+            "messages": [f"could not find suggestion with original url {orig_url}"]
         })
 
     s_success, s_messages, _ = run_indexer_url(url, theme, notes, current_user.username, request.host_url)
+
+    # we keep the suggestion in the DB but change the url so it matches with what we indexed  
+    suggestion.url = url
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    suggestion.notes += f"\n\n-----\nTimestamp: {timestamp}\nIndexed as: {url}\nOriginal url: {orig_url}"
+    db.session.add(suggestion)
+    db.session.commit()
+
     return jsonify({
         "success": s_success, 
         "messages": s_messages
@@ -272,7 +283,7 @@ def index_url_ajax():
 @indexer.route("/reject_suggestion_ajax", methods=["POST"])
 @check_permissions(login=True, confirmed=True, admin=True)
 def reject_suggestion_ajax():
-    url = request.json.get  ('url').strip()
+    url = request.json.get('orig_url').strip() # json data also contains `url` (cleaned/edited url), but this is unused in the rejection logic for now
     reason = request.json.get('reason').strip()
     matching_suggestions = (
         db.session
@@ -350,6 +361,7 @@ def index_suggestions():
         notes_preview = _notes_preview if len(_notes_preview) < 50 else _notes_preview + "..."
         suggestions_summary.append({
             "url": url, 
+            "cleaned_url": _clean_url(url),
             "total_count": total_count, 
             "suggestions_by_pod": pod_counts, 
             "first_created": created_dates_sorted[0], 
@@ -361,6 +373,10 @@ def index_suggestions():
 
     suggestions_sorted = sorted(suggestions_summary, key=lambda s: s["first_created"], reverse=True)
     return render_template("indexer/index_suggestions.html", suggestions=suggestions_sorted, hide_already_indexed_urls=hide_already_indexed_urls)
+
+
+def _clean_url(url):
+    return urljoin(url, urlparse(url).path)
 
 
 def run_indexer_url(url, theme, note, contributor, host_url):
