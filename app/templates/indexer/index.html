@@ -38,6 +38,14 @@ SPDX-License-Identifier: AGPL-3.0-only
         {{ form1.hidden_tag() }}
         <p>{{ render_field(form1.suggested_url) }}</p>
         <p>{{ render_autocomplete_field(form1.theme) }}</p>
+        <p>{{ render_field(form1.snippet_length) }}</p>
+        <div class="mb-4 alert alert-info">
+          <small>
+            This determines how much snippet text will be displayed in the search results.
+            Values: <code>0 = default</code> (short snippet), <code>-1 = unlimited</code> (no specific limit, will use global maximum), <code>[1, 100000] = specific number of words</code>. 
+            Only set it to a non-default value if you're sure the site you're indexing allows reproducing text from it (either because it is public domain or CC-licensed, or because the owners specifically gave you permission.)
+          </small>
+        </div>
         <p>{{ render_field(form1.note) }}</p>
         <div class="form-check">
           {{ form1.accept_tos(class_="form-check-input") }}
@@ -74,6 +82,14 @@ SPDX-License-Identifier: AGPL-3.0-only
         <p>{{ render_field(form2.title) }}</p>
         <p>{{ render_field(form2.related_url) }}</p>
         <p>{{ render_field(form2.description) }}</p>
+        <p>{{ render_field(form2.snippet_length) }}</p>
+        <div class="mb-4 alert alert-info">
+          <small>
+            This determines how much snippet text will be displayed in the search results.
+            Values: <code>0 = default</code> (short snippet), <code>-1 = unlimited</code> (no specific limit, will use global maximum), <code>[1, 100000] = specific number of words</code>. 
+            Only set it to a non-default value if you're sure the site you're indexing allows reproducing text from it (either because it is public domain or CC-licensed, or because the owners specifically gave you permission.)
+          </small>
+        </div>
 	<div class="form-check">
 	  {{ form2.accept_tos(class_="form-check-input") }}
 	  <label class="form-check-label" for="legal">{{gettext("I confirm that my entry does not contravene the <a href='../terms-of-service'>terms of service</a> of this site.")}}</label>

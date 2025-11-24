@@ -47,7 +47,7 @@ def compute_and_stack_new_vec(lang, tokenized_text, pod_m):
     return pod_m, False
 
 
-def compute_vector(url, theme, contributor, url_type):
+def compute_vector(url, theme, contributor, snippet_length, url_type):
     """ Compute vector for target URL. This includes retrieving the
     page, extracting the title and text from it, and adding the 
     document vector to the matrix for the user's chosen theme.
@@ -56,9 +56,9 @@ def compute_vector(url, theme, contributor, url_type):
     messages = []
     print("CONTENT TYPE",url_type)
     if 'text/html' in url_type:
-        title, body_str, lang, snippet, cc, error = extract_html(url)
+        title, body_str, lang, snippet, cc, error = extract_html(url, snippet_length)
     elif 'application/pdf' in url_type:
-        title, body_str, lang, snippet, cc, error = extract_txt(url, contributor)
+        title, body_str, lang, snippet, cc, error = extract_txt(url, contributor, snippet_length)
     else:
         error = ">> INDEXER: MK_PAGE_VECTORS: ERROR: compute_vectors: No supported content type."
     if error is None:

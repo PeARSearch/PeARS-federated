@@ -34,6 +34,8 @@ SPDX-License-Identifier: AGPL-3.0-only
         <p>{{ render_field(form.suggested_url) }}</p>
         <p>{{ render_autocomplete_field(form.theme) }}</p>
         <p>{{ render_field(form.note) }}</p>
+    	  {{ form.allows_reproduction(class_="form-check-input") }}
+        <label class="form-check-label" for="allows_reproduction">{{form.allows_reproduction.label}}</label>
         <p>{{ render_captcha_field(form.captcha_answer, form.captcha_id.data) }}</p>
       </div><!-- card body -->
       <div class="card-footer clearfix">

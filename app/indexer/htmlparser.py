@@ -89,7 +89,7 @@ def naive_text_extract(bs_obj):
     return body_str
 
 
-def extract_html(url):
+def extract_html(url, snippet_length):
     '''From history info, extract url, title and body of page,
     cleaned with BeautifulSoup'''
     title = ""
@@ -98,7 +98,10 @@ def extract_html(url):
     cc = False
     language = app.config['LANGS'][0]
     error = None
-    snippet_length = app.config['SNIPPET_LENGTH']
+    if snippet_length == 0:
+        snippet_length = app.config['SNIPPET_LENGTH']
+    elif snippet_length == -1:
+        snippet_length = 10_000
     
     bs_obj, req = BS_parse(url)
     if not bs_obj:
@@ -151,7 +154,7 @@ def extract_html(url):
                 language = app.config['LANGS'][0]
             # Process snippet
             if og_description:
-                snippet = og_description['content'][:1000]
+                snippet = ' '.join((og_description['content'] + '\n\n' + body_str).split()[:snippet_length])
             else:
                 snippet = ' '.join(body_str.split()[:snippet_length])
     return title, body_str, language, snippet, cc, error

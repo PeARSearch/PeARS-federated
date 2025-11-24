@@ -220,7 +220,8 @@ def index(host_url, filepath):
             url = m.group(1)
             pod = m.group(2)
             user = m.group(3)
-            run_indexer_url(url, pod, None, user, host_url)
+            snippet_length = 0 # TODO export snippet_length in manual URL files
+            run_indexer_url(url, pod, None, user, snippet_length, host_url)
 
 
 @pears.cli.command('randomcrawl')

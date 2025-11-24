@@ -74,6 +74,20 @@ SPDX-License-Identifier: AGPL-3.0-only
             </div>
             <input id="edited-url-{{loop.index}}" type="text" class="form-control" value="{{suggestion.cleaned_url}}">
           </div>
+          {% if suggestion.allows_reproduction %}
+          <div class="alert alert-info mb-1">
+            <small>
+              {{gettext("At least one instance of this suggestion marked the page as having no or reduced copyright restrictions on displaying snippets.")}}
+              {{gettext("Before indexing, please check if this is indeed the case and enter an appropriate snippet size.")}}
+            </small>
+          </div>
+          {% endif %}
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <span class="input-group-text">Snippet length</span>
+            </div>
+            <input id="snippet-length-{{loop.index}}" type="text" class="form-control" placeholder="0 = default length, -1 = no restrictions, or n = custom snippet length (max num of words)">
+          </div>
           <div class="accordion mb-3" id="notes-accordion-{{loop.index}}">
           <div class="accordion-item">
             <h2 class="accordion-header">
@@ -130,6 +144,7 @@ SPDX-License-Identifier: AGPL-3.0-only
           let $deleteReasonField = $(`#reject-reason-${suggestionID}`);
           let url = $(`#edited-url-${suggestionID}`).val();
           let origUrl = $(`#orig-url-${suggestionID}`).val();
+          let snippetLength = $(`#snippet-length-${suggestionID}`).val();
           let theme = $(`#suggestion-pod-${suggestionID}`).val();          
           if (customPod) {
             $button = $(`#suggestion-custom-pod-btn-${suggestionID}`);
@@ -147,6 +162,7 @@ SPDX-License-Identifier: AGPL-3.0-only
             data: JSON.stringify({
               url: url,
               origUrl: origUrl,
+              snippetLength: snippetLength,
               theme: theme,
               notes: notes,
               customTheme: customPod ? 'y' : 'n'

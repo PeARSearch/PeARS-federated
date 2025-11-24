@@ -47,12 +47,14 @@ class Suggestions(Base):
     pod = db.Column(db.String(1000))
     notes = db.Column(db.String(1000))
     contributor = db.Column(db.String(1000))
+    allows_reproduction = db.Column(db.Boolean, default=False)
 
-    def __init__(self, url=None, pod=None, notes=None, contributor=None):
+    def __init__(self, url=None, pod=None, notes=None, contributor=None, allows_reproduction=False):
         self.url = url
         self.pod = pod
         self.notes = notes
         self.contributor = contributor
+        self.allows_reproduction = allows_reproduction
 
     def __repr__(self):
         return self.url
@@ -63,7 +65,8 @@ class Suggestions(Base):
             'id': self.id,
             'pod': self.pod,
             'notes': self.notes,
-            'contributor': self.contributor
+            'contributor': self.contributor,
+            'allows_reproduction': allows_reproduction
         }
 
     def as_dict(self):
@@ -76,13 +79,15 @@ class RejectedSuggestions(Base):
     pod = db.Column(db.String(1000))
     notes = db.Column(db.String(1000))
     contributor = db.Column(db.String(1000))
+    allows_reproduction = db.Column(db.Boolean, default=False)
     rejection_reason = db.Column(db.String(1000))
 
-    def __init__(self, url=None, pod=None, notes=None, contributor=None, rejection_reason=None):
+    def __init__(self, url=None, pod=None, notes=None, contributor=None, allows_reproduction=False, rejection_reason=None):
         self.url = url
         self.pod = pod
         self.notes = notes
         self.contributor = contributor
+        self.allows_reproduction = allows_reproduction
         self.rejection_reason = rejection_reason
 
     def __repr__(self):
@@ -95,6 +100,7 @@ class RejectedSuggestions(Base):
             'pod': self.pod,
             'notes': self.notes,
             'contributor': self.contributor,
+            'allows_reproduction': allows_reproduction,
             'rejection_reason': self.rejection_reason
         }
 
@@ -114,6 +120,7 @@ class Urls(Base):
     img = db.Column(db.String(1000))
     share = db.Column(db.String(1000))
     contributor = db.Column(db.String(1000))
+    snippet_length = db.Column(db.Integer, default=0)
 
     def __init__(self,
                  url=None,
@@ -125,7 +132,9 @@ class Urls(Base):
                  notes=None,
                  img=None,
                  share=None,
-                 contributor=None):
+                 contributor=None,
+                 snippet_length=0
+             ):
         self.url = url
         self.title = title
         self.snippet = snippet
@@ -136,6 +145,7 @@ class Urls(Base):
         self.img = img
         self.share = share
         self.contributor = contributor
+        self.snippet_length = snippet_length # 0 for default (low) limit, -1 for no copyright-based limit, or integer for specific limit (# of words)
 
     def __repr__(self):
         return self.url
@@ -153,7 +163,8 @@ class Urls(Base):
             'notes': self.notes,
             'img': self.img,
             'share': self.share,
-            'contributor': self.contributor
+            'contributor': self.contributor,
+            'snippet_length': self.snippet_length
         }
 
     def as_dict(self):

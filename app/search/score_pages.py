@@ -95,7 +95,6 @@ def load_vec_matrix(lang):
 
 @timer
 def compute_scores(query, query_vectors, lang):
-    snippet_length = app.config['SNIPPET_LENGTH']
     m, bins, podnames, urls = load_vec_matrix(lang)
     query_vector = np.sum(query_vectors, axis=0)
     
@@ -122,6 +121,11 @@ def compute_scores(query, query_vectors, lang):
             u.snippet = ''
             snippet_score = 0.0
         else:
+            snippet_length = u.snippet_length
+            if snippet_length == 0:
+                snippet_length = app.config['SNIPPET_LENGTH']
+            elif snippet_length == -1:
+                snippet_length = 10_000
             snippet = ' '.join(u.snippet.split()[:snippet_length])
             snippet_score = snippet_overlap(query, u.title+' '+snippet)
         loc = urlparse(u.url).netloc.split('.')[0]
@@ -165,11 +169,15 @@ def return_best_urls(doc_scores):
 
 
 def output(best_urls, scores):
-    snippet_length = app.config['SNIPPET_LENGTH']
     results = {}
     urls = Urls.query.filter(Urls.url.in_(best_urls)).all()
     urls = [next(u for u in urls if u.url == best_url) for best_url in best_urls]
     for i, u in enumerate(urls):
+        snippet_length = u.snippet_length
+        if snippet_length == 0:
+            snippet_length = app.config['SNIPPET_LENGTH']
+        elif snippet_length == -1:
+            snippet_length = 10_000
         url = u.url
         results[url] = u.as_dict()
         results[url]['score'] = scores[i]

@@ -83,6 +83,11 @@ def prepare_gui_results(query, results):
             r["display_url"] = url
         r['title'] = ' '.join(r['title'].split()[:10])
         r['snippet'] = beautify_snippet(r['snippet'], query)
+
+        # for longer snippets: display a shorter, expandable version in the gui
+        shortened_snippet = ' '.join(r['snippet'].split()[:50])
+        r['shortened_snippet'] = beautify_snippet(shortened_snippet, query)
+        r['expandable_snippet'] = r['shortened_snippet'] != r['snippet']
         logging.debug(f"RESULT URL {url}")
         if r['notes'] == 'None':
             r['notes'] = None

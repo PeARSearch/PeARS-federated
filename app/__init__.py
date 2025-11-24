@@ -245,8 +245,8 @@ admin = Admin(app, name='PeARS DB', template_mode='bootstrap3', index_view=MyAdm
 class UrlsModelView(ModelView):
     list_template = 'admin/pears_list.html'
     column_hide_backrefs = False
-    column_list = ['url', 'title', 'pod', 'notes']
-    column_searchable_list = ['url', 'title', 'pod', 'notes']
+    column_list = ['url', 'title', 'pod', 'notes', 'contributor', 'snippet_length']
+    column_searchable_list = ['url', 'title', 'pod', 'notes', 'contributor']
     can_edit = True
     page_size = 100
     form_widget_args = {

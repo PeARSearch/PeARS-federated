@@ -50,7 +50,7 @@ def pdf_mine(pdf_path, max_pages = 12):
 
 
 
-def extract_txt(url, contributor):
+def extract_txt(url, contributor, snippet_length):
     '''From history info, extract url, title and body of page,
     cleaned with pdfminer'''
     title = ""
@@ -59,7 +59,10 @@ def extract_txt(url, contributor):
     cc = False
     language = app.config['LANGS'][0]
     error = None
-    snippet_length = app.config['SNIPPET_LENGTH']
+    if snippet_length == 0:
+        snippet_length = app.config['SNIPPET_LENGTH']
+    elif snippet_length == -1:
+        snippet_length = 10_000
     local_pdf_path = join(app_dir_path, 'userdata', contributor+'.'+url.split('/')[-1])
     try:
         req = requests.get(url, allow_redirects=True, timeout=30)

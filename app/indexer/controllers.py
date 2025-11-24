@@ -121,13 +121,14 @@ def index_from_url():
         url = request.form.get('suggested_url').strip()
         theme = request.form.get('theme').strip()
         note = request.form.get('note').strip()
+        snippet_length = int(request.form.get('snippet_length'))
         session['index_url'] = url
         session['index_theme'] = theme
         session['index_note'] = note
         if note is None:
             note = ''
         logging.debug(f"INDEXING URL: {url} THEME: {theme} NOTE: {note} CONTRIBUTOR: {contributor}")
-        success, messages, share_url = run_indexer_url(url, theme, note, contributor, request.host_url)
+        success, messages, share_url = run_indexer_url(url, theme, note, contributor, snippet_length, request.host_url)
         if success:
             return render_template('indexer/success.html', messages=messages, share_url=share_url, url=url, theme=theme, note=note)
         return render_template('indexer/fail.html', messages = messages)
@@ -147,6 +148,7 @@ def index_from_manual():
     pods = Pods.query.all()
     themes = list(set([p.name.split('.u.')[0] for p in pods]))
     default_screen = "manual"
+    snippet_length = int(request.form.get('snippet_length'))
 
     form = ManualEntryForm(request.form)
     if form.validate_on_submit():
@@ -167,7 +169,7 @@ def index_from_manual():
         session['index_url'] = url
         session['index_title'] = title
         session['index_description'] = snippet
-        success, messages, share_url = run_indexer_manual(url, title, snippet, theme, lang, note, contributor, request.host_url)
+        success, messages, share_url = run_indexer_manual(url, title, snippet, theme, lang, note, contributor, snippet_length, request.host_url)
         if success:
             return render_template('indexer/success.html', messages=messages, share_url=share_url,  theme=theme, note=snippet)
         return render_template('indexer/fail.html', messages = messages)
@@ -183,6 +185,7 @@ def run_suggest_url():
         url = request.form.get('suggested_url').strip()
         theme = request.form.get('theme').strip()
         note = request.form.get('note').strip()
+        allows_reproduction = request.form.get('allows_reproduction') == "y"
         captcha_id = request.form.get('captcha_id')
         captcha_user_answer = request.form.get('captcha_answer')
         if current_user.is_authenticated:
@@ -197,6 +200,7 @@ def run_suggest_url():
             form.suggested_url.data = request.form.get('suggested_url').strip()
             form.theme.data = request.form.get('theme').strip()
             form.note.data = request.form.get('note').strip()
+            form.allows_reproduction.data = request.form.get('allows_reproduction')
             form.captcha_answer.data = ""
             form.captcha_id.data = captcha_id
             pods = Pods.query.all()
@@ -204,7 +208,7 @@ def run_suggest_url():
             return render_template('indexer/suggest.html', form=form, themes=themes)
 
         print(url, theme, note)
-        create_suggestion_in_db(url=url, pod=theme, notes=note, contributor=contributor)
+        create_suggestion_in_db(url=url, pod=theme, notes=note, contributor=contributor, allows_reproduction=allows_reproduction)
         flash(gettext('Many thanks for your suggestion'))
         return redirect(url_for('indexer.suggest'))
     print("FORM ERRORS:", form.errors)
@@ -222,6 +226,15 @@ def index_url_ajax():
     orig_url = request.json.get('origUrl').strip()
     theme = request.json.get('theme').strip()
     notes = request.json.get('notes').strip()
+    try:
+        snippet_length = int(request.json.get('snippetLength', 0))
+        if snippet_length > 10_000 or snippet_length < -1:
+            raise ValueError
+    except ValueError:
+        return jsonify({
+                           "success": False,
+                           "messages": ["Snippet length must be an integer (-1 <= n <= 10,000)"]
+                       })
 
     if not theme:
         return jsonify({
@@ -265,7 +278,7 @@ def index_url_ajax():
             "messages": [f"could not find suggestion with original url {orig_url}"]
         })
 
-    s_success, s_messages, _ = run_indexer_url(url, theme, notes, current_user.username, request.host_url)
+    s_success, s_messages, _ = run_indexer_url(url, theme, notes, current_user.username, snippet_length, request.host_url)
 
     # we keep the suggestion in the DB but change the url so it matches with what we indexed  
     suggestion.url = url
@@ -283,7 +296,7 @@ def index_url_ajax():
 @indexer.route("/reject_suggestion_ajax", methods=["POST"])
 @check_permissions(login=True, confirmed=True, admin=True)
 def reject_suggestion_ajax():
-    url = request.json.get('orig_url').strip() # json data also contains `url` (cleaned/edited url), but this is unused in the rejection logic for now
+    url = request.json.get('origUrl').strip() # json data also contains `url` (cleaned/edited url), but this is unused in the rejection logic for now
     reason = request.json.get('reason').strip()
     matching_suggestions = (
         db.session
@@ -300,7 +313,7 @@ def reject_suggestion_ajax():
     # record rejected suggestion
     rs_ids = []
     for s in matching_suggestions:
-        rs = RejectedSuggestions(url=url, pod=s.pod, notes=s.notes, contributor=s.contributor, rejection_reason=reason)
+        rs = RejectedSuggestions(url=url, pod=s.pod, notes=s.notes, contributor=s.contributor, rejection_reason=reason, allows_reproduction=s.allows_reproduction)
         rs_ids.append(rs_ids)
         db.session.add(rs)
 
@@ -345,6 +358,7 @@ def index_suggestions():
         pod_counts = {}
         created_dates = []
         notes = []
+        allows_reproduction = False
         grouped_by_pod = itertools.groupby(suggestions_with_url, lambda s: s.pod)
         for pod, suggestions_with_pod in grouped_by_pod:
             suggestion_list = list(suggestions_with_pod)
@@ -353,6 +367,8 @@ def index_suggestions():
             pod_count = len(suggestion_list)
             pod_counts[pod] = pod_count
             total_count += pod_count
+            if any([s.allows_reproduction for s in suggestion_list]):
+                allows_reproduction = True
         sort_by_date_idx = np.argsort(created_dates)
         created_dates_sorted = np.array(created_dates)[sort_by_date_idx]
         notes_sorted = np.array(notes)[sort_by_date_idx] if len(notes) > 0 else []
@@ -368,7 +384,8 @@ def index_suggestions():
             "last_created": created_dates_sorted[-1], 
             "notes": notes_combined,
             "notes_preview": notes_preview,
-            "already_indexed_in": [u.pod for u in existing_urls]
+            "already_indexed_in": [u.pod for u in existing_urls],
+            "allows_reproduction": allows_reproduction
         })
 
     suggestions_sorted = sorted(suggestions_summary, key=lambda s: s["first_created"], reverse=True)
@@ -379,7 +396,7 @@ def _clean_url(url):
     return urljoin(url, urlparse(url).path)
 
 
-def run_indexer_url(url, theme, note, contributor, host_url):
+def run_indexer_url(url, theme, note, contributor, snippet_length, host_url):
     """ Run the indexer over the suggested URL.
     This includes checking the robots.txt, and producing 
     representations that include entries in the positional
@@ -398,13 +415,13 @@ def run_indexer_url(url, theme, note, contributor, host_url):
             messages.append(gettext('ERROR: Content type could not be retrieved from header.'))
             return indexed, messages, share_url
         success, text, lang, title, snippet, idv, mgs = \
-                mk_page_vector.compute_vector(url, theme, contributor, url_type)
+                mk_page_vector.compute_vector(url, theme, contributor, snippet_length, url_type)
         if success:
             create_pod_in_db(contributor, theme, lang)
             #posix_doc(text, idx, contributor, lang, theme)
             share_url = join(host_url,'api', 'get?url='+url)
             create_or_replace_url_in_db(\
-                    url, title, idv, snippet, theme, lang, note, share_url, contributor, 'url')
+                    url, title, idv, snippet, theme, lang, note, share_url, contributor, snippet_length, 'url')
             indexed = True
         else:
             messages.extend(mgs)
@@ -413,7 +430,7 @@ def run_indexer_url(url, theme, note, contributor, host_url):
     return indexed, messages, share_url
 
 
-def run_indexer_manual(url, title, doc, theme, lang, note, contributor, host_url):
+def run_indexer_manual(url, title, doc, theme, lang, note, contributor, snippet_length, host_url):
     """ Run the indexer over manually contributed information.
     
     Arguments: a url (internal and bogus, constructed by 'index_from_manual'),
@@ -430,7 +447,7 @@ def run_indexer_manual(url, title, doc, theme, lang, note, contributor, host_url
     if success:
         create_pod_in_db(contributor, theme, lang)
         #posix_doc(text, idx, contributor, lang, theme)
-        create_or_replace_url_in_db(url, title, idv, snippet, theme, lang, note, share_url, contributor, 'doc')
+        create_or_replace_url_in_db(url, title, idv, snippet, theme, lang, note, share_url, contributor, snippet_length, 'doc')
         indexed = True
     else:
         messages.append(gettext("There was a problem indexing your entry. Please check the submitted data."))
@@ -439,7 +456,7 @@ def run_indexer_manual(url, title, doc, theme, lang, note, contributor, host_url
     return indexed, messages, share_url
 
 
-def index_doc_from_cli(title, doc, theme, lang, contributor, url, note, host_url):
+def index_doc_from_cli(title, doc, theme, lang, contributor, snippet_length, url, note, host_url):
     """ Index a single doc, to be called by a CLI function."""
     u = db.session.query(Urls).filter_by(url=url).first()
     if u:
@@ -451,7 +468,7 @@ def index_doc_from_cli(title, doc, theme, lang, contributor, url, note, host_url
         create_pod_in_db(contributor, theme, lang)
         share_url = join(host_url,'api', 'get?url='+url)
         create_or_replace_url_in_db(\
-                url, title, idv, snippet, theme, lang, note, share_url, contributor, 'url')
+                url, title, idv, snippet, theme, lang, note, share_url, contributor, snippet_length, 'url')
         return True
     else:
         return False
