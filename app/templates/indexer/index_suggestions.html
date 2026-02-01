@@ -67,7 +67,7 @@ SPDX-License-Identifier: AGPL-3.0-only
             <h2 class="accordion-header">
               <button class="accordion-button collapsed bg-info" type="button" data-bs-toggle="collapse" data-bs-target="#notes-collapse-{{loop.index}}">
                 <strong>Notes:</strong>&nbsp;<small><em>(click to expand)</em></small>
-                &nbsp;<span class="badge text-light"></span>{{suggestion.notes_preview}}</span>
+                &nbsp;<span class="badge text-dark">{{suggestion.notes_preview}}</span>
               </button>
             </h2>
             <div id="notes-collapse-{{loop.index}}" class="accordion-collapse collapse" data-bs-parent="notes-accordion-{{loop.index}}">
@@ -77,9 +77,7 @@ SPDX-License-Identifier: AGPL-3.0-only
                     <label for="notes-{{loop.index}}" class="form-label">
                       <small>By default, this shows the concatenated notes of all the users that suggested this URL. Please remove/edit as desired before indexing.</small>
                     </label>
-                    <textarea class="form-control" id="notes-{{loop.index}}" rows="3">
-                      {{suggestion.notes}}
-                    </textarea>
+                    <textarea class="form-control" id="notes-{{loop.index}}" rows="3">{{suggestion.notes}}</textarea>
                   </div>
                 </div>
               </div>

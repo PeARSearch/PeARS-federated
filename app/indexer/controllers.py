@@ -313,7 +313,6 @@ def index_suggestions():
     suggestions = (
         db.session
         .query(Suggestions)
-        .order_by(Suggestions.url, Suggestions.date_created.desc())
     )
 
     # use python itertools for grouping/summarizing because it's more flexible
@@ -339,13 +338,13 @@ def index_suggestions():
         for pod, suggestions_with_pod in grouped_by_pod:
             suggestion_list = list(suggestions_with_pod)
             created_dates.extend([s.date_created for s in suggestion_list])
-            notes.extend([s.notes for s in suggestion_list])
+            notes.extend([s.notes.strip() for s in suggestion_list if s.notes])
             pod_count = len(suggestion_list)
             pod_counts[pod] = pod_count
             total_count += pod_count
         sort_by_date_idx = np.argsort(created_dates)
         created_dates_sorted = np.array(created_dates)[sort_by_date_idx]
-        notes_sorted = np.array(notes)[sort_by_date_idx]
+        notes_sorted = np.array(notes)[sort_by_date_idx] if len(notes) > 0 else []
         notes_combined = "\n\n".join(notes_sorted)
         _notes_preview = " | ".join(notes_sorted)[:50]
         notes_preview = _notes_preview if len(_notes_preview) < 50 else _notes_preview + "..."
@@ -360,7 +359,8 @@ def index_suggestions():
             "already_indexed_in": [u.pod for u in existing_urls]
         })
 
-    return render_template("indexer/index_suggestions.html", suggestions=suggestions_summary, hide_already_indexed_urls=hide_already_indexed_urls)
+    suggestions_sorted = sorted(suggestions_summary, key=lambda s: s["first_created"], reverse=True)
+    return render_template("indexer/index_suggestions.html", suggestions=suggestions_sorted, hide_already_indexed_urls=hide_already_indexed_urls)
 
 
 def run_indexer_url(url, theme, note, contributor, host_url):
