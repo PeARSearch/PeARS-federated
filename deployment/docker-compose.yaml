@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  pears-federated:
+    env_file:
+      - ${PEARS_DIR}/.env
+    image: pearsproject/pears-federated:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - ${PEARS_DIR}/data:/var/lib/pears/data
+
+  https-portal:
+    env_file:
+      - .env
+    image: steveltn/https-portal:1
+    environment:
+      DOMAINS: ${DOMAIN} -> http://pears-federated:8000
+      STAGE: production
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - pears-federated
+    volumes:
+      - https-portal-data:/var/lib/https-portal
+
+volumes:
+  https-portal-data:  # Persistent storage for HTTPS certificates and other HTTPS-Portal data
