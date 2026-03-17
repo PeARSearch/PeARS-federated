@@ -23,7 +23,7 @@ def robotcheck(url):
             elif l == 'Disallow: /' and parse is True:
                 disallowed.append(domain)
             elif 'Disallow:' in l and parse is True:
-                m = re.search('Disallow:\s*(.+)',l)
+                m = re.search(r'Disallow:\s*(.+)',l)
                 if m:
                     u = m.group(1)
                     if u[0] == '/':

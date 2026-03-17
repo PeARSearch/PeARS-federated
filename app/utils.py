@@ -191,7 +191,7 @@ def parse_query(query):
     lang = None
     doctype = None
     clean_query = ""
-    m = re.search('(.*) -(..\s*)$',query)
+    m = re.search(r'(.*) -(..\s*)$',query)
     if m:
         query = m.group(1)
         lang = m.group(2)
