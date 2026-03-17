@@ -183,8 +183,27 @@ if not app.config['LIVE_MATRIX']:
 
 from app.search.cross_instance_search import filter_instances_by_language
 from flask import url_for
+import threading
+import numpy as np
 
-instances, M, _  = filter_instances_by_language()
+# Initialize with empty values so the app can serve requests immediately.
+# A background thread will populate these once the remote instances respond.
+instances = []
+M = np.array([])
+
+def _load_remote_instances():
+    global instances, M
+    try:
+        instances, M, skipped = filter_instances_by_language()
+        if skipped:
+            for s in skipped:
+                logging.warning(f"Skipped remote instance {s['instance']}: {s['reason']}")
+        logging.info(f"Loaded {len(instances)} remote instance(s) in background.")
+    except Exception as e:
+        logging.error(f"Failed to load remote instances: {e}")
+
+_instance_loader = threading.Thread(target=_load_remote_instances, daemon=True)
+_instance_loader.start()
 
 _sitename_check_completed = False
 @app.before_request
