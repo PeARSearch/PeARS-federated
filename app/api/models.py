@@ -106,7 +106,7 @@ class Urls(Base):
     id = db.Column(db.Integer, primary_key=True)
     url = db.Column(db.String(1000))
     title = db.Column(db.String(1000))
-    snippet = db.Column(db.String(1000))
+    snippet = db.Column(db.String(10000))
     doctype = db.Column(db.String(1000))
     vector = db.Column(db.Integer)
     pod = db.Column(db.String(1000))

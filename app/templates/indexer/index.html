@@ -1,7 +1,7 @@
 <!--
-SPDX-FileCopyrightText: 2024 PeARS Project, <community@pearsproject.org>, 
+	SPDX-FileCopyrightText: 2024 PeARS Project, <community@pearsproject.org>, 
 
-SPDX-License-Identifier: AGPL-3.0-only
+	SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 {% extends "base/base.html" %}
@@ -9,112 +9,44 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% from "base/_formhelpers.html" import render_autocomplete_field %}
 {% block body %}
 <div class="container">
-  <div class="row">
-    <div class="col">
-      <div class="alert alert-success text-center">
-	      <b>{{num_entries}} {{gettext("pages recorded")}}</b>
-      </div>
-    </div>
-  </div>
+	<div class="row">
+		<div class="col">
+			<div class="alert alert-success text-center">
+				<b>{{num_entries}} {{gettext("pages recorded")}}</b>
+			</div>
+		</div>
+	</div>
 
-  {% if default_screen == 'url' %}
-  <div class="row p-3" style="display:block; visibility: visible;" id="url_indexing">
-  {% else %}
-  <div class="row p-3" style="display:none; visibility: hidden;" id="url_indexing">
-  {% endif %}
-    <div class="card-group">
-      <div class="card indexer">
-        <div class="card-header text-center"><b>{{gettext("Index a single URL")}}</b></div>
-        <div class="card-body">
-        {% with messages = get_flashed_messages(category_filter=["url"]) %}
-        {% if messages %}
-            <div class="notification is-danger">
-            {{ messages[0] }}</a>
-            </div>
-        {% endif %}
-        {% endwith %}
-	<form method="POST" accept-charset="UTF-8" action="{{url_for('indexer.index_from_url')}}" enctype="multipart/form-data" autocomplete="off">
-	<datalist id="themes"></datalist>
-        {{ form1.hidden_tag() }}
-        <p>{{ render_field(form1.suggested_url) }}</p>
-        <p>{{ render_autocomplete_field(form1.theme) }}</p>
-        <p>{{ render_field(form1.note) }}</p>
-        <div class="form-check">
-          {{ form1.accept_tos(class_="form-check-input") }}
-          <label class="form-check-label" for="legal">{{gettext("I confirm that my entry does not contravene the <a href='../terms-of-service'>terms of service</a> of this site.")}}</label>
-        </div>
-      </div><!-- card body -->
-      <div class="card-footer clearfix">
-        <span class="input-group-btn">
-                <input id="submit_button" type="submit" class="btn btn-success" value="{{gettext('Add')}}">
-      </div><!-- card footer -->
-    </form>
-    </div>
-   </div>
-   <button class="btn btn-link" onclick="toggle()">{{gettext('Or add a manual resource')}}</button>
-  </div>
-
-  {% if default_screen == 'manual' %}
-  <div class="row p-3" style="display:block; visibility: visible;" id="manual_indexing">
-  {% else %}
-  <div class="row p-3" style="display:none; visibility: hidden;" id="manual_indexing">
-  {% endif %}
-    <div class="card indexer">
-    <div class="card-header text-center"><b>{{gettext("Add an offline resource")}}</b></div>
-      <div class="card-body">
-        {% with messages = get_flashed_messages(category_filter=["offline"]) %}
-        {% if messages %}
-            <div class="notification is-danger">
-            {{ messages[0] }}</a>
-            </div>
-        {% endif %}
-        {% endwith %}
-	<form method="POST" action="{{url_for('indexer.index_from_manual')}}" enctype="multipart/form-data">
-        {{ form2.hidden_tag() }}
-        <p>{{ render_field(form2.title) }}</p>
-        <p>{{ render_field(form2.related_url) }}</p>
-        <p>{{ render_field(form2.description) }}</p>
-	<div class="form-check">
-	  {{ form2.accept_tos(class_="form-check-input") }}
-	  <label class="form-check-label" for="legal">{{gettext("I confirm that my entry does not contravene the <a href='../terms-of-service'>terms of service</a> of this site.")}}</label>
-        </div>
-      </div><!-- card body -->
-      <div class="card-footer clearfix">
-        <span class="input-group-btn">
-		<input id="submit_button" type="submit" class="btn btn-success" value="{{gettext('Add')}}">
-      </div><!-- card footer -->
-    </form>
-    </div>
-    <button class="btn btn-link" onclick="toggle()">{{gettext('Or index a URL')}}</button>
- </div>
+	<div class="card-group">
+		<div class="card indexer">
+			<div class="card-header text-center"><b>{{gettext("Index a single URL")}}</b></div>
+			<div class="card-body">
+				{% with messages = get_flashed_messages(category_filter=["url"]) %}
+				{% if messages %}
+				<div class="notification is-danger">
+					{{ messages[0] }}</a>
+				</div>
+				{% endif %}
+				{% endwith %}
+				<form method="POST" accept-charset="UTF-8" action="{{url_for('indexer.index_from_url')}}" enctype="multipart/form-data" autocomplete="off">
+					<datalist id="themes"></datalist>
+					{{ form.hidden_tag() }}
+					<p>{{ render_field(form.suggested_url) }}</p>
+					<p>{{ render_autocomplete_field(form.theme) }}</p>
+					<p>{{ render_field(form.note) }}</p>
+					<div class="form-check">
+						{{ form.accept_tos(class_="form-check-input") }}
+						<label class="form-check-label" for="legal">{{gettext("I confirm that my entry does not contravene the <a href='../terms-of-service'>terms of service</a> of this site.")}}</label>
+					</div>
+			</div><!-- card body -->
+			<div class="card-footer clearfix">
+				<span class="input-group-btn">
+					<input id="submit_button" type="submit" class="btn btn-success" value="{{gettext('Add')}}">
+			</div><!-- card footer -->
+				</form>
+		</div>
+	</div>
+</div>
 </div><!-- /.container -->
-
-
-<script>
-  let themes = {{themes|tojson}};
-  let str = '';
-  for (theme of themes) {
-    str += '<option value="' + theme + '" />';
-  }
-  document.getElementById("themes").innerHTML = str;
-</script>
-
-<script>
-function toggle() {
-  url = document.getElementById("url_indexing");
-  manual = document.getElementById("manual_indexing");
-  if (url.style.display === "none") {
-    url.style.display = "block";
-    url.style.visibility = "visible";
-    manual.style.display = "none";
-    manual.style.visibility = "hidden";
-  } else {
-    url.style.display = "none";
-    url.style.visibility = "hidden";
-    manual.style.display = "block";
-    manual.style.visibility = "visible";
-  }
-}
-</script>
 
 {% endblock %}

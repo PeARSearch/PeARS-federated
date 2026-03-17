@@ -122,7 +122,11 @@ def compute_scores(query, query_vectors, lang):
             u.snippet = ''
             snippet_score = 0.0
         else:
-            snippet = ' '.join(u.snippet.split()[:snippet_length])
+            snippet = u.snippet
+            if u.url.startswith('pearslocal') or u.url.startswith('content'):
+                snippet = ' '.join(u.snippet.split()[:100])
+            else:
+                snippet = ' '.join(u.snippet.split()[:snippet_length])
             snippet_score = snippet_overlap(query, u.title+' '+snippet)
         loc = urlparse(u.url).netloc.split('.')[0]
 
@@ -165,6 +169,8 @@ def return_best_urls(doc_scores):
 
 
 def output(best_urls, scores):
+    ''' Prepare a dictionary of results for output.
+    '''
     snippet_length = app.config['SNIPPET_LENGTH']
     results = {}
     urls = Urls.query.filter(Urls.url.in_(best_urls)).all()
@@ -173,7 +179,9 @@ def output(best_urls, scores):
         url = u.url
         results[url] = u.as_dict()
         results[url]['score'] = scores[i]
-        if not url.startswith('pearslocal'):
+        if url.startswith('pearslocal') or url.startswith('content'):
+            results[url]['snippet'] = ' '.join(results[url]['snippet'].split()[:100])
+        else:
             results[url]['snippet'] = ' '.join(results[url]['snippet'].split()[:snippet_length])
     return results
 

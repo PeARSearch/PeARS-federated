@@ -21,10 +21,10 @@ from app import app, db
 from app.api.models import Urls, Pods, Suggestions, RejectedSuggestions, Personalization
 from app.indexer import mk_page_vector
 from app.utils import read_urls, parse_query
-from app.utils_db import create_pod_in_db, create_pod_npz_pos, create_or_replace_url_in_db, delete_url_representations, create_suggestion_in_db
+from app.utils_db import create_pod_in_db, create_pod_npz_pos, create_or_replace_url_in_db, delete_url_representations, create_suggestion_in_db, check_url_exists
 from app.indexer.access import request_url
 from app.indexer.posix import posix_doc
-from app.forms import IndexerForm, ManualEntryForm, SuggestionForm
+from app.forms import IndexerForm, WebSourceForm, NewContentForm, SuggestionForm
 
 app_dir_path = dirname(dirname(realpath(__file__)))
 
@@ -35,71 +35,57 @@ indexer = Blueprint('indexer', __name__, url_prefix='/indexer')
 @indexer.route("/", methods=["GET"])
 @check_permissions(login=True, confirmed=True, admin=True)
 def index():
-    """Displays the indexer page.
-    Computes and returns the total number
-    of URLs in the entire instance. Passes
-    online and offline suggestion forms to
-    the indexer template.
+    """Displays the indexer page for web pages.
     """
     num_db_entries = len(Urls.query.all())
-    form1 = IndexerForm(request.form)
-    form2 = ManualEntryForm(request.form)
+    form = IndexerForm(request.form)
     pods = Pods.query.all()
-    themes = list(set([p.name.split('.u.')[0] for p in pods]))
-    default_screen = 'url'
-    return render_template("indexer/index.html", \
-            num_entries=num_db_entries, form1=form1, form2=form2, themes=themes, default_screen=default_screen)
+    themes = list({p.name.split('.u.')[0] for p in pods})
+    return render_template("indexer/index.html", num_entries=num_db_entries, form=form, themes=themes)
+
+
+@indexer.route("/write-and-index", methods=["GET"])
+@check_permissions(login=True, confirmed=True, admin=True)
+def write_and_index():
+    """Displays the indexer page for writing content
+    and indexing it on that PeARS instance.
+    """
+    num_db_entries = len(Urls.query.all())
+    form = NewContentForm(request.form)
+    pods = Pods.query.all()
+    themes = list({p.name.split('.u.')[0] for p in pods})
+    return render_template("indexer/write_and_index.html", num_entries=num_db_entries, form=form, themes=themes)
+
+
+@indexer.route("/source", methods=["GET"])
+@check_permissions(login=True, confirmed=True, admin=True)
+def write_source_commentary():
+    """Displays the indexer page for writing content
+    and indexing it on that PeARS instance.
+    """
+    num_db_entries = len(Urls.query.all())
+    form = WebSourceForm(request.form)
+    pods = Pods.query.all()
+    themes = list({p.name.split('.u.')[0] for p in pods})
+    return render_template("indexer/web_commentary.html", num_entries=num_db_entries, form=form, themes=themes)
+
 
 @indexer.route("/suggest", methods=["GET"])
 def suggest():
     """Suggests a URL without indexing.
     """
     # generate captcha (public code/private string pair)
-    captcha_id, captcha_correct_answer = mk_captcha()
+    captcha_id, _ = mk_captcha()
 
     form = SuggestionForm()
     form.captcha_id.data = captcha_id
     pods = Pods.query.all()
-    themes = list(set([p.name.split('.u.')[0] for p in pods]))
+    themes = list({p.name.split('.u.')[0] for p in pods})
     internal_message = db.session.query(Personalization).filter_by(feature='suggestions_info').first()
     if internal_message:
-        print("MSG",internal_message)
         internal_message = internal_message.text
     return render_template("indexer/suggest.html", form=form, themes=themes, internal_message=internal_message)
 
-@indexer.route("/amend", methods=["GET"])
-@check_permissions(login=True, confirmed=True, admin=True)
-def correct_entry():
-    """Redisplays the indexer page when the
-    user wishes to change their entry.
-    """
-    num_db_entries = len(Urls.query.all())
-    form1 = IndexerForm(request.form)
-    form2 = ManualEntryForm(request.form)
-    pods = Pods.query.all()
-    themes = list(set([p.name.split('.u.')[0] for p in pods]))
-    default_screen = "url"
-    
-    if not session['index_url']:
-        flash(gettext("Nothing to amend."))
-        return render_template("indexer/index.html", \
-            num_entries=num_db_entries, form1=form1, form2=form2, themes=themes)
-
-    url = session['index_url']
-    delete_url_representations(url)
-    if 'index_description' in session:
-        form2.title.data = session['index_title']
-        form2.related_url.data = session['index_url']
-        form2.description.data = session['index_description']
-        default_screen = "manual"
-        session.pop('index_description')
-    else:
-        form1.url.data = url
-        form1.theme.data = session['index_theme']
-        if session['index_note']:
-            form1.theme.data = session['index_note']
-    return render_template("indexer/index.html", \
-            num_entries=num_db_entries, form1=form1, form2=form2, themes=themes, default_screen=default_screen)
 
 @indexer.route("/url", methods=["POST"])
 @check_permissions(login=True, confirmed=True, admin=True)
@@ -108,22 +94,18 @@ def index_from_url():
     This is to index a URL that the user
     has suggested through the IndexerForm.
     Validates the suggestion form and calls the
-    indexer (progres_file).
+    indexer (progress_file).
     """
     print("\t>> Indexer : from_url")
     contributor = current_user.username
     pods = Pods.query.all()
-    themes = list(set([p.name.split('.u.')[0] for p in pods]))
-    default_screen = "url"
+    themes = list({p.name.split('.u.')[0] for p in pods})
 
     form = IndexerForm(request.form)
     if form.validate_on_submit():
         url = request.form.get('suggested_url').strip()
         theme = request.form.get('theme').strip()
         note = request.form.get('note').strip()
-        session['index_url'] = url
-        session['index_theme'] = theme
-        session['index_note'] = note
         if note is None:
             note = ''
         logging.debug(f"INDEXING URL: {url} THEME: {theme} NOTE: {note} CONTRIBUTOR: {contributor}")
@@ -131,26 +113,23 @@ def index_from_url():
         if success:
             return render_template('indexer/success.html', messages=messages, share_url=share_url, url=url, theme=theme, note=note)
         return render_template('indexer/fail.html', messages = messages)
-    return render_template('indexer/index.html', form1=form, form2=ManualEntryForm(request.form), themes=themes, default_screen=default_screen)
+    return render_template('indexer/index.html', form=form, themes=themes)
 
-@indexer.route("/manual", methods=["POST"])
+@indexer.route("/commentary", methods=["POST"])
 @check_permissions(login=True, confirmed=True, admin=True)
-def index_from_manual():
-    """ Route for manual (offline) entry form.
-    This is to index offline tips that the user
-    may want to share on the instance.
-    Validates the ManualEntryForm and calls the
-    indexer (manual_progres_file).
+def index_from_web_commentary():
+    """ Route for web commentary entry form.
     """
     print("\t>> Indexer : manual")
     contributor = current_user.username
     pods = Pods.query.all()
-    themes = list(set([p.name.split('.u.')[0] for p in pods]))
+    themes = list({p.name.split('.u.')[0] for p in pods})
     default_screen = "manual"
 
-    form = ManualEntryForm(request.form)
+    form = WebSourceForm(request.form)
     if form.validate_on_submit():
         title = request.form.get('title').strip()
+        theme = request.form.get('theme').strip()
         snippet = request.form.get('description').strip()
         url = request.form.get('related_url').strip()
         print("MANUAL URL",url)
@@ -162,16 +141,45 @@ def index_from_manual():
             h = hashlib.new('sha256')
             h.update(snippet.encode())
             url = 'pearslocal'+h.hexdigest()
-        theme = 'Tips'
         note = ''
-        session['index_url'] = url
-        session['index_title'] = title
-        session['index_description'] = snippet
         success, messages, share_url = run_indexer_manual(url, title, snippet, theme, lang, note, contributor, request.host_url)
         if success:
             return render_template('indexer/success.html', messages=messages, share_url=share_url,  theme=theme, note=snippet)
         return render_template('indexer/fail.html', messages = messages)
     return render_template('indexer/index.html', form1=IndexerForm(request.form), form2=form, themes=themes, default_screen=default_screen)
+
+@indexer.route("/newcontent", methods=["POST"])
+@check_permissions(login=True, confirmed=True, admin=True)
+def index_from_new_content():
+    """ Route for new content entry form.
+    """
+    print("\t>> Indexer : new content")
+    contributor = current_user.username
+    pods = Pods.query.all()
+    themes = list({p.name.split('.u.')[0] for p in pods})
+    default_screen = "manual"
+
+    form = NewContentForm(request.form)
+    if form.validate_on_submit():
+        title = request.form.get('title').strip()
+        theme = request.form.get('theme').strip()
+        snippet = request.form.get('content').strip()
+        lang = detect(snippet)
+        # Hack if language of contribution is not recognized
+        if lang not in app.config['LANGS']:
+            lang = app.config['LANGS'][0]
+        url = 'content-'+title.lower().replace(' ','-')
+        c = 2
+        while check_url_exists(url):
+            url+=f"-{c}"
+            c+=1
+        note = ''
+        success, messages, share_url = run_indexer_manual(url, title, snippet, theme, lang, note, contributor, request.host_url)
+        if success:
+            return render_template('indexer/success.html', messages=messages, share_url=share_url,  theme=theme, note=snippet)
+        return render_template('indexer/fail.html', messages = messages)
+    return render_template('indexer/write_and_index.html', form1=IndexerForm(request.form), form2=form, themes=themes, default_screen=default_screen)
+
 
 @indexer.route("/suggestion", methods=["POST"])
 def run_suggest_url():
@@ -189,10 +197,10 @@ def run_suggest_url():
             contributor = current_user.username
         else:
             contributor = 'anonymous'
-        
+       
         if not check_captcha(captcha_id, captcha_user_answer):
             flash(gettext('The captcha was incorrectly answered.'))
-            captcha_id, captcha_correct_answer = mk_captcha()
+            captcha_id, _ = mk_captcha()
             form = SuggestionForm()
             form.suggested_url.data = request.form.get('suggested_url').strip()
             form.theme.data = request.form.get('theme').strip()
@@ -200,7 +208,7 @@ def run_suggest_url():
             form.captcha_answer.data = ""
             form.captcha_id.data = captcha_id
             pods = Pods.query.all()
-            themes = list(set([p.name.split('.u.')[0] for p in pods]))
+            themes = list({p.name.split('.u.')[0] for p in pods})
             return render_template('indexer/suggest.html', form=form, themes=themes)
 
         print(url, theme, note)
@@ -212,7 +220,7 @@ def run_suggest_url():
     captcha_id, captcha_correct_answer = mk_captcha()
     form.captcha_id.data = captcha_id
     pods = Pods.query.all()
-    themes = list(set([p.name.split('.u.')[0] for p in pods]))
+    themes = list({p.name.split('.u.')[0] for p in pods})
     return render_template('indexer/suggest.html', form=form, themes=themes)
 
 @indexer.route("/index_from_suggestion_ajax", methods=["POST"])
@@ -424,12 +432,13 @@ def run_indexer_manual(url, title, doc, theme, lang, note, contributor, host_url
     messages = []
     indexed = False
     create_pod_npz_pos(contributor, theme, lang)
-    success, text, snippet, idv = mk_page_vector.compute_vector_local_docs(\
+    success, _, snippet, idv = mk_page_vector.compute_vector_local_docs(\
             title, doc, theme, lang, contributor)
-    share_url = join(host_url,'api', 'get?url='+url)
+    share_url = join(host_url,'api', 'show?url='+url)
     if success:
         create_pod_in_db(contributor, theme, lang)
         #posix_doc(text, idx, contributor, lang, theme)
+        snippet = snippet.replace('\r\n', ' || ')
         create_or_replace_url_in_db(url, title, idv, snippet, theme, lang, note, share_url, contributor, 'doc')
         indexed = True
     else:

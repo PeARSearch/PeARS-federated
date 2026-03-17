@@ -60,10 +60,17 @@ class SuggestionForm(FlaskForm):
     captcha_id = HiddenField()
     captcha_answer = StringField(lazy_gettext("Captcha:"), [DataRequired()])
 
-class ManualEntryForm(FlaskForm):
+class WebSourceForm(FlaskForm):
     title = StringField(lazy_gettext('A title for your entry'), [DataRequired(), Length(min=8, max=100, message=lazy_gettext("The title of your entry should have between 4 and 100 characters."))])
-    related_url = URLField(lazy_gettext('An optional URL*'), [Optional(), URL()], render_kw={"placeholder": lazy_gettext("If you enter a URL in this field, your entry will automatically link to it.")})
-    description = TextAreaField(lazy_gettext('Description'), [DataRequired(), Length(max=1000)],  render_kw={"placeholder": lazy_gettext("Anything extra you would like people to know about this resource. (Max 1000 characters.)")})
+    related_url = URLField(lazy_gettext('The URL you are writing about'), [URL()], render_kw={"placeholder": lazy_gettext("Your entry will automatically link to this URL.")})
+    theme = StringField(lazy_gettext('Category'), [DataRequired(), Length(max=50)],  render_kw={"placeholder": lazy_gettext("A category for your URL. Start typing and suggestions will appear, but you can also write your own.")})
+    description = TextAreaField(lazy_gettext('Description'), [DataRequired(), Length(max=10000)],  render_kw={"placeholder": lazy_gettext("Anything you would like people to know about this resource. (Max 10000 characters.)"), "rows":6})
+    accept_tos = BooleanField(lazy_gettext('I confirm that my entry does not contravene the Terms of Service'), [DataRequired()])
+
+class NewContentForm(FlaskForm):
+    title = StringField(lazy_gettext('A title for your entry'), [DataRequired(), Length(min=8, max=100, message=lazy_gettext("The title of your entry should have between 4 and 100 characters."))])
+    theme = StringField(lazy_gettext('Category'), [DataRequired(), Length(max=50)],  render_kw={"placeholder": lazy_gettext("A category for your URL. Start typing and suggestions will appear, but you can also write your own.")})
+    content = TextAreaField(lazy_gettext('Description'), [DataRequired(), Length(max=10000)],  render_kw={"placeholder": lazy_gettext("Your content (max 10000 characters.)"), "rows":8})
     accept_tos = BooleanField(lazy_gettext('I confirm that my entry does not contravene the Terms of Service'), [DataRequired()])
 
 class ReportingForm(FlaskForm):

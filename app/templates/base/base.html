@@ -71,8 +71,12 @@ SPDX-License-Identifier: AGPL-3.0-only
                 <li class="nav-item dropdown">
                   <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Indexer</a>
                   <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="{{url_for('indexer.index')}}">{{gettext('Index new pages')}}</a></li>
+                    <li><a class="dropdown-item" href="{{url_for('indexer.write_and_index')}}">{{gettext('Write new content')}}</a></li>
+                    <li><a class="dropdown-item" href="{{url_for('indexer.write_source_commentary')}}">{{gettext('Write about a source')}}</a></li>
+		    {% if current_user.is_admin %}
+                    <li><a class="dropdown-item" href="{{url_for('indexer.index')}}">{{gettext('Index new web pages')}}</a></li>
                     <li><a class="dropdown-item" href="{{url_for('indexer.index_suggestions')}}">{{gettext('Index suggested pages')}}</a></li>
+		    {% endif %}
                   </ul>
                 </li>
 		{% endif %}

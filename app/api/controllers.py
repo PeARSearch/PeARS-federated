@@ -10,6 +10,7 @@ from os.path import dirname, join, realpath, isfile
 from flask import Blueprint, jsonify, request, render_template, url_for
 from scipy.sparse import vstack, save_npz, load_npz
 from app.forms import SearchForm
+from app.utils import beautify_pears_content
 from app.api.models import Urls, Pods
 from app.auth.decorators import check_permissions, check_is_confirmed
 from app import app, db, models
@@ -39,6 +40,7 @@ def return_identity_info():
         "organization": app.config["ORG_NAME"] 
     })
 
+
 @api.route('/signature/<lang>/', methods=["GET", "POST"])
 def return_instance_signature(lang):
     """Returns the signature of this instance for a language.
@@ -49,6 +51,7 @@ def return_instance_signature(lang):
     signature = np.sum(podsum, axis=0)
     return json.dumps(signature.tolist())
 
+
 @api.route('/search', methods=["GET"])
 def return_query_results():
     """Returns the results for a query in a json format.
@@ -57,10 +60,12 @@ def return_query_results():
     _, results = get_local_search_results(query)
     return jsonify(json_list=results)
 
+
 @api.route('/urls/')
 @check_permissions(login=True, confirmed=True)
 def return_urls():
     return jsonify(json_list=[i.serialize for i in Urls.query.all()])
+
 
 @api.route('/get', methods=["GET"])
 def return_specific_url():
@@ -71,6 +76,17 @@ def return_specific_url():
     if u.startswith('pearslocal'):
         u = url_for('api.return_specific_url')+'?url='+u
         url['url'] = u
+    elif u.startswith('content'):
+        u = url_for('api.display_content')+'?url='+u
+        url['url'] = u
     displayresults = prepare_gui_results("",{u:url})
     return render_template('search/results.html', query="", results=displayresults, \
             internal_message=internal_message, searchform=SearchForm())
+
+
+@api.route('/show', methods=["GET"])
+def display_content():
+    u = request.args.get('url')
+    url = db.session.query(Urls).filter_by(url=u).first()
+    paras = beautify_pears_content(url.snippet)
+    return render_template('search/display.html', title=url.title, contributor=url.contributor, date=url.date_created, content=paras)

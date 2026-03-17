@@ -20,10 +20,9 @@ SPDX-License-Identifier: AGPL-3.0-only
       {% endif %}
       <p><img src="{{ url_for('static', filename='search-circle-outline.svg')}}" class='ion-icon'/><b> PeARS Link: </b> <a href={{share_url}}>{{share_url}}</a><br></p>
       <p><img src="{{ url_for('static', filename='file-tray-stacked-outline.svg')}}" class='ion-icon'/><b> {{gettext('Category:')}} </b> {{theme}}<br></p>
-      <p><img src="{{ url_for('static', filename='chatbubble-ellipses-outline.svg')}}" class='ion-icon'/><b> {{gettext('Note:')}} </b> {{note}}<br></p>
+      <p><img src="{{ url_for('static', filename='chatbubble-ellipses-outline.svg')}}" class='ion-icon'/><b> {{gettext('Your text:')}} </b> {{note}}<br></p>
       <br>
-      <p>{{gettext('Made a mistake? No problem')}}, <a href="{{url_for('indexer.correct_entry')}}" onclick="return confirm('Are you sure you want to amend your contribution? Clicking on this link will delete the resource you have just indexed and send you back to the indexing form, prefilled with your previous entries.')">{{gettext('try again')}}</a></p>
-      <a class="btn btn-primary" href="{{url_for('indexer.index')}}">{{gettext("Index more pages")}}</a>
+      <p>{{gettext('Made a mistake? No problem! You can can amend or delete your contributions from your ')}} <a href="{{url_for('settings.index')}}">profile page</a></p>
   </div>
 </div>
 {% endblock %}

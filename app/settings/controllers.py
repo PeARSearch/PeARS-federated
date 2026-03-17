@@ -15,8 +15,8 @@ from flask_babel import gettext
 import app as app_module
 from app import app, db
 from app.search.cross_instance_search import filter_instances_by_language
-from app.api.models import Urls, User
-from app.forms import EmailChangeForm, UsernameChangeForm
+from app.api.models import Urls, Pods, User
+from app.forms import EmailChangeForm, UsernameChangeForm, NewContentForm, IndexerForm
 from app.utils_db import delete_url_representations
 from app.auth.decorators import check_permissions
 from app.auth.token import send_email
@@ -60,6 +60,7 @@ def toggle_maintenance_mode():
         set_maintenance_mode(False)
     return redirect(url_for("search.index"))
 
+
 @settings.route("refresh_remotes")
 @check_permissions(login=True, confirmed=True, admin=True)
 def refresh_remote_instances():
@@ -79,7 +80,6 @@ def refresh_remote_instances():
     return redirect(url_for("search.index"))
 
 
-
 # Set the route and accepted methods
 @settings.route("/")
 @check_permissions(login=True)
@@ -94,10 +94,7 @@ def index():
 
     for i in db.session.query(Urls).filter_by(contributor=username).all():
         url = join(request.host_url,'api','get?url='+i.url)
-        if i.pod.split('.u.')[0] == 'Tips':
-            tips.append([url, i.title])
-        else:
-            contributions.append([url, i.title])
+        contributions.append([url, i.title])
     contributions = contributions[::-1] #reverse from most recent
     tips = tips[::-1] #reverse from most recent
     num_contributions = len(contributions)+len(tips)
@@ -107,7 +104,7 @@ def index():
         notes = ['@'+note.replace('<br>','') for note in i.notes.split('@') if note.startswith(username)]
         note = ' | '.join(notes)
         comments.append([url, note])
-    return render_template("settings/index.html", username=username, email=email, num_contributions=num_contributions, contributions=contributions, tips=tips, comments=comments, emailform=emailform, usernameform = usernameform)
+    return render_template("settings/index.html", username=username, email=email, num_contributions=num_contributions, contributions=contributions, comments=comments, emailform=emailform, usernameform = usernameform)
 
 
 @settings.route("/toggle-theme")
@@ -139,6 +136,7 @@ def delete_url():
         flash(gettext("There was a problem deleting URL ")+url+gettext(" Please contact your administrator."))
     return redirect(url_for("settings.index"))
 
+
 @settings.route('/delcomment', methods=['GET'])
 @check_permissions(login=True, confirmed=True)
 def delete_comment():
@@ -155,6 +153,39 @@ def delete_comment():
     flash(gettext("Your comments for ")+u+gettext(" were successfully deleted."))
     return redirect(url_for("settings.index"))
 
+
+@settings.route('/editcontent', methods=['GET'])
+@check_permissions(login=True, confirmed=True)
+def edit_content():
+    '''Open edit page so that user can change their
+    content.'''
+    num_db_entries = len(Urls.query.all())
+    username = current_user.username
+    u = request.args.get('url').split('get?url=')[1]
+    url = db.session.query(Urls).filter_by(url=u).first()
+    # Double check url belongs to the user
+    if url.contributor != username:
+        flash(gettext("URL does not belong to you and cannot be edited."))
+        return redirect(url_for("settings.index"))
+    pods = Pods.query.all()
+    themes = list({p.name.split('.u.')[0] for p in pods})
+    form = NewContentForm(title=url.title, content=url.snippet)
+    return render_template('indexer/write_and_index.html', num_entries=num_db_entries, form=form, themes=themes)
+
+
+@settings.route('/editcomment', methods=['GET'])
+@check_permissions(login=True, confirmed=True)
+def edit_comment():
+    '''TODO: Open edit page so that user can change their
+    comment.'''
+    username = current_user.username
+    u = request.args.get('url').split('get?url=')[1]
+    url = db.session.query(Urls).filter_by(url=u).first()
+    # Double check url belongs to the user
+    if u.contributor != username:
+        flash(gettext("URL does not belong to you and cannot be edited."))
+        return redirect(url_for("settings.index"))
+    return redirect(url_for("settings.index"))
 
 def rename_user_files(username, new_user):
     for url in db.session.query(Urls).filter_by(contributor = username).all():

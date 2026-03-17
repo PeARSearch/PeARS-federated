@@ -90,7 +90,7 @@ def compute_vector_local_docs(title, doc, theme, lang, contributor):
     text = tokenize_text(text, lang)
     pod_m, success = compute_and_stack_new_vec(lang, text, pod_m)
     if doc != "":
-        snippet = doc[:500]+'...'
+        snippet = doc
     else:
         snippet = title
     if success:

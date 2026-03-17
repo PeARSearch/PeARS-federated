@@ -1,0 +1,21 @@
+<!--
+	SPDX-FileCopyrightText: 2025 PeARS Project, <community@pearsproject.org>, 
+
+	SPDX-License-Identifier: AGPL-3.0-only
+-->
+
+{% extends "base/base.html" %}
+{% block body %}
+<div class="container">
+
+	<div class="row h-100 justify-content-center align-items-center">
+		<div class="col-8">
+			<h1>{{title}}</h1>
+			<p><i>{{contributor}}, {{date}}</i></p>
+			{% for para in content %}
+			<p>{{para|safe}}</p>
+			{% endfor %}
+		</div>
+	</div> <!-- /row -->
+</div> <!-- /container full -->
+{% endblock %}

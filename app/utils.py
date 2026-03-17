@@ -191,7 +191,7 @@ def parse_query(query):
     lang = None
     doctype = None
     clean_query = ""
-    m = re.search('(.*) -(..\s*)$',query)
+    m = re.search(r'(.*) -(..\s*)$',query)
     if m:
         query = m.group(1)
         lang = m.group(2)
@@ -224,7 +224,10 @@ def beautify_title(title, doctype):
     return title
 
 def beautify_snippet(snippet, query):
+    ''' Beautify snippet on result page by marking in bold
+    the words that also appeared in the query.'''
     snippet = snippet.replace('og desc:','')
+    snippet = snippet.replace('|| ','') #Remove paragraph markers for PeARS content
     if snippet[-3:] != '...':
         snippet+='...'
     tmp_snippet = snippet
@@ -246,9 +249,31 @@ def beautify_snippet(snippet, query):
     tmp_snippet = tmp_snippet[:-len(tag)]
     return tmp_snippet
 
+
+def beautify_pears_content(content):
+    '''Beautify pears-created content, in particular
+    by converting basic markdown into html.
+    '''
+    paras = content.split('|| ')
+    beautified_paras = []
+    for para in paras:
+        para = para.strip()
+        para = escape(para)
+        if para.startswith('# '):
+            para = Markup('<h3>')+para[2:]+Markup('</h3>')
+        elif para.startswith('## '):
+            para = Markup('<h4>')+para[3:]+Markup('</h4>')
+        para = re.sub(r'\*\*(.*)?\*\*', r'<b>\g<1></b>', para) #boldface
+        para = re.sub(r'\*(.*)?\*', r'<i>\g<1></i>', para) #italic
+        para = re.sub(r'\[(.*)?\]\((.*)?\)', r'<a href="\g<2>">\g<1></a>', para) #links
+        if para != '':
+            beautified_paras.append(para)
+    return beautified_paras
+
+
 def timer(func):
-    # This function shows the execution time of
-    # the function object passed
+    '''This function shows the execution time of
+    the function object passed.'''
     def wrap_func(*args, **kwargs):
         t1 = time()
         result = func(*args, **kwargs)
