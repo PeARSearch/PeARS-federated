@@ -8,34 +8,26 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 
 {% block page_body %}
-    <nav class="navbar navbar-default">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
+      <a href="{{ url_for('search.index')}}" class="navbar-brand"><img src="{{ url_for('static', filename='pears-logo-small.png')}}" height="50px"></a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
       </button>
-      <!-- <a class="navbar-brand" href="#">Brand</a> -->
-      <a href="{{ url_for('search.index')}}" class="navbar-left"><img src="{{ url_for('static', filename='pears-logo-small.png')}}" height="50px"></a>
-    </div>
 
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav">
-	      <li><a href="{{url_for('search.index')}}">{{gettext('Search')}}</a></li>
-	      <li><a href="{{url_for('indexer.index')}}">{{gettext('Indexer')}}</a></li>
-	      <li><a href="{{url_for('orchard.index')}}">{{gettext('Themes')}}</a></li>
-	      <li><a href="{{url_for('admin.index')}}">{{gettext('DB admin')}}</a></li>
-      </ul>
-      <ul class="nav navbar-nav navbar-right">
-	      <li><a href="{{url_for('settings.index')}}">{{gettext('Profile')}}</a></li>
-	      <li><a href="{{url_for('pages.return_faq')}}">{{gettext('F.A.Q.')}}</a></li>
-      </ul>
-    </div><!-- /.navbar-collapse -->
-    </div><!-- /.container-fluid -->
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item"><a class="nav-link" href="{{url_for('search.index')}}">{{gettext('Search')}}</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{url_for('indexer.index')}}">{{gettext('Indexer')}}</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{url_for('orchard.index')}}">{{gettext('Themes')}}</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{url_for('admin.index')}}">{{gettext('DB admin')}}</a></li>
+        </ul>
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item"><a class="nav-link" href="{{url_for('settings.index')}}">{{gettext('Profile')}}</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{url_for('pages.return_faq')}}">{{gettext('F.A.Q.')}}</a></li>
+        </ul>
+      </div>
+    </div>
     </nav>
 
 
