@@ -214,6 +214,7 @@ def delete_account():
     print(">> DELETING ACCOUNT",username)
     current_user.remove()
     db.session.commit()
+    logout_user()
     flash(gettext("Your account has successfully been deleted."), "success")
     return redirect(url_for("search.index"))
 
