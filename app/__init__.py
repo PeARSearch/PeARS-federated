@@ -259,11 +259,10 @@ class MyAdminIndexView(AdminIndexView):
         return can_access_flaskadmin()
 
 
-admin = Admin(app, name='PeARS DB', template_mode='bootstrap3', index_view=MyAdminIndexView())
+admin = Admin(app, name='PeARS DB', index_view=MyAdminIndexView())
 
 class UrlsModelView(ModelView):
     list_template = 'admin/pears_list.html'
-    column_hide_backrefs = False
     column_list = ['url', 'title', 'pod', 'notes']
     column_searchable_list = ['url', 'title', 'pod', 'notes']
     can_edit = True
