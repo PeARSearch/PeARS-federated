@@ -184,9 +184,12 @@ def password_forgotten():
     form = PasswordForgottenForm(request.form)
     
     if form.validate_on_submit():
-        # code to validate and add user to database goes here
         email = request.form.get('email')
-        user = User.query.filter_by(email=email).first() # if this returns a user, then the email exists in database
+        user = User.query.filter_by(email=email).first()
+
+        if not user:
+            flash(gettext("No account found with that email address."), "danger")
+            return redirect(url_for('auth.password_forgotten'))
 
         # generate confirmation email
         token = generate_token(user.email)
