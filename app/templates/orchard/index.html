@@ -35,7 +35,7 @@ SPDX-License-Identifier: AGPL-3.0-only
   <div class="categories-grid">
     {% for p in pears|sort(attribute=0) %}
     <div class="category-item">
-      <a href="{{url_for('orchard.get_a_pod')}}?pod={{p[0]}}" class="category-card">
+      <a href="{{url_for('orchard.get_a_pod')}}?pod={{p[0]}}" class="category-card" title="{{p[0]}}">
         <span class="category-initial" data-initial="{{p[0][0]|upper}}">{{p[0][0]|upper}}</span>
         <span class="category-info">
           <span class="category-name" title="{{p[0]}}">{{p[0]}}</span>
