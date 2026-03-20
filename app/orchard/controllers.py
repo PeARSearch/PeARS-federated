@@ -88,7 +88,7 @@ def report():
             flash(gettext("Your report has been sent. Thank you!"), "success")
         else:
             flash(gettext("We could not send your report. Please try again later or contact the administrator."), "danger")
-        return redirect(url_for('search.index'))
+        return redirect(request.referrer or url_for('search.index'))
     return render_template('orchard/report.html', form=form, email=email)
 
 
@@ -107,7 +107,7 @@ def feedback():
             flash(gettext("Your feedback has been sent. Thank you!"), "success")
         else:
             flash(gettext("We could not send your feedback. Please try again later or contact the administrator."), "danger")
-        return redirect(url_for('search.index'))
+        return redirect(request.referrer or url_for('search.index'))
     return render_template('orchard/feedback.html', form=form, email=email)
 
 
@@ -132,6 +132,6 @@ def annotate():
         db.session.add(u)
         db.session.commit()
         flash(gettext("Your note has been saved. Thank you!"), "success")
-        return redirect(url_for('search.index'))
+        return redirect(request.referrer or url_for('search.index'))
     else:
         return render_template('orchard/annotate.html', form=form)
