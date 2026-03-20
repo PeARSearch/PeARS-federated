@@ -35,26 +35,79 @@ SPDX-License-Identifier: AGPL-3.0-only
             border-radius: 0;
         }
 
-        /* Tighter table rows */
+        /* Flask-Admin navbar */
+        .navbar-inverse {
+            background-color: #2D3250;
+            border: none;
+            border-radius: 0;
+        }
+
+        .navbar-inverse .navbar-brand {
+            color: #EDECE8;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .navbar-inverse .navbar-brand:hover {
+            color: #fff;
+        }
+
+        .navbar-inverse .navbar-nav > li > a {
+            color: #B0AFAA;
+        }
+
+        .navbar-inverse .navbar-nav > li > a:hover,
+        .navbar-inverse .navbar-nav > li.active > a {
+            color: #fff;
+        }
+
+        /* Table layout */
+        .table {
+            table-layout: fixed;
+            width: 100%;
+        }
+
         .table td, .table th {
-            padding: 8px 12px;
-            vertical-align: middle;
-            font-size: 14px;
+            padding: 6px 10px;
+            vertical-align: top;
+            font-size: 13px;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .table th a {
             color: #E67E22;
         }
 
-        /* Constrain URL column */
+        /* Column widths — checkbox, actions, url, title, pod, notes */
+        .table th:nth-child(1),
+        .table td:nth-child(1) { width: 30px; }
+
+        .table th:nth-child(2),
+        .table td:nth-child(2) { width: 60px; }
+
+        /* Notes column: truncate long text */
+        .table td:last-child {
+            max-width: 250px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* URL column: allow wrapping */
         .table td:nth-child(3) {
-            max-width: 400px;
             word-break: break-all;
+            white-space: normal;
         }
 
         /* Better row striping */
         .table-striped > tbody > tr:nth-of-type(odd) {
             background-color: #F3F1EE;
+        }
+
+        .table-striped > tbody > tr:hover {
+            background-color: #FDEBD0;
         }
 
         /* Buttons */
@@ -81,10 +134,9 @@ SPDX-License-Identifier: AGPL-3.0-only
             border-radius: 6px 6px 0 0;
         }
 
-        /* Flask-Admin navbar */
-        .navbar-inverse {
-            background-color: #2D3250;
-            border: none;
+        /* Action icons */
+        .icon-pencil, .icon-trash, .glyphicon {
+            font-size: 12px;
         }
     </style>
     </div>
