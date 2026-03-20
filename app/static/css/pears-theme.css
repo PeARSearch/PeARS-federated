@@ -170,6 +170,7 @@
   background-color: var(--pears-orange);
   padding: var(--space-3) 0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-bottom: 3px solid var(--pears-navy);
 }
 
 .site-nav-inner {
@@ -343,6 +344,41 @@
   .site-nav-links a,
   .site-nav-actions a {
     padding: var(--space-2) var(--space-3);
+  }
+}
+
+/* Dark mode: navy nav with orange accents */
+[data-theme="dark"] .site-nav {
+  background-color: var(--pears-navy);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  border-bottom-color: var(--pears-orange);
+}
+
+[data-theme="dark"] .site-nav-links a:hover,
+[data-theme="dark"] .site-nav-actions a:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--pears-orange);
+}
+
+[data-theme="dark"] .site-nav-actions a[role="button"] {
+  border-color: var(--pears-orange);
+  color: var(--pears-orange);
+}
+
+[data-theme="dark"] .site-nav-actions a[role="button"]:hover {
+  background-color: var(--pears-orange);
+  color: #fff;
+}
+
+/* Dark mode: admin bar distinction from navy nav */
+[data-theme="dark"] .admin-bar {
+  background-color: #1E1E34;
+}
+
+/* Dark mode mobile menu */
+@media (max-width: 768px) {
+  [data-theme="dark"] .site-nav-menu {
+    background-color: var(--pears-navy);
   }
 }
 
