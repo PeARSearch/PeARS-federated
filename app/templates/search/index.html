@@ -25,29 +25,41 @@ SPDX-License-Identifier: AGPL-3.0-only
     {% endif %}
   {% endif %}
 
+  <!-- Subtitle: what this instance is about -->
+  {% if config['SITE_TOPIC'] %}
+  <p class="hero-subtitle">{{gettext('A federated search engine for')}} <em>{{config['SITE_TOPIC']}}</em></p>
+  {% endif %}
+
   <!-- Search form -->
   <div class="search-box">
     <form method="POST" action="{{url_for('search.index')}}" enctype="multipart/form-data" id="searchform">
       {{ searchform.hidden_tag() }}
       <fieldset class="group">
         {{ render_search_field(searchform.query, placeholder) }}
-        <button type="submit" id="searchbutton">
-          <img src="{{ url_for('static', filename='search-outline.svg')}}" class="icon" alt="{{gettext('Search')}}">
+        <button type="submit" id="searchbutton" aria-label="{{gettext('Search')}}">
+          <img src="{{ url_for('static', filename='search-outline.svg')}}" class="icon" alt="">
         </button>
-        <button type="button" id="loadingbutton" style="display:none" aria-busy="true" disabled>
+        <button type="button" id="loadingbutton" class="hidden" aria-busy="true" disabled>
           {{gettext('Searching...')}}
         </button>
       </fieldset>
     </form>
     <p class="hero-tagline">
-      This search box will query the whole PeARS network. To limit your search to this instance, simply add <em>!here</em> to your query.
+      {{gettext('Searches the whole PeARS network. Add')}} <code>!here</code> {{gettext('to search this instance only.')}}
     </p>
   </div>
+
+  <!-- Discovery: browse categories -->
+  <p class="hero-discovery">
+    <a href="{{url_for('orchard.index')}}">{{gettext('Browse categories')}}</a>
+    &middot;
+    <a href="{{url_for('pages.return_faq')}}">{{gettext('Learn more')}}</a>
+  </p>
 </div>
 
 {% if internal_message %}
 <div class="max-w-hero">
-  <div role="alert" data-variant="info">
+  <div role="alert" data-variant="warning">
     {{internal_message}}
   </div>
 </div>

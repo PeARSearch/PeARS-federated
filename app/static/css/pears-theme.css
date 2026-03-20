@@ -773,11 +773,45 @@ fieldset.group :focus {
   margin-top: var(--space-6);
 }
 
+.hero-subtitle {
+  color: var(--muted-foreground);
+  font-size: var(--text-5);
+  margin-top: var(--space-2);
+}
+
+.hero-subtitle em {
+  color: var(--foreground);
+  font-style: normal;
+  font-weight: var(--font-medium);
+}
+
 .hero-tagline {
   color: var(--muted-foreground);
-  font-size: var(--text-7);
+  font-size: var(--text-8);
   text-align: start;
   margin-top: var(--space-2);
+}
+
+.hero-tagline code {
+  font-family: var(--font-mono);
+  background: var(--muted);
+  padding: 0.1em 0.3em;
+  border-radius: var(--radius-small);
+  font-size: inherit;
+}
+
+.hero-discovery {
+  margin-top: var(--space-6);
+  font-size: var(--text-7);
+  color: var(--muted-foreground);
+}
+
+.hero-discovery a {
+  color: var(--muted-foreground);
+}
+
+.hero-discovery a:hover {
+  color: var(--primary);
 }
 
 /* --------------------------------------------------------------------------

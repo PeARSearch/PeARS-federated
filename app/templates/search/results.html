@@ -33,7 +33,7 @@ SPDX-License-Identifier: AGPL-3.0-only
       <button type="submit" id="searchbutton">
         <img src="{{ url_for('static', filename='search-outline.svg')}}" class="icon" alt="{{gettext('Search')}}">
       </button>
-      <button type="button" id="loadingbutton" style="display:none" aria-busy="true" disabled>
+      <button type="button" id="loadingbutton" class="hidden" aria-busy="true" disabled>
         {{gettext('Searching...')}}
       </button>
     </fieldset>
