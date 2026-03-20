@@ -28,10 +28,10 @@ SPDX-License-Identifier: AGPL-3.0-only
     <form method="POST" action="/orchard/feedback" enctype="multipart/form-data">
       {{ form.hidden_tag() }}
       <p>{{ render_field(form.report) }}</p>
-      <label>
+      <div class="tos-check">
         {{ form.accept_tos() }}
-        {{gettext('I confirm that I may be contacted in relation to my feedback and that my email address is')}} {{email}}.
-      </label>
+        <span>{{gettext('I confirm that I may be contacted in relation to my feedback and that my email address is')}} {{email}}.</span>
+      </div>
       <button type="submit">{{gettext('Send feedback')}}</button>
     </form>
   </article>

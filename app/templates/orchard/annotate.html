@@ -19,10 +19,10 @@ SPDX-License-Identifier: AGPL-3.0-only
       {{ form.hidden_tag() }}
       <p>{{ render_field(form.url, readonly=True) }}</p>
       <p>{{ render_field(form.note) }}</p>
-      <label>
+      <div class="tos-check">
         {{ form.accept_tos() }}
-        {{gettext('I agree for my comment to be included in the public notes for this url, together with my username.')}}
-      </label>
+        <span>{{gettext('I agree for my comment to be included in the public notes for this url, together with my username.')}}</span>
+      </div>
       <button type="submit">{{gettext('Add comment')}}</button>
     </form>
   </article>

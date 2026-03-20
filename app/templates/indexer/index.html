@@ -34,10 +34,10 @@ SPDX-License-Identifier: AGPL-3.0-only
         <p>{{ render_field(form1.suggested_url) }}</p>
         <p>{{ render_autocomplete_field(form1.theme) }}</p>
         <p>{{ render_field(form1.note) }}</p>
-        <label>
+        <div class="tos-check">
           {{ form1.accept_tos() }}
-          {{gettext("I confirm that my entry does not contravene the <a href='../terms-of-service'>terms of service</a> of this site.")|safe}}
-        </label>
+          <span>{{gettext("I confirm that my entry does not contravene the")}} <a href="{{url_for('pages.return_tos')}}">{{gettext("terms of service")}}</a> {{gettext("of this site.")}}</span>
+        </div>
         <button type="submit">{{gettext('Add')}}</button>
       </form>
     </article>
@@ -64,10 +64,10 @@ SPDX-License-Identifier: AGPL-3.0-only
         <p>{{ render_field(form2.title) }}</p>
         <p>{{ render_field(form2.related_url) }}</p>
         <p>{{ render_field(form2.description) }}</p>
-        <label>
+        <div class="tos-check">
           {{ form2.accept_tos() }}
-          {{gettext("I confirm that my entry does not contravene the <a href='../terms-of-service'>terms of service</a> of this site.")|safe}}
-        </label>
+          <span>{{gettext("I confirm that my entry does not contravene the")}} <a href="{{url_for('pages.return_tos')}}">{{gettext("terms of service")}}</a> {{gettext("of this site.")}}</span>
+        </div>
         <button type="submit">{{gettext('Add')}}</button>
       </form>
     </article>

@@ -19,10 +19,10 @@ SPDX-License-Identifier: AGPL-3.0-only
       {{ form.hidden_tag() }}
       <p>{{ render_field(form.url, readonly=True) }}</p>
       <p>{{ render_field(form.report) }}</p>
-      <label>
+      <div class="tos-check">
         {{ form.accept_tos() }}
-        {{gettext('I confirm that I may be contacted in relation to my report and that my email address is')}} {{email}}.
-      </label>
+        <span>{{gettext('I confirm that I may be contacted in relation to my report and that my email address is')}} {{email}}.</span>
+      </div>
       <button type="submit">{{gettext('Send report')}}</button>
     </form>
   </article>

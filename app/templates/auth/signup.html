@@ -18,10 +18,10 @@
       {{ render_field(form.password) }}
       {{ render_field(form.confirm) }}
       {{ render_captcha_field(form.captcha_answer, form.captcha_id.data) }}
-      <label>
+      <div class="tos-check">
         {{ form.accept_tos() }}
-        {{gettext("I agree to the")}} <a href="{{url_for('pages.return_privacy')}}">{{gettext("privacy policy")}}</a> {{gettext("and")}} <a href="{{url_for('pages.return_tos')}}">{{gettext("terms of service")}}</a>.
-      </label>
+        <span>{{gettext("I agree to the")}} <a href="{{url_for('pages.return_privacy')}}">{{gettext("privacy policy")}}</a> {{gettext("and")}} <a href="{{url_for('pages.return_tos')}}">{{gettext("terms of service")}}</a>.</span>
+      </div>
       <button type="submit" class="w-full mt-4">{{gettext('Sign up')}}</button>
     </form>
     {% else %}

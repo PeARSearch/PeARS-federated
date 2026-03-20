@@ -1014,6 +1014,58 @@ fieldset.group :focus {
   font-weight: var(--font-medium);
 }
 
+/* CAPTCHA section */
+.captcha-section {
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  background: var(--faint);
+  border-radius: var(--radius-medium);
+  border: 1px solid var(--border-light);
+}
+
+.captcha-hint {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2);
+}
+
+.captcha-display-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.captcha-display-row #captcha-display img {
+  max-height: 60px;
+}
+
+.captcha-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* TOS / agreement checkbox */
+.tos-check {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  font-size: var(--text-7);
+  line-height: var(--leading-normal);
+  margin: var(--space-4) 0;
+}
+
+.tos-check input[type="checkbox"] {
+  margin-top: 0.3em;
+  flex-shrink: 0;
+}
+
+.tos-check span {
+  flex: 1;
+}
+
 /* --------------------------------------------------------------------------
    Content pages — comfortable reading width
    -------------------------------------------------------------------------- */
