@@ -48,15 +48,15 @@ class UsernameChangeForm(FlaskForm):
     username = StringField(lazy_gettext('New Username'), [Length(min=4, max=25, message=lazy_gettext("Your username should have between 4 and 25 characters."))])
 
 class IndexerForm(FlaskForm):
-    suggested_url = URLField(lazy_gettext('The url to index'), [DataRequired(), URL()], render_kw={"placeholder": lazy_gettext("The URL you would like to index.")})
-    theme = StringField(lazy_gettext('Category'), [DataRequired(), Length(max=50)],  render_kw={"placeholder": lazy_gettext("A category for your URL. Start typing and suggestions will appear, but you can also write your own.")})
-    note = StringField(lazy_gettext('Optional note*'), [Length(max=1000)],  render_kw={"placeholder": lazy_gettext("Anything extra you would like people to know about this resource. (Max 1000 characters.)")})
+    suggested_url = URLField(lazy_gettext('URL to index'), [DataRequired(), URL()], render_kw={"placeholder": lazy_gettext("https://example.com/article")})
+    theme = StringField(lazy_gettext('Category'), [DataRequired(), Length(max=50)],  render_kw={"placeholder": lazy_gettext("Start typing — suggestions will appear, or create your own")})
+    note = TextAreaField(lazy_gettext('Note (optional)'), [Length(max=1000)],  render_kw={"placeholder": lazy_gettext("Why is this resource useful? Any context for reviewers."), "rows": "3"})
     accept_tos = BooleanField(lazy_gettext('I confirm that my suggestion does not contravene the Terms of Service'), [DataRequired()])
 
 class SuggestionForm(FlaskForm):
-    suggested_url = URLField(lazy_gettext('Suggested url.'), [DataRequired(), URL()], render_kw={"placeholder": lazy_gettext("The URL you would like to suggest.")})
-    theme = StringField(lazy_gettext('Category'), [DataRequired(), Length(max=50)],  render_kw={"placeholder": lazy_gettext("A category for your URL. Start typing and suggestions will appear, but you can also write your own.")})
-    note = StringField(lazy_gettext('Optional note*'), [Length(max=1000)],  render_kw={"placeholder": lazy_gettext("Anything extra you would like people to know about this resource. (Max 1000 characters.)")})
+    suggested_url = URLField(lazy_gettext('URL to suggest'), [DataRequired(), URL()], render_kw={"placeholder": lazy_gettext("https://example.com/article")})
+    theme = StringField(lazy_gettext('Category'), [DataRequired(), Length(max=50)],  render_kw={"placeholder": lazy_gettext("Start typing — suggestions will appear, or create your own")})
+    note = TextAreaField(lazy_gettext('Note (optional)'), [Length(max=1000)],  render_kw={"placeholder": lazy_gettext("Why is this resource useful? Any context for reviewers."), "rows": "3"})
     captcha_id = HiddenField()
     captcha_answer = StringField(lazy_gettext("Captcha:"), [DataRequired()])
 
