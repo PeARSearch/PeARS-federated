@@ -585,6 +585,14 @@ mark, .search-highlight {
   flex-wrap: wrap;
 }
 
+/* Tooltip overrides — constrain width for long text */
+[data-tooltip]::after {
+  max-width: 300px;
+  white-space: normal;
+  line-height: var(--leading-normal);
+  text-align: left;
+}
+
 /* Instance badges */
 .instance-badge {
   display: inline-flex;
