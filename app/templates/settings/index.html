@@ -8,99 +8,121 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% from "base/_formhelpers.html" import render_field %}
 {% block title %}My Profile{% endblock %}
 {% block body %}
-<div class="content-prose">
+<div class="content-prose--wide">
 
-  <h2>{{gettext("Your profile")}}</h2>
+  <!-- Profile card -->
+  <article class="form-card mb-6">
+    <div class="flex items-center gap-4 mb-4">
+      <span class="category-initial" style="background-color: hsl(200, 55%, 45%);">{{username[0]|upper}}</span>
+      <div>
+        <h2 class="mb-0" style="margin-top:0;">{{username}}</h2>
+        <p class="muted-text mb-0">{{email}}</p>
+      </div>
+    </div>
+    <p class="fine-text">{{gettext("Total contributions:")}} <strong>{{num_contributions}}</strong></p>
+  </article>
 
-  <!-- Profile info -->
-  <div class="profile-cards">
-    <article>
-      <p>{{gettext("Username:")}} <strong>{{username}}</strong></p>
-      <p>{{gettext("Email:")}} <strong>{{email}}</strong></p>
-      <p>{{gettext("Total contributions:")}} <strong>{{num_contributions}}</strong></p>
-    </article>
-
-    <article>
-      <h3>{{gettext("Change your personal data")}}</h3>
-      <form method="POST" action="/settings/change_email" enctype="multipart/form-data">
-        {{ emailform.hidden_tag() }}
-        <p>{{ render_field(emailform.email) }}</p>
-        <button type="submit">{{gettext('Change email')}}</button>
-      </form>
-      <hr>
-      <form method="POST" action="/settings/change_username" enctype="multipart/form-data">
-        {{ usernameform.hidden_tag() }}
-        <p>{{ render_field(usernameform.username) }}</p>
-        <button type="submit">{{gettext('Change username')}}</button>
-      </form>
-    </article>
-  </div>
+  <!-- Edit account -->
+  <article class="form-card mb-6">
+    <h3>{{gettext("Account settings")}}</h3>
+    <form method="POST" action="/settings/change_email" enctype="multipart/form-data">
+      {{ emailform.hidden_tag() }}
+      <fieldset class="group">
+        {{ emailform.email(placeholder=gettext("New email address")) }}
+        <button type="submit">{{gettext('Change')}}</button>
+      </fieldset>
+      {% if emailform.email.errors %}
+        {% for error in emailform.email.errors %}
+          <small data-variant="error">{{ error }}</small>
+        {% endfor %}
+      {% endif %}
+    </form>
+    <form method="POST" action="/settings/change_username" enctype="multipart/form-data" class="mt-4">
+      {{ usernameform.hidden_tag() }}
+      <fieldset class="group">
+        {{ usernameform.username(placeholder=gettext("New username")) }}
+        <button type="submit">{{gettext('Change')}}</button>
+      </fieldset>
+      {% if usernameform.username.errors %}
+        {% for error in usernameform.username.errors %}
+          <small data-variant="error">{{ error }}</small>
+        {% endfor %}
+      {% endif %}
+    </form>
+  </article>
 
   <!-- Contributions -->
-  <article class="mt-6">
+  <article class="form-card mb-6">
     <h3>{{gettext("Your contributions")}}</h3>
-
-    {% if contributions %}
-    <h4>{{gettext('Web content')}}</h4>
-    <ul>
-      {% for url in contributions %}
-      <li class="flex items-center gap-2 break-all mb-2">
-        <a href="{{url[0]}}">{{url[1] or url[0]}}</a>
-        <a href="{{url_for('settings.delete_url')}}?url={{url[0]}}" class="result-action-btn"
-           data-tooltip="{{gettext('Delete this URL')}}"
-           onclick="return confirm('Are you sure you want to delete this resource?')">
-          <img src="{{ url_for('static', filename='trash-outline.svg')}}" class="icon icon-sm" alt="{{gettext('Delete')}}">
-        </a>
-      </li>
-      {% endfor %}
-    </ul>
-    {% endif %}
-
-    {% if tips %}
-    <h4>{{gettext('Tips')}}</h4>
-    <ul>
-      {% for url in tips %}
-      <li class="flex items-center gap-2 break-all mb-2">
-        <a href="{{url[0]}}">{{url[1] or url[0]}}</a>
-        <a href="{{url_for('settings.delete_url')}}?url={{url[0]}}" class="result-action-btn"
-           data-tooltip="{{gettext('Delete this tip')}}"
-           onclick="return confirm('Are you sure you want to delete this resource?')">
-          <img src="{{ url_for('static', filename='trash-outline.svg')}}" class="icon icon-sm" alt="{{gettext('Delete')}}">
-        </a>
-      </li>
-      {% endfor %}
-    </ul>
-    {% endif %}
-
-    {% if comments %}
-    <h4>{{gettext('Comments')}}</h4>
-    {% for url in comments %}
-    <div class="mb-4">
-      <p class="muted-text">{{url[1]}}</p>
-      <p class="flex items-center gap-2 break-all">
-        <a href="{{url[0]}}">{{url[0]}}</a>
-        <a href="{{url_for('settings.delete_comment')}}?url={{url[0]}}" class="result-action-btn"
-           data-tooltip="{{gettext('Delete comments for this URL')}}"
-           onclick="return confirm('Are you sure you want to delete all your comments for this URL?')">
-          <img src="{{ url_for('static', filename='trash-outline.svg')}}" class="icon icon-sm" alt="{{gettext('Delete')}}">
-        </a>
-      </p>
-    </div>
-    {% endfor %}
-    {% endif %}
 
     {% if not contributions and not tips and not comments %}
     <p class="muted-text">{{gettext("You haven't made any contributions yet.")}}</p>
     {% endif %}
+
+    {% if contributions %}
+    <details open>
+      <summary>{{gettext('Web content')}} <small class="muted-text">({{contributions|length}})</small></summary>
+      <ul class="settings-url-list">
+        {% for url in contributions %}
+        <li>
+          <a href="{{url[0]}}">{{url[1] or url[0]}}</a>
+          <a href="{{url_for('settings.delete_url')}}?url={{url[0]}}" class="result-action-btn"
+             data-tooltip="{{gettext('Delete')}}"
+             onclick="return confirm('{{gettext('Are you sure you want to delete this resource?')}}')">
+            <img src="{{ url_for('static', filename='trash-outline.svg')}}" class="icon icon-sm" alt="{{gettext('Delete')}}">
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </details>
+    {% endif %}
+
+    {% if tips %}
+    <details>
+      <summary>{{gettext('Tips')}} <small class="muted-text">({{tips|length}})</small></summary>
+      <ul class="settings-url-list">
+        {% for url in tips %}
+        <li>
+          <a href="{{url[0]}}">{{url[1] or url[0]}}</a>
+          <a href="{{url_for('settings.delete_url')}}?url={{url[0]}}" class="result-action-btn"
+             data-tooltip="{{gettext('Delete')}}"
+             onclick="return confirm('{{gettext('Are you sure you want to delete this resource?')}}')">
+            <img src="{{ url_for('static', filename='trash-outline.svg')}}" class="icon icon-sm" alt="{{gettext('Delete')}}">
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </details>
+    {% endif %}
+
+    {% if comments %}
+    <details>
+      <summary>{{gettext('Comments')}} <small class="muted-text">({{comments|length}})</small></summary>
+      <ul class="settings-comment-list">
+        {% for url in comments %}
+        <li>
+          <p class="settings-comment-text">{{url[1]|replace('@' + username + ' >> ', '')}}</p>
+          <div class="flex items-center gap-2">
+            <a href="{{url[0]}}" class="fine-text break-all">{{url[0]|replace('http://localhost:8080/api/get?url=', '')}}</a>
+            <a href="{{url_for('settings.delete_comment')}}?url={{url[0]}}" class="result-action-btn"
+               data-tooltip="{{gettext('Delete comments')}}"
+               onclick="return confirm('{{gettext('Are you sure you want to delete all your comments for this URL?')}}')">
+              <img src="{{ url_for('static', filename='trash-outline.svg')}}" class="icon icon-sm" alt="{{gettext('Delete')}}">
+            </a>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </details>
+    {% endif %}
   </article>
 
-  <!-- Danger zone: delete account (bottom, separated) -->
-  <hr class="mt-8">
-  <details class="mt-4">
+  <!-- Danger zone -->
+  <details class="danger-zone">
     <summary>{{gettext('Delete account')}}</summary>
     <p class="muted-text">{{gettext("This action is permanent. Your account and username will be removed, but your contributions will be preserved anonymously.")}}</p>
     <a href="{{url_for('settings.delete_account')}}" role="button" data-variant="danger"
-       onclick="return confirm('DANGER: Are you sure you want to delete your account completely? This cannot be undone.')">
+       onclick="return confirm('{{gettext('DANGER: Are you sure you want to delete your account completely? This cannot be undone.')}}')">
       {{gettext('Permanently delete my account')}}
     </a>
   </details>

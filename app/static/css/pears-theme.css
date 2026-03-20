@@ -1340,16 +1340,59 @@ fieldset.group :focus {
 .max-w-results { max-width: 720px; }
 .max-w-hero { max-width: 600px; margin: 0 auto; }
 
-/* Settings page profile cards */
-.profile-cards {
-  display: flex;
-  gap: var(--space-4);
-  flex-wrap: wrap;
+/* Settings page */
+.settings-url-list,
+.settings-comment-list {
+  list-style: none;
+  padding: 0;
 }
 
-.profile-cards > article {
+.settings-url-list li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.settings-url-list li:last-child {
+  border-bottom: none;
+}
+
+.settings-url-list li a:first-child {
   flex: 1;
-  min-width: 280px;
+  word-break: break-all;
+}
+
+.settings-comment-list li {
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.settings-comment-list li:last-child {
+  border-bottom: none;
+}
+
+.settings-comment-text {
+  font-size: var(--text-7);
+  color: var(--foreground);
+  margin-bottom: var(--space-1);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.danger-zone {
+  margin-top: var(--space-6);
+  padding: var(--space-4);
+  border: 1px dashed var(--danger);
+  border-radius: var(--radius-medium);
+}
+
+.danger-zone summary {
+  color: var(--danger);
+  font-weight: var(--font-semibold);
 }
 
 /* Categories grid */
