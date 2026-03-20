@@ -1,8 +1,8 @@
 {% extends "base/base.html" %}
 {% block title %}Acknowledgments{% endblock %}
 {% block body %}
-<div class="content-prose pb-8">
-  <header class="text-center mb-6">
+<div class="content-prose--wide pb-8 text-center">
+  <header class="mb-6">
     {% if session.get('theme') == 'dark' %}
       <img src="{{ url_for('static', filename='happy_pears_dark.png')}}" width="60" alt="">
     {% else %}
@@ -12,17 +12,17 @@
     <p class="muted-text">{{gettext('PeARS is built by volunteers. We are grateful to everyone who contributes.')}}</p>
   </header>
 
-  <p>{{gettext('We would like to thank the creators of the following resources:')}}</p>
-  <ul>
-    <li>The PeARS logo, beautifully designed by <strong>Orion Chambadiyil</strong>.</li>
-    <li>The open-source icons offered by <a href="https://ionic.io/ionicons">Ionicons</a>.</li>
-    <li>The <a href="https://oat.ink">Oat UI</a> CSS framework by Kailash Nadh.</li>
-    <li>The <a href="https://github.com/adobe-fonts">Source font family</a> by Adobe.</li>
-    {% for ack in acknowledgements %}
-    <li>{{ack}}</li>
-    {% endfor %}
-  </ul>
+  <p>The PeARS logo, beautifully designed by <strong>Orion Chambadiyil</strong>.</p>
+  <p>The open-source icons offered by <a href="https://ionic.io/ionicons">Ionicons</a>.</p>
+  <p>The <a href="https://oat.ink">Oat UI</a> CSS framework by <strong>Kailash Nadh</strong>.</p>
+  <p>The <a href="https://github.com/adobe-fonts">Source font family</a> by <strong>Adobe</strong>.</p>
+  {% for ack in acknowledgements %}
+  <p>{{ack}}</p>
+  {% endfor %}
 
-  <p>{{gettext('PeARS receives development support from')}} <a href="https://possible-worlds.eu/">Possible Worlds Research</a>. {{gettext('Thank you to all')}} <a href="https://github.com/PeARSearch">{{gettext('contributors')}}</a> {{gettext('who help make PeARS better.')}}</p>
+  <hr class="mt-6 mb-6">
+
+  <p>{{gettext('PeARS receives development support from')}} <a href="https://possible-worlds.eu/">Possible Worlds Research</a>.</p>
+  <p>{{gettext('Thank you to all')}} <a href="https://github.com/PeARSearch">{{gettext('contributors')}}</a> {{gettext('who help make PeARS better.')}} &#x1F350;</p>
 </div>
 {% endblock %}
