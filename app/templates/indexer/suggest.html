@@ -10,22 +10,25 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% block body %}
 
 <div class="auth-container--wide">
-  <article>
+  <article class="auth-card">
     <header class="text-center">
-      <h2>{{gettext("Suggest a URL to index")}}</h2>
+      <img src="{{ url_for('static', filename='pears_round.png')}}" width="48" alt="PeARS" class="auth-logo">
+      <h2>{{gettext("Suggest a URL")}}</h2>
+      <p class="muted-text">{{gettext("Help grow the search index. An admin will review your suggestion.")}}</p>
     </header>
     <form method="POST" accept-charset="UTF-8" action="{{url_for('indexer.run_suggest_url')}}" enctype="multipart/form-data" autocomplete="off">
       <datalist id="themes"></datalist>
       {{ form.hidden_tag() }}
-      <p>Thank you for suggesting a resource to this PeARS instance! PeARS is a curated search engine. An admin will review your entry asap.</p>
       {% if internal_message %}
-      <p><strong>NB: </strong>{{ internal_message }}</p>
+      <div role="alert" data-variant="warning" class="mb-4">
+        {{ internal_message }}
+      </div>
       {% endif %}
-      <p>{{ render_field(form.suggested_url) }}</p>
-      <p>{{ render_autocomplete_field(form.theme) }}</p>
-      <p>{{ render_field(form.note) }}</p>
-      <p>{{ render_captcha_field(form.captcha_answer, form.captcha_id.data) }}</p>
-      <button type="submit">{{gettext('Suggest')}}</button>
+      {{ render_field(form.suggested_url) }}
+      {{ render_autocomplete_field(form.theme) }}
+      {{ render_field(form.note) }}
+      {{ render_captcha_field(form.captcha_answer, form.captcha_id.data) }}
+      <button type="submit" class="w-full mt-4">{{gettext('Submit suggestion')}}</button>
     </form>
   </article>
 </div>
