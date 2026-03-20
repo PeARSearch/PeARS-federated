@@ -1333,6 +1333,20 @@ fieldset.group :focus {
   filter: invert(1);
 }
 
+/* Annotate/Report URL display */
+.annotate-url {
+  padding: var(--space-3);
+  background: var(--faint);
+  border-radius: var(--radius-medium);
+  border-left: 3px solid var(--primary);
+  word-break: break-all;
+  font-size: var(--text-7);
+}
+
+.annotate-url a {
+  color: var(--search-url);
+}
+
 .hidden { display: none; }
 .break-all { word-break: break-all; }
 .muted-text { font-size: var(--text-7); color: var(--muted-foreground); }

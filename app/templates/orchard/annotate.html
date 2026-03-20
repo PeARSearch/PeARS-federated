@@ -9,21 +9,29 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% block title %}Add Note{% endblock %}
 {% block body %}
 
-<div class="auth-container">
-  <article>
+<div class="auth-container--wide">
+  <article class="form-card">
     <header class="text-center">
-      <h2>{{gettext('Add a note to a URL')}}</h2>
+      <img src="{{ url_for('static', filename='pears_round.png')}}" width="48" alt="PeARS" class="auth-logo">
+      <h2>{{gettext('Add a note')}}</h2>
+      <p class="muted-text">{{gettext('Share your knowledge about this resource with the community.')}}</p>
     </header>
-    <p>{{gettext('You can add here a comment on this URL for the benefit of the community. Your comment will appear <i>with your username</i> under the URL in the search results.')|safe}}</p>
+
+    <!-- URL being annotated -->
+    <div class="annotate-url mb-4">
+      <a href="{{form.url.data}}" target="_blank">{{form.url.data}}</a>
+    </div>
+
     <form method="POST" action="/orchard/annotate" enctype="multipart/form-data">
       {{ form.hidden_tag() }}
-      <p>{{ render_field(form.url, readonly=True) }}</p>
-      <p>{{ render_field(form.note) }}</p>
+      {{ form.url(type="hidden") }}
+      {{ render_field(form.note) }}
+      <p class="fine-text">{{gettext('Your note will appear with your username under this URL in search results.')}}</p>
       <div class="tos-check">
         {{ form.accept_tos() }}
-        <span>{{gettext('I agree for my comment to be included in the public notes for this url, together with my username.')}}</span>
+        <span>{{gettext('I agree for my comment to be included in the public notes for this URL, together with my username.')}}</span>
       </div>
-      <button type="submit">{{gettext('Add comment')}}</button>
+      <button type="submit" class="w-full mt-4">{{gettext('Add note')}}</button>
     </form>
   </article>
 </div>

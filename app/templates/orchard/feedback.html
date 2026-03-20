@@ -10,31 +10,32 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% block body %}
 
 {% if config['FEEDBACK_FORM'] %}
-<div class="auth-container">
-  <article>
+<div class="auth-container--wide">
+  <article class="form-card">
     <header class="text-center">
-      <h2>{{gettext('Send us feedback')}}</h2>
       {% if session.get('theme') == 'dark' %}
-        <img src="{{ url_for('static', filename='sad_pears_dark.png')}}" width="40" alt="">
-        <img src="{{ url_for('static', filename='happy_pears_dark.png')}}" width="40" alt="">
-        <img src="{{ url_for('static', filename='happy_pears_dark.png')}}" width="40" alt="">
+        <img src="{{ url_for('static', filename='happy_pears_dark.png')}}" width="60" alt="">
       {% else %}
-        <img src="{{ url_for('static', filename='sad_pears.png')}}" width="40" alt="">
-        <img src="{{ url_for('static', filename='happy_pears.png')}}" width="40" alt="">
-        <img src="{{ url_for('static', filename='happy_pears.png')}}" width="40" alt="">
+        <img src="{{ url_for('static', filename='happy_pears.png')}}" width="60" alt="">
       {% endif %}
+      <h2>{{gettext('Send us feedback')}}</h2>
+      <p class="muted-text">{{gettext("Help us improve PeARS. Tell us what worked or didn't work for you.")}}</p>
     </header>
-    <p>{{gettext("This instance is undergoing alpha testing. We expect that there are still many issues to fix here. You will help us greatly by telling us what worked or didn't work for you.")}}</p>
+
     <form method="POST" action="/orchard/feedback" enctype="multipart/form-data">
       {{ form.hidden_tag() }}
-      <p>{{ render_field(form.report) }}</p>
+      {{ render_field(form.report) }}
       <div class="tos-check">
         {{ form.accept_tos() }}
-        <span>{{gettext('I confirm that I may be contacted in relation to my feedback and that my email address is')}} {{email}}.</span>
+        <span>{{gettext('I confirm that I may be contacted in relation to my feedback and that my email address is')}} <strong>{{email}}</strong>.</span>
       </div>
-      <button type="submit">{{gettext('Send feedback')}}</button>
+      <button type="submit" class="w-full mt-4">{{gettext('Send feedback')}}</button>
     </form>
   </article>
+</div>
+{% else %}
+<div class="auth-container text-center">
+  <p class="muted-text">{{gettext('Feedback collection is currently closed. Thank you for your patience!')}}</p>
 </div>
 {% endif %}
 
