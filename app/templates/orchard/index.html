@@ -20,7 +20,7 @@ SPDX-License-Identifier: AGPL-3.0-only
       <a href="{{url_for('orchard.get_a_pod')}}?pod={{p[0]}}" role="button">{{gettext("View")}}</a>
       {% if p[0] != 'Tips' %}
       {% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
-      <button type="button" class="site-nav-icon-btn" onclick="var el=document.getElementById('rename{{p[2]}}'); el.style.display = el.style.display === 'none' ? 'block' : 'none';">
+      <button type="button" class="site-nav-icon-btn" onclick="document.getElementById('rename{{p[2]}}').classList.toggle('hidden');">
         <img src="{{ url_for('static', filename='pencil-outline.svg')}}" class="icon" alt="{{gettext('Rename')}}">
       </button>
       {% endif %}
