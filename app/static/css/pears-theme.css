@@ -167,8 +167,9 @@
    -------------------------------------------------------------------------- */
 
 .site-nav {
-  border-bottom: 1px solid var(--border);
+  background-color: var(--pears-orange);
   padding: var(--space-3) 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .site-nav-inner {
@@ -183,14 +184,14 @@
   align-items: center;
   gap: var(--space-2);
   text-decoration: none;
-  color: var(--foreground);
+  color: #fff;
   font-weight: var(--font-semibold);
   font-size: var(--text-5);
   white-space: nowrap;
 }
 
 .site-nav-brand:hover {
-  color: var(--foreground);
+  color: #fff;
   text-decoration: none;
 }
 
@@ -202,11 +203,11 @@
 .site-nav-toggle {
   display: none;
   background: none;
-  border: 1px solid var(--border);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: var(--radius-medium);
   padding: var(--space-1) var(--space-2);
   font-size: var(--text-4);
-  color: var(--foreground);
+  color: #fff;
   cursor: pointer;
   line-height: 1;
 }
@@ -240,7 +241,7 @@
   padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-medium);
   text-decoration: none;
-  color: var(--foreground);
+  color: rgba(255, 255, 255, 0.9);
   font-size: var(--text-7);
   white-space: nowrap;
   transition: background-color var(--transition-fast), color var(--transition-fast);
@@ -248,8 +249,21 @@
 
 .site-nav-links a:hover,
 .site-nav-actions a:hover {
-  background-color: var(--muted);
-  color: var(--foreground);
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+/* Login button as ghost button on orange nav */
+.site-nav-actions a[role="button"] {
+  border: 1.5px solid #fff;
+  padding: var(--space-1) var(--space-3);
+  color: #fff;
+  font-weight: var(--font-semibold);
+}
+
+.site-nav-actions a[role="button"]:hover {
+  background-color: #fff;
+  color: var(--pears-orange);
 }
 
 .site-nav-icon-btn {
@@ -261,17 +275,21 @@
   padding: var(--space-1);
   border-radius: var(--radius-medium);
   cursor: pointer;
-  color: var(--foreground);
+  color: #fff;
   transition: background-color var(--transition-fast);
 }
 
 .site-nav-icon-btn:hover {
-  background-color: var(--muted);
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Nav icons are white on the orange background — invert them always */
+.site-nav-icon-btn .icon {
+  filter: invert(1);
 }
 
 /* Invert dark SVG icons in dark mode where needed.
    We use the data-theme attribute set by theme-toggle.js */
-[data-theme="dark"] .site-nav-icon-btn .icon,
 [data-theme="dark"] .admin-bar .icon,
 [data-theme="dark"] .result-meta .icon,
 [data-theme="dark"] .site-footer .icon {
@@ -292,10 +310,10 @@
     top: 100%;
     left: 0;
     right: 0;
-    background-color: var(--card);
-    border-bottom: 1px solid var(--border);
+    background-color: var(--pears-orange);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
     padding: var(--space-4);
-    box-shadow: var(--shadow-medium);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     z-index: var(--z-dropdown);
   }
 
@@ -317,7 +335,7 @@
 
   .site-nav-links {
     padding-left: 0;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.25);
     padding-bottom: var(--space-3);
     margin-bottom: var(--space-3);
   }
