@@ -5,7 +5,6 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 {% extends "base/base.html" %}
-{% from "base/_formhelpers.html" import render_field, render_autocomplete_field, render_captcha_field %}
 {% block body %}
 
 <div class="content-prose--wide">
@@ -20,14 +19,6 @@ SPDX-License-Identifier: AGPL-3.0-only
     {{gettext("Hide already indexed suggestions?")}}
   </label>
 
-  <script>
-    function toggleIndexedSuggestions() {
-      var isChecked = document.getElementById("hide-indexed-toggle").checked;
-      var newValue = isChecked ? "y" : "n";
-      window.location.replace("/indexer/index_suggestions?hide_already_indexed=" + newValue);
-    }
-  </script>
-
   {% if not suggestions %}
     <div role="alert" data-variant="warning" class="mt-4">
       {{gettext("Suggestions that still need to be indexed (or rejected) will appear here.")}}
@@ -35,15 +26,15 @@ SPDX-License-Identifier: AGPL-3.0-only
   {% endif %}
 
   {% for suggestion in suggestions %}
-  <form class="suggestion-card" onsubmit="return false;">
+  <form class="suggestion-card" onsubmit="return false;" id="suggestion-form-{{loop.index}}">
 
-    <!-- Header: suggestion count and pods -->
+    <!-- Header -->
     <div class="suggestion-header">
       <div class="suggestion-count">{{suggestion.total_count}}x</div>
       <div class="suggestion-header-info">
         <div class="suggestion-pods">
           {% for pod, pod_count in suggestion.suggestions_by_pod.items() %}
-            <span class="result-pod-tag">{{pod_count}}x in <strong>{{pod}}</strong></span>
+            <span class="result-pod-tag">{{pod}}</span>
           {% endfor %}
         </div>
         <div class="fine-text">
@@ -62,60 +53,96 @@ SPDX-License-Identifier: AGPL-3.0-only
     </div>
     {% endfor %}
 
-    <!-- URL section -->
-    <div class="suggestion-urls">
-      <div class="suggestion-url-row">
-        <label class="suggestion-url-label muted-text">Original</label>
-        <input id="orig-url-{{loop.index}}" type="text" value="{{suggestion.url}}" readonly class="suggestion-url-input">
-        <a href="{{suggestion.url}}" target="_blank" class="suggestion-url-open" aria-label="Open original URL">&#8599;</a>
-      </div>
-      <div class="suggestion-url-row">
-        <label class="suggestion-url-label">Edited</label>
-        <input id="edited-url-{{loop.index}}" type="text" value="{{suggestion.cleaned_url}}" class="suggestion-url-input">
-        <a href="{{suggestion.cleaned_url}}" target="_blank" class="suggestion-url-open" aria-label="Open edited URL">&#8599;</a>
-      </div>
+    <!-- URL display (read-only by default) -->
+    <div class="suggestion-url-display">
+      <a href="{{suggestion.cleaned_url}}" target="_blank" class="suggestion-url-link">{{suggestion.cleaned_url}}</a>
+      {% if suggestion.url != suggestion.cleaned_url %}
+      <small class="fine-text">Original: {{suggestion.url}}</small>
+      {% endif %}
     </div>
 
-    <!-- Notes -->
+    <!-- Notes preview (if any) -->
     {% if suggestion.notes %}
-    <details class="suggestion-notes">
-      <summary>
-        Notes: <span class="muted-text">{{suggestion.notes_preview}}</span>
-      </summary>
-      <textarea id="notes-{{loop.index}}" rows="3">{{suggestion.notes}}</textarea>
-      <small class="fine-text">Edit notes as needed before indexing.</small>
-    </details>
+    <p class="suggestion-notes-preview muted-text">
+      {{suggestion.notes_preview}}
+    </p>
     {% endif %}
 
-    <!-- Actions -->
-    <div class="suggestion-actions">
-      <!-- Primary action: Index -->
-      <div class="suggestion-action-primary">
+    <!-- Hidden fields for quick accept -->
+    <input type="hidden" id="orig-url-{{loop.index}}" value="{{suggestion.url}}">
+    <input type="hidden" id="edited-url-{{loop.index}}" value="{{suggestion.cleaned_url}}">
+    <input type="hidden" id="notes-{{loop.index}}" value="{{suggestion.notes}}">
+
+    <!-- Action buttons -->
+    <div class="suggestion-action-bar">
+      <button type="button" id="suggestion-{{loop.index}}"
+        onclick="quickAccept({{loop.index}})">
+        &#10003; {{gettext('Accept')}}
+      </button>
+      <button type="button" data-variant="secondary" class="outline"
+        onclick="togglePanel({{loop.index}}, 'edit')">
+        &#9998; {{gettext('Edit & Accept')}}
+      </button>
+      <button type="button" data-variant="danger" class="outline"
+        onclick="togglePanel({{loop.index}}, 'reject')">
+        &#10007; {{gettext('Reject')}}
+      </button>
+    </div>
+
+    <!-- Edit panel (hidden by default) -->
+    <div id="edit-panel-{{loop.index}}" class="suggestion-panel hidden">
+      <h4>{{gettext('Edit before indexing')}}</h4>
+
+      <label>
+        URL
+        <input id="edit-url-{{loop.index}}" type="text" value="{{suggestion.cleaned_url}}">
+      </label>
+
+      <label>
+        Pod
         <fieldset class="group">
           <select id="suggestion-pod-{{loop.index}}">
             {% for pod, _ in suggestion.suggestions_by_pod.items() %}
             <option value="{{pod}}">{{pod}}</option>
             {% endfor %}
           </select>
-          <button type="button" id="suggestion-{{loop.index}}"
-            onclick="indexSuggestion({{loop.index}}, false)">Index</button>
+          <span class="muted-text">or</span>
+          <input id="suggestion-custom-pod-{{loop.index}}" type="text" placeholder="Custom pod">
         </fieldset>
-        <fieldset class="group mt-2">
-          <input id="suggestion-custom-pod-{{loop.index}}" type="text"
-            placeholder="Custom pod name">
-          <button type="button" id="suggestion-custom-pod-btn-{{loop.index}}"
-            onclick="indexSuggestion({{loop.index}}, true)" data-variant="secondary">Index</button>
-        </fieldset>
-      </div>
+      </label>
 
-      <!-- Destructive action: Reject (visually separated) -->
-      <div class="suggestion-action-reject">
-        <fieldset class="group">
-          <input id="reject-reason-{{loop.index}}" type="text"
-            placeholder="Reason (optional)">
-          <button type="button" data-variant="danger" id="suggestion-rej-{{loop.index}}"
-            onclick="deleteSuggestion({{loop.index}})">Reject</button>
-        </fieldset>
+      <label>
+        Notes
+        <textarea id="edit-notes-{{loop.index}}" rows="2">{{suggestion.notes}}</textarea>
+      </label>
+
+      <div class="suggestion-panel-actions">
+        <button type="button" id="edit-accept-btn-{{loop.index}}"
+          onclick="editAccept({{loop.index}})">
+          {{gettext('Index with changes')}}
+        </button>
+        <button type="button" data-variant="secondary" class="outline"
+          onclick="togglePanel({{loop.index}}, 'edit')">
+          {{gettext('Cancel')}}
+        </button>
+      </div>
+    </div>
+
+    <!-- Reject panel (hidden by default) -->
+    <div id="reject-panel-{{loop.index}}" class="suggestion-panel hidden">
+      <label>
+        {{gettext('Reason for rejection (optional)')}}
+        <input id="reject-reason-{{loop.index}}" type="text" placeholder="Why is this suggestion being rejected?">
+      </label>
+      <div class="suggestion-panel-actions">
+        <button type="button" data-variant="danger" id="suggestion-rej-{{loop.index}}"
+          onclick="confirmReject({{loop.index}})">
+          {{gettext('Confirm rejection')}}
+        </button>
+        <button type="button" data-variant="secondary" class="outline"
+          onclick="togglePanel({{loop.index}}, 'reject')">
+          {{gettext('Cancel')}}
+        </button>
       </div>
     </div>
 
@@ -123,60 +150,97 @@ SPDX-License-Identifier: AGPL-3.0-only
   {% endfor %}
 
   <script>
-    function indexSuggestion(suggestionID, customPod) {
-      var $button = $(`#suggestion-${suggestionID}`);
-      var url = $(`#edited-url-${suggestionID}`).val();
-      var origUrl = $(`#orig-url-${suggestionID}`).val();
-      var theme = $(`#suggestion-pod-${suggestionID}`).val();
-      if (customPod) {
-        $button = $(`#suggestion-custom-pod-btn-${suggestionID}`);
-        theme = $(`#suggestion-custom-pod-${suggestionID}`).val();
+    function togglePanel(id, panel) {
+      var editPanel = document.getElementById('edit-panel-' + id);
+      var rejectPanel = document.getElementById('reject-panel-' + id);
+      if (panel === 'edit') {
+        editPanel.classList.toggle('hidden');
+        rejectPanel.classList.add('hidden');
+      } else {
+        rejectPanel.classList.toggle('hidden');
+        editPanel.classList.add('hidden');
       }
-      var notes = $(`#notes-${suggestionID}`).val() || '';
-      $button.prop("disabled", true).text("Indexing...");
+    }
+
+    // Quick accept: index with suggested pod, cleaned URL, notes as-is
+    function quickAccept(id) {
+      var $button = $('#suggestion-' + id);
+      var origUrl = $('#orig-url-' + id).val();
+      var url = $('#edited-url-' + id).val();
+      // Use the first suggested pod
+      var theme = $('#suggestion-pod-' + id + ' option:first').val();
+      var notes = $('#notes-' + id).val() || '';
+      $button.prop('disabled', true).text('Indexing...');
+      doIndex($button, url, origUrl, theme, notes, 'n', id);
+    }
+
+    // Edit & accept: index with edited values
+    function editAccept(id) {
+      var $button = $('#edit-accept-btn-' + id);
+      var origUrl = $('#orig-url-' + id).val();
+      var url = $('#edit-url-' + id).val();
+      var customPod = $('#suggestion-custom-pod-' + id).val();
+      var theme = customPod ? customPod : $('#suggestion-pod-' + id).val();
+      var isCustom = customPod ? 'y' : 'n';
+      var notes = $('#edit-notes-' + id).val() || '';
+      $button.prop('disabled', true).text('Indexing...');
+      doIndex($button, url, origUrl, theme, notes, isCustom, id);
+    }
+
+    function doIndex($button, url, origUrl, theme, notes, customTheme, id) {
       $.ajax({
-        url: "/indexer/index_from_suggestion_ajax",
-        type: "POST",
-        contentType: "application/json",
-        dataType: "json",
+        url: '/indexer/index_from_suggestion_ajax',
+        type: 'POST',
+        contentType: 'application/json',
+        dataType: 'json',
         data: JSON.stringify({
           url: url, origUrl: origUrl, theme: theme,
-          notes: notes, customTheme: customPod ? 'y' : 'n'
+          notes: notes, customTheme: customTheme
         })
-      }).done(function(respData) {
-        if (respData.success) {
-          $button.text("Done!"); location.reload();
+      }).done(function(resp) {
+        if (resp.success) {
+          // Fade out the card
+          $('#suggestion-form-' + id).style = 'opacity: 0.5; pointer-events: none;';
+          $button.text('Done!');
+          setTimeout(function() { location.reload(); }, 800);
         } else {
-          $button.prop("disabled", false).text("Retry");
-          $button.closest('.suggestion-action-primary').append(
-            $('<div role="alert" data-variant="error" class="mt-2">').text(respData.messages.join(", "))
+          $button.prop('disabled', false).text('Retry');
+          $button.after(
+            $('<div role="alert" data-variant="error" class="mt-2">').text(resp.messages.join(', '))
           );
         }
       });
     }
 
-    function deleteSuggestion(suggestionID) {
-      var $button = $(`#suggestion-rej-${suggestionID}`);
-      $button.prop("disabled", true).text("Rejecting...");
-      var url = $(`#edited-url-${suggestionID}`).val();
-      var origUrl = $(`#orig-url-${suggestionID}`).val();
-      var reason = $(`#reject-reason-${suggestionID}`).val();
+    function confirmReject(id) {
+      var $button = $('#suggestion-rej-' + id);
+      $button.prop('disabled', true).text('Rejecting...');
+      var origUrl = $('#orig-url-' + id).val();
+      var url = $('#edited-url-' + id).val();
+      var reason = $('#reject-reason-' + id).val();
       $.ajax({
-        url: "/indexer/reject_suggestion_ajax",
-        type: "POST",
-        contentType: "application/json",
-        dataType: "json",
+        url: '/indexer/reject_suggestion_ajax',
+        type: 'POST',
+        contentType: 'application/json',
+        dataType: 'json',
         data: JSON.stringify({ url: url, origUrl: origUrl, reason: reason })
-      }).done(function(respData) {
-        if (respData.success) {
-          $button.text("Rejected"); location.reload();
+      }).done(function(resp) {
+        if (resp.success) {
+          $('#suggestion-form-' + id).style = 'opacity: 0.5; pointer-events: none;';
+          $button.text('Rejected');
+          setTimeout(function() { location.reload(); }, 800);
         } else {
-          $button.prop("disabled", false).text("Retry");
-          $button.closest('.suggestion-action-reject').append(
-            $('<div role="alert" data-variant="error" class="mt-2">').text(respData.messages.join(", "))
+          $button.prop('disabled', false).text('Retry');
+          $button.after(
+            $('<div role="alert" data-variant="error" class="mt-2">').text(resp.messages.join(', '))
           );
         }
       });
+    }
+
+    function toggleIndexedSuggestions() {
+      var isChecked = document.getElementById('hide-indexed-toggle').checked;
+      window.location.replace('/indexer/index_suggestions?hide_already_indexed=' + (isChecked ? 'y' : 'n'));
     }
   </script>
 </div>

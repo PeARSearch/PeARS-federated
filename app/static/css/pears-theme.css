@@ -938,71 +938,65 @@ fieldset.group :focus {
   margin-bottom: var(--space-1);
 }
 
-/* URL rows: label | input | open link */
-.suggestion-urls {
-  margin: var(--space-4) 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
+/* URL display (read-only link) */
+.suggestion-url-display {
+  margin: var(--space-4) 0 var(--space-2);
 }
 
-.suggestion-url-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
+.suggestion-url-link {
+  font-size: var(--text-regular);
+  word-break: break-all;
 }
 
-.suggestion-url-label {
+.suggestion-url-display small {
+  display: block;
+  margin-top: var(--space-1);
+}
+
+/* Notes preview */
+.suggestion-notes-preview {
   font-size: var(--text-7);
-  font-weight: var(--font-medium);
-  min-width: 4.5rem;
-  flex-shrink: 0;
+  font-style: italic;
+  margin-bottom: var(--space-2);
 }
 
-.suggestion-url-input {
-  flex: 1;
-  font-size: var(--text-7);
-}
-
-.suggestion-url-open {
-  text-decoration: none;
-  font-size: var(--text-4);
-  opacity: 0.5;
-  flex-shrink: 0;
-}
-
-.suggestion-url-open:hover {
-  opacity: 1;
-}
-
-/* Notes */
-.suggestion-notes {
-  margin: var(--space-4) 0;
-}
-
-.suggestion-notes textarea {
-  width: 100%;
-  margin-top: var(--space-2);
-}
-
-/* Actions: index (primary) and reject (destructive) separated */
-.suggestion-actions {
+/* Action bar: Accept | Edit & Accept | Reject */
+.suggestion-action-bar {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
   margin-top: var(--space-4);
   padding-top: var(--space-4);
   border-top: 1px solid var(--border);
+}
+
+/* Expandable panels (edit, reject) */
+.suggestion-panel {
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  background: var(--faint);
+  border-radius: var(--radius-medium);
+  border: 1px solid var(--border);
+}
+
+.suggestion-panel h4 {
+  margin-top: 0;
+  margin-bottom: var(--space-3);
+}
+
+.suggestion-panel label {
+  display: block;
+  margin-bottom: var(--space-3);
+}
+
+.suggestion-panel textarea {
+  width: 100%;
+}
+
+.suggestion-panel-actions {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.suggestion-action-primary fieldset.group,
-.suggestion-action-reject fieldset.group {
-  margin-bottom: 0;
-}
-
-.suggestion-action-reject {
-  padding-top: var(--space-3);
-  border-top: 1px dashed var(--border);
+  gap: var(--space-2);
+  margin-top: var(--space-4);
 }
 
 @media (max-width: 768px) {
@@ -1011,13 +1005,12 @@ fieldset.group :focus {
     gap: var(--space-2);
   }
 
-  .suggestion-url-row {
-    flex-wrap: wrap;
+  .suggestion-action-bar {
+    flex-direction: column;
   }
 
-  .suggestion-url-label {
+  .suggestion-action-bar button {
     width: 100%;
-    min-width: unset;
   }
 }
 
