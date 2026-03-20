@@ -1,7 +1,7 @@
 {% extends "base/base.html" %}
 {% block title %}Acknowledgments{% endblock %}
 {% block body %}
-<div class="content-prose--wide pb-8">
+<div class="content-prose pb-8">
   <header class="text-center mb-6">
     {% if session.get('theme') == 'dark' %}
       <img src="{{ url_for('static', filename='happy_pears_dark.png')}}" width="60" alt="">
@@ -12,49 +12,17 @@
     <p class="muted-text">{{gettext('PeARS is built by volunteers. We are grateful to everyone who contributes.')}}</p>
   </header>
 
-  <h3>{{gettext('Design')}}</h3>
-  <div class="ack-grid">
-    <div class="ack-item">
-      <strong>Orion Chambadiyil</strong>
-      <span class="muted-text">{{gettext('The PeARS logo, beautifully designed')}}</span>
-    </div>
-  </div>
-
-  <h3>{{gettext('Open Source')}}</h3>
-  <div class="ack-grid">
-    <div class="ack-item">
-      <strong><a href="https://ionic.io/ionicons">Ionicons</a></strong>
-      <span class="muted-text">{{gettext('Icon set')}}</span>
-    </div>
-    <div class="ack-item">
-      <strong><a href="https://oat.ink">Oat UI</a></strong>
-      <span class="muted-text">{{gettext('CSS framework')}}</span>
-    </div>
-    <div class="ack-item">
-      <strong><a href="https://github.com/adobe-fonts">Adobe Source Fonts</a></strong>
-      <span class="muted-text">{{gettext('Typography')}}</span>
-    </div>
-  </div>
-
-  <h3>{{gettext('Community')}}</h3>
-  <div class="ack-grid">
-    <div class="ack-item">
-      <strong><a href="https://possible-worlds.eu/">Possible Worlds Research</a></strong>
-      <span class="muted-text">{{gettext('Development support')}}</span>
-    </div>
-    <div class="ack-item">
-      <strong><a href="https://github.com/PeARSearch">PeARS Contributors</a></strong>
-      <span class="muted-text">{{gettext('Code and ideas')}}</span>
-    </div>
-  </div>
-
-  {% if acknowledgements %}
-  <h3>{{gettext('Special Thanks')}}</h3>
-  <div class="ack-grid">
+  <p>{{gettext('We would like to thank the creators of the following resources:')}}</p>
+  <ul>
+    <li>The PeARS logo, beautifully designed by <strong>Orion Chambadiyil</strong>.</li>
+    <li>The open-source icons offered by <a href="https://ionic.io/ionicons">Ionicons</a>.</li>
+    <li>The <a href="https://oat.ink">Oat UI</a> CSS framework by Kailash Nadh.</li>
+    <li>The <a href="https://github.com/adobe-fonts">Source font family</a> by Adobe.</li>
     {% for ack in acknowledgements %}
-    <div class="ack-item">{{ack}}</div>
+    <li>{{ack}}</li>
     {% endfor %}
-  </div>
-  {% endif %}
+  </ul>
+
+  <p>{{gettext('PeARS receives development support from')}} <a href="https://possible-worlds.eu/">Possible Worlds Research</a>. {{gettext('Thank you to all')}} <a href="https://github.com/PeARSearch">{{gettext('contributors')}}</a> {{gettext('who help make PeARS better.')}}</p>
 </div>
 {% endblock %}
