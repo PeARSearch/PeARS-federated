@@ -81,7 +81,7 @@ def correct_entry():
     default_screen = "url"
     
     if not session['index_url']:
-        flash(gettext("Nothing to amend."))
+        flash(gettext("Nothing to amend."), "warning")
         return render_template("indexer/index.html", \
             num_entries=num_db_entries, form1=form1, form2=form2, themes=themes)
 
@@ -191,7 +191,7 @@ def run_suggest_url():
             contributor = 'anonymous'
         
         if not check_captcha(captcha_id, captcha_user_answer):
-            flash(gettext('The captcha was incorrectly answered.'))
+            flash(gettext('The captcha was incorrectly answered.'), "danger")
             captcha_id, captcha_correct_answer = mk_captcha()
             form = SuggestionForm()
             form.suggested_url.data = request.form.get('suggested_url').strip()
@@ -205,7 +205,7 @@ def run_suggest_url():
 
         print(url, theme, note)
         create_suggestion_in_db(url=url, pod=theme, notes=note, contributor=contributor)
-        flash(gettext('Many thanks for your suggestion'))
+        flash(gettext('Many thanks for your suggestion'), "success")
         return redirect(url_for('indexer.suggest'))
     print("FORM ERRORS:", form.errors)
     # generate captcha (public code/private string pair)

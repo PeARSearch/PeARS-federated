@@ -57,7 +57,7 @@ def index():
         message = Markup(gettext("You have not confirmed your account.<br>\
                 Please use the link in the email that was sent to you, \
                 or request a new link by clicking <a href='../auth/resend'>here</a>."))
-        flash(message)
+        flash(message, "warning")
     if app.config['OWN_BRAND']:
         internal_message = db.session.query(Personalization).filter_by(feature='instance_info').first()
         if internal_message:

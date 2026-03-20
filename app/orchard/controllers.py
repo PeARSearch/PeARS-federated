@@ -67,7 +67,7 @@ def rename_pod():
     newname = request.args.get('newname')
     username = current_user.username
     message = mv_pod(podname, newname, username)
-    flash(message)
+    flash(message, "success")
     return redirect(url_for('orchard.index'))
 
 

@@ -130,13 +130,13 @@ def delete_url():
     # Double check url belongs to the user
     contributor = pod.split('.u.')[1]
     if contributor != username:
-        flash(gettext("URL does not belong to you and cannot be deleted."))
+        flash(gettext("URL does not belong to you and cannot be deleted."), "danger")
         return redirect(url_for("settings.index"))
     try:
         delete_url_representations(url)
-        flash("URL "+url+gettext(" was successfully deleted."))
+        flash("URL "+url+gettext(" was successfully deleted."), "success")
     except:
-        flash(gettext("There was a problem deleting URL ")+url+gettext(" Please contact your administrator."))
+        flash(gettext("There was a problem deleting URL ")+url+gettext(" Please contact your administrator."), "danger")
     return redirect(url_for("settings.index"))
 
 @settings.route('/delcomment', methods=['GET'])
@@ -152,7 +152,7 @@ def delete_comment():
     else:
         url.notes = None
     db.session.commit()
-    flash(gettext("Your comments for ")+u+gettext(" were successfully deleted."))
+    flash(gettext("Your comments for ")+u+gettext(" were successfully deleted."), "success")
     return redirect(url_for("settings.index"))
 
 
@@ -226,14 +226,14 @@ def change_email():
     if form.validate_on_submit():
         new_email = request.form.get('email')
         if email_exists(new_email):
-            flash(gettext("This email already exists."))
+            flash(gettext("This email already exists."), "danger")
             return redirect(url_for("settings.index"))
         html = render_template("auth/email_change.html", new_email = new_email)
         if not send_email(current_user.email, "PeARS Instance - You requested an email change.", html):
             flash(gettext("Your email was changed, but we could not send a notification email."), "warning")
         current_user.email = new_email
         db.session.commit()
-        flash(gettext("Your email has been successfully modified."))
+        flash(gettext("Your email has been successfully modified."), "success")
         return redirect(url_for("settings.index"))
     print(form.errors)
     return redirect(url_for("settings.index"))
@@ -247,7 +247,7 @@ def change_username():
     if form.validate_on_submit():
         new_username = request.form.get('username')
         if username_exists(new_username):
-            flash(gettext("This username already exists."))
+            flash(gettext("This username already exists."), "danger")
             return redirect(url_for("settings.index"))
         html = render_template("auth/username_change.html", new_username = new_username)
         if not send_email(current_user.email, "PeARS Instance - You requested a username change.", html):
@@ -256,7 +256,7 @@ def change_username():
         rename_user_files(username, new_username)
         current_user.username = new_username
         db.session.commit()
-        flash(gettext("Your username has been successfully modified."))
+        flash(gettext("Your username has been successfully modified."), "success")
         return redirect(url_for("settings.index"))
     print(form.errors)
     return redirect(url_for("settings.index"))
