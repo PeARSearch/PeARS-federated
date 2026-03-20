@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>, 
+SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>,
 
 SPDX-License-Identifier: AGPL-3.0-only
 -->
@@ -7,112 +7,122 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% extends "base/base.html" %}
 {% from "base/_formhelpers.html" import render_search_field %}
 {% block body %}
-<div class="container">
-    <div class="row">
-      <div class="col-md-10 mb-5">
-        {% if internal_message %}
-        <div id="sidebar-wrapper">
-          <div class="alert alert-info alert-dismissible">
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            <div class="d-flex justify-content-start">
-	      {% if session.get('theme') == 'dark' %}
-	        <img src="{{ url_for('static', filename='happy_pears_dark.png')}}" width="40px" style="margin-right:10px">
-	      {% else %}
-	        <img src="{{ url_for('static', filename='happy_pears.png')}}" width="40px" style="margin-right:10px">
-              {% endif %}
-	      {{internal_message}}
-            </div>
-	  </div>
-        </div>     
-        {% endif %}
-      <form method="POST" action="{{url_for('search.index')}}" enctype="multipart/form-data" id='searchform'>
-        {{ searchform.hidden_tag() }}
-        <div class="input-group group mt-4" >
-          {{ render_search_field(searchform.query, placeholder) }}
-	  <button class="btn btn-lg btn-success" type="submit" id='searchbutton'><img src="{{ url_for('static', filename='search-outline.svg')}}" class='ion-icon'/></button>
-          <button class="btn btn-lg btn-success" type="button" id='loadingbutton' style='display:none'>
-            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-          </button>
-        </div>
-      </form>
-      {% if config['FEEDBACK_FORM'] %}
-        <p class="small">Help us improve this alpha version of PeARS! <a href={{url_for('orchard.feedback')}}>Send us your feedback.</a></p>
+
+<!-- Tip / internal message -->
+{% if internal_message %}
+<div role="alert" data-variant="info" class="flash-alert mb-4" style="max-width: 720px;">
+  <span class="flex items-center gap-2">
+    {% if session.get('theme') == 'dark' %}
+      <img src="{{ url_for('static', filename='happy_pears_dark.png')}}" width="40" alt="">
+    {% else %}
+      <img src="{{ url_for('static', filename='happy_pears.png')}}" width="40" alt="">
+    {% endif %}
+    {{internal_message}}
+  </span>
+  <button type="button" class="flash-dismiss" aria-label="{{gettext('Dismiss')}}" onclick="this.parentElement.remove();">&times;</button>
+</div>
+{% endif %}
+
+<!-- Search bar (compact, at top of results) -->
+<div style="max-width: 720px;" class="mb-4">
+  <form method="POST" action="{{url_for('search.index')}}" enctype="multipart/form-data" id="searchform">
+    {{ searchform.hidden_tag() }}
+    <fieldset class="group">
+      {{ render_search_field(searchform.query, placeholder) }}
+      <button type="submit" id="searchbutton">
+        <img src="{{ url_for('static', filename='search-outline.svg')}}" class="icon" alt="{{gettext('Search')}}">
+      </button>
+      <button type="button" id="loadingbutton" style="display:none" aria-busy="true" disabled>
+        {{gettext('Searching...')}}
+      </button>
+    </fieldset>
+  </form>
+  {% if config['FEEDBACK_FORM'] %}
+  <p style="font-size: var(--text-8); margin-top: var(--space-2); color: var(--muted-foreground);">
+    Help us improve this alpha version of PeARS! <a href="{{url_for('orchard.feedback')}}">Send us your feedback.</a>
+  </p>
+  {% endif %}
+</div>
+
+<!-- Results -->
+<div class="results-list">
+  {% if results == None %}
+    <div class="text-center mt-8">
+      {% if session.get('theme') == 'dark' %}
+        <img src="{{ url_for('static', filename='sad_pears_dark.png')}}" width="80" alt="" class="mb-4">
+      {% else %}
+        <img src="{{ url_for('static', filename='sad_pears.png')}}" width="80" alt="" class="mb-4">
       {% endif %}
-      </div><!-- col -->
-    </div><!-- row -->
+      <p>{{gettext('<b>No results found.</b><br> The reason for this could be that the topic of this PeARS instance is not aligned with your query.
+      It could also be that its index is still too small! We would be happy if you contributed to the index by adding your favourite URLs
+      on your topic.')}}</p>
+      <p>{{gettext('No account yet?')}} <a href="{{url_for('auth.signup')}}">{{gettext('Sign up')}}</a></p>
+    </div>
+  {% else %}
+    <h3>{{gettext('Search results:')}}</h3>
 
-    <div class="row">
-      <div class="col-md-10">
-        {% if results == None %}
-	  <p>{{gettext('<b>No results found.</b><br> The reason for this could be that the topic of this PeARS instance is not aligned with your query. 
-	  It could also be that its index is still too small! We would be happy if you contributed to the index by adding your favourite URLs
-	  on your topic.')}}</p>
-	  <br><p>{{gettext('No account yet?')}} <a href={{url_for('auth.signup')}}>{{gettext('Sign up')}}</a></p>
-	{% else %}
-	  <h3>{{gettext('Search results:')}}</h3>
-          {% for result in results %}
-          <div class="card mt-2">
-            <div class="card-body" style="padding: 20px 0px 20px 0px">
-              <div class="d-flex justify-content-between"><!-- card header: links -->
-	        <div><a href="{{result['display_url']}}" style="text-decoration: none; font-size: large"><b>{{result['title']}}</b></a> 
-          {% if result['instance_is_local']%}
-          <span class="badge rounded-pill text-bg-info" title="{{result['instance_info_text']}}">{{result['instance']}}</span>
-          {% else %}
-          <span class="badge rounded-pill text-bg-warning" title="{{result['instance_info_text']}}">{{result['instance']}}</span>
-          {% endif %}
-          </div>
-	        <div>
-            {% if result['instance_is_local']%}
-	          <a class="btn btn-link" href="{{url_for('orchard.annotate')}}?url={{result['url']}}" data-toggle="tooltip" title="{{gettext('Add a note to this entry')}}"><img src="{{ url_for('static', filename='chatbubble-outline.svg')}}" class='ion-icon'/></a>  
-	          <a class="btn btn-link" href="{{url_for('orchard.report')}}?url={{result['url']}}"  data-toggle="tooltip" title="{{gettext('Report this entry')}}"><img src="{{ url_for('static', filename='flag-outline.svg')}}" class='ion-icon'/></a>
-            {% endif %} 
-	          <button class="btn btn-link" data-toggle="tooltip" title="{{gettext('Share this entry')}}" onClick="copyToClipboard('{{result['share']}}', 'copy{{result['id']}}')" id="copy{{result['id']}}"><img src="{{ url_for('static', filename='share-outline.svg')}}" class='ion-icon'/></button> 
-                </div>
-	      </div><!-- card heard: links -->
-
-	      <p class="card-text small"><a href="{{result['display_url']}}" class="card-link">{{result['url']}}</a></p><!-- explicit link-->
-	      <p class="card-text small" style="margin-top:-10px">
-              <br>{{result['snippet']|safe}}<!--snippet-->
-              {% if result['notes'] != None %}
-	        <button class="btn btn-link collapsed" data-bs-toggle="collapse" data-bs-target="#collapse{{result['id']}}" aria-expanded="false" aria-controls="collapse{{result['id']}}">
-	          <img src="{{ url_for('static', filename='note.png')}}" width='30px' />
-                </button>
-              {% endif %}
-              </p>
-              {% if result['notes'] != None %}<!-- note -->
-              <div class="collapse" id="collapse{{result['id']}}">
-                <p class="card-text small">
-	          {% for note in result['notes'] %}
-	            {{note}}<br>
-	          {% endfor %}
-	        </p>
-	      </div>
-	      {% endif %}<!-- note -->
-              <hr>
-	    </div><!-- div card-body -->
-	  </div><!-- div card mt-2 -->
-          {% endfor %}
+    {% for result in results %}
+    <article class="result-item">
+      <!-- Title and instance badge -->
+      <div class="result-title">
+        <a href="{{result['display_url']}}">{{result['title']}}</a>
+        {% if result['instance_is_local'] %}
+          <small data-tooltip="{{result['instance_info_text']}}" style="background: var(--accent); padding: 0.15em 0.5em; border-radius: var(--radius-full); font-size: var(--text-8); vertical-align: middle;">{{result['instance']}}</small>
+        {% else %}
+          <small data-tooltip="{{result['instance_info_text']}}" style="background: var(--warning); color: var(--warning-foreground); padding: 0.15em 0.5em; border-radius: var(--radius-full); font-size: var(--text-8); vertical-align: middle;">{{result['instance']}}</small>
         {% endif %}
-      </div><!-- col -->
-    </div><!-- row -->
-</div><!-- container -->
+      </div>
+
+      <!-- URL -->
+      <a href="{{result['display_url']}}" class="search-url">{{result['url']}}</a>
+
+      <!-- Snippet -->
+      <div class="result-snippet">
+        {{result['snippet']|safe}}
+      </div>
+
+      <!-- Actions and notes -->
+      <div class="result-meta">
+        {% if result['instance_is_local'] %}
+          <a href="{{url_for('orchard.annotate')}}?url={{result['url']}}" data-tooltip="{{gettext('Add a note to this entry')}}">
+            <img src="{{ url_for('static', filename='chatbubble-outline.svg')}}" class="icon icon-sm" alt="{{gettext('Add a note to this entry')}}">
+          </a>
+          <a href="{{url_for('orchard.report')}}?url={{result['url']}}" data-tooltip="{{gettext('Report this entry')}}">
+            <img src="{{ url_for('static', filename='flag-outline.svg')}}" class="icon icon-sm" alt="{{gettext('Report this entry')}}">
+          </a>
+        {% endif %}
+        <button type="button" class="site-nav-icon-btn" data-tooltip="{{gettext('Share this entry')}}" onclick="copyToClipboard('{{result['share']}}', 'copy{{result['id']}}')" id="copy{{result['id']}}">
+          <img src="{{ url_for('static', filename='share-outline.svg')}}" class="icon icon-sm" alt="{{gettext('Share this entry')}}">
+        </button>
+
+        {% if result['notes'] != None %}
+        <button type="button" class="site-nav-icon-btn" onclick="var el=document.getElementById('notes{{result['id']}}'); el.style.display = el.style.display === 'none' ? 'block' : 'none';">
+          <img src="{{ url_for('static', filename='note.png')}}" width="20" alt="Notes">
+        </button>
+        {% endif %}
+      </div>
+
+      {% if result['notes'] != None %}
+      <div id="notes{{result['id']}}" style="display:none; margin-top: var(--space-2); padding: var(--space-3); background: var(--faint); border-radius: var(--radius-medium); font-size: var(--text-7);">
+        {% for note in result['notes'] %}
+          {{note}}<br>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </article>
+    {% endfor %}
+  {% endif %}
+</div>
+
 <script src="{{ url_for('static', filename='js/loading.js')}}"></script>
 <script>
-$(document).ready(function(){
-  $('[data-toggle="tooltip"]').tooltip();
-});
-</script>
-<script>
-    function copyToClipboard(link, idx) {
-	console.log(link, idx)
-        navigator.clipboard.writeText(link);
-	el = document.getElementById(idx);
-	console.log(el);
-	el.innerHTML = '<img src="{{ url_for('static', filename='checkmark-done-outline.svg')}}" class="ion-icon"/>';
-	setTimeout( function() {
-	el.innerHTML = '<img src="{{ url_for('static', filename='share-outline.svg')}}" class="ion-icon"/>';
-    }, 3000);
-
-    }
+function copyToClipboard(link, idx) {
+  navigator.clipboard.writeText(link);
+  var el = document.getElementById(idx);
+  el.innerHTML = '<img src="{{ url_for('static', filename='checkmark-done-outline.svg')}}" class="icon icon-sm" alt="Copied">';
+  setTimeout(function() {
+    el.innerHTML = '<img src="{{ url_for('static', filename='share-outline.svg')}}" class="icon icon-sm" alt="Share">';
+  }, 3000);
+}
 </script>
 {% endblock %}

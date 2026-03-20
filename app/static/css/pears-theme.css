@@ -269,9 +269,12 @@
   background-color: var(--muted);
 }
 
-/* Theme toggle icons adapt to current color scheme.
+/* Invert dark SVG icons in dark mode where needed.
    We use the data-theme attribute set by theme-toggle.js */
-[data-theme="dark"] .site-nav-icon-btn .icon {
+[data-theme="dark"] .site-nav-icon-btn .icon,
+[data-theme="dark"] .admin-bar .icon,
+[data-theme="dark"] .result-meta .icon,
+[data-theme="dark"] .site-footer .icon {
   filter: invert(1);
 }
 
