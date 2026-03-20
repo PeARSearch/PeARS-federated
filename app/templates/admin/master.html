@@ -1,0 +1,185 @@
+{% extends 'admin/base.html' %}
+
+{% block brand %}
+    <a class="navbar-brand" href="{{ url_for('search.index')}}">
+        <img src="{{ url_for('static', filename='pears_round.png')}}" height="25" alt="PeARS" style="display:inline; vertical-align:middle; margin-right:5px;">
+        PeARS
+    </a>
+{% endblock %}
+
+{% block tail %}
+    {{ super() }}
+    <style>
+        /* Override Flask-Admin styles for cleaner look */
+        body {
+            font-family: 'Source Sans 3', system-ui, -apple-system, sans-serif;
+            background-color: #FAFAF8;
+        }
+
+        /* Full width */
+        .container {
+            max-width: 100%;
+            width: 100%;
+            padding: 0 20px;
+        }
+
+        /* Flask-Admin navbar */
+        .navbar-inverse {
+            background-color: #2D3250;
+            border: none;
+            border-radius: 0;
+        }
+
+        .navbar-inverse .navbar-brand {
+            color: #EDECE8;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .navbar-inverse .navbar-brand:hover {
+            color: #fff;
+        }
+
+        .navbar-inverse .navbar-nav > li > a {
+            color: #B0AFAA;
+        }
+
+        .navbar-inverse .navbar-nav > li > a:hover,
+        .navbar-inverse .navbar-nav > li.active > a {
+            color: #fff;
+        }
+
+        /* Table layout */
+        .table {
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        .table td, .table th {
+            padding: 6px 10px;
+            vertical-align: top;
+            font-size: 13px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .table th a {
+            color: #E67E22;
+        }
+
+        .table th:nth-child(1),
+        .table td:nth-child(1) { width: 30px; }
+
+        .table th:nth-child(2),
+        .table td:nth-child(2) { width: 60px; }
+
+        .table td:last-child {
+            max-width: 250px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .table td:nth-child(3) {
+            word-break: break-all;
+            white-space: normal;
+        }
+
+        .table-striped > tbody > tr:nth-of-type(odd) {
+            background-color: #F3F1EE;
+        }
+
+        .table-striped > tbody > tr:hover {
+            background-color: #FDEBD0;
+        }
+
+        /* Buttons */
+        .btn-primary, .btn-default {
+            border-radius: 6px;
+        }
+
+        .btn-primary {
+            background-color: #E67E22;
+            border-color: #CF6D17;
+        }
+
+        .btn-primary:hover {
+            background-color: #CF6D17;
+        }
+
+        input.form-control, select.form-control, textarea.form-control {
+            border-radius: 6px;
+        }
+
+        .nav-tabs > li > a {
+            border-radius: 6px 6px 0 0;
+        }
+
+        .icon-pencil, .icon-trash, .glyphicon {
+            font-size: 12px;
+        }
+
+        /* Forms: constrain width and improve spacing */
+        .admin-form .form-group {
+            max-width: 600px;
+        }
+
+        .admin-form label {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .admin-form .form-control {
+            padding: 8px 12px;
+        }
+
+        .admin-form .help-block {
+            font-size: 12px;
+            color: #7077A1;
+        }
+
+        /* Create/Edit form container */
+        form[method="POST"] .form-group {
+            max-width: 600px;
+            margin-bottom: 16px;
+        }
+
+        form[method="POST"] label {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        form[method="POST"] .form-control {
+            padding: 8px 12px;
+            border-radius: 6px;
+            background: #fff;
+        }
+
+        form[method="POST"] .form-control[readonly] {
+            background: #F3F1EE;
+        }
+
+        /* Submit button */
+        form[method="POST"] input[type="submit"] {
+            background-color: #E67E22;
+            border-color: #CF6D17;
+            border-radius: 6px;
+            padding: 8px 24px;
+            color: #fff;
+        }
+
+        form[method="POST"] input[type="submit"]:hover {
+            background-color: #CF6D17;
+        }
+
+        .select2-results {
+            max-height: 400px !important;
+        }
+
+        .select2-container {
+            width: 400px !important;
+        }
+    </style>
+{% endblock %}
