@@ -10,23 +10,18 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% block body %}
 <div class="content-prose">
 
+  <h2>{{gettext("Your profile")}}</h2>
+
   <!-- Profile info -->
   <div class="profile-cards">
     <article>
-      <header><h3>{{gettext("Your profile")}}</h3></header>
       <p>{{gettext("Username:")}} <strong>{{username}}</strong></p>
       <p>{{gettext("Email:")}} <strong>{{email}}</strong></p>
-      <p>{{gettext("#Contributions:")}} <strong>{{num_contributions}}</strong></p>
-      <footer>
-        <a href="{{url_for('settings.delete_account')}}" role="button" data-variant="danger"
-           onclick="return confirm('DANGER: Are you sure you want to delete your account completely?')">
-          {{gettext('Delete account')}}
-        </a>
-      </footer>
+      <p>{{gettext("Total contributions:")}} <strong>{{num_contributions}}</strong></p>
     </article>
 
     <article>
-      <header><h3>{{gettext("Change your personal data")}}</h3></header>
+      <h3>{{gettext("Change your personal data")}}</h3>
       <form method="POST" action="/settings/change_email" enctype="multipart/form-data">
         {{ emailform.hidden_tag() }}
         <p>{{ render_field(emailform.email) }}</p>
@@ -43,58 +38,42 @@ SPDX-License-Identifier: AGPL-3.0-only
 
   <!-- Contributions -->
   <article class="mt-6">
-    <header><h3>{{gettext("Your contributions")}}</h3></header>
+    <h3>{{gettext("Your contributions")}}</h3>
 
-    <h4 class="flex items-center gap-2">
-      {% if session.get('theme') == 'dark' %}
-        <img src="{{ url_for('static', filename='happy_pears_dark.png')}}" width="24" alt="">
-      {% else %}
-        <img src="{{ url_for('static', filename='happy_pears.png')}}" width="24" alt="">
-      {% endif %}
-      {{gettext('Web content')}}
-    </h4>
-    {% for url in contributions %}
-    <p class="flex items-center gap-2 break-all">
-      <a href="{{url[0]}}">{{url[0]}}</a>
-      <a href="{{url_for('settings.delete_url')}}?url={{url[0]}}" class="result-action-btn"
-         data-tooltip="{{gettext('Delete this URL')}}"
-         onclick="return confirm('Are you sure you want to delete this resource?')">
-        <img src="{{ url_for('static', filename='trash-outline.svg')}}" class="icon icon-sm" alt="{{gettext('Delete')}}">
-      </a>
-    </p>
-    {% endfor %}
+    {% if contributions %}
+    <h4>{{gettext('Web content')}}</h4>
+    <ul>
+      {% for url in contributions %}
+      <li class="flex items-center gap-2 break-all mb-2">
+        <a href="{{url[0]}}">{{url[1] or url[0]}}</a>
+        <a href="{{url_for('settings.delete_url')}}?url={{url[0]}}" class="result-action-btn"
+           data-tooltip="{{gettext('Delete this URL')}}"
+           onclick="return confirm('Are you sure you want to delete this resource?')">
+          <img src="{{ url_for('static', filename='trash-outline.svg')}}" class="icon icon-sm" alt="{{gettext('Delete')}}">
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
 
-    <hr>
+    {% if tips %}
+    <h4>{{gettext('Tips')}}</h4>
+    <ul>
+      {% for url in tips %}
+      <li class="flex items-center gap-2 break-all mb-2">
+        <a href="{{url[0]}}">{{url[1] or url[0]}}</a>
+        <a href="{{url_for('settings.delete_url')}}?url={{url[0]}}" class="result-action-btn"
+           data-tooltip="{{gettext('Delete this tip')}}"
+           onclick="return confirm('Are you sure you want to delete this resource?')">
+          <img src="{{ url_for('static', filename='trash-outline.svg')}}" class="icon icon-sm" alt="{{gettext('Delete')}}">
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
 
-    <h4 class="flex items-center gap-2">
-      {% if session.get('theme') == 'dark' %}
-        <img src="{{ url_for('static', filename='happy_pears_dark.png')}}" width="24" alt="">
-      {% else %}
-        <img src="{{ url_for('static', filename='happy_pears.png')}}" width="24" alt="">
-      {% endif %}
-      {{gettext('Tips')}}
-    </h4>
-    {% for url in tips %}
-    <p class="flex items-center gap-2 break-all">
-      <a href="{{url[0]}}">{{url[0]}}</a>
-      <a href="{{url_for('settings.delete_url')}}?url={{url[0]}}" class="result-action-btn"
-         data-tooltip="{{gettext('Delete this tip')}}"
-         onclick="return confirm('Are you sure you want to delete this resource?')">
-        <img src="{{ url_for('static', filename='trash-outline.svg')}}" class="icon icon-sm" alt="{{gettext('Delete')}}">
-      </a>
-    </p>
-    {% endfor %}
-
-    <hr>
-
-    <h4 class="flex items-center gap-2">
-      {% if session.get('theme') == 'dark' %}
-        <img src="{{ url_for('static', filename='happy_pears_dark.png')}}" width="24" alt="">
-      {% else %}
-        <img src="{{ url_for('static', filename='happy_pears.png')}}" width="24" alt="">
-      {% endif %}
-      {{gettext('Comments')}}
-    </h4>
+    {% if comments %}
+    <h4>{{gettext('Comments')}}</h4>
     {% for url in comments %}
     <div class="mb-4">
       <p class="muted-text">{{url[1]}}</p>
@@ -108,7 +87,23 @@ SPDX-License-Identifier: AGPL-3.0-only
       </p>
     </div>
     {% endfor %}
+    {% endif %}
+
+    {% if not contributions and not tips and not comments %}
+    <p class="muted-text">{{gettext("You haven't made any contributions yet.")}}</p>
+    {% endif %}
   </article>
+
+  <!-- Danger zone: delete account (bottom, separated) -->
+  <hr class="mt-8">
+  <details class="mt-4">
+    <summary>{{gettext('Delete account')}}</summary>
+    <p class="muted-text">{{gettext("This action is permanent. Your account and username will be removed, but your contributions will be preserved anonymously.")}}</p>
+    <a href="{{url_for('settings.delete_account')}}" role="button" data-variant="danger"
+       onclick="return confirm('DANGER: Are you sure you want to delete your account completely? This cannot be undone.')">
+      {{gettext('Permanently delete my account')}}
+    </a>
+  </details>
 
 </div>
 {% endblock %}

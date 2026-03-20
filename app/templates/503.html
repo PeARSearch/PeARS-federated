@@ -7,19 +7,13 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% extends "base/base.html" %}
 {% block title %}Service Unavailable{% endblock %}
 {% block body %}
-<div class="text-center mt-8">
-  {% if own_brand %}
-    {% if session.get('theme') == 'dark' %}
-      <a href="{{ url_for('search.index')}}"><img width="350" src="{{url_for('serve_logos', path='logo-dark.png')}}" alt="PeARS"></a>
-    {% else %}
-      <a href="{{ url_for('search.index')}}"><img width="350" src="{{url_for('serve_logos', path='logo.png')}}" alt="PeARS"></a>
-    {% endif %}
+<div class="auth-container text-center">
+  {% if session.get('theme') == 'dark' %}
+    <img src="{{ url_for('static', filename='sad_pears_dark.png')}}" width="100" alt="">
   {% else %}
-    {% if session.get('theme') == 'dark' %}
-      <a href="{{ url_for('search.index')}}"><img width="350" src="{{ url_for('static', filename='pears-logo-dark.png')}}" alt="PeARS"></a>
-    {% else %}
-      <a href="{{ url_for('search.index')}}"><img width="350" src="{{ url_for('static', filename='pears-logo.png')}}" alt="PeARS"></a>
-    {% endif %}
+    <img src="{{ url_for('static', filename='sad_pears.png')}}" width="100" alt="">
   {% endif %}
+  <h2>{{gettext('Under Maintenance')}}</h2>
+  <p class="muted-text">{{gettext("We're performing some maintenance on this instance. Please check back shortly.")}}</p>
 </div>
 {% endblock %}

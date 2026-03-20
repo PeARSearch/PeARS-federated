@@ -8,32 +8,45 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% block title %}Indexing Successful{% endblock %}
 {% block body %}
 <div class="content-prose">
+  <h2>{{gettext('Successfully Indexed!')}}</h2>
+
   {% for message in messages %}
-  <p><strong>{{message}}</strong></p>
+  <div role="alert" data-variant="success">{{message}}</div>
   {% endfor %}
 
-  <p>{{gettext('Your URL has been successfully indexed! Here is a summary of your contribution:')}}</p>
+  <p>{{gettext('Here is a summary of your contribution:')}}</p>
 
-  {% if url %}
-  <p>
-    <img src="{{ url_for('static', filename='globe-outline.svg')}}" class="icon" alt="">
-    <strong>WWW Link:</strong> <a href="{{url}}">{{url}}</a>
-  </p>
-  {% endif %}
-  <p>
-    <img src="{{ url_for('static', filename='search-circle-outline.svg')}}" class="icon" alt="">
-    <strong>PeARS Link:</strong> <a href="{{share_url}}">{{share_url}}</a>
-  </p>
-  <p>
-    <img src="{{ url_for('static', filename='file-tray-stacked-outline.svg')}}" class="icon" alt="">
-    <strong>{{gettext('Category:')}}</strong> {{theme}}
-  </p>
-  <p>
-    <img src="{{ url_for('static', filename='chatbubble-ellipses-outline.svg')}}" class="icon" alt="">
-    <strong>{{gettext('Note:')}}</strong> {{note}}
-  </p>
+  <table>
+    {% if url %}
+    <tr>
+      <td><strong>URL</strong></td>
+      <td><a href="{{url}}">{{url}}</a></td>
+    </tr>
+    {% endif %}
+    <tr>
+      <td><strong>PeARS Link</strong></td>
+      <td><a href="{{share_url}}">{{share_url}}</a></td>
+    </tr>
+    <tr>
+      <td><strong>{{gettext('Category')}}</strong></td>
+      <td>{{theme}}</td>
+    </tr>
+    {% if note %}
+    <tr>
+      <td><strong>{{gettext('Note')}}</strong></td>
+      <td>{{note}}</td>
+    </tr>
+    {% endif %}
+  </table>
 
-  <p>{{gettext('Made a mistake? No problem')}}, <a href="{{url_for('indexer.correct_entry')}}" onclick="return confirm('Are you sure you want to amend your contribution? Clicking on this link will delete the resource you have just indexed and send you back to the indexing form, prefilled with your previous entries.')">{{gettext('try again')}}</a></p>
-  <p><a href="{{url_for('indexer.index')}}" role="button">{{gettext("Index more pages")}}</a></p>
+  <p class="muted-text mt-4">{{gettext('Your entry will appear in search results shortly.')}}</p>
+
+  <div class="flex gap-4 mt-4">
+    <a href="{{url_for('indexer.index')}}" role="button">{{gettext("Index another page")}}</a>
+    <a href="{{url_for('indexer.correct_entry')}}" role="button" data-variant="secondary" class="outline"
+       onclick="return confirm('This will delete the entry you just indexed and return you to the form. Continue?')">
+      {{gettext('Edit this entry')}}
+    </a>
+  </div>
 </div>
 {% endblock %}

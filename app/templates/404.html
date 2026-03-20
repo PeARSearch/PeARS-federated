@@ -7,23 +7,19 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% extends "base/base.html" %}
 {% block title %}Page Not Found{% endblock %}
 {% block body %}
-<div class="text-center mt-8">
-  {% if own_brand %}
-    {% if session.get('theme') == 'dark' %}
-      <a href="{{ url_for('search.index')}}"><img width="350" src="{{url_for('serve_logos', path='logo-dark.png')}}" alt="PeARS"></a>
-    {% else %}
-      <a href="{{ url_for('search.index')}}"><img width="350" src="{{url_for('serve_logos', path='logo.png')}}" alt="PeARS"></a>
-    {% endif %}
+<div class="auth-container text-center">
+  {% if session.get('theme') == 'dark' %}
+    <img src="{{ url_for('static', filename='sad_pears_dark.png')}}" width="100" alt="">
   {% else %}
-    {% if session.get('theme') == 'dark' %}
-      <a href="{{ url_for('search.index')}}"><img width="350" src="{{ url_for('static', filename='pears-logo-dark.png')}}" alt="PeARS"></a>
-    {% else %}
-      <a href="{{ url_for('search.index')}}"><img width="350" src="{{ url_for('static', filename='pears-logo.png')}}" alt="PeARS"></a>
-    {% endif %}
+    <img src="{{ url_for('static', filename='sad_pears.png')}}" width="100" alt="">
   {% endif %}
-
+  <h2>{{gettext('Page Not Found')}}</h2>
+  <p class="muted-text">{{gettext("The page you're looking for doesn't exist or you don't have permission to access it.")}}</p>
+  <p>
+    <a href="{{ url_for('search.index')}}" role="button">{{gettext('Back to Search')}}</a>
+  </p>
   {% if internal_message %}
-  <div role="alert" data-variant="info" class="max-w-hero mt-4">
+  <div role="alert" data-variant="info" class="mt-4">
     {{internal_message}}
   </div>
   {% endif %}

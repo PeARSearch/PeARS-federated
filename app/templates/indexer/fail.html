@@ -8,12 +8,27 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% block title %}Indexing Failed{% endblock %}
 {% block body %}
 <div class="content-prose">
-  <p>{{gettext('Unfortunately, an error occurred while we were trying to index the suggested URL. This could have various reasons. For instance, the website owner disallows automatic access
-  to their content, or the server refused our request. Please also check that the URL still exists, and that you have not mistyped it.')}}</p>
-  <hr>
-  {% for message in messages %}
-  <p><strong>{{message|safe}}</strong></p>
-  {% endfor %}
-  <p><a href="{{url_for('indexer.index')}}" role="button">{{gettext("Index more pages")}}</a></p>
+  <h2>{{gettext('Indexing Failed')}}</h2>
+
+  <p>{{gettext('The URL could not be indexed. Common reasons include:')}}</p>
+  <ul>
+    <li>{{gettext("The website's robots.txt blocks automated access")}}</li>
+    <li>{{gettext('The URL no longer exists or returned an error')}}</li>
+    <li>{{gettext('The server took too long to respond')}}</li>
+    <li>{{gettext('The URL may have been mistyped')}}</li>
+  </ul>
+
+  {% if messages %}
+  <details open>
+    <summary>{{gettext('Technical details')}}</summary>
+    {% for message in messages %}
+    <p><strong>{{message|safe}}</strong></p>
+    {% endfor %}
+  </details>
+  {% endif %}
+
+  <div class="flex gap-4 mt-6">
+    <a href="{{url_for('indexer.index')}}" role="button">{{gettext("Try a different URL")}}</a>
+  </div>
 </div>
 {% endblock %}

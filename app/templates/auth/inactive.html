@@ -3,14 +3,18 @@
 {% block body %}
 
 <div class="auth-container text-center">
-  <h2>{{gettext("Account activation")}}</h2>
+  <h2>{{gettext("Confirm Your Email")}}</h2>
   <p>
-    {{gettext("Please check your inbox (and your spam folder) - you should have received an email with a confirmation link.")}}
+    {{gettext("We've sent a confirmation email to your inbox. Please click the link in the email to activate your account.")}}
+  </p>
+  <p class="muted-text">
+    {{gettext("Don't see it? Check your spam folder.")}}
   </p>
   <p>
     {{gettext("Didn't get the email?")}}
-    <a href="{{ url_for('auth.resend_confirmation') }}">{{gettext("Resend")}}</a>.
+    <a href="{{ url_for('auth.resend_confirmation') }}">{{gettext("Resend confirmation email")}}</a>
   </p>
+  <p class="mt-4 muted-text"><a href="{{url_for('search.index')}}">{{gettext('Back to home')}}</a></p>
 </div>
 
 {% endblock %}

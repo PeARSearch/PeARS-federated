@@ -7,7 +7,7 @@
 <div class="auth-container">
   <article>
     <header class="text-center">
-      <h2>{{gettext('Login')}}</h2>
+      <h2>{{gettext('Log In')}}</h2>
     </header>
     <form method="POST" action="/auth/login" enctype="multipart/form-data">
       {{ form.hidden_tag() }}
@@ -17,7 +17,7 @@
     </form>
   </article>
   {% if new_users_allowed %}
-  <p class="text-center mt-4">{{gettext('No account yet?')}} <a href="{{url_for('auth.signup')}}">{{gettext('Sign up')}}</a></p>
+  <p class="text-center mt-4 muted-text">{{gettext('No account yet?')}} <a href="{{url_for('auth.signup')}}">{{gettext('Sign up')}}</a></p>
   {% endif %}
 </div>
 

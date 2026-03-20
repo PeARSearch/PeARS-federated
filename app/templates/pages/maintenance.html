@@ -1,12 +1,13 @@
 {% extends "base/base.html" %}
 {% block title %}Under Maintenance{% endblock %}
 {% block body %}
-<div class="content-prose text-center">
-  <h3>This PeARS instance is currently under maintenance!</h3>
+<div class="auth-container text-center">
   {% if session.get('theme') == 'dark' %}
-    <img src="{{ url_for('static', filename='sad_pears_dark.png')}}" width="200" alt="Under maintenance">
+    <img src="{{ url_for('static', filename='sad_pears_dark.png')}}" width="120" alt="Under maintenance">
   {% else %}
-    <img src="{{ url_for('static', filename='sad_pears.png')}}" width="200" alt="Under maintenance">
+    <img src="{{ url_for('static', filename='sad_pears.png')}}" width="120" alt="Under maintenance">
   {% endif %}
+  <h2>{{gettext('Under Maintenance')}}</h2>
+  <p class="muted-text">{{gettext("This PeARS instance is currently undergoing maintenance. We'll be back online soon.")}}</p>
 </div>
 {% endblock %}
