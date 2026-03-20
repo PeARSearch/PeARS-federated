@@ -11,7 +11,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 <!-- Tip / internal message -->
 {% if internal_message %}
-<div role="alert" data-variant="info" class="flash-alert mb-4 max-w-results">
+<div role="alert" data-variant="warning" class="flash-alert mb-4 max-w-results">
   <span class="flex items-center gap-2">
     {% if session.get('theme') == 'dark' %}
       <img src="{{ url_for('static', filename='happy_pears_dark.png')}}" width="40" alt="">
@@ -25,24 +25,19 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% endif %}
 
 <!-- Search bar (compact, at top of results) -->
-<div class="max-w-results mb-4">
+<div class="max-w-results mb-2">
   <form method="POST" action="{{url_for('search.index')}}" enctype="multipart/form-data" id="searchform">
     {{ searchform.hidden_tag() }}
-    <fieldset class="group">
+    <fieldset class="group results-search-box">
       {{ render_search_field(searchform.query, placeholder) }}
-      <button type="submit" id="searchbutton">
-        <img src="{{ url_for('static', filename='search-outline.svg')}}" class="icon" alt="{{gettext('Search')}}">
+      <button type="submit" id="searchbutton" aria-label="{{gettext('Search')}}">
+        <img src="{{ url_for('static', filename='search-outline.svg')}}" class="icon" alt="">
       </button>
       <button type="button" id="loadingbutton" class="hidden" aria-busy="true" disabled>
         {{gettext('Searching...')}}
       </button>
     </fieldset>
   </form>
-  {% if config['FEEDBACK_FORM'] %}
-  <p class="fine-text mt-2">
-    Help us improve this alpha version of PeARS! <a href="{{url_for('orchard.feedback')}}">Send us your feedback.</a>
-  </p>
-  {% endif %}
 </div>
 
 <!-- Results -->
@@ -50,18 +45,24 @@ SPDX-License-Identifier: AGPL-3.0-only
   {% if results == None %}
     <div class="no-results">
       {% if session.get('theme') == 'dark' %}
-        <img src="{{ url_for('static', filename='sad_pears_dark.png')}}" width="100" alt="">
+        <img src="{{ url_for('static', filename='sad_pears_dark.png')}}" width="80" alt="">
       {% else %}
-        <img src="{{ url_for('static', filename='sad_pears.png')}}" width="100" alt="">
+        <img src="{{ url_for('static', filename='sad_pears.png')}}" width="80" alt="">
       {% endif %}
-      <p>{{gettext('<b>No results found.</b><br> The reason for this could be that the topic of this PeARS instance is not aligned with your query.
-      It could also be that its index is still too small! We would be happy if you contributed to the index by adding your favourite URLs
-      on your topic.')}}</p>
-      <p class="mt-4">{{gettext('No account yet?')}} <a href="{{url_for('auth.signup')}}">{{gettext('Sign up')}}</a></p>
+      <h3>{{gettext('No results found')}}</h3>
+      <p>{{gettext("This could be because the topic doesn't match this instance, or the index is still growing.")}}</p>
+      <ul class="no-results-suggestions">
+        <li>{{gettext('Try different keywords')}}</li>
+        <li>{{gettext('Remove')}} <code>!here</code> {{gettext('to search the full PeARS network')}}</li>
+        <li><a href="{{url_for('indexer.suggest')}}">{{gettext('Suggest a URL')}}</a> {{gettext('to help grow the index')}}</li>
+      </ul>
+      {% if config['FEEDBACK_FORM'] %}
+      <p class="mt-4 fine-text"><a href="{{url_for('orchard.feedback')}}">{{gettext('Send us feedback')}}</a></p>
+      {% endif %}
     </div>
   {% else %}
     <p class="results-summary" role="status" aria-live="polite">
-      {{gettext('About')}} <strong>{{ results|length }}</strong> {{gettext('results')}}
+      <strong>{{ results|length }}</strong> {{gettext('results')}}
     </p>
 
     {% for result in results %}
@@ -69,11 +70,21 @@ SPDX-License-Identifier: AGPL-3.0-only
       <!-- 1. Source line: breadcrumb URL + instance badge -->
       <div class="result-source">
         <a href="{{result['display_url']}}" class="search-url">{{result['breadcrumb_url']}}</a>
-        <span class="instance-badge instance-badge--{{ 'local' if result['instance_is_local'] else 'remote' }}"
-              data-tooltip="{{result['instance_info_text']}}"
-              aria-label="{{result['instance_info_text']}}">
-          {{result['instance']}}
-        </span>
+        {% if result['instance'] and result['instance'] != 'None' %}
+          {% if result['instance_is_local'] %}
+            <span class="instance-badge instance-badge--local"
+                  data-tooltip="{{result['instance_info_text']}}"
+                  aria-label="{{result['instance_info_text']}}">
+              {{result['instance']}}
+            </span>
+          {% else %}
+            <span class="instance-badge instance-badge--remote"
+                  data-tooltip="{{result['instance_info_text']}}"
+                  aria-label="{{result['instance_info_text']}}">
+              {{result['instance']}}
+            </span>
+          {% endif %}
+        {% endif %}
       </div>
 
       <!-- 2. Title -->
@@ -94,19 +105,19 @@ SPDX-License-Identifier: AGPL-3.0-only
           {% if result['instance_is_local'] %}
           <a href="{{url_for('orchard.annotate')}}?url={{result['url']}}"
              class="result-action-btn"
-             data-tooltip="{{gettext('Add a note to this entry')}}"
+             data-tooltip="{{gettext('Add a note')}}"
              aria-label="{{gettext('Add a note to this entry')}}">
             <img src="{{ url_for('static', filename='chatbubble-outline.svg')}}" class="icon" alt="">
           </a>
           <a href="{{url_for('orchard.report')}}?url={{result['url']}}"
              class="result-action-btn"
-             data-tooltip="{{gettext('Report this entry')}}"
+             data-tooltip="{{gettext('Report')}}"
              aria-label="{{gettext('Report this entry')}}">
             <img src="{{ url_for('static', filename='flag-outline.svg')}}" class="icon" alt="">
           </a>
           {% endif %}
           <button type="button" class="result-action-btn"
-                  data-tooltip="{{gettext('Share this entry')}}"
+                  data-tooltip="{{gettext('Share')}}"
                   aria-label="{{gettext('Share this entry')}}"
                   onclick="copyToClipboard('{{result['share']}}', 'copy{{result['id']}}')"
                   id="copy{{result['id']}}">
