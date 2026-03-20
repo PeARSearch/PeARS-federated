@@ -125,7 +125,19 @@ SPDX-License-Identifier: AGPL-3.0-only
   {% if messages %}
   <div class="container flash-messages">
     {% for category, message in messages %}
-      <div role="alert" data-variant="{{ 'error' if category == 'danger' else category }}" class="flash-alert">
+      {# Map Flask flash categories to Oat alert variants:
+         success -> success, danger -> error, error -> error,
+         warning -> warning, empty/message -> info (default) #}
+      {% if category in ('danger', 'error') %}
+        {% set variant = 'error' %}
+      {% elif category == 'success' %}
+        {% set variant = 'success' %}
+      {% elif category == 'warning' %}
+        {% set variant = 'warning' %}
+      {% else %}
+        {% set variant = 'warning' %}
+      {% endif %}
+      <div role="alert" data-variant="{{ variant }}" class="flash-alert">
         <span>{{ message }}</span>
         <button type="button" class="flash-dismiss" aria-label="{{gettext('Dismiss')}}" onclick="this.parentElement.remove();">&times;</button>
       </div>
