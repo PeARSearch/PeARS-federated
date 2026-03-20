@@ -21,30 +21,52 @@
             padding: 0 20px;
         }
 
-        .navbar-dark, .navbar-inverse {
+        /* Navbar: match main site's light style */
+        .navbar, .navbar-dark, .navbar-inverse {
             border: none;
             border-radius: 0;
+            border-bottom: 1px solid #E2E0DC;
+            box-shadow: none;
         }
 
         .navbar-dark.bg-dark, .navbar-inverse {
-            background-color: #2D3250 !important;
+            background-color: #FAFAF8 !important;
         }
 
         .navbar-dark .navbar-brand {
-            color: #EDECE8;
+            color: #2D3250;
+            font-weight: 600;
+            font-size: 18px;
         }
 
         .navbar-dark .navbar-brand:hover {
-            color: #fff;
+            color: #2D3250;
         }
 
         .navbar-dark .navbar-nav .nav-link {
-            color: #B0AFAA;
+            color: #5A5A5A;
+            font-size: 14px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: background-color 0.15s, color 0.15s;
         }
 
-        .navbar-dark .navbar-nav .nav-link:hover,
+        .navbar-dark .navbar-nav .nav-link:hover {
+            color: #2D3250;
+            background-color: #F3F1EE;
+        }
+
         .navbar-dark .navbar-nav .active > .nav-link {
-            color: #fff;
+            color: #2D3250;
+            font-weight: 600;
+        }
+
+        .navbar-dark .navbar-toggler {
+            border-color: #E2E0DC;
+        }
+
+        .navbar-dark .navbar-toggler-icon {
+            filter: invert(1);
         }
 
         /* Tables */
@@ -94,50 +116,126 @@
 
         .icon-pencil, .icon-trash, .glyphicon { font-size: 12px; }
 
-        /* Forms (create/edit): constrain width */
+        /* Forms (create/edit): constrain width, card-like container */
         .admin-form {
-            max-width: 650px;
+            max-width: 620px;
+            background: #fff;
+            border: 1px solid #E2E0DC;
+            border-radius: 10px;
+            padding: 28px 32px;
+            margin: 16px auto 0;
+        }
+
+        .admin-form fieldset {
+            border: none;
+            padding: 0;
+            margin: 0;
         }
 
         .form-group {
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }
 
         .form-group label,
+        .col-form-label,
         .control-label {
+            display: block;
             font-weight: 600;
             font-size: 13px;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
+            padding: 0;
             color: #2D3250;
         }
 
         .form-control {
+            display: block;
+            width: 100%;
             padding: 8px 12px;
             border-radius: 6px;
             border: 1px solid #E2E0DC;
             font-size: 14px;
+            background: #FAFAF8;
+            transition: border-color 0.15s, box-shadow 0.15s;
         }
 
         .form-control:focus {
             border-color: #E67E22;
-            box-shadow: 0 0 0 2px rgba(230, 126, 34, 0.2);
+            box-shadow: 0 0 0 2px rgba(230, 126, 34, 0.15);
+            background: #fff;
+            outline: none;
         }
 
         .form-control[readonly] {
             background: #F3F1EE;
+            color: #7077A1;
+        }
+
+        select.form-control {
+            appearance: auto;
+        }
+
+        /* Nav tabs (List / Create) */
+        .nav-tabs {
+            border-bottom: 2px solid #E2E0DC;
+            margin-bottom: 0;
+        }
+
+        .nav-tabs .nav-link {
+            border: none;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            color: #7077A1;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 0;
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: #2D3250;
+            border-bottom-color: #B0AFAA;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: #E67E22;
+            border-bottom-color: #E67E22;
+            background: transparent;
+        }
+
+        /* Center tabs only when followed by a form (create/edit pages) */
+        .nav-tabs:has(+ .admin-form),
+        .nav-tabs:has(+ form.admin-form) {
+            max-width: 620px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         /* Submit buttons area */
-        .form-group:last-child {
-            margin-top: 20px;
-            padding-top: 16px;
-            border-top: 1px solid #E2E0DC;
+        .admin-form hr {
+            border-color: #E2E0DC;
+            margin: 20px 0 16px;
+        }
+
+        .submit-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: nowrap;
+            align-items: center;
+        }
+
+        .submit-row input[type="submit"],
+        .submit-row .btn {
+            font-size: 13px;
+            padding: 7px 14px;
+            white-space: nowrap;
         }
 
         input[type="submit"], .btn-warning {
             border-radius: 6px;
             padding: 8px 20px;
             font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
         }
 
         input[type="submit"].btn-primary,
@@ -162,27 +260,19 @@
             background-color: #C0392B;
         }
 
+        .btn-secondary, .btn-warning {
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
         /* Help text */
-        .help-block {
+        .help-block, .form-text {
             font-size: 12px;
             color: #7077A1;
             margin-top: 2px;
         }
 
-        /* Submit row */
-        .submit-row {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .btn-secondary {
-            border-radius: 6px;
-            font-size: 13px;
-        }
-
         .select2-results { max-height: 400px !important; }
-        .select2-container { width: 400px !important; }
+        .select2-container { width: 100% !important; }
     </style>
 {% endblock %}
