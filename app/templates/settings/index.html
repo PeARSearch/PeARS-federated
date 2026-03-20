@@ -117,20 +117,6 @@ SPDX-License-Identifier: AGPL-3.0-only
     {% endif %}
   </article>
 
-  <script>
-  document.querySelectorAll('details > summary').forEach(function(summary) {
-    summary.addEventListener('click', function() {
-      var details = summary.parentElement;
-      // Will be open after the click toggles it
-      if (!details.open) {
-        setTimeout(function() {
-          details.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 150);
-      }
-    });
-  });
-  </script>
-
   <!-- Danger zone -->
   <details class="danger-zone">
     <summary>{{gettext('Delete account')}}</summary>
@@ -142,4 +128,17 @@ SPDX-License-Identifier: AGPL-3.0-only
   </details>
 
 </div>
+
+<script>
+document.querySelectorAll('details > summary').forEach(function(summary) {
+  summary.addEventListener('click', function() {
+    var details = summary.parentElement;
+    if (!details.open) {
+      setTimeout(function() {
+        details.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 150);
+    }
+  });
+});
+</script>
 {% endblock %}
