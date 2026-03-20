@@ -418,6 +418,22 @@ mark, .search-highlight {
   outline-offset: 2px;
 }
 
+/* Datalist dropdown styling (limited browser support) */
+datalist {
+  background: var(--card);
+  color: var(--foreground);
+}
+
+option {
+  background: var(--card);
+  color: var(--foreground);
+  padding: var(--space-2);
+}
+
+input[list]::-webkit-calendar-picker-indicator {
+  opacity: 0.5;
+}
+
 /* Form inputs: softer focus style */
 input:focus,
 select:focus,

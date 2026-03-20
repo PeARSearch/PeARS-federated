@@ -50,7 +50,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
     <!-- Manual entry form -->
     <div id="manual_indexing" class="{% if default_screen != 'manual' %}hidden{% endif %}">
-      <p class="fine-text mb-4">{{gettext("Create a manual entry for an offline resource or tip.")}}</p>
+      <p class="fine-text mb-4">{{gettext("Create a manual entry for an offline resource or tip. Manual entries are filed under the \"Tips\" category.")}}</p>
       {% with messages = get_flashed_messages(category_filter=["offline"]) %}
       {% if messages %}
         <div role="alert" data-variant="warning" class="mb-4">{{ messages[0] }}</div>
