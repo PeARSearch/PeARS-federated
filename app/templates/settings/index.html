@@ -12,43 +12,50 @@ SPDX-License-Identifier: AGPL-3.0-only
 
   <!-- Profile card -->
   <article class="form-card mb-6">
-    <div class="flex items-center gap-4 mb-4">
-      <span class="category-initial" style="background-color: hsl(200, 55%, 45%);">{{username[0]|upper}}</span>
-      <div>
-        <h2 class="mb-0" style="margin-top:0;">{{username}}</h2>
-        <p class="muted-text mb-0">{{email}}</p>
+    <div class="flex justify-between items-center">
+      <div class="flex items-center gap-4">
+        <span class="category-initial" style="background-color: hsl(200, 55%, 45%);">{{username[0]|upper}}</span>
+        <div>
+          <h2 class="mb-0" style="margin-top:0;">{{username}}</h2>
+          <p class="muted-text mb-0">{{email}}</p>
+        </div>
       </div>
+      <button type="button" class="site-nav-icon-btn" onclick="document.getElementById('edit-profile').classList.toggle('hidden');" data-tooltip="{{gettext('Edit profile')}}">
+        <img src="{{ url_for('static', filename='pencil-outline.svg')}}" class="icon" alt="{{gettext('Edit')}}">
+      </button>
     </div>
-    <p class="fine-text">{{gettext("Total contributions:")}} <strong>{{num_contributions}}</strong></p>
-  </article>
+    <p class="fine-text mt-4">{{gettext("Total contributions:")}} <strong>{{num_contributions}}</strong></p>
 
-  <!-- Edit account -->
-  <article class="form-card mb-6">
-    <h3>{{gettext("Account settings")}}</h3>
-    <form method="POST" action="/settings/change_email" enctype="multipart/form-data">
-      {{ emailform.hidden_tag() }}
-      <fieldset class="group">
-        {{ emailform.email(placeholder=gettext("New email address")) }}
-        <button type="submit">{{gettext('Change')}}</button>
-      </fieldset>
-      {% if emailform.email.errors %}
-        {% for error in emailform.email.errors %}
-          <small data-variant="error">{{ error }}</small>
-        {% endfor %}
-      {% endif %}
-    </form>
-    <form method="POST" action="/settings/change_username" enctype="multipart/form-data" class="mt-4">
-      {{ usernameform.hidden_tag() }}
-      <fieldset class="group">
-        {{ usernameform.username(placeholder=gettext("New username")) }}
-        <button type="submit">{{gettext('Change')}}</button>
-      </fieldset>
-      {% if usernameform.username.errors %}
-        {% for error in usernameform.username.errors %}
-          <small data-variant="error">{{ error }}</small>
-        {% endfor %}
-      {% endif %}
-    </form>
+    <!-- Edit forms (hidden by default) -->
+    <div id="edit-profile" class="hidden mt-4">
+      <hr class="mb-4">
+      <form method="POST" action="/settings/change_email" enctype="multipart/form-data">
+        {{ emailform.hidden_tag() }}
+        <label class="fine-text">{{gettext('Email')}}</label>
+        <fieldset class="group">
+          {{ emailform.email(value=email, placeholder=gettext("Email address")) }}
+          <button type="submit">{{gettext('Save')}}</button>
+        </fieldset>
+        {% if emailform.email.errors %}
+          {% for error in emailform.email.errors %}
+            <small data-variant="error">{{ error }}</small>
+          {% endfor %}
+        {% endif %}
+      </form>
+      <form method="POST" action="/settings/change_username" enctype="multipart/form-data" class="mt-4">
+        {{ usernameform.hidden_tag() }}
+        <label class="fine-text">{{gettext('Username')}}</label>
+        <fieldset class="group">
+          {{ usernameform.username(value=username, placeholder=gettext("Username")) }}
+          <button type="submit">{{gettext('Save')}}</button>
+        </fieldset>
+        {% if usernameform.username.errors %}
+          {% for error in usernameform.username.errors %}
+            <small data-variant="error">{{ error }}</small>
+          {% endfor %}
+        {% endif %}
+      </form>
+    </div>
   </article>
 
   <!-- Contributions -->
