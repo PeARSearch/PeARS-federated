@@ -60,7 +60,7 @@ SPDX-License-Identifier: AGPL-3.0-only
     {% endif %}
 
     {% if contributions %}
-    <details open>
+    <details>
       <summary><span>{{gettext('Web content')}}</span> <small class="muted-text">{{contributions|length}}</small></summary>
       <ul class="settings-url-list">
         {% for url in contributions %}
@@ -118,12 +118,14 @@ SPDX-License-Identifier: AGPL-3.0-only
   </article>
 
   <script>
-  document.querySelectorAll('details').forEach(function(el) {
-    el.addEventListener('toggle', function() {
-      if (el.open) {
+  document.querySelectorAll('details > summary').forEach(function(summary) {
+    summary.addEventListener('click', function() {
+      var details = summary.parentElement;
+      // Will be open after the click toggles it
+      if (!details.open) {
         setTimeout(function() {
-          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
+          details.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 150);
       }
     });
   });
