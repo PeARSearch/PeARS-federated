@@ -1,0 +1,429 @@
+/* SPDX-FileCopyrightText: 2025 PeARS Project, <community@pearsproject.org>
+   SPDX-License-Identifier: AGPL-3.0-only */
+
+/* ==========================================================================
+   PeARS Theme — Overrides for Oat UI
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Font Face Declarations (Adobe Source family, OFL licensed)
+   Variable fonts: single file per style covers all weights.
+   -------------------------------------------------------------------------- */
+
+/* Source Sans 3 — Body/UI */
+@font-face {
+  font-family: 'Source Sans 3';
+  font-style: normal;
+  font-weight: 200 900;
+  font-display: swap;
+  src: url('../fonts/source-sans/SourceSans3-Regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Source Sans 3';
+  font-style: normal;
+  font-weight: 200 900;
+  font-display: swap;
+  src: url('../fonts/source-sans/SourceSans3-Regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Source Sans 3';
+  font-style: italic;
+  font-weight: 200 900;
+  font-display: swap;
+  src: url('../fonts/source-sans/SourceSans3-Italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Source Sans 3';
+  font-style: italic;
+  font-weight: 200 900;
+  font-display: swap;
+  src: url('../fonts/source-sans/SourceSans3-Italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* Source Serif 4 — Headings/Display */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 200 900;
+  font-display: swap;
+  src: url('../fonts/source-serif/SourceSerif4-Regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 200 900;
+  font-display: swap;
+  src: url('../fonts/source-serif/SourceSerif4-Regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* Source Code Pro — Monospace */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 200 900;
+  font-display: swap;
+  src: url('../fonts/source-code-pro/SourceCodePro-Regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 200 900;
+  font-display: swap;
+  src: url('../fonts/source-code-pro/SourceCodePro-Regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* --------------------------------------------------------------------------
+   Theme Variables — Override Oat defaults
+   Uses light-dark() for automatic theme switching via color-scheme.
+   -------------------------------------------------------------------------- */
+
+:root {
+  color-scheme: light dark;
+
+  /* Typography */
+  --font-sans: 'Source Sans 3', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'Source Code Pro', ui-monospace, 'Cascadia Code', Consolas, monospace;
+  --font-display: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+
+  /* Primary — Warm Orange */
+  --primary: light-dark(#E67E22, #F0923E);
+  --primary-foreground: light-dark(#FFFFFF, #1A1A2E);
+
+  /* Secondary — Blue-Gray */
+  --secondary: light-dark(#F3F1EE, #2A2A45);
+  --secondary-foreground: light-dark(#2D3250, #EDECE8);
+
+  /* Backgrounds */
+  --background: light-dark(#FAFAF8, #1A1A2E);
+  --foreground: light-dark(#1A1A2E, #EDECE8);
+  --card: light-dark(#FFFFFF, #222240);
+  --card-foreground: light-dark(#1A1A2E, #EDECE8);
+
+  /* Muted */
+  --muted: light-dark(#F3F1EE, #2A2A45);
+  --muted-foreground: light-dark(#5A5A6E, #B0AFAA);
+
+  /* Faint */
+  --faint: light-dark(#FAFAF8, #1E1E30);
+  --faint-foreground: light-dark(#8E8E9E, #78778E);
+
+  /* Accent */
+  --accent: light-dark(#FDEBD0, #3D2E1A);
+
+  /* Semantic */
+  --danger: light-dark(#E74C3C, #EC7063);
+  --danger-foreground: light-dark(#FFFFFF, #1A1A2E);
+  --success: light-dark(#27AE60, #2ECC71);
+  --success-foreground: light-dark(#FFFFFF, #1A1A2E);
+  --warning: light-dark(#F39C12, #F5B041);
+  --warning-foreground: light-dark(#1A1A2E, #1A1A2E);
+
+  /* Borders */
+  --border: light-dark(#E2E0DC, #3A3A55);
+  --input: light-dark(#E2E0DC, #3A3A55);
+  --ring: light-dark(#E67E22, #F0923E);
+
+  /* Search-specific (custom, not Oat defaults) */
+  --search-highlight: light-dark(#FFF3CD, #3D3520);
+  --search-url: light-dark(#27AE60, #2ECC71);
+  --search-visited: light-dark(#7077A1, #8C92B8);
+
+  /* PeARS brand reference (for components that need explicit brand color) */
+  --pears-orange: light-dark(#E67E22, #F0923E);
+  --pears-navy: #2D3250;
+}
+
+/* --------------------------------------------------------------------------
+   Heading typography — Use display font for headings
+   -------------------------------------------------------------------------- */
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+}
+
+/* --------------------------------------------------------------------------
+   Search highlight
+   -------------------------------------------------------------------------- */
+
+mark, .search-highlight {
+  background-color: var(--search-highlight);
+  color: inherit;
+  padding: 0.1em 0.2em;
+  border-radius: var(--radius-small);
+}
+
+/* --------------------------------------------------------------------------
+   Search result URL styling
+   -------------------------------------------------------------------------- */
+
+.search-url {
+  color: var(--search-url);
+  font-size: var(--text-7);
+  text-decoration: none;
+}
+
+.search-url:hover {
+  text-decoration: underline;
+}
+
+/* --------------------------------------------------------------------------
+   Focus ring — brand-colored
+   -------------------------------------------------------------------------- */
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   SVG icon sizing (Ionicons)
+   -------------------------------------------------------------------------- */
+
+.icon {
+  width: 1.25em;
+  height: 1.25em;
+  vertical-align: middle;
+  display: inline-block;
+}
+
+.icon-sm {
+  width: 1em;
+  height: 1em;
+}
+
+.icon-lg {
+  width: 1.75em;
+  height: 1.75em;
+}
+
+/* In dark mode, invert SVG icons that don't use currentColor */
+@media (prefers-color-scheme: dark) {
+  .icon-invert {
+    filter: invert(1);
+  }
+}
+
+/* Manual dark mode override when user toggles */
+[style*="color-scheme: dark"] .icon-invert,
+.dark .icon-invert {
+  filter: invert(1);
+}
+
+/* --------------------------------------------------------------------------
+   Mascot image switching (light/dark variants)
+   -------------------------------------------------------------------------- */
+
+.mascot-light { display: block; }
+.mascot-dark { display: none; }
+
+@media (prefers-color-scheme: dark) {
+  .mascot-light { display: none; }
+  .mascot-dark { display: block; }
+}
+
+/* --------------------------------------------------------------------------
+   Admin toolbar
+   -------------------------------------------------------------------------- */
+
+.admin-bar {
+  background-color: var(--pears-navy);
+  color: #EDECE8;
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-7);
+}
+
+.admin-bar a {
+  color: #EDECE8;
+  text-decoration: none;
+  opacity: 0.85;
+}
+
+.admin-bar a:hover {
+  opacity: 1;
+  color: var(--pears-orange);
+}
+
+/* --------------------------------------------------------------------------
+   Search results
+   -------------------------------------------------------------------------- */
+
+.results-list {
+  max-width: 720px;
+}
+
+.result-item {
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.result-item:last-child {
+  border-bottom: none;
+}
+
+.result-title {
+  font-size: var(--text-5);
+  font-weight: var(--font-medium);
+}
+
+.result-title a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.result-title a:hover {
+  text-decoration: underline;
+}
+
+.result-title a:visited {
+  color: var(--search-visited);
+}
+
+.result-snippet {
+  color: var(--foreground);
+  font-size: var(--text-regular);
+  line-height: var(--leading-normal);
+  margin-top: var(--space-1);
+}
+
+.result-meta {
+  font-size: var(--text-8);
+  color: var(--muted-foreground);
+  margin-top: var(--space-1);
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+/* --------------------------------------------------------------------------
+   Homepage hero (search-centric layout)
+   -------------------------------------------------------------------------- */
+
+.hero-search {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+  padding: var(--space-8) var(--space-4);
+}
+
+.hero-search .search-box {
+  width: 100%;
+  max-width: 600px;
+  margin-top: var(--space-6);
+}
+
+.hero-tagline {
+  color: var(--muted-foreground);
+  font-size: var(--text-5);
+  margin-top: var(--space-4);
+}
+
+/* --------------------------------------------------------------------------
+   Flash messages — consistent styling
+   -------------------------------------------------------------------------- */
+
+.flash-messages {
+  margin-bottom: var(--space-4);
+}
+
+/* --------------------------------------------------------------------------
+   Auth pages — centered card layout
+   -------------------------------------------------------------------------- */
+
+.auth-container {
+  max-width: 440px;
+  margin: var(--space-10) auto;
+}
+
+/* --------------------------------------------------------------------------
+   Content pages — comfortable reading width
+   -------------------------------------------------------------------------- */
+
+.content-prose {
+  max-width: 65ch;
+}
+
+.content-prose h2 {
+  margin-top: var(--space-8);
+}
+
+.content-prose p {
+  line-height: var(--leading-normal);
+}
+
+/* --------------------------------------------------------------------------
+   Utility classes (supplement Oat)
+   -------------------------------------------------------------------------- */
+
+.text-center { text-align: center; }
+.text-start { text-align: start; }
+.text-end { text-align: end; }
+
+.mt-0 { margin-top: 0; }
+.mt-2 { margin-top: var(--space-2); }
+.mt-4 { margin-top: var(--space-4); }
+.mt-6 { margin-top: var(--space-6); }
+.mt-8 { margin-top: var(--space-8); }
+.mb-0 { margin-bottom: 0; }
+.mb-2 { margin-bottom: var(--space-2); }
+.mb-4 { margin-bottom: var(--space-4); }
+.mb-6 { margin-bottom: var(--space-6); }
+
+.gap-2 { gap: var(--space-2); }
+.gap-4 { gap: var(--space-4); }
+
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.flex-wrap { flex-wrap: wrap; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+
+.w-full { width: 100%; }
+.max-w-sm { max-width: 24rem; }
+.max-w-md { max-width: 28rem; }
+.max-w-lg { max-width: 32rem; }
+.max-w-xl { max-width: 36rem; }
+
+.hidden { display: none; }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
