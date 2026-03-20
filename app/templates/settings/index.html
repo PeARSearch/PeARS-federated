@@ -117,6 +117,18 @@ SPDX-License-Identifier: AGPL-3.0-only
     {% endif %}
   </article>
 
+  <script>
+  document.querySelectorAll('.form-card details').forEach(function(el) {
+    el.addEventListener('toggle', function() {
+      if (el.open) {
+        setTimeout(function() {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+      }
+    });
+  });
+  </script>
+
   <!-- Danger zone -->
   <details class="danger-zone">
     <summary>{{gettext('Delete account')}}</summary>

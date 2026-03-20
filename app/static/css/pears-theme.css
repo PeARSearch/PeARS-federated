@@ -1383,15 +1383,14 @@ fieldset.group :focus {
   overflow: hidden;
 }
 
-/* Contribution details summary: label left, count right */
-.form-card details summary {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+/* Contribution details summary: label left, count right before chevron */
+.form-card details summary span {
+  flex: 1;
+  font-weight: var(--font-semibold);
 }
 
-.form-card details summary span {
-  font-weight: var(--font-semibold);
+.form-card details summary small {
+  margin-right: var(--space-2);
 }
 
 /* Danger zone */
