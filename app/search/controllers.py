@@ -83,6 +83,17 @@ def prepare_gui_results(query, results):
             r["display_url"] = url
         r['title'] = ' '.join(r['title'].split()[:10])
         r['snippet'] = beautify_snippet(r['snippet'], query)
+        # Breadcrumb-style URL for display (strip protocol, www, query params)
+        parsed = urlparse(r.get('url', url))
+        breadcrumb_parts = [parsed.netloc.replace('www.', '')]
+        path_parts = [p for p in parsed.path.strip('/').split('/') if p]
+        breadcrumb_parts.extend(path_parts[:3])  # limit depth
+        r['breadcrumb_url'] = ' › '.join(breadcrumb_parts)
+        # Pod display name (strip .u.contributor suffix)
+        if r.get('pod') and '.u.' in r['pod']:
+            r['pod_display'] = r['pod'].split('.u.')[0]
+        else:
+            r['pod_display'] = r.get('pod', '')
         logging.debug(f"RESULT URL {url}")
         if r['notes'] == 'None':
             r['notes'] = None

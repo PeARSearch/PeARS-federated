@@ -45,67 +45,90 @@ SPDX-License-Identifier: AGPL-3.0-only
 </div>
 
 <!-- Results -->
-<div class="results-list">
+<div class="results-list" role="region" aria-label="{{gettext('Search results')}}">
   {% if results == None %}
-    <div class="text-center mt-8">
+    <div class="no-results">
       {% if session.get('theme') == 'dark' %}
-        <img src="{{ url_for('static', filename='sad_pears_dark.png')}}" width="80" alt="" class="mb-4">
+        <img src="{{ url_for('static', filename='sad_pears_dark.png')}}" width="100" alt="">
       {% else %}
-        <img src="{{ url_for('static', filename='sad_pears.png')}}" width="80" alt="" class="mb-4">
+        <img src="{{ url_for('static', filename='sad_pears.png')}}" width="100" alt="">
       {% endif %}
       <p>{{gettext('<b>No results found.</b><br> The reason for this could be that the topic of this PeARS instance is not aligned with your query.
       It could also be that its index is still too small! We would be happy if you contributed to the index by adding your favourite URLs
       on your topic.')}}</p>
-      <p>{{gettext('No account yet?')}} <a href="{{url_for('auth.signup')}}">{{gettext('Sign up')}}</a></p>
+      <p class="mt-4">{{gettext('No account yet?')}} <a href="{{url_for('auth.signup')}}">{{gettext('Sign up')}}</a></p>
     </div>
   {% else %}
-    <h3>{{gettext('Search results:')}}</h3>
+    <p class="results-summary" role="status" aria-live="polite">
+      {{gettext('About')}} <strong>{{ results|length }}</strong> {{gettext('results')}}
+    </p>
 
     {% for result in results %}
     <article class="result-item">
-      <!-- Title and instance badge -->
-      <div class="result-title">
+      <!-- 1. Source line: breadcrumb URL + instance badge -->
+      <div class="result-source">
+        <a href="{{result['display_url']}}" class="search-url">{{result['breadcrumb_url']}}</a>
+        <span class="instance-badge instance-badge--{{ 'local' if result['instance_is_local'] else 'remote' }}"
+              data-tooltip="{{result['instance_info_text']}}"
+              aria-label="{{result['instance_info_text']}}">
+          {{result['instance']}}
+        </span>
+      </div>
+
+      <!-- 2. Title -->
+      <h3 class="result-title">
         <a href="{{result['display_url']}}">{{result['title']}}</a>
-        {% if result['instance_is_local'] %}
-          <small data-tooltip="{{result['instance_info_text']}}" style="background: var(--accent); padding: 0.15em 0.5em; border-radius: var(--radius-full); font-size: var(--text-8); vertical-align: middle;">{{result['instance']}}</small>
-        {% else %}
-          <small data-tooltip="{{result['instance_info_text']}}" style="background: var(--warning); color: var(--warning-foreground); padding: 0.15em 0.5em; border-radius: var(--radius-full); font-size: var(--text-8); vertical-align: middle;">{{result['instance']}}</small>
-        {% endif %}
-      </div>
+      </h3>
 
-      <!-- URL -->
-      <a href="{{result['display_url']}}" class="search-url">{{result['url']}}</a>
+      <!-- 3. Snippet with highlighted terms -->
+      <p class="result-snippet">{{result['snippet']|safe}}</p>
 
-      <!-- Snippet -->
-      <div class="result-snippet">
-        {{result['snippet']|safe}}
-      </div>
-
-      <!-- Actions and notes -->
+      <!-- 4. Metadata + actions -->
       <div class="result-meta">
-        {% if result['instance_is_local'] %}
-          <a href="{{url_for('orchard.annotate')}}?url={{result['url']}}" data-tooltip="{{gettext('Add a note to this entry')}}">
-            <img src="{{ url_for('static', filename='chatbubble-outline.svg')}}" class="icon icon-sm" alt="{{gettext('Add a note to this entry')}}">
-          </a>
-          <a href="{{url_for('orchard.report')}}?url={{result['url']}}" data-tooltip="{{gettext('Report this entry')}}">
-            <img src="{{ url_for('static', filename='flag-outline.svg')}}" class="icon icon-sm" alt="{{gettext('Report this entry')}}">
-          </a>
+        {% if result['pod_display'] %}
+        <span class="result-pod-tag">{{result['pod_display']}}</span>
         {% endif %}
-        <button type="button" class="site-nav-icon-btn" data-tooltip="{{gettext('Share this entry')}}" onclick="copyToClipboard('{{result['share']}}', 'copy{{result['id']}}')" id="copy{{result['id']}}">
-          <img src="{{ url_for('static', filename='share-outline.svg')}}" class="icon icon-sm" alt="{{gettext('Share this entry')}}">
-        </button>
 
-        {% if result['notes'] != None %}
-        <button type="button" class="site-nav-icon-btn" onclick="var el=document.getElementById('notes{{result['id']}}'); el.style.display = el.style.display === 'none' ? 'block' : 'none';">
-          <img src="{{ url_for('static', filename='note.png')}}" width="20" alt="Notes">
-        </button>
-        {% endif %}
+        <div class="result-actions">
+          {% if result['instance_is_local'] %}
+          <a href="{{url_for('orchard.annotate')}}?url={{result['url']}}"
+             class="result-action-btn"
+             data-tooltip="{{gettext('Add a note to this entry')}}"
+             aria-label="{{gettext('Add a note to this entry')}}">
+            <img src="{{ url_for('static', filename='chatbubble-outline.svg')}}" class="icon" alt="">
+          </a>
+          <a href="{{url_for('orchard.report')}}?url={{result['url']}}"
+             class="result-action-btn"
+             data-tooltip="{{gettext('Report this entry')}}"
+             aria-label="{{gettext('Report this entry')}}">
+            <img src="{{ url_for('static', filename='flag-outline.svg')}}" class="icon" alt="">
+          </a>
+          {% endif %}
+          <button type="button" class="result-action-btn"
+                  data-tooltip="{{gettext('Share this entry')}}"
+                  aria-label="{{gettext('Share this entry')}}"
+                  onclick="copyToClipboard('{{result['share']}}', 'copy{{result['id']}}')"
+                  id="copy{{result['id']}}">
+            <img src="{{ url_for('static', filename='share-outline.svg')}}" class="icon" alt="">
+          </button>
+          {% if result['notes'] != None %}
+          <button type="button" class="result-action-btn"
+                  aria-expanded="false"
+                  aria-controls="notes{{result['id']}}"
+                  aria-label="{{gettext('Show notes')}}"
+                  onclick="toggleNotes(this, 'notes{{result['id']}}')">
+            <img src="{{ url_for('static', filename='chatbubble-ellipses-outline.svg')}}" class="icon" alt="">
+          </button>
+          {% endif %}
+        </div>
       </div>
 
+      <!-- 5. Notes panel (collapsed) -->
       {% if result['notes'] != None %}
-      <div id="notes{{result['id']}}" style="display:none; margin-top: var(--space-2); padding: var(--space-3); background: var(--faint); border-radius: var(--radius-medium); font-size: var(--text-7);">
+      <div id="notes{{result['id']}}" class="result-notes" role="region"
+           aria-label="{{gettext('Community notes')}}">
         {% for note in result['notes'] %}
-          {{note}}<br>
+        <p>{{note}}</p>
         {% endfor %}
       </div>
       {% endif %}
@@ -116,12 +139,24 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 <script src="{{ url_for('static', filename='js/loading.js')}}"></script>
 <script>
+function toggleNotes(btn, notesId) {
+  var panel = document.getElementById(notesId);
+  var isOpen = panel.hasAttribute('data-open');
+  if (isOpen) {
+    panel.removeAttribute('data-open');
+    btn.setAttribute('aria-expanded', 'false');
+  } else {
+    panel.setAttribute('data-open', '');
+    btn.setAttribute('aria-expanded', 'true');
+  }
+}
+
 function copyToClipboard(link, idx) {
   navigator.clipboard.writeText(link);
   var el = document.getElementById(idx);
-  el.innerHTML = '<img src="{{ url_for('static', filename='checkmark-done-outline.svg')}}" class="icon icon-sm" alt="Copied">';
+  el.innerHTML = '<img src="{{ url_for('static', filename='checkmark-done-outline.svg')}}" class="icon" alt="Copied">';
   setTimeout(function() {
-    el.innerHTML = '<img src="{{ url_for('static', filename='share-outline.svg')}}" class="icon icon-sm" alt="Share">';
+    el.innerHTML = '<img src="{{ url_for('static', filename='share-outline.svg')}}" class="icon" alt="Share">';
   }, 3000);
 }
 </script>
