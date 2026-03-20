@@ -28,8 +28,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 
     <!-- Edit forms (hidden by default) -->
     <div id="edit-profile" class="hidden mt-4">
-      <div class="flex justify-between items-center">
-        <hr class="mb-4" style="flex:1;">
+      <hr>
+      <div class="text-end">
         <button type="button" class="flash-dismiss" aria-label="{{gettext('Cancel')}}" onclick="document.getElementById('edit-profile').classList.add('hidden');">&times;</button>
       </div>
       <form method="POST" action="/settings/change_email" enctype="multipart/form-data">
