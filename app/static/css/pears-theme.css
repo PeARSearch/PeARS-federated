@@ -269,9 +269,10 @@
   background-color: var(--muted);
 }
 
-/* Theme toggle icons adapt to current color scheme */
-.site-nav-icon-btn .icon {
-  filter: light-dark(none, invert(1));
+/* Theme toggle icons adapt to current color scheme.
+   We use the data-theme attribute set by theme-toggle.js */
+[data-theme="dark"] .site-nav-icon-btn .icon {
+  filter: invert(1);
 }
 
 /* Mobile nav */
