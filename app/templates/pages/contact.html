@@ -1,27 +1,33 @@
 {% extends "base/base.html" %}
 {% block title %}Contact{% endblock %}
 {% block body %}
-<div class="content-prose">
-  <h2>Impressum</h2>
-
-  <p>Any question, comment, or complaint about this PeARS instance? Let us help you!</p>
+<div class="content-prose pb-8">
+  <header class="text-center mb-6">
+    <h2>{{gettext('Contact Us')}}</h2>
+    <p class="muted-text">{{gettext('Any question, comment, or complaint? Let us help you!')}}</p>
+  </header>
 
   <p>PeARS is <a href="https://pearsproject.org/">open-source software</a> developed by volunteers and freely available for all to use and modify. It receives development support from the non-profit collective <a href="https://possible-worlds.eu/">Possible Worlds Research</a>.</p>
 
-  <p>This specific instance is run by {{orgname}} (we/us). You can contact us at:</p>
+  <p>This specific instance is run by <strong>{{orgname}}</strong>. You can contact us at:</p>
 
-  <p>{{address}}<br>{{email}}.</p>
+  <article class="form-card mb-4">
+    <p><strong>{{orgname}}</strong></p>
+    <p>{{address}}</p>
+    <p><a href="mailto:{{email}}">{{email}}</a></p>
+    {% if tax_office and registration_number %}
+    <p class="fine-text">Registered at {{tax_office}} {{registration_number}}</p>
+    {% endif %}
+    {% if vat_number %}
+    <p class="fine-text">USt. ID {{vat_number}}</p>
+    {% endif %}
+  </article>
 
-  {% if tax_office and registration_number %}
-    <p>Registered at {{tax_office}} {{registration_number}}</p>
-  {% endif %}
-  {% if vat_number %}
-    <p>USt. ID {{vat_number}}</p>
-  {% endif %}
   {% if eu %}
-    <p>Point of contact for Member States authorities (Art. 11 DSA): {{email}}</p>
-    <p>Point of contacts for Users (Art. 12 DSA): {{email}}</p>
-    <p>The European Commission is providing an <a href="http://ec.europa.eu/consumers/odr/">online dispute resolution platform</a> which consumers can use for dispute resolution and where additional information on the topic of dispute resolution is provided. We are willing to participate in consumer dispute resolution proceedings before a consumer arbitration board in the event of a dispute with a consumer.</p>
+  <h3>EU Digital Services Act</h3>
+  <p>Point of contact for Member States authorities (Art. 11 DSA): {{email}}</p>
+  <p>Point of contact for Users (Art. 12 DSA): {{email}}</p>
+  <p>The European Commission provides an <a href="http://ec.europa.eu/consumers/odr/">online dispute resolution platform</a> for consumer dispute resolution.</p>
   {% endif %}
 </div>
 {% endblock %}
