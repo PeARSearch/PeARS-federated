@@ -1,26 +1,25 @@
 <!--
-SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>, 
+SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>,
 
 SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 {% extends "base/base.html" %}
 {% block body %}
-<div class="container">
-  <div class="row">
-    <div class="card">
-	    <div class="card-header"><b>{{gettext('Theme')}}: {{query}}</b></div>
-         <div class="card-body">
-	     {% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
-		 <a href={{url_for('orchard.download_file', filename=location)}} target='_blank' class="btn btn-success" role="button">{{gettext('Download')}}</a><hr>
-	     {% endif %}
-	 {% for url in urls %}
-	 <a href='{{url}}'>{{url}}</a>
-	 <br>
-	 {% endfor %}
-         </div>
-       </div>
-    </div>
-  </div> <!-- /row -->
-</div> <!-- /container full -->
+
+<div class="content-prose">
+  <article>
+    <header>
+      <h2>{{gettext('Theme')}}: {{query}}</h2>
+    </header>
+    {% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
+    <p><a href="{{url_for('orchard.download_file', filename=location)}}" target="_blank" role="button">{{gettext('Download')}}</a></p>
+    <hr>
+    {% endif %}
+    {% for url in urls %}
+    <p><a href="{{url}}">{{url}}</a></p>
+    {% endfor %}
+  </article>
+</div>
+
 {% endblock %}
