@@ -40,6 +40,9 @@ def run_config(app):
     app.config['EU_SPECIFIC'] = True if getenv("EU_SPECIFIC", "false").lower() == 'true' else False
     app.config['SNIPPET_LENGTH'] = int(getenv("SNIPPET_LENGTH", 10))
 
+    # Mail
+    app.config['MAIL_ENABLED'] = True if getenv("MAIL_ENABLED", "false").lower() == 'true' else False
+
     # User-related settings
     app.config['NEW_USERS'] = True if getenv("NEW_USERS_ALLOWED", "false").lower() == 'true' else False
     app.config['FEEDBACK_FORM'] = True if getenv("FEEDBACK_FORM", "false").lower() == 'true' else False

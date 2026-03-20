@@ -84,8 +84,10 @@ def report():
         user_report = request.form.get('report')
         print(url,user_report)
         mail_address = app.config['MAIL_USERNAME']
-        send_email(mail_address,'URL report','Report from user '+email+'<br>'+url+'<br>'+user_report)
-        flash(gettext("Your report has been sent. Thank you!"), "success")
+        if send_email(mail_address,'URL report','Report from user '+email+'<br>'+url+'<br>'+user_report):
+            flash(gettext("Your report has been sent. Thank you!"), "success")
+        else:
+            flash(gettext("We could not send your report. Please try again later or contact the administrator."), "danger")
         return redirect(url_for('search.index'))
     return render_template('orchard/report.html', form=form, email=email)
 
@@ -101,8 +103,10 @@ def feedback():
         user_report = request.form.get('report')
         print(user_report)
         mail_address = app.config['MAIL_USERNAME']
-        send_email(mail_address,'Feedback report', 'Feedback from user '+email+'<br>'+user_report)
-        flash(gettext("Your feedback has been sent. Thank you!"), "success")
+        if send_email(mail_address,'Feedback report', 'Feedback from user '+email+'<br>'+user_report):
+            flash(gettext("Your feedback has been sent. Thank you!"), "success")
+        else:
+            flash(gettext("We could not send your feedback. Please try again later or contact the administrator."), "danger")
         return redirect(url_for('search.index'))
     return render_template('orchard/feedback.html', form=form, email=email)
 

@@ -229,7 +229,8 @@ def change_email():
             flash(gettext("This email already exists."))
             return redirect(url_for("settings.index"))
         html = render_template("auth/email_change.html", new_email = new_email)
-        send_email(current_user.email, "PeARS Instance - You requested an email change.", html)
+        if not send_email(current_user.email, "PeARS Instance - You requested an email change.", html):
+            flash(gettext("Your email was changed, but we could not send a notification email."), "warning")
         current_user.email = new_email
         db.session.commit()
         flash(gettext("Your email has been successfully modified."))
@@ -249,7 +250,8 @@ def change_username():
             flash(gettext("This username already exists."))
             return redirect(url_for("settings.index"))
         html = render_template("auth/username_change.html", new_username = new_username)
-        send_email(current_user.email, "PeARS Instance - You requested a username change.", html)
+        if not send_email(current_user.email, "PeARS Instance - You requested a username change.", html):
+            flash(gettext("Your username was changed, but we could not send a notification email."), "warning")
         rename_notes(username, new_username)
         rename_user_files(username, new_username)
         current_user.username = new_username

@@ -111,12 +111,20 @@ def signup():
         # create a new user with the form data. Hash the password so the plaintext version isn't saved.
         new_user = User(email=email, username=username, password=generate_password_hash(password, method='scrypt'))
 
+        # add the new user to the database
+        db.session.add(new_user)
+        db.session.commit()
+
+        login_user(new_user)
+
         # generate confirmation email
         token = generate_token(new_user.email)
         confirm_url = url_for("auth.confirm_email", token=token, _external=True)
         html = render_template("auth/confirm_email.html", confirm_url=confirm_url)
         subject = gettext("Please confirm your email.")
-        send_email(new_user.email, subject, html)
+        if not send_email(new_user.email, subject, html):
+            flash(gettext("Your account was created, but we could not send a confirmation email. Please contact the administrator."), "warning")
+            return redirect(url_for("auth.inactive"))
 
         # alert admin (assume for now the admin's address is the default sender)
         admin_mail = app.config["MAIL_DEFAULT_SENDER"]
@@ -124,12 +132,6 @@ def signup():
         subject = f"New signup on your PeARS instance: {sitename}"
         html = f"User: {username}, email: {email}"
         send_email(admin_mail, subject, html)
-
-        # add the new user to the database
-        db.session.add(new_user)
-        db.session.commit()
-
-        login_user(new_user)
 
         flash(gettext("Welcome! Your signup is almost complete; confirm your email address to fully activate your account."), "success")
         return redirect(url_for("auth.inactive"))
@@ -171,8 +173,10 @@ def resend_confirmation():
     confirm_url = url_for("auth.confirm_email", token=token, _external=True)
     html = render_template("auth/confirm_email.html", confirm_url=confirm_url)
     subject = gettext("Please confirm your email.")
-    send_email(current_user.email, subject, html)
-    flash(gettext("A new confirmation email has been sent."), "success")
+    if send_email(current_user.email, subject, html):
+        flash(gettext("A new confirmation email has been sent."), "success")
+    else:
+        flash(gettext("We could not send the confirmation email. Please try again later or contact the administrator."), "danger")
     return redirect(url_for("auth.inactive"))
 
 
@@ -196,9 +200,10 @@ def password_forgotten():
         confirm_url = url_for("auth.password_reset", token=token, _external=True)
         html = render_template("auth/password_reset_email.html", confirm_url=confirm_url)
         subject = gettext("You have requested a password reset.")
-        send_reset_password_email(user.email, subject, html)
-
-        flash(gettext("A link has been sent via email to reset your password."), "success")
+        if send_reset_password_email(user.email, subject, html):
+            flash(gettext("A link has been sent via email to reset your password."), "success")
+        else:
+            flash(gettext("We could not send the password reset email. Please try again later or contact the administrator."), "danger")
         return redirect(url_for('auth.login'))
     else:
         return render_template('auth/password_forgotten.html', form=form)

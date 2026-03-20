@@ -66,6 +66,8 @@ where you should replace lc with a language code of your choice. For now, we are
 
 There is a .env template file at *.env-template* in the root directory of the repository. You should copy it to *.env* and fill in the information for your setup.
 
+**Mail configuration:** By default, `MAIL_ENABLED` is set to `false`. In this mode, emails (e.g. signup confirmations, password resets) are logged to `mailing.log` instead of being sent. This is useful for local development and testing. When deploying to production, set `MAIL_ENABLED=true` and configure the `MAIL_SERVER`, `MAIL_PORT`, `EMAIL_USER`, and `EMAIL_PASSWORD` fields with your mail server details.
+
 You should also create an admin user to run your PeARS. You can do so by using the following commands:
 
 ```
