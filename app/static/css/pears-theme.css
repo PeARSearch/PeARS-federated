@@ -360,10 +360,15 @@
    Full-height body layout (sticky footer)
    -------------------------------------------------------------------------- */
 
+html {
+  background-color: var(--background);
+}
+
 body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  background-color: var(--background);
 }
 
 main {
@@ -506,11 +511,16 @@ fieldset.group :focus {
 }
 
 @media (max-width: 768px) {
+  .admin-bar {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
   .admin-bar .container {
     gap: var(--space-2);
     font-size: var(--text-8);
-    overflow-x: auto;
     flex-wrap: nowrap;
+    min-width: max-content;
   }
 }
 
@@ -767,6 +777,11 @@ fieldset.group :focus {
   padding: var(--space-4) var(--space-4) var(--space-8);
 }
 
+.hero-logo {
+  width: min(350px, 60vw);
+  height: auto;
+}
+
 .hero-search .search-box {
   width: 100%;
   max-width: 560px;
@@ -808,6 +823,22 @@ fieldset.group :focus {
 .hero-search fieldset.group button[type="submit"] .icon {
   width: 1.4em;
   height: 1.4em;
+}
+
+@media (max-width: 480px) {
+  .hero-search {
+    min-height: 50vh;
+    padding: var(--space-3) var(--space-3) var(--space-6);
+  }
+
+  .hero-search fieldset.group input[type="search"] {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-regular);
+  }
+
+  .hero-search fieldset.group button[type="submit"] {
+    padding: var(--space-2) var(--space-3);
+  }
 }
 
 .hero-subtitle {

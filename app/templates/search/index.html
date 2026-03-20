@@ -13,15 +13,15 @@ SPDX-License-Identifier: AGPL-3.0-only
   <!-- Logo -->
   {% if own_brand %}
     {% if session.get('theme') == 'dark' %}
-      <a href="{{ url_for('search.index')}}"><img width="350" src="{{url_for('serve_logos', path='logo-dark.png')}}" alt="PeARS"></a>
+      <a href="{{ url_for('search.index')}}"><img class="hero-logo" src="{{url_for('serve_logos', path='logo-dark.png')}}" alt="PeARS"></a>
     {% else %}
-      <a href="{{ url_for('search.index')}}"><img width="350" src="{{url_for('serve_logos', path='logo.png')}}" alt="PeARS"></a>
+      <a href="{{ url_for('search.index')}}"><img class="hero-logo" src="{{url_for('serve_logos', path='logo.png')}}" alt="PeARS"></a>
     {% endif %}
   {% else %}
     {% if session.get('theme') == 'dark' %}
-      <a href="{{ url_for('search.index')}}"><img width="350" src="{{ url_for('static', filename='pears-logo-dark.png')}}" alt="PeARS"></a>
+      <a href="{{ url_for('search.index')}}"><img class="hero-logo" src="{{ url_for('static', filename='pears-logo-dark.png')}}" alt="PeARS"></a>
     {% else %}
-      <a href="{{ url_for('search.index')}}"><img width="350" src="{{ url_for('static', filename='pears-logo.png')}}" alt="PeARS"></a>
+      <a href="{{ url_for('search.index')}}"><img class="hero-logo" src="{{ url_for('static', filename='pears-logo.png')}}" alt="PeARS"></a>
     {% endif %}
   {% endif %}
 
