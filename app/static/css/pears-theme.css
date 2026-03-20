@@ -832,6 +832,7 @@ fieldset.group :focus {
 
 .content-prose {
   max-width: 65ch;
+  margin: 0 auto;
 }
 
 .content-prose h2 {
