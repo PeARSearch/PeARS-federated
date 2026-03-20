@@ -11,7 +11,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 <div class="content-prose--wide">
   <h2>{{gettext('Index suggested pages')}}</h2>
 
-  <label>
+  <label class="suggestions-filter">
     {% if hide_already_indexed_urls %}
       <input type="checkbox" id="hide-indexed-toggle" onclick="toggleIndexedSuggestions()" checked>
     {% else %}
@@ -35,100 +35,104 @@ SPDX-License-Identifier: AGPL-3.0-only
   {% endif %}
 
   {% for suggestion in suggestions %}
-  <form class="suggestion-card mt-6" onsubmit="return false;">
-    <!-- Header: count and pod breakdown -->
-    <header class="suggestion-header">
-      <strong title="Total number of times that this url was suggested">{{suggestion.total_count}}x suggested</strong>
-      {% for pod, pod_count in suggestion.suggestions_by_pod.items() %}
-        <span class="result-pod-tag">{{pod_count}}x in <strong>{{pod}}</strong></span>
-      {% endfor %}
-    </header>
+  <form class="suggestion-card" onsubmit="return false;">
+
+    <!-- Header: suggestion count and pods -->
+    <div class="suggestion-header">
+      <div class="suggestion-count">{{suggestion.total_count}}x</div>
+      <div class="suggestion-header-info">
+        <div class="suggestion-pods">
+          {% for pod, pod_count in suggestion.suggestions_by_pod.items() %}
+            <span class="result-pod-tag">{{pod_count}}x in <strong>{{pod}}</strong></span>
+          {% endfor %}
+        </div>
+        <div class="fine-text">
+          {{suggestion.first_created.year}}-{{suggestion.first_created.month}}-{{suggestion.first_created.day}}
+          {% if suggestion.first_created != suggestion.last_created %}
+            &rarr; {{suggestion.last_created.year}}-{{suggestion.last_created.month}}-{{suggestion.last_created.day}}
+          {% endif %}
+        </div>
+      </div>
+    </div>
 
     <!-- Already indexed warnings -->
     {% for existing_pod in suggestion.already_indexed_in %}
-    <div role="alert" data-variant="warning" class="mt-2">
-      <small>{{gettext("This URL is already indexed under: ")}} {{existing_pod}}.</small>
+    <div role="alert" data-variant="warning">
+      <small>{{gettext("This URL is already indexed under: ")}} <strong>{{existing_pod}}</strong></small>
     </div>
     {% endfor %}
 
-    <!-- Dates -->
-    <p class="fine-text mt-2">
-      <strong>First:</strong> {{suggestion.first_created.year}}-{{suggestion.first_created.month}}-{{suggestion.first_created.day}}
-      &nbsp;&middot;&nbsp;
-      <strong>Last:</strong> {{suggestion.last_created.year}}-{{suggestion.last_created.month}}-{{suggestion.last_created.day}}
-    </p>
+    <!-- URL section -->
+    <div class="suggestion-urls">
+      <div class="suggestion-url-row">
+        <label class="suggestion-url-label muted-text">Original</label>
+        <input id="orig-url-{{loop.index}}" type="text" value="{{suggestion.url}}" readonly class="suggestion-url-input">
+        <a href="{{suggestion.url}}" target="_blank" class="suggestion-url-open" aria-label="Open original URL">&#8599;</a>
+      </div>
+      <div class="suggestion-url-row">
+        <label class="suggestion-url-label">Edited</label>
+        <input id="edited-url-{{loop.index}}" type="text" value="{{suggestion.cleaned_url}}" class="suggestion-url-input">
+        <a href="{{suggestion.cleaned_url}}" target="_blank" class="suggestion-url-open" aria-label="Open edited URL">&#8599;</a>
+      </div>
+    </div>
 
-    <!-- URL editing -->
-    <p class="fine-text">Optionally, edit the URL before indexing. By default, any URL parameters are removed.</p>
-
-    <label>
-      Original URL
-      <fieldset class="group">
-        <a href="{{suggestion.url}}" target="_blank" role="button" data-variant="secondary" class="outline">Open</a>
-        <input id="orig-url-{{loop.index}}" type="text" value="{{suggestion.url}}" readonly>
-      </fieldset>
-    </label>
-
-    <label>
-      Edited URL
-      <fieldset class="group">
-        <a href="{{suggestion.cleaned_url}}" target="_blank" role="button" data-variant="secondary" class="outline">Open</a>
-        <input id="edited-url-{{loop.index}}" type="text" value="{{suggestion.cleaned_url}}">
-      </fieldset>
-    </label>
-
-    <!-- Notes (collapsible) -->
-    <details class="mt-4">
+    <!-- Notes -->
+    {% if suggestion.notes %}
+    <details class="suggestion-notes">
       <summary>
-        <strong>Notes:</strong> <small>{{suggestion.notes_preview}}</small>
+        Notes: <span class="muted-text">{{suggestion.notes_preview}}</span>
       </summary>
-      <label>
-        <small>By default, this shows the concatenated notes of all the users that suggested this URL. Please remove/edit as desired before indexing.</small>
-        <textarea id="notes-{{loop.index}}" rows="3">{{suggestion.notes}}</textarea>
-      </label>
+      <textarea id="notes-{{loop.index}}" rows="3">{{suggestion.notes}}</textarea>
+      <small class="fine-text">Edit notes as needed before indexing.</small>
     </details>
+    {% endif %}
 
     <!-- Actions -->
-    <div class="suggestion-actions mt-4">
-      <fieldset class="group">
-        <select id="suggestion-pod-{{loop.index}}">
-          {% for pod, _ in suggestion.suggestions_by_pod.items() %}
-          <option value="{{pod}}">{{pod}}</option>
-          {% endfor %}
-        </select>
-        <button type="button" id="suggestion-{{loop.index}}"
-          onclick="indexSuggestion({{loop.index}}, false)">Index with suggested pod</button>
-      </fieldset>
+    <div class="suggestion-actions">
+      <!-- Primary action: Index -->
+      <div class="suggestion-action-primary">
+        <fieldset class="group">
+          <select id="suggestion-pod-{{loop.index}}">
+            {% for pod, _ in suggestion.suggestions_by_pod.items() %}
+            <option value="{{pod}}">{{pod}}</option>
+            {% endfor %}
+          </select>
+          <button type="button" id="suggestion-{{loop.index}}"
+            onclick="indexSuggestion({{loop.index}}, false)">Index</button>
+        </fieldset>
+        <fieldset class="group mt-2">
+          <input id="suggestion-custom-pod-{{loop.index}}" type="text"
+            placeholder="Custom pod name">
+          <button type="button" id="suggestion-custom-pod-btn-{{loop.index}}"
+            onclick="indexSuggestion({{loop.index}}, true)" data-variant="secondary">Index</button>
+        </fieldset>
+      </div>
 
-      <fieldset class="group mt-2">
-        <input id="suggestion-custom-pod-{{loop.index}}" type="text"
-          placeholder="... or specify a custom pod">
-        <button type="button" id="suggestion-custom-pod-btn-{{loop.index}}"
-          onclick="indexSuggestion({{loop.index}}, true)">Index with custom pod</button>
-      </fieldset>
-
-      <fieldset class="group mt-2">
-        <input id="reject-reason-{{loop.index}}" type="text"
-          placeholder="Reason for rejection (optional)">
-        <button type="button" data-variant="danger" id="suggestion-rej-{{loop.index}}"
-          onclick="deleteSuggestion({{loop.index}})">Reject</button>
-      </fieldset>
+      <!-- Destructive action: Reject (visually separated) -->
+      <div class="suggestion-action-reject">
+        <fieldset class="group">
+          <input id="reject-reason-{{loop.index}}" type="text"
+            placeholder="Reason (optional)">
+          <button type="button" data-variant="danger" id="suggestion-rej-{{loop.index}}"
+            onclick="deleteSuggestion({{loop.index}})">Reject</button>
+        </fieldset>
+      </div>
     </div>
+
   </form>
   {% endfor %}
 
   <script>
     function indexSuggestion(suggestionID, customPod) {
       var $button = $(`#suggestion-${suggestionID}`);
-      var $customThemeInput = $(`#suggestion-custom-pod-${suggestionID}`);
       var url = $(`#edited-url-${suggestionID}`).val();
       var origUrl = $(`#orig-url-${suggestionID}`).val();
       var theme = $(`#suggestion-pod-${suggestionID}`).val();
       if (customPod) {
         $button = $(`#suggestion-custom-pod-btn-${suggestionID}`);
-        theme = $customThemeInput.val();
+        theme = $(`#suggestion-custom-pod-${suggestionID}`).val();
       }
-      var notes = $(`#notes-${suggestionID}`).val();
+      var notes = $(`#notes-${suggestionID}`).val() || '';
       $button.prop("disabled", true).text("Indexing...");
       $.ajax({
         url: "/indexer/index_from_suggestion_ajax",
@@ -136,19 +140,15 @@ SPDX-License-Identifier: AGPL-3.0-only
         contentType: "application/json",
         dataType: "json",
         data: JSON.stringify({
-          url: url,
-          origUrl: origUrl,
-          theme: theme,
-          notes: notes,
-          customTheme: customPod ? 'y' : 'n'
+          url: url, origUrl: origUrl, theme: theme,
+          notes: notes, customTheme: customPod ? 'y' : 'n'
         })
       }).done(function(respData) {
         if (respData.success) {
-          $button.text("Indexing successful");
-          location.reload();
+          $button.text("Done!"); location.reload();
         } else {
-          $button.prop("disabled", false).text("Indexing unsuccessful, click to try again");
-          $button.parent().after(
+          $button.prop("disabled", false).text("Retry");
+          $button.closest('.suggestion-action-primary').append(
             $('<div role="alert" data-variant="error" class="mt-2">').text(respData.messages.join(", "))
           );
         }
@@ -157,7 +157,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
     function deleteSuggestion(suggestionID) {
       var $button = $(`#suggestion-rej-${suggestionID}`);
-      $button.prop("disabled", true).text("Processing...");
+      $button.prop("disabled", true).text("Rejecting...");
       var url = $(`#edited-url-${suggestionID}`).val();
       var origUrl = $(`#orig-url-${suggestionID}`).val();
       var reason = $(`#reject-reason-${suggestionID}`).val();
@@ -166,18 +166,13 @@ SPDX-License-Identifier: AGPL-3.0-only
         type: "POST",
         contentType: "application/json",
         dataType: "json",
-        data: JSON.stringify({
-          url: url,
-          origUrl: origUrl,
-          reason: reason
-        })
+        data: JSON.stringify({ url: url, origUrl: origUrl, reason: reason })
       }).done(function(respData) {
         if (respData.success) {
-          $button.text("Rejection successful");
-          location.reload();
+          $button.text("Rejected"); location.reload();
         } else {
-          $button.prop("disabled", false).text("Rejection unsuccessful, click to try again");
-          $button.parent().after(
+          $button.prop("disabled", false).text("Retry");
+          $button.closest('.suggestion-action-reject').append(
             $('<div role="alert" data-variant="error" class="mt-2">').text(respData.messages.join(", "))
           );
         }
