@@ -762,21 +762,22 @@ fieldset.group :focus {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 60vh;
+  min-height: 55vh;
   text-align: center;
-  padding: var(--space-8) var(--space-4);
+  padding: var(--space-4) var(--space-4) var(--space-8);
 }
 
 .hero-search .search-box {
   width: 100%;
-  max-width: 600px;
-  margin-top: var(--space-6);
+  max-width: 560px;
+  margin-top: var(--space-4);
 }
 
 .hero-subtitle {
   color: var(--muted-foreground);
-  font-size: var(--text-5);
-  margin-top: var(--space-2);
+  font-size: var(--text-7);
+  margin-top: var(--space-1);
+  margin-bottom: 0;
 }
 
 .hero-subtitle em {
@@ -786,9 +787,9 @@ fieldset.group :focus {
 }
 
 .hero-tagline {
-  color: var(--muted-foreground);
+  color: var(--faint-foreground);
   font-size: var(--text-8);
-  text-align: start;
+  text-align: center;
   margin-top: var(--space-2);
 }
 
@@ -801,17 +802,19 @@ fieldset.group :focus {
 }
 
 .hero-discovery {
-  margin-top: var(--space-6);
-  font-size: var(--text-7);
-  color: var(--muted-foreground);
+  margin-top: var(--space-4);
+  font-size: var(--text-8);
+  color: var(--faint-foreground);
 }
 
 .hero-discovery a {
-  color: var(--muted-foreground);
+  color: var(--faint-foreground);
+  text-decoration: none;
 }
 
 .hero-discovery a:hover {
-  color: var(--primary);
+  color: var(--foreground);
+  text-decoration: underline;
 }
 
 /* --------------------------------------------------------------------------
