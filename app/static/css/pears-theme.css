@@ -966,8 +966,8 @@ fieldset.group :focus {
    -------------------------------------------------------------------------- */
 
 .auth-container {
-  max-width: 400px;
-  margin: var(--space-8) auto;
+  max-width: 380px;
+  margin: var(--space-10) auto var(--space-8);
 }
 
 .auth-container--wide {
@@ -997,7 +997,13 @@ fieldset.group :focus {
 }
 
 .auth-card form label {
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.auth-card form label input,
+.auth-card form label select,
+.auth-card form label textarea {
+  margin-top: var(--space-1);
 }
 
 .auth-alt-action {
@@ -1230,6 +1236,13 @@ fieldset.group :focus {
 .password-hint {
   font-size: var(--text-8);
   float: right;
+  color: var(--muted-foreground);
+  text-decoration: none;
+}
+
+.password-hint:hover {
+  color: var(--foreground);
+  text-decoration: underline;
 }
 
 .sr-only {
