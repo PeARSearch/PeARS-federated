@@ -29,9 +29,67 @@ SPDX-License-Identifier: AGPL-3.0-only
             width: 400px !important;
         }
 
-        /* Minimal overrides to make Flask-Admin look cleaner */
-        .navbar-default {
+        /* Override Flask-Admin / Bootstrap 4 styles for cleaner look */
+        body {
+            font-family: 'Source Sans 3', system-ui, -apple-system, sans-serif;
+            background-color: #FAFAF8;
+        }
+
+        .navbar-default, .navbar {
             border-radius: 0;
+        }
+
+        /* Tighter table rows */
+        .table td, .table th {
+            padding: 8px 12px;
+            vertical-align: middle;
+            font-size: 14px;
+        }
+
+        .table th a {
+            color: #E67E22;
+        }
+
+        /* Constrain URL column */
+        .table td:nth-child(3) {
+            max-width: 400px;
+            word-break: break-all;
+        }
+
+        /* Better row striping */
+        .table-striped > tbody > tr:nth-of-type(odd) {
+            background-color: #F3F1EE;
+        }
+
+        /* Buttons */
+        .btn-primary, .btn-default {
+            border-radius: 6px;
+        }
+
+        .btn-primary {
+            background-color: #E67E22;
+            border-color: #CF6D17;
+        }
+
+        .btn-primary:hover {
+            background-color: #CF6D17;
+        }
+
+        /* Search bar */
+        .admin-search input[type="text"],
+        input.form-control {
+            border-radius: 6px;
+        }
+
+        /* Nav tabs */
+        .nav-tabs > li > a {
+            border-radius: 6px 6px 0 0;
+        }
+
+        /* Flash-Admin navbar */
+        .navbar-inverse {
+            background-color: #2D3250;
+            border: none;
         }
     </style>
     </div>
