@@ -38,8 +38,8 @@ SPDX-License-Identifier: AGPL-3.0-only
       <a href="{{url_for('orchard.get_a_pod')}}?pod={{p[0]}}" class="category-card">
         <span class="category-initial" data-initial="{{p[0][0]|upper}}">{{p[0][0]|upper}}</span>
         <span class="category-info">
-          <span class="category-name">{{p[0]}}</span>
-          <span class="category-count">{{p[1]}} {{gettext('entries')}}</span>
+          <span class="category-name" title="{{p[0]}}">{{p[0]}}</span>
+          <span class="category-count">{{p[1]}} {{gettext('entry') if p[1] == 1 else gettext('entries')}}</span>
         </span>
         {% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
         {% if p[0] != 'Tips' %}
