@@ -1383,6 +1383,18 @@ fieldset.group :focus {
   overflow: hidden;
 }
 
+/* Contribution details summary: label left, count right */
+.form-card details summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.form-card details summary span {
+  font-weight: var(--font-semibold);
+}
+
+/* Danger zone */
 .danger-zone {
   margin-top: var(--space-6);
   padding: var(--space-4);
@@ -1393,6 +1405,24 @@ fieldset.group :focus {
 .danger-zone summary {
   color: var(--danger);
   font-weight: var(--font-semibold);
+}
+
+.danger-btn {
+  display: inline-block;
+  padding: var(--space-2) var(--space-4);
+  background: var(--danger);
+  color: var(--danger-foreground);
+  border-radius: var(--radius-medium);
+  text-decoration: none;
+  font-size: var(--text-7);
+  font-weight: var(--font-medium);
+  margin-top: var(--space-2);
+}
+
+.danger-btn:hover {
+  opacity: 0.9;
+  color: var(--danger-foreground);
+  text-decoration: none;
 }
 
 /* Categories grid */

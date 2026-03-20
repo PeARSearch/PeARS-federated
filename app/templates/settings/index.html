@@ -61,7 +61,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
     {% if contributions %}
     <details open>
-      <summary>{{gettext('Web content')}} <small class="muted-text">({{contributions|length}})</small></summary>
+      <summary><span>{{gettext('Web content')}}</span> <small class="muted-text">{{contributions|length}}</small></summary>
       <ul class="settings-url-list">
         {% for url in contributions %}
         <li>
@@ -79,7 +79,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
     {% if tips %}
     <details>
-      <summary>{{gettext('Tips')}} <small class="muted-text">({{tips|length}})</small></summary>
+      <summary><span>{{gettext('Tips')}}</span> <small class="muted-text">{{tips|length}}</small></summary>
       <ul class="settings-url-list">
         {% for url in tips %}
         <li>
@@ -97,7 +97,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
     {% if comments %}
     <details>
-      <summary>{{gettext('Comments')}} <small class="muted-text">({{comments|length}})</small></summary>
+      <summary><span>{{gettext('Comments')}}</span> <small class="muted-text">{{comments|length}}</small></summary>
       <ul class="settings-comment-list">
         {% for url in comments %}
         <li>
@@ -121,7 +121,7 @@ SPDX-License-Identifier: AGPL-3.0-only
   <details class="danger-zone">
     <summary>{{gettext('Delete account')}}</summary>
     <p class="muted-text">{{gettext("This action is permanent. Your account and username will be removed, but your contributions will be preserved anonymously.")}}</p>
-    <a href="{{url_for('settings.delete_account')}}" role="button" data-variant="danger"
+    <a href="{{url_for('settings.delete_account')}}" class="danger-btn"
        onclick="return confirm('{{gettext('DANGER: Are you sure you want to delete your account completely? This cannot be undone.')}}')">
       {{gettext('Permanently delete my account')}}
     </a>
