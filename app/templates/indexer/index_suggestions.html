@@ -62,11 +62,12 @@ SPDX-License-Identifier: AGPL-3.0-only
       {% endif %}
     </div>
 
-    <!-- Notes preview (if any) -->
+    <!-- Notes -->
     {% if suggestion.notes %}
-    <p class="suggestion-notes-preview muted-text">
-      {{suggestion.notes_preview}}
-    </p>
+    <div class="suggestion-notes-full">
+      <small class="fine-text"><strong>{{gettext('Notes:')}}</strong></small>
+      <p class="muted-text">{{suggestion.notes}}</p>
+    </div>
     {% endif %}
 
     <!-- Hidden fields for quick accept -->
@@ -151,14 +152,6 @@ SPDX-License-Identifier: AGPL-3.0-only
   {% endfor %}
 
   <script>
-    // CSRF token for AJAX requests
-    var csrfToken = '{{ csrf_token() }}';
-    $.ajaxSetup({
-      beforeSend: function(xhr) {
-        xhr.setRequestHeader('X-CSRFToken', csrfToken);
-      }
-    });
-
     function togglePanel(id, panel) {
       var editPanel = document.getElementById('edit-panel-' + id);
       var rejectPanel = document.getElementById('reject-panel-' + id);

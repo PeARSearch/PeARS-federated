@@ -1187,11 +1187,18 @@ fieldset.group :focus {
   margin-top: var(--space-1);
 }
 
-/* Notes preview */
-.suggestion-notes-preview {
+/* Notes (full display for admin review) */
+.suggestion-notes-full {
+  margin: var(--space-3) 0;
+  padding: var(--space-3);
+  background: var(--faint);
+  border-radius: var(--radius-medium);
+  border-left: 3px solid var(--primary);
+}
+
+.suggestion-notes-full p {
   font-size: var(--text-7);
-  font-style: italic;
-  margin-bottom: var(--space-2);
+  margin-top: var(--space-1);
 }
 
 /* Action bar: Accept | Edit & Accept | Reject */
