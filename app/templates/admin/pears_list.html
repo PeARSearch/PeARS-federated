@@ -6,23 +6,19 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 {% extends 'admin/model/list.html' %}
 
+{% block brand %}
+    <a class="navbar-brand" href="{{ url_for('search.index')}}">
+        <img src="{{ url_for('static', filename='pears_round.png')}}" height="25" alt="PeARS" style="display:inline; vertical-align:middle; margin-right:5px;">
+        PeARS
+    </a>
+{% endblock %}
 
 {% block page_body %}
-    <!-- Back to main site -->
-    <div style="padding: 10px 20px; background: #2D3250; display: flex; align-items: center; gap: 15px;">
-      <a href="{{ url_for('search.index')}}" style="color: #EDECE8; text-decoration: none; display: flex; align-items: center; gap: 8px;">
-        <img src="{{ url_for('static', filename='pears_round.png')}}" height="30" alt="PeARS">
-        <span>← {{gettext('Back to PeARS')}}</span>
-      </a>
-      <span style="color: #7077A1; font-size: 13px;">|</span>
-      <a href="{{url_for('admin.index')}}" style="color: #EDECE8; text-decoration: none; font-size: 13px;">{{gettext('Admin Home')}}</a>
-    </div>
-
     <div class="container">
     {{ super() }}
     <style>
         .select2-results {
-            max-height: 400px !important;
+            max-width: 400px !important;
         }
 
         .select2-container {
@@ -76,7 +72,6 @@ SPDX-License-Identifier: AGPL-3.0-only
         }
 
         /* Search bar */
-        .admin-search input[type="text"],
         input.form-control {
             border-radius: 6px;
         }
@@ -86,7 +81,7 @@ SPDX-License-Identifier: AGPL-3.0-only
             border-radius: 6px 6px 0 0;
         }
 
-        /* Flash-Admin navbar */
+        /* Flask-Admin navbar */
         .navbar-inverse {
             background-color: #2D3250;
             border: none;
