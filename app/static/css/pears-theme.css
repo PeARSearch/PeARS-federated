@@ -1327,8 +1327,26 @@ fieldset.group :focus {
   opacity: 1 !important;
 }
 
+.category-item {
+  display: flex;
+  flex-direction: column;
+}
+
 .category-rename {
-  margin-bottom: var(--space-3);
+  margin-top: var(--space-2);
+  padding: var(--space-3);
+  background: var(--faint);
+  border-radius: var(--radius-medium);
+  border: 1px solid var(--border);
+}
+
+.category-rename label {
+  display: block;
+  margin-bottom: var(--space-2);
+}
+
+.category-rename fieldset.group {
+  margin-bottom: 0;
 }
 
 /* Category detail entries (search-result-like cards) */

@@ -34,30 +34,33 @@ SPDX-License-Identifier: AGPL-3.0-only
 
   <div class="categories-grid">
     {% for p in pears|sort(attribute=0) %}
-    <a href="{{url_for('orchard.get_a_pod')}}?pod={{p[0]}}" class="category-card">
-      <span class="category-name">{{p[0]}}</span>
-      <span class="category-count">{{p[1]}} {{gettext("entries")}}</span>
-      {% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
+    <div class="category-item">
+      <a href="{{url_for('orchard.get_a_pod')}}?pod={{p[0]}}" class="category-card">
+        <span class="category-name">{{p[0]}}</span>
+        <span class="category-count">{{p[1]}}</span>
+        {% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
+        {% if p[0] != 'Tips' %}
+        <span class="category-admin-actions" onclick="event.preventDefault(); event.stopPropagation(); document.getElementById('rename{{p[2]}}').classList.toggle('hidden');" data-tooltip="{{gettext('Rename')}}">
+          <img src="{{ url_for('static', filename='pencil-outline.svg')}}" class="icon icon-sm" alt="{{gettext('Rename')}}">
+        </span>
+        {% endif %}
+        {% endif %}
+      </a>
       {% if p[0] != 'Tips' %}
-      <span class="category-admin-actions" onclick="event.preventDefault(); event.stopPropagation(); document.getElementById('rename{{p[2]}}').classList.toggle('hidden');">
-        <img src="{{ url_for('static', filename='pencil-outline.svg')}}" class="icon icon-sm" alt="{{gettext('Rename')}}" data-tooltip="{{gettext('Rename')}}">
-      </span>
-      {% endif %}
-      {% endif %}
-    </a>
-    {% if p[0] != 'Tips' %}
-    {% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
-    <div id="rename{{p[2]}}" class="hidden category-rename">
-      <form action="{{url_for('orchard.rename_pod')}}">
-        <fieldset class="group">
+      {% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
+      <div id="rename{{p[2]}}" class="hidden category-rename">
+        <form action="{{url_for('orchard.rename_pod')}}">
           <input type="hidden" value="{{p[0]}}" name="oldname">
-          <input type="text" name="newname" placeholder="{{gettext('New name for')}} {{p[0]}}" required>
-          <button type="submit">{{gettext('Rename')}}</button>
-        </fieldset>
-      </form>
+          <label class="fine-text">{{gettext('Rename')}} "{{p[0]}}"</label>
+          <fieldset class="group">
+            <input type="text" name="newname" placeholder="{{gettext('New name')}}" required>
+            <button type="submit">{{gettext('Save')}}</button>
+          </fieldset>
+        </form>
+      </div>
+      {% endif %}
+      {% endif %}
     </div>
-    {% endif %}
-    {% endif %}
     {% endfor %}
   </div>
 
