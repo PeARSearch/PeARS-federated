@@ -15,7 +15,7 @@ SPDX-License-Identifier: AGPL-3.0-only
   {% set total_entries = [] %}
   {% for p in pears %}{% if total_entries.append(p[1]) %}{% endif %}{% endfor %}
   <p class="text-center muted-text mb-6">
-    {{pears|length}} {{gettext('categories')}} · {{total_entries|sum}} {{gettext('total entries')}}
+    {{pears|length}} {{gettext('category') if pears|length == 1 else gettext('categories')}} · {{total_entries|sum}} {{gettext('total entries')}}
   </p>
   {% endif %}
 
