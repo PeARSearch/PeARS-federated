@@ -55,9 +55,9 @@ SPDX-License-Identifier: AGPL-3.0-only
 
   <p class="muted-text mt-4">{{gettext('Your entry will appear in search results shortly.')}}</p>
 
-  <div class="flex gap-4 mt-6">
-    <a href="{{url_for('indexer.index')}}" role="button">{{gettext("Index another page")}}</a>
-    <a href="{{url_for('indexer.correct_entry')}}" role="button" data-variant="secondary" class="outline"
+  <div class="flex gap-4 mt-8 mb-4">
+    <a href="{{url_for('indexer.index')}}" role="button" class="w-full text-center">{{gettext("Index another page")}}</a>
+    <a href="{{url_for('indexer.correct_entry')}}" role="button" data-variant="secondary" class="outline w-full text-center"
        onclick="return confirm('{{gettext('This will delete the entry you just indexed and return you to the form with your previous entries pre-filled. Continue?')}}')">
       {{gettext('Undo & redo')}}
     </a>

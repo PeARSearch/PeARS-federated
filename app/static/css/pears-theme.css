@@ -1329,6 +1329,10 @@ fieldset.group :focus {
   background: var(--accent);
 }
 
+[data-theme="dark"] .copy-link-btn .icon {
+  filter: invert(1);
+}
+
 .hidden { display: none; }
 .break-all { word-break: break-all; }
 .muted-text { font-size: var(--text-7); color: var(--muted-foreground); }
