@@ -69,4 +69,17 @@ SPDX-License-Identifier: AGPL-3.0-only
     </p>
   </div>
 </div>
+
+<script>
+document.querySelectorAll('details > summary').forEach(function(summary) {
+  summary.addEventListener('click', function() {
+    var details = summary.parentElement;
+    if (!details.open) {
+      setTimeout(function() {
+        details.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 150);
+    }
+  });
+});
+</script>
 {% endblock %}
