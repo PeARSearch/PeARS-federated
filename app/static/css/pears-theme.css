@@ -975,18 +975,18 @@ fieldset.group :focus {
   margin: var(--space-8) auto;
 }
 
-.auth-card {
+.form-card, .auth-card {
   padding: var(--space-6);
   border: 1px solid var(--border);
   border-radius: var(--radius-large);
   background: var(--card);
 }
 
-.auth-card header {
+.form-card header, .auth-card header {
   margin-bottom: var(--space-5);
 }
 
-.auth-card h2 {
+.form-card h2, .auth-card h2 {
   font-size: var(--text-3);
   margin-top: var(--space-2);
   margin-bottom: var(--space-1);
@@ -996,14 +996,49 @@ fieldset.group :focus {
   border-radius: var(--radius-full);
 }
 
-.auth-card form label {
+.form-card form label, .auth-card form label {
   margin-bottom: var(--space-4);
 }
 
+.form-card form label input,
+.form-card form label select,
+.form-card form label textarea,
 .auth-card form label input,
 .auth-card form label select,
 .auth-card form label textarea {
   margin-top: var(--space-1);
+}
+
+/* Mode toggle tabs */
+.mode-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: var(--space-5);
+  border-bottom: 2px solid var(--border);
+}
+
+.mode-tab {
+  flex: 1;
+  padding: var(--space-3) var(--space-4);
+  text-align: center;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  font-size: var(--text-7);
+  font-weight: var(--font-medium);
+  color: var(--muted-foreground);
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.mode-tab:hover {
+  color: var(--foreground);
+}
+
+.mode-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
 }
 
 .auth-alt-action {

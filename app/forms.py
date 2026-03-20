@@ -61,9 +61,9 @@ class SuggestionForm(FlaskForm):
     captcha_answer = StringField(lazy_gettext("Captcha:"), [DataRequired()])
 
 class ManualEntryForm(FlaskForm):
-    title = StringField(lazy_gettext('A title for your entry'), [DataRequired(), Length(min=8, max=100, message=lazy_gettext("The title of your entry should have between 4 and 100 characters."))])
-    related_url = URLField(lazy_gettext('An optional URL*'), [Optional(), URL()], render_kw={"placeholder": lazy_gettext("If you enter a URL in this field, your entry will automatically link to it.")})
-    description = TextAreaField(lazy_gettext('Description'), [DataRequired(), Length(max=1000)],  render_kw={"placeholder": lazy_gettext("Anything extra you would like people to know about this resource. (Max 1000 characters.)")})
+    title = StringField(lazy_gettext('Title'), [DataRequired(), Length(min=8, max=100, message=lazy_gettext("The title should have between 8 and 100 characters."))], render_kw={"placeholder": lazy_gettext("A descriptive title for your entry")})
+    related_url = URLField(lazy_gettext('Related URL (optional)'), [Optional(), URL()], render_kw={"placeholder": lazy_gettext("https://example.com — entry will link to this URL")})
+    description = TextAreaField(lazy_gettext('Description'), [DataRequired(), Length(max=1000)],  render_kw={"placeholder": lazy_gettext("What is this resource about? (Max 1000 characters.)"), "rows": "3"})
     accept_tos = BooleanField(lazy_gettext('I confirm that my entry does not contravene the Terms of Service'), [DataRequired()])
 
 class ReportingForm(FlaskForm):

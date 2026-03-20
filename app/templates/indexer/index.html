@@ -10,70 +10,65 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% block body %}
 
 <div class="auth-container--wide">
+  <article class="form-card">
+    <header class="text-center">
+      <h2>{{gettext("Add to Index")}}</h2>
+      <p class="muted-text">{{num_entries}} {{gettext("pages recorded")}}</p>
+    </header>
 
-  <p class="text-center"><strong>{{num_entries}}</strong> {{gettext("pages recorded")}}</p>
+    <!-- Mode tabs -->
+    <div class="mode-tabs">
+      <button type="button" class="mode-tab {% if default_screen == 'url' %}active{% endif %}" onclick="switchMode('url')">
+        {{gettext("Index a URL")}}
+      </button>
+      <button type="button" class="mode-tab {% if default_screen == 'manual' %}active{% endif %}" onclick="switchMode('manual')">
+        {{gettext("Add manual entry")}}
+      </button>
+    </div>
 
-  <!-- URL indexing -->
-  {% if default_screen == 'url' %}
-  <div id="url_indexing">
-  {% else %}
-  <div id="url_indexing" class="hidden">
-  {% endif %}
-    <article>
-      <header class="text-center">
-        <h2>{{gettext("Index a single URL")}}</h2>
-      </header>
+    <!-- URL indexing form -->
+    <div id="url_indexing" class="{% if default_screen != 'url' %}hidden{% endif %}">
+      <p class="fine-text mb-4">{{gettext("Paste a web page URL to add it to the search index.")}}</p>
       {% with messages = get_flashed_messages(category_filter=["url"]) %}
       {% if messages %}
-        <div role="alert" data-variant="warning">{{ messages[0] }}</div>
+        <div role="alert" data-variant="warning" class="mb-4">{{ messages[0] }}</div>
       {% endif %}
       {% endwith %}
       <form method="POST" accept-charset="UTF-8" action="{{url_for('indexer.index_from_url')}}" enctype="multipart/form-data" autocomplete="off">
         <datalist id="themes"></datalist>
         {{ form1.hidden_tag() }}
-        <p>{{ render_field(form1.suggested_url) }}</p>
-        <p>{{ render_autocomplete_field(form1.theme) }}</p>
-        <p>{{ render_field(form1.note) }}</p>
+        {{ render_field(form1.suggested_url) }}
+        {{ render_autocomplete_field(form1.theme) }}
+        {{ render_field(form1.note) }}
         <div class="tos-check">
           {{ form1.accept_tos() }}
           <span>{{gettext("I confirm that my entry does not contravene the")}} <a href="{{url_for('pages.return_tos')}}">{{gettext("terms of service")}}</a> {{gettext("of this site.")}}</span>
         </div>
-        <button type="submit">{{gettext('Add')}}</button>
+        <button type="submit" class="w-full mt-4">{{gettext('Index URL')}}</button>
       </form>
-    </article>
-    <p class="text-center mt-4"><a href="#" onclick="toggle(); return false;">{{gettext('Or add a manual resource')}}</a></p>
-  </div>
+    </div>
 
-  <!-- Manual indexing -->
-  {% if default_screen == 'manual' %}
-  <div id="manual_indexing">
-  {% else %}
-  <div id="manual_indexing" class="hidden">
-  {% endif %}
-    <article>
-      <header class="text-center">
-        <h2>{{gettext("Add an offline resource")}}</h2>
-      </header>
+    <!-- Manual entry form -->
+    <div id="manual_indexing" class="{% if default_screen != 'manual' %}hidden{% endif %}">
+      <p class="fine-text mb-4">{{gettext("Create a manual entry for an offline resource or tip.")}}</p>
       {% with messages = get_flashed_messages(category_filter=["offline"]) %}
       {% if messages %}
-        <div role="alert" data-variant="warning">{{ messages[0] }}</div>
+        <div role="alert" data-variant="warning" class="mb-4">{{ messages[0] }}</div>
       {% endif %}
       {% endwith %}
       <form method="POST" action="{{url_for('indexer.index_from_manual')}}" enctype="multipart/form-data">
         {{ form2.hidden_tag() }}
-        <p>{{ render_field(form2.title) }}</p>
-        <p>{{ render_field(form2.related_url) }}</p>
-        <p>{{ render_field(form2.description) }}</p>
+        {{ render_field(form2.title) }}
+        {{ render_field(form2.related_url) }}
+        {{ render_field(form2.description) }}
         <div class="tos-check">
           {{ form2.accept_tos() }}
           <span>{{gettext("I confirm that my entry does not contravene the")}} <a href="{{url_for('pages.return_tos')}}">{{gettext("terms of service")}}</a> {{gettext("of this site.")}}</span>
         </div>
-        <button type="submit">{{gettext('Add')}}</button>
+        <button type="submit" class="w-full mt-4">{{gettext('Add entry')}}</button>
       </form>
-    </article>
-    <p class="text-center mt-4"><a href="#" onclick="toggle(); return false;">{{gettext('Or index a URL')}}</a></p>
-  </div>
-
+    </div>
+  </article>
 </div>
 
 <script>
@@ -86,11 +81,22 @@ SPDX-License-Identifier: AGPL-3.0-only
 </script>
 
 <script>
-function toggle() {
-  var url = document.getElementById("url_indexing");
-  var manual = document.getElementById("manual_indexing");
-  url.classList.toggle("hidden");
-  manual.classList.toggle("hidden");
+function switchMode(mode) {
+  var urlPanel = document.getElementById('url_indexing');
+  var manualPanel = document.getElementById('manual_indexing');
+  var tabs = document.querySelectorAll('.mode-tab');
+
+  if (mode === 'url') {
+    urlPanel.classList.remove('hidden');
+    manualPanel.classList.add('hidden');
+    tabs[0].classList.add('active');
+    tabs[1].classList.remove('active');
+  } else {
+    urlPanel.classList.add('hidden');
+    manualPanel.classList.remove('hidden');
+    tabs[0].classList.remove('active');
+    tabs[1].classList.add('active');
+  }
 }
 </script>
 
