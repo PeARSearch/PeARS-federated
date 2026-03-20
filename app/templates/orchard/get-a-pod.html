@@ -5,22 +5,39 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 {% extends "base/base.html" %}
-{% block title %}Category{% endblock %}
+{% block title %}{{ query }}{% endblock %}
 {% block body %}
 
-<div class="content-prose">
-  <article>
-    <header>
-      <h2>{{gettext('Theme')}}: {{query}}</h2>
-    </header>
-    {% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
-    <p><a href="{{url_for('orchard.download_file', filename=location)}}" target="_blank" role="button">{{gettext('Download')}}</a></p>
-    <hr>
-    {% endif %}
+<div class="content-prose--wide">
+  <!-- Breadcrumb -->
+  <p class="fine-text mb-2">
+    <a href="{{url_for('orchard.index')}}">{{gettext('Categories')}}</a> › <strong>{{query}}</strong>
+  </p>
+
+  <h2>{{query}} <small class="muted-text" style="font-weight: normal; font-size: var(--text-7);">{{urls|length}} {{gettext('entries')}}</small></h2>
+
+  {% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
+  <p class="mb-4">
+    <a href="{{url_for('orchard.download_file', filename=location)}}" target="_blank" class="fine-text">
+      <img src="{{ url_for('static', filename='share-outline.svg')}}" class="icon icon-sm" alt=""> {{gettext('Download pod data')}}
+    </a>
+  </p>
+  {% endif %}
+
+  {% if urls %}
+  <ul class="category-url-list">
     {% for url in urls %}
-    <p><a href="{{url}}">{{url}}</a></p>
+    <li>
+      <a href="{{url}}">{{url}}</a>
+    </li>
     {% endfor %}
-  </article>
+  </ul>
+  {% else %}
+  <div class="no-results">
+    <p class="muted-text">{{gettext('No entries in this category yet.')}}</p>
+    <p><a href="{{url_for('indexer.suggest')}}" role="button">{{gettext('Suggest a URL')}}</a></p>
+  </div>
+  {% endif %}
 </div>
 
 {% endblock %}

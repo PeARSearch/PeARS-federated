@@ -8,40 +8,60 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% block title %}Categories{% endblock %}
 {% block body %}
 
-<h2 class="text-center mb-6">{{gettext('Categories')}}</h2>
+<div class="content-prose--wide">
+  <h2 class="text-center">{{gettext('Categories')}}</h2>
 
-<div class="categories-grid">
-  {% for p in pears %}
-  <article>
-    <header>
-      <strong>{{gettext("Theme:")}} {{p[0]}}</strong>
-    </header>
-    <p>{{p[1]}} {{gettext("entries")}}.</p>
-    <footer class="flex items-center gap-2 flex-wrap">
-      <a href="{{url_for('orchard.get_a_pod')}}?pod={{p[0]}}" role="button">{{gettext("View")}}</a>
-      {% if p[0] != 'Tips' %}
+  {% if pears %}
+  {% set total_entries = [] %}
+  {% for p in pears %}{% if total_entries.append(p[1]) %}{% endif %}{% endfor %}
+  <p class="text-center muted-text mb-6">
+    {{pears|length}} {{gettext('categories')}} · {{total_entries|sum}} {{gettext('total entries')}}
+  </p>
+  {% endif %}
+
+  {% if not pears %}
+  <div class="no-results">
+    {% if session.get('theme') == 'dark' %}
+      <img src="{{ url_for('static', filename='sad_pears_dark.png')}}" width="80" alt="">
+    {% else %}
+      <img src="{{ url_for('static', filename='sad_pears.png')}}" width="80" alt="">
+    {% endif %}
+    <h3>{{gettext('No categories yet')}}</h3>
+    <p>{{gettext("Be the first to contribute!")}}</p>
+    <p><a href="{{url_for('indexer.suggest')}}" role="button">{{gettext('Suggest a URL')}}</a></p>
+  </div>
+  {% else %}
+
+  <div class="categories-grid">
+    {% for p in pears|sort(attribute=0) %}
+    <a href="{{url_for('orchard.get_a_pod')}}?pod={{p[0]}}" class="category-card">
+      <span class="category-name">{{p[0]}}</span>
+      <span class="category-count">{{p[1]}} {{gettext("entries")}}</span>
       {% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
-      <button type="button" class="site-nav-icon-btn" onclick="document.getElementById('rename{{p[2]}}').classList.toggle('hidden');">
-        <img src="{{ url_for('static', filename='pencil-outline.svg')}}" class="icon" alt="{{gettext('Rename')}}">
-      </button>
+      {% if p[0] != 'Tips' %}
+      <span class="category-admin-actions" onclick="event.preventDefault(); event.stopPropagation(); document.getElementById('rename{{p[2]}}').classList.toggle('hidden');">
+        <img src="{{ url_for('static', filename='pencil-outline.svg')}}" class="icon icon-sm" alt="{{gettext('Rename')}}" data-tooltip="{{gettext('Rename')}}">
+      </span>
       {% endif %}
       {% endif %}
-    </footer>
+    </a>
     {% if p[0] != 'Tips' %}
     {% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
-    <div id="rename{{p[2]}}" class="hidden mt-4">
-      <form action="{{url_for('orchard.rename_pod')}}" id="renameform">
+    <div id="rename{{p[2]}}" class="hidden category-rename">
+      <form action="{{url_for('orchard.rename_pod')}}">
         <fieldset class="group">
           <input type="hidden" value="{{p[0]}}" name="oldname">
-          <input type="search" name="newname" placeholder="{{gettext('Rename theme')}}" required>
+          <input type="text" name="newname" placeholder="{{gettext('New name for')}} {{p[0]}}" required>
           <button type="submit">{{gettext('Rename')}}</button>
         </fieldset>
       </form>
     </div>
     {% endif %}
     {% endif %}
-  </article>
-  {% endfor %}
+    {% endfor %}
+  </div>
+
+  {% endif %}
 </div>
 
 {% endblock %}
