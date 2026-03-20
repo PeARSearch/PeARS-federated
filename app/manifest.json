@@ -4,8 +4,8 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "theme_color": "#317EFB",
-  "background_color": "#317EFB",
+  "theme_color": "#E67E22",
+  "background_color": "#FAFAF8",
   "icons": [
     {
       "src": "/static/pears-logo-green.144x144.png",
