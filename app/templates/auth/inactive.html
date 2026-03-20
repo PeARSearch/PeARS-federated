@@ -2,19 +2,19 @@
 {% block title %}Confirm Your Email{% endblock %}
 {% block body %}
 
-<div class="auth-container text-center">
-  <h2>{{gettext("Confirm Your Email")}}</h2>
-  <p>
-    {{gettext("We've sent a confirmation email to your inbox. Please click the link in the email to activate your account.")}}
-  </p>
-  <p class="muted-text">
-    {{gettext("Don't see it? Check your spam folder.")}}
-  </p>
-  <p>
-    {{gettext("Didn't get the email?")}}
-    <a href="{{ url_for('auth.resend_confirmation') }}">{{gettext("Resend confirmation email")}}</a>
-  </p>
-  <p class="mt-4 muted-text"><a href="{{url_for('search.index')}}">{{gettext('Back to home')}}</a></p>
+<div class="auth-container">
+  <article class="auth-card text-center">
+    <img src="{{ url_for('static', filename='pears_round.png')}}" width="48" alt="PeARS" class="auth-logo">
+    <h2>{{gettext("Check Your Email")}}</h2>
+    <p>{{gettext("We've sent a confirmation link to your email address. Click the link to activate your account.")}}</p>
+    <p class="muted-text">{{gettext("Don't see it? Check your spam folder.")}}</p>
+    <hr>
+    <p>
+      {{gettext("Didn't receive the email?")}}
+      <a href="{{ url_for('auth.resend_confirmation') }}">{{gettext("Resend")}}</a>
+    </p>
+  </article>
+  <p class="text-center mt-6 muted-text auth-alt-action"><a href="{{url_for('search.index')}}">{{gettext('Back to home')}}</a></p>
 </div>
 
 {% endblock %}

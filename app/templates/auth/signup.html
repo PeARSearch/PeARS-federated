@@ -4,29 +4,31 @@
 {% block body %}
 
 <div class="auth-container">
-  <article>
+  <article class="auth-card">
     <header class="text-center">
+      <img src="{{ url_for('static', filename='pears_round.png')}}" width="48" alt="PeARS" class="auth-logo">
       <h2>{{gettext('Sign Up')}}</h2>
+      <p class="muted-text">{{gettext('Join PeARS and help build the index')}}</p>
     </header>
     {% if new_users_allowed %}
     <form method="POST" action="/auth/signup" enctype="multipart/form-data">
       {{ form.hidden_tag() }}
-      <p>{{ render_field(form.email) }}</p>
-      <p>{{ render_field(form.username) }}</p>
-      <p>{{ render_field(form.password) }}</p>
-      <p>{{ render_field(form.confirm) }}</p>
-      <p>{{ render_captcha_field(form.captcha_answer, form.captcha_id.data) }}</p>
+      {{ render_field(form.email) }}
+      {{ render_field(form.username) }}
+      {{ render_field(form.password) }}
+      {{ render_field(form.confirm) }}
+      {{ render_captcha_field(form.captcha_answer, form.captcha_id.data) }}
       <label>
         {{ form.accept_tos() }}
-        {{gettext("I agree to the")}} <a href="{{url_for('pages.return_privacy')}}">{{gettext("privacy policy")}}</a> {{gettext("and")}} <a href="{{url_for('pages.return_tos')}}">{{gettext("terms of service")}}</a> {{gettext("of this site.")}}
+        {{gettext("I agree to the")}} <a href="{{url_for('pages.return_privacy')}}">{{gettext("privacy policy")}}</a> {{gettext("and")}} <a href="{{url_for('pages.return_tos')}}">{{gettext("terms of service")}}</a>.
       </label>
-      <button type="submit">{{gettext('Sign up')}}</button>
+      <button type="submit" class="w-full mt-4">{{gettext('Sign up')}}</button>
     </form>
     {% else %}
     <p class="text-center muted-text">{{gettext('Registration is currently closed. Please check back later.')}}</p>
     {% endif %}
   </article>
-  <p class="text-center mt-4 muted-text">{{gettext('Do you already have an account?')}} <a href="{{url_for('auth.login')}}">{{gettext('Log in')}}</a></p>
+  <p class="text-center mt-6 muted-text auth-alt-action">{{gettext('Already have an account?')}} <a href="{{url_for('auth.login')}}">{{gettext('Log in')}}</a></p>
 </div>
 
 {% endblock %}

@@ -966,13 +966,46 @@ fieldset.group :focus {
    -------------------------------------------------------------------------- */
 
 .auth-container {
-  max-width: 440px;
-  margin: var(--space-10) auto;
+  max-width: 400px;
+  margin: var(--space-8) auto;
 }
 
 .auth-container--wide {
   max-width: 560px;
-  margin: var(--space-10) auto;
+  margin: var(--space-8) auto;
+}
+
+.auth-card {
+  padding: var(--space-6);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-large);
+  background: var(--card);
+}
+
+.auth-card header {
+  margin-bottom: var(--space-5);
+}
+
+.auth-card h2 {
+  font-size: var(--text-3);
+  margin-top: var(--space-2);
+  margin-bottom: var(--space-1);
+}
+
+.auth-logo {
+  border-radius: var(--radius-full);
+}
+
+.auth-card form label {
+  margin-bottom: var(--space-3);
+}
+
+.auth-alt-action {
+  font-size: var(--text-7);
+}
+
+.auth-alt-action a {
+  font-weight: var(--font-medium);
 }
 
 /* --------------------------------------------------------------------------

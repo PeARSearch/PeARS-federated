@@ -5,19 +5,21 @@
 {% block body %}
 
 <div class="auth-container">
-  <article>
+  <article class="auth-card">
     <header class="text-center">
+      <img src="{{ url_for('static', filename='pears_round.png')}}" width="48" alt="PeARS" class="auth-logo">
       <h2>{{gettext('Log In')}}</h2>
+      <p class="muted-text">{{gettext('Welcome back to PeARS')}}</p>
     </header>
     <form method="POST" action="/auth/login" enctype="multipart/form-data">
       {{ form.hidden_tag() }}
-      <p>{{ render_field(form.email) }}</p>
-      <p>{{ render_password_field(form.password) }}</p>
-      <button type="submit">{{gettext('Log in')}}</button>
+      {{ render_field(form.email) }}
+      {{ render_password_field(form.password) }}
+      <button type="submit" class="w-full mt-4">{{gettext('Log in')}}</button>
     </form>
   </article>
   {% if new_users_allowed %}
-  <p class="text-center mt-4 muted-text">{{gettext('No account yet?')}} <a href="{{url_for('auth.signup')}}">{{gettext('Sign up')}}</a></p>
+  <p class="text-center mt-6 muted-text auth-alt-action">{{gettext('No account yet?')}} <a href="{{url_for('auth.signup')}}">{{gettext('Sign up')}}</a></p>
   {% endif %}
 </div>
 
