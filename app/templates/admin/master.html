@@ -92,35 +92,80 @@
         .icon-pencil, .icon-trash, .glyphicon { font-size: 12px; }
 
         /* Forms (create/edit) */
-        form[method="POST"] .form-group {
+        .admin-form-content,
+        form .col-md-12,
+        form .col-lg-12 {
             max-width: 600px;
-            margin-bottom: 16px;
         }
 
-        form[method="POST"] label {
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label,
+        .control-label {
             font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 4px;
+            color: #2D3250;
+        }
+
+        .form-control {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #E2E0DC;
             font-size: 14px;
         }
 
-        form[method="POST"] .form-control {
-            padding: 8px 12px;
-            background: #fff;
+        .form-control:focus {
+            border-color: #E67E22;
+            box-shadow: 0 0 0 2px rgba(230, 126, 34, 0.2);
         }
 
-        form[method="POST"] .form-control[readonly] {
+        .form-control[readonly] {
             background: #F3F1EE;
         }
 
-        form[method="POST"] input[type="submit"] {
+        /* Submit buttons area */
+        .form-group:last-child {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #E2E0DC;
+        }
+
+        input[type="submit"], .btn-warning {
+            border-radius: 6px;
+            padding: 8px 20px;
+            font-size: 14px;
+        }
+
+        input[type="submit"].btn-primary,
+        .btn-primary {
             background-color: #E67E22;
             border-color: #CF6D17;
-            border-radius: 6px;
-            padding: 8px 24px;
             color: #fff;
         }
 
-        form[method="POST"] input[type="submit"]:hover {
+        input[type="submit"].btn-primary:hover,
+        .btn-primary:hover {
             background-color: #CF6D17;
+        }
+
+        .btn-danger {
+            background-color: #E74C3C;
+            border-color: #C0392B;
+            border-radius: 6px;
+        }
+
+        .btn-danger:hover {
+            background-color: #C0392B;
+        }
+
+        /* Help text */
+        .help-block {
+            font-size: 12px;
+            color: #7077A1;
+            margin-top: 2px;
         }
 
         .select2-results { max-height: 400px !important; }
