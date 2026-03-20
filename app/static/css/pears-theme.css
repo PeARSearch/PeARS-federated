@@ -773,6 +773,43 @@ fieldset.group :focus {
   margin-top: var(--space-4);
 }
 
+/* Hero search box: elevated, prominent */
+.hero-search fieldset.group {
+  box-shadow: var(--shadow-medium), 0 0 0 1px var(--border);
+  border-radius: var(--radius-large);
+  overflow: hidden;
+  transition: box-shadow var(--transition);
+}
+
+.hero-search fieldset.group:focus-within {
+  box-shadow: var(--shadow-large), 0 0 0 1px var(--primary);
+}
+
+.hero-search fieldset.group input[type="search"] {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-5);
+  border: none;
+  background: var(--card);
+}
+
+.hero-search fieldset.group input[type="search"]::placeholder {
+  color: var(--faint-foreground);
+}
+
+.hero-search fieldset.group input[type="search"]:focus {
+  box-shadow: none;
+}
+
+.hero-search fieldset.group button[type="submit"] {
+  padding: var(--space-3) var(--space-4);
+  border-radius: 0;
+}
+
+.hero-search fieldset.group button[type="submit"] .icon {
+  width: 1.4em;
+  height: 1.4em;
+}
+
 .hero-subtitle {
   color: var(--muted-foreground);
   font-size: var(--text-7);
