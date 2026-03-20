@@ -458,17 +458,41 @@ mark, .search-highlight {
   color: #EDECE8;
   padding: var(--space-2) var(--space-4);
   font-size: var(--text-7);
+  display: flex;
+  align-items: center;
+}
+
+.admin-bar .container {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.admin-bar span {
+  font-weight: var(--font-semibold);
+  margin-right: var(--space-1);
 }
 
 .admin-bar a {
   color: #EDECE8;
   text-decoration: none;
   opacity: 0.85;
+  white-space: nowrap;
 }
 
 .admin-bar a:hover {
   opacity: 1;
   color: var(--pears-orange);
+}
+
+@media (max-width: 768px) {
+  .admin-bar .container {
+    gap: var(--space-2);
+    font-size: var(--text-8);
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
 }
 
 /* --------------------------------------------------------------------------

@@ -84,8 +84,8 @@ SPDX-License-Identifier: AGPL-3.0-only
           <!-- Theme toggle -->
           <li>
             <button id="theme-toggle" type="button" class="site-nav-icon-btn" aria-label="{{gettext('Toggle theme')}}">
-              <img id="theme-icon-light" src="{{ url_for('static', filename='sunny-outline.svg')}}" class="icon icon-invert" alt="" style="display:none;">
-              <img id="theme-icon-dark" src="{{ url_for('static', filename='moon-outline.svg')}}" class="icon icon-invert" alt="">
+              <img id="theme-icon-light" src="{{ url_for('static', filename='sunny-outline.svg')}}" class="icon" alt="" style="display:none;">
+              <img id="theme-icon-dark" src="{{ url_for('static', filename='moon-outline.svg')}}" class="icon" alt="">
             </button>
           </li>
           {% if not current_user.is_authenticated %}
