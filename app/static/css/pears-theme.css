@@ -1301,9 +1301,34 @@ fieldset.group :focus {
   transform: translateY(-1px);
 }
 
+/* Category initial avatar */
+.category-initial {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-bold);
+  font-size: var(--text-5);
+  color: #fff;
+  flex-shrink: 0;
+  /* Color generated via JS based on name */
+  background-color: var(--primary);
+}
+
+.category-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
 .category-name {
   font-weight: var(--font-semibold);
-  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .category-count {

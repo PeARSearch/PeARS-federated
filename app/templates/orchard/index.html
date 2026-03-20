@@ -36,8 +36,11 @@ SPDX-License-Identifier: AGPL-3.0-only
     {% for p in pears|sort(attribute=0) %}
     <div class="category-item">
       <a href="{{url_for('orchard.get_a_pod')}}?pod={{p[0]}}" class="category-card">
-        <span class="category-name">{{p[0]}}</span>
-        <span class="category-count">{{p[1]}}</span>
+        <span class="category-initial" data-initial="{{p[0][0]|upper}}">{{p[0][0]|upper}}</span>
+        <span class="category-info">
+          <span class="category-name">{{p[0]}}</span>
+          <span class="category-count">{{p[1]}} {{gettext('entries')}}</span>
+        </span>
         {% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
         {% if p[0] != 'Tips' %}
         <span class="category-admin-actions" onclick="event.preventDefault(); event.stopPropagation(); document.getElementById('rename{{p[2]}}').classList.toggle('hidden');" data-tooltip="{{gettext('Rename')}}">
@@ -69,5 +72,22 @@ SPDX-License-Identifier: AGPL-3.0-only
 
   {% endif %}
 </div>
+
+<script>
+// Assign deterministic colors to category initials based on name hash
+(function() {
+  var hues = [0, 25, 45, 120, 160, 200, 230, 270, 310, 340];
+  var initials = document.querySelectorAll('.category-initial');
+  initials.forEach(function(el) {
+    var name = el.closest('.category-card').querySelector('.category-name').textContent;
+    var hash = 0;
+    for (var i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    var hue = hues[Math.abs(hash) % hues.length];
+    el.style.backgroundColor = 'hsl(' + hue + ', 55%, 45%)';
+  });
+})();
+</script>
 
 {% endblock %}
