@@ -105,16 +105,34 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
 <div class="admin-bar" role="toolbar" aria-label="{{gettext('Admin tools')}}">
   <div class="container">
-    <span>Admin:</span>
-    <a href="{{url_for('indexer.index')}}">{{gettext('Index new pages')}}</a>
-    <a href="{{url_for('indexer.index_suggestions')}}">{{gettext('Index suggested pages')}}</a>
-    <a href="{{url_for('admin.index')}}">{{gettext('DB Admin')}}</a>
-    <a href="{{url_for('settings.toggle_maintenance_mode')}}" onclick="return confirm('Are you sure you want to toggle maintenance mode?')" data-tooltip="{{gettext('Toggle maintenance mode.')}}">
-      <img src="{{ url_for('static', filename='hammer-outline.svg')}}" class="icon icon-sm icon-invert" alt="{{gettext('Toggle maintenance mode.')}}">
-    </a>
-    <a href="{{url_for('settings.refresh_remote_instances')}}" onclick="return confirm('Are you sure you want to refresh the list of available remote instances?')" data-tooltip="{{gettext('Refresh remote instances.')}}">
-      <img src="{{ url_for('static', filename='planet-outline.svg')}}" class="icon icon-sm icon-invert" alt="{{gettext('Refresh remote instances.')}}">
-    </a>
+    <div class="admin-bar-nav">
+      <a href="{{url_for('indexer.index')}}" class="admin-bar-link">
+        <img src="{{ url_for('static', filename='file-tray-stacked-outline.svg')}}" class="icon icon-sm icon-invert" alt="">
+        {{gettext('Add pages')}}
+      </a>
+      <a href="{{url_for('indexer.index_suggestions')}}" class="admin-bar-link">
+        <img src="{{ url_for('static', filename='ear-outline.svg')}}" class="icon icon-sm icon-invert" alt="">
+        {{gettext('Suggestions')}}
+      </a>
+      <a href="{{url_for('admin.index')}}" class="admin-bar-link">
+        <img src="{{ url_for('static', filename='globe-outline.svg')}}" class="icon icon-sm icon-invert" alt="">
+        {{gettext('Database')}}
+      </a>
+    </div>
+    <div class="admin-bar-actions">
+      <a href="{{url_for('settings.toggle_maintenance_mode')}}" class="admin-bar-action"
+         onclick="return confirm('{{gettext('Toggle maintenance mode? The site will become unavailable to users.')}}')"
+         data-tooltip="{{gettext('Toggle maintenance mode')}}">
+        <img src="{{ url_for('static', filename='hammer-outline.svg')}}" class="icon icon-sm icon-invert" alt="">
+        {{gettext('Maintenance')}}
+      </a>
+      <a href="{{url_for('settings.refresh_remote_instances')}}" class="admin-bar-action"
+         onclick="return confirm('{{gettext('Refresh the list of remote instances?')}}')"
+         data-tooltip="{{gettext('Refresh remote instances')}}">
+        <img src="{{ url_for('static', filename='refresh-circle-outline.svg')}}" class="icon icon-sm icon-invert" alt="">
+        {{gettext('Refresh')}}
+      </a>
+    </div>
   </div>
 </div>
 {% endif %}

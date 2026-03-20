@@ -516,32 +516,56 @@ fieldset.group :focus {
   color: #EDECE8;
   padding: var(--space-2) var(--space-4);
   font-size: var(--text-7);
-  display: flex;
-  align-items: center;
 }
 
 .admin-bar .container {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
-  flex-wrap: wrap;
+  justify-content: space-between;
 }
 
-.admin-bar span {
-  font-weight: var(--font-semibold);
-  margin-right: var(--space-1);
+/* Left group: navigation links */
+.admin-bar-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
 }
 
-.admin-bar a {
+/* Right group: action buttons */
+.admin-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* Shared link style: icon + label */
+.admin-bar-link,
+.admin-bar-action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
   color: #EDECE8;
   text-decoration: none;
-  opacity: 0.85;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-medium);
   white-space: nowrap;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
-.admin-bar a:hover {
-  opacity: 1;
-  color: var(--pears-orange);
+.admin-bar-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* Action buttons: pill style to distinguish from nav */
+.admin-bar-action {
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.admin-bar-action:hover {
+  background-color: rgba(255, 255, 255, 0.18);
+  color: #fff;
 }
 
 @media (max-width: 768px) {
