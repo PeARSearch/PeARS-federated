@@ -269,6 +269,11 @@
   background-color: var(--muted);
 }
 
+/* Theme toggle icons adapt to current color scheme */
+.site-nav-icon-btn .icon {
+  filter: light-dark(none, invert(1));
+}
+
 /* Mobile nav */
 @media (max-width: 768px) {
   .site-nav-toggle {
