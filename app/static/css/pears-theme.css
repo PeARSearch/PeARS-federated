@@ -1351,6 +1351,31 @@ fieldset.group :focus {
   color: var(--search-url);
 }
 
+/* Acknowledgements grid */
+.ack-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.ack-item {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-medium);
+  background: var(--card);
+}
+
+.ack-item strong {
+  margin-bottom: var(--space-1);
+}
+
+.ack-item .muted-text {
+  font-size: var(--text-8);
+}
+
 .hidden { display: none; }
 .break-all { word-break: break-all; }
 .muted-text { font-size: var(--text-7); color: var(--muted-foreground); }
