@@ -49,9 +49,12 @@ SPDX-License-Identifier: AGPL-3.0-only
       {% if p[0] != 'Tips' %}
       {% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
       <div id="rename{{p[2]}}" class="hidden category-rename">
+        <div class="flex justify-between items-center mb-2">
+          <label class="fine-text mb-0">{{gettext('Rename')}} "{{p[0]}}"</label>
+          <button type="button" class="flash-dismiss" aria-label="{{gettext('Cancel')}}" onclick="this.closest('.category-rename').classList.add('hidden');">&times;</button>
+        </div>
         <form action="{{url_for('orchard.rename_pod')}}">
           <input type="hidden" value="{{p[0]}}" name="oldname">
-          <label class="fine-text">{{gettext('Rename')}} "{{p[0]}}"</label>
           <fieldset class="group">
             <input type="text" name="newname" placeholder="{{gettext('New name')}}" required>
             <button type="submit">{{gettext('Save')}}</button>
