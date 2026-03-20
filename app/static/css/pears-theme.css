@@ -163,6 +163,205 @@
 }
 
 /* --------------------------------------------------------------------------
+   Site Navigation
+   -------------------------------------------------------------------------- */
+
+.site-nav {
+  border-bottom: 1px solid var(--border);
+  padding: var(--space-3) 0;
+}
+
+.site-nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.site-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  text-decoration: none;
+  color: var(--foreground);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-5);
+  white-space: nowrap;
+}
+
+.site-nav-brand:hover {
+  color: var(--foreground);
+  text-decoration: none;
+}
+
+.site-nav-brand img {
+  height: 40px;
+  width: auto;
+}
+
+.site-nav-toggle {
+  display: none;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-medium);
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-4);
+  color: var(--foreground);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.site-nav-menu {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.site-nav-links,
+.site-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.site-nav-links {
+  margin-right: auto;
+  padding-left: var(--space-6);
+}
+
+.site-nav-links a,
+.site-nav-actions a {
+  display: inline-block;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-medium);
+  text-decoration: none;
+  color: var(--foreground);
+  font-size: var(--text-7);
+  white-space: nowrap;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.site-nav-links a:hover,
+.site-nav-actions a:hover {
+  background-color: var(--muted);
+  color: var(--foreground);
+}
+
+.site-nav-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: var(--space-1);
+  border-radius: var(--radius-medium);
+  cursor: pointer;
+  color: var(--foreground);
+  transition: background-color var(--transition-fast);
+}
+
+.site-nav-icon-btn:hover {
+  background-color: var(--muted);
+}
+
+/* Mobile nav */
+@media (max-width: 768px) {
+  .site-nav-toggle {
+    display: block;
+  }
+
+  .site-nav-menu {
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: var(--space-4);
+    box-shadow: var(--shadow-medium);
+    z-index: var(--z-dropdown);
+  }
+
+  .site-nav-menu[data-open] {
+    display: flex;
+  }
+
+  .site-nav-inner {
+    flex-wrap: wrap;
+    position: relative;
+  }
+
+  .site-nav-links,
+  .site-nav-actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .site-nav-links {
+    padding-left: 0;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: var(--space-3);
+    margin-bottom: var(--space-3);
+  }
+
+  .site-nav-links a,
+  .site-nav-actions a {
+    padding: var(--space-2) var(--space-3);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Site Footer
+   -------------------------------------------------------------------------- */
+
+.site-footer {
+  margin-top: auto;
+  padding: var(--space-6) 0;
+  border-top: 1px solid var(--border);
+  font-size: var(--text-8);
+}
+
+.site-footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  justify-content: center;
+}
+
+.site-footer a {
+  color: var(--muted-foreground);
+  text-decoration: none;
+}
+
+.site-footer a:hover {
+  color: var(--foreground);
+}
+
+/* --------------------------------------------------------------------------
+   Full-height body layout (sticky footer)
+   -------------------------------------------------------------------------- */
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
+}
+
+/* --------------------------------------------------------------------------
    Heading typography — Use display font for headings
    -------------------------------------------------------------------------- */
 
