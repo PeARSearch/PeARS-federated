@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>, 
+SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>,
 
 SPDX-License-Identifier: AGPL-3.0-only
 -->
@@ -7,19 +7,21 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% extends "base/base.html" %}
 {% block body %}
 
-    <div class="container">
-    <div class="card">
-      <div class="card-header text-center"><h1>Database admin page</h1></div>
-      <div class="card-body">
-	      <p>{{gettext('This page allows you to manually administer your users, pods and indexed URLs. If you ever need to e.g. delete a single URL from your indexed pages, or modify a keyword, this is the place to do so. You can also view and search the entire list of available pods, as registered by your pear.')}}</p>
-		  <a href="{{url_for('urls.index_view')}}" class="btn btn-success btn-block">{{gettext('URLs')}}</a>
-		  <a href="{{url_for('pods.index_view')}}" class="btn btn-success btn-block">{{gettext('Pods')}}</a>
-		  <a href="{{url_for('user.index_view')}}" class="btn btn-success btn-block">{{gettext('Users')}}</a>
-		  <a href="{{url_for('suggestions.index_view')}}" class="btn btn-success btn-block">{{gettext('Suggestions')}}</a>
-      <a href="{{url_for('rejectedsuggestions.index_view')}}" class="btn btn-success btn-block">{{gettext('Rejected Suggestions')}}</a>
-		  <a href="{{url_for('personalization.index_view')}}" class="btn btn-success btn-block">{{gettext('Personalization')}}</a>
-      </div>
+<div class="content-prose--wide">
+  <article>
+    <header class="text-center">
+      <h2>Database admin page</h2>
+    </header>
+    <p>{{gettext('This page allows you to manually administer your users, pods and indexed URLs. If you ever need to e.g. delete a single URL from your indexed pages, or modify a keyword, this is the place to do so. You can also view and search the entire list of available pods, as registered by your pear.')}}</p>
+    <div class="flex flex-col gap-2 mt-4">
+      <a href="{{url_for('urls.index_view')}}" role="button">{{gettext('URLs')}}</a>
+      <a href="{{url_for('pods.index_view')}}" role="button">{{gettext('Pods')}}</a>
+      <a href="{{url_for('user.index_view')}}" role="button">{{gettext('Users')}}</a>
+      <a href="{{url_for('suggestions.index_view')}}" role="button">{{gettext('Suggestions')}}</a>
+      <a href="{{url_for('rejectedsuggestions.index_view')}}" role="button">{{gettext('Rejected Suggestions')}}</a>
+      <a href="{{url_for('personalization.index_view')}}" role="button">{{gettext('Personalization')}}</a>
     </div>
-    </div>
-{% endblock %}
+  </article>
+</div>
 
+{% endblock %}
