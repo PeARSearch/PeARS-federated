@@ -9,14 +9,14 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 <h2 class="text-center mb-6">{{gettext('Categories')}}</h2>
 
-<div class="row" style="justify-content: center;">
+<div class="categories-grid">
   {% for p in pears %}
-  <article class="col-4" style="min-width: 260px;">
+  <article>
     <header>
       <strong>{{gettext("Theme:")}} {{p[0]}}</strong>
     </header>
     <p>{{p[1]}} {{gettext("entries")}}.</p>
-    <footer class="flex items-center gap-2" style="flex-wrap: wrap;">
+    <footer class="flex items-center gap-2 flex-wrap">
       <a href="{{url_for('orchard.get_a_pod')}}?pod={{p[0]}}" role="button">{{gettext("View")}}</a>
       {% if p[0] != 'Tips' %}
       {% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
@@ -28,7 +28,7 @@ SPDX-License-Identifier: AGPL-3.0-only
     </footer>
     {% if p[0] != 'Tips' %}
     {% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
-    <div id="rename{{p[2]}}" style="display: none; margin-top: var(--space-3);">
+    <div id="rename{{p[2]}}" class="hidden mt-4">
       <form action="{{url_for('orchard.rename_pod')}}" id="renameform">
         <fieldset class="group">
           <input type="hidden" value="{{p[0]}}" name="oldname">

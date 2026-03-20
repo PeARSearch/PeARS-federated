@@ -774,8 +774,9 @@ fieldset.group :focus {
 
 .hero-tagline {
   color: var(--muted-foreground);
-  font-size: var(--text-5);
-  margin-top: var(--space-4);
+  font-size: var(--text-7);
+  text-align: start;
+  margin-top: var(--space-2);
 }
 
 /* --------------------------------------------------------------------------
@@ -826,6 +827,11 @@ fieldset.group :focus {
   margin: var(--space-10) auto;
 }
 
+.auth-container--wide {
+  max-width: 560px;
+  margin: var(--space-10) auto;
+}
+
 /* --------------------------------------------------------------------------
    Content pages — comfortable reading width
    -------------------------------------------------------------------------- */
@@ -835,11 +841,18 @@ fieldset.group :focus {
   margin: 0 auto;
 }
 
-.content-prose h2 {
+.content-prose--wide {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.content-prose h2,
+.content-prose--wide h2 {
   margin-top: var(--space-8);
 }
 
-.content-prose p {
+.content-prose p,
+.content-prose--wide p {
   line-height: var(--leading-normal);
 }
 
@@ -878,6 +891,43 @@ fieldset.group :focus {
 .max-w-xl { max-width: 36rem; }
 
 .hidden { display: none; }
+.break-all { word-break: break-all; }
+.muted-text { font-size: var(--text-7); color: var(--muted-foreground); }
+.fine-text { font-size: var(--text-8); color: var(--muted-foreground); }
+.max-w-results { max-width: 720px; }
+.max-w-hero { max-width: 600px; margin: 0 auto; }
+
+/* Settings page profile cards */
+.profile-cards {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.profile-cards > article {
+  flex: 1;
+  min-width: 280px;
+}
+
+/* Categories grid */
+.categories-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-4);
+}
+
+.categories-grid > article {
+  min-width: 260px;
+  flex: 0 1 18rem;
+}
+
+/* Password forgotten link */
+.password-hint {
+  font-size: var(--text-8);
+  float: right;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

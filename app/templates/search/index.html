@@ -38,14 +38,14 @@ SPDX-License-Identifier: AGPL-3.0-only
         </button>
       </fieldset>
     </form>
-    <p class="hero-tagline" style="font-size: var(--text-7); text-align: start; margin-top: var(--space-2);">
+    <p class="hero-tagline">
       This search box will query the whole PeARS network. To limit your search to this instance, simply add <em>!here</em> to your query.
     </p>
   </div>
 </div>
 
 {% if internal_message %}
-<div style="max-width: 600px; margin: 0 auto;">
+<div class="max-w-hero">
   <div role="alert" data-variant="info">
     {{internal_message}}
   </div>

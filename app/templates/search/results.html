@@ -10,7 +10,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 <!-- Tip / internal message -->
 {% if internal_message %}
-<div role="alert" data-variant="info" class="flash-alert mb-4" style="max-width: 720px;">
+<div role="alert" data-variant="info" class="flash-alert mb-4 max-w-results">
   <span class="flex items-center gap-2">
     {% if session.get('theme') == 'dark' %}
       <img src="{{ url_for('static', filename='happy_pears_dark.png')}}" width="40" alt="">
@@ -24,7 +24,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% endif %}
 
 <!-- Search bar (compact, at top of results) -->
-<div style="max-width: 720px;" class="mb-4">
+<div class="max-w-results mb-4">
   <form method="POST" action="{{url_for('search.index')}}" enctype="multipart/form-data" id="searchform">
     {{ searchform.hidden_tag() }}
     <fieldset class="group">
@@ -38,7 +38,7 @@ SPDX-License-Identifier: AGPL-3.0-only
     </fieldset>
   </form>
   {% if config['FEEDBACK_FORM'] %}
-  <p style="font-size: var(--text-8); margin-top: var(--space-2); color: var(--muted-foreground);">
+  <p class="fine-text mt-2">
     Help us improve this alpha version of PeARS! <a href="{{url_for('orchard.feedback')}}">Send us your feedback.</a>
   </p>
   {% endif %}

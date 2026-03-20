@@ -1,123 +1,110 @@
 {% macro render_search_field(field, placeholder) %}
-{{ field(class_="form-control input-s", size=32, placeholder=placeholder) }}
-<dd>{% if field.errors %}
-    <ul class=errors>
-    {% for error in field.errors %}
-    <li><b>{{ error }}</b></li>
-    {% endfor %}
-    </ul>
-  {% endif %}
-</dd>
+{{ field(size=32, placeholder=placeholder, type="search") }}
+{% if field.errors %}
+  {% for error in field.errors %}
+    <small data-variant="error">{{ error }}</small>
+  {% endfor %}
+{% endif %}
 {% endmacro %}
 
 
 {% macro render_field(field, readonly=False) %}
-<div class="form-group">
-        {{ field.label }}
-        {{ field(class_="form-control input-s", readonly=readonly, size=32) }}
-</div>
-<dd>{% if field.errors %}
-    <ul class=errors>
+<label>
+  {{ field.label.text }}
+  {{ field(readonly=readonly, size=32) }}
+  {% if field.errors %}
     {% for error in field.errors %}
-    <li><b>{{ error }}</b></li>
+      <small data-variant="error">{{ error }}</small>
     {% endfor %}
-    </ul>
   {% endif %}
-</dd>
+</label>
 {% endmacro %}
 
 {% macro render_captcha_field(field, captcha_id) %}
-<div class="form-group">
-        {% set explain_image = gettext("To verify that you are a human being, we ask you to write down the sequence of numbers that you see in the image below. If the sequence is too hard, click the refresh button to get a new one, or click on the ear icon to get a new sequence as an audio file.") %}
-        {% set explain_audio = gettext("To verify that you are a human being, we ask you to write down the sequence of numbers that you hear in the audio file below. If the audio player doesn't load, you can also download the file. If the sequence is too hard, click the refresh button to get a new one, or click on the eye icon to get a new sequence as an image.") %}
-        <p class="alert alert-info"><small id="captcha-alert">{{explain_image}}</small></p>
-        <div>
-          <script>
-            let contentType = "image";
-            let buttonText = "";
-            let alertText = "";
-            function toggleContentType() {
-              if (contentType === "image") {
-                contentType = "audio";
-                buttonText = '<img src="{{ url_for('static', filename='eye-outline.svg')}}" class="ion-icon-suggest"/>';
-                alertText = "{{explain_audio}}";
-              } 
-              else {
-                contentType = "image";
-                buttonText = '<img src="{{ url_for('static', filename='ear-outline.svg')}}" class="ion-icon-suggest"/>';
-                alertText = "{{explain_image}}";
-              }
-              $("#captcha-switch").html(buttonText);
-              $("#captcha-alert").text(alertText);
-              refreshCaptcha();
-            }
-            function refreshCaptcha() {
-              let origUrl = "/auth/show_captcha/{{captcha_id}}";
-              let timeStamp = new Date().getTime();
-
-              // empty the existing captcha
-              let $display = $("#captcha-display");
-              $display.empty();
-
-              // generate new image
-              if (contentType === "image") {
-                let newUrl = origUrl + "?refresh=true&t=" + timeStamp;
-                $display.append(`<img src="${newUrl}">`); 
-              }
-
-              // generate new audio
-              else {
-                let newUrl = origUrl + "?audio=true&refresh=true&t=" + timeStamp;
-                $display.append(`<audio controls src="${newUrl}"></audio>`)
-                downloadUrl = origUrl + "?audio=true";
-                $display.append(`<br><a class="btn btn-sm btn-primary" title="{{gettext("Download the audio file in case the player doesn't load")}}" href="${downloadUrl}">{{gettext("Download as .wav")}}</a>`)
-              }
-            }
-          </script>
-          <div class="mb-3">
-		  <span id="captcha-display"><img src="/auth/show_captcha/{{captcha_id}}"></span>
-	    <a class="btn btn-lg btn-light" onclick="refreshCaptcha();" title="refresh"><img src="{{ url_for('static', filename='refresh-circle-outline.svg')}}" class='ion-icon-suggest'/></a>
-            <a class="btn btn-lg btn-light" id="captcha-switch" onclick="toggleContentType();" title="toggle image/audio captcha"><img src="{{ url_for('static', filename='ear-outline.svg')}}" class='ion-icon-suggest'/></a>
-          </div>
-        </div>
-        {{ field(class_="form-control input-s", size=32, placeholder=gettext("Enter the numbers you saw/heard here.")) }}
-</div>
-<dd>{% if field.errors %}
-    <ul class=errors>
+<div>
+  {% set explain_image = gettext("To verify that you are a human being, we ask you to write down the sequence of numbers that you see in the image below. If the sequence is too hard, click the refresh button to get a new one, or click on the ear icon to get a new sequence as an audio file.") %}
+  {% set explain_audio = gettext("To verify that you are a human being, we ask you to write down the sequence of numbers that you hear in the audio file below. If the audio player doesn't load, you can also download the file. If the sequence is too hard, click the refresh button to get a new one, or click on the eye icon to get a new sequence as an image.") %}
+  <div role="alert" data-variant="info" class="muted-text">
+    <small id="captcha-alert">{{explain_image}}</small>
+  </div>
+  <script>
+    let contentType = "image";
+    let buttonText = "";
+    let alertText = "";
+    function toggleContentType() {
+      if (contentType === "image") {
+        contentType = "audio";
+        buttonText = '<img src="{{ url_for('static', filename='eye-outline.svg')}}" class="icon icon-lg">';
+        alertText = "{{explain_audio}}";
+      }
+      else {
+        contentType = "image";
+        buttonText = '<img src="{{ url_for('static', filename='ear-outline.svg')}}" class="icon icon-lg">';
+        alertText = "{{explain_image}}";
+      }
+      $("#captcha-switch").html(buttonText);
+      $("#captcha-alert").text(alertText);
+      refreshCaptcha();
+    }
+    function refreshCaptcha() {
+      let origUrl = "/auth/show_captcha/{{captcha_id}}";
+      let timeStamp = new Date().getTime();
+      let $display = $("#captcha-display");
+      $display.empty();
+      if (contentType === "image") {
+        let newUrl = origUrl + "?refresh=true&t=" + timeStamp;
+        $display.append('<img src="' + newUrl + '">');
+      }
+      else {
+        let newUrl = origUrl + "?audio=true&refresh=true&t=" + timeStamp;
+        $display.append('<audio controls src="' + newUrl + '"></audio>');
+        downloadUrl = origUrl + "?audio=true";
+        $display.append('<br><a role="button" title="{{gettext("Download the audio file in case the player doesn\'t load")}}" href="' + downloadUrl + '">{{gettext("Download as .wav")}}</a>');
+      }
+    }
+  </script>
+  <div class="flex items-center gap-2 mb-4 mt-4">
+    <span id="captcha-display"><img src="/auth/show_captcha/{{captcha_id}}"></span>
+    <button type="button" class="site-nav-icon-btn" onclick="refreshCaptcha();" title="refresh">
+      <img src="{{ url_for('static', filename='refresh-circle-outline.svg')}}" class="icon icon-lg" alt="Refresh">
+    </button>
+    <button type="button" class="site-nav-icon-btn" id="captcha-switch" onclick="toggleContentType();" title="toggle image/audio captcha">
+      <img src="{{ url_for('static', filename='ear-outline.svg')}}" class="icon icon-lg" alt="Toggle audio">
+    </button>
+  </div>
+  <label>
+    {{gettext("Enter the numbers you saw/heard here.")}}
+    {{ field(size=32, placeholder=gettext("Enter the numbers you saw/heard here.")) }}
+  </label>
+  {% if field.errors %}
     {% for error in field.errors %}
-    <li><b>{{ error }}</b></li>
+      <small data-variant="error">{{ error }}</small>
     {% endfor %}
-    </ul>
   {% endif %}
-</dd>
+</div>
 {% endmacro %}
 
 {% macro render_password_field(field) %}
-<div class="form-group">
-	{{ field.label }} <a class="small" href={{url_for('auth.password_forgotten')}}>{{gettext('Password forgotten?')}}</a> 
-        {{ field(class_="form-control input-s", size=32) }}
-</div>
-<dd>{% if field.errors %}
-    <ul class=errors>
+<label>
+  {{ field.label.text }}
+  <a class="password-hint" href="{{url_for('auth.password_forgotten')}}">{{gettext('Password forgotten?')}}</a>
+  {{ field(size=32) }}
+  {% if field.errors %}
     {% for error in field.errors %}
-    <li><b>{{ error }}</b></li>
+      <small data-variant="error">{{ error }}</small>
     {% endfor %}
-    </ul>
   {% endif %}
-</dd>
+</label>
 {% endmacro %}
-	
+
 {% macro render_autocomplete_field(field) %}
-<div class="form-group">
-{{ field.label }}
-{{ field(class_="form-control input-s", type="search", list="themes", size=32) }}
-</div>
-<dd>{% if field.errors %}
-    <ul class=errors>
+<label>
+  {{ field.label.text }}
+  {{ field(type="search", list="themes", size=32) }}
+  {% if field.errors %}
     {% for error in field.errors %}
-    <li><b>{{ error }}</b></li>
+      <small data-variant="error">{{ error }}</small>
     {% endfor %}
-    </ul>
   {% endif %}
-</dd>
+</label>
 {% endmacro %}

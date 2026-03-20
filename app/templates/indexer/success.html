@@ -1,30 +1,38 @@
 <!--
-SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>, 
+SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>,
 
 SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 {% extends "base/base.html" %}
 {% block body %}
-<div class="container-full">
-  <br><br>
-  <div class="row">
-    <div class="col-md-10 p-3" style="padding-left: 20px; display:flex;  flex-direction: row;  flex-wrap: wrap;  margin-bottom: 45px;">
-      {% for message in messages %}
-      <b>{{message}}</b><br>
-      {% endfor %}
-    </div>
-    <p>{{gettext('Your URL has been successfully indexed! Here is a summary of your contribution:')}}</p>
-      {% if url %}
-      <p><img src="{{ url_for('static', filename='globe-outline.svg')}}" class='ion-icon'/><b> WWW Link: </b> <a href={{url}}>{{url}}</a><br></p>
-      {% endif %}
-      <p><img src="{{ url_for('static', filename='search-circle-outline.svg')}}" class='ion-icon'/><b> PeARS Link: </b> <a href={{share_url}}>{{share_url}}</a><br></p>
-      <p><img src="{{ url_for('static', filename='file-tray-stacked-outline.svg')}}" class='ion-icon'/><b> {{gettext('Category:')}} </b> {{theme}}<br></p>
-      <p><img src="{{ url_for('static', filename='chatbubble-ellipses-outline.svg')}}" class='ion-icon'/><b> {{gettext('Note:')}} </b> {{note}}<br></p>
-      <br>
-      <p>{{gettext('Made a mistake? No problem')}}, <a href="{{url_for('indexer.correct_entry')}}" onclick="return confirm('Are you sure you want to amend your contribution? Clicking on this link will delete the resource you have just indexed and send you back to the indexing form, prefilled with your previous entries.')">{{gettext('try again')}}</a></p>
-      <a class="btn btn-primary" href="{{url_for('indexer.index')}}">{{gettext("Index more pages")}}</a>
-  </div>
+<div class="content-prose">
+  {% for message in messages %}
+  <p><strong>{{message}}</strong></p>
+  {% endfor %}
+
+  <p>{{gettext('Your URL has been successfully indexed! Here is a summary of your contribution:')}}</p>
+
+  {% if url %}
+  <p>
+    <img src="{{ url_for('static', filename='globe-outline.svg')}}" class="icon" alt="">
+    <strong>WWW Link:</strong> <a href="{{url}}">{{url}}</a>
+  </p>
+  {% endif %}
+  <p>
+    <img src="{{ url_for('static', filename='search-circle-outline.svg')}}" class="icon" alt="">
+    <strong>PeARS Link:</strong> <a href="{{share_url}}">{{share_url}}</a>
+  </p>
+  <p>
+    <img src="{{ url_for('static', filename='file-tray-stacked-outline.svg')}}" class="icon" alt="">
+    <strong>{{gettext('Category:')}}</strong> {{theme}}
+  </p>
+  <p>
+    <img src="{{ url_for('static', filename='chatbubble-ellipses-outline.svg')}}" class="icon" alt="">
+    <strong>{{gettext('Note:')}}</strong> {{note}}
+  </p>
+
+  <p>{{gettext('Made a mistake? No problem')}}, <a href="{{url_for('indexer.correct_entry')}}" onclick="return confirm('Are you sure you want to amend your contribution? Clicking on this link will delete the resource you have just indexed and send you back to the indexing form, prefilled with your previous entries.')">{{gettext('try again')}}</a></p>
+  <p><a href="{{url_for('indexer.index')}}" role="button">{{gettext("Index more pages")}}</a></p>
 </div>
 {% endblock %}
-
