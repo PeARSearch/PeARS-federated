@@ -594,25 +594,18 @@ fieldset.group :focus {
   flex-wrap: wrap;
 }
 
-/* Tooltip overrides — constrain width for long text */
-[data-tooltip]::after {
-  max-width: 280px !important;
+/* Tooltip overrides — long tooltips on instance badges */
+.instance-badge[data-tooltip]::after {
+  max-width: 320px !important;
   white-space: normal !important;
   line-height: 1.4 !important;
   text-align: left !important;
-  word-break: break-word !important;
-  /* Prevent going off-screen: anchor to left edge instead of center */
-  inset-inline-start: 0 !important;
-  transform: translateX(0) translateY(4px) !important;
+  width: max-content !important;
 }
 
-[data-tooltip]:is(:hover, :focus-visible)::after {
-  transform: translateX(0) translateY(0) !important;
-}
-
-/* Re-center the arrow to point at the element */
-[data-tooltip]::before {
-  inset-inline-start: 1rem !important;
+/* Short action button tooltips — ensure they don't break weirdly */
+.result-action-btn[data-tooltip]::after {
+  white-space: nowrap !important;
 }
 
 /* Instance badges */
