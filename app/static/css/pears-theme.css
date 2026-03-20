@@ -1310,6 +1310,25 @@ fieldset.group :focus {
    Utility classes (supplement Oat)
    -------------------------------------------------------------------------- */
 
+/* Copy link button (inline, subtle) */
+.copy-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-medium);
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-7);
+  cursor: pointer;
+  color: var(--foreground);
+  transition: background-color var(--transition-fast);
+}
+
+.copy-link-btn:hover {
+  background: var(--accent);
+}
+
 .hidden { display: none; }
 .break-all { word-break: break-all; }
 .muted-text { font-size: var(--text-7); color: var(--muted-foreground); }

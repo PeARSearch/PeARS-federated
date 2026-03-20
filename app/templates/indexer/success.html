@@ -7,15 +7,24 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% extends "base/base.html" %}
 {% block title %}Indexing Successful{% endblock %}
 {% block body %}
-<div class="content-prose">
+<div class="content-prose text-center">
+
+  {% if session.get('theme') == 'dark' %}
+    <img src="{{ url_for('static', filename='happy_pears_dark.png')}}" width="80" alt="" class="mb-2">
+  {% else %}
+    <img src="{{ url_for('static', filename='happy_pears.png')}}" width="80" alt="" class="mb-2">
+  {% endif %}
+
   <h2>{{gettext('Successfully Indexed!')}}</h2>
 
   {% for message in messages %}
-  <div role="alert" data-variant="success">{{message}}</div>
+  <div role="alert" data-variant="success" class="text-start">{{message}}</div>
   {% endfor %}
 
-  <p>{{gettext('Here is a summary of your contribution:')}}</p>
+  <p class="muted-text">{{gettext('Here is a summary of your contribution:')}}</p>
+</div>
 
+<div class="content-prose">
   <table>
     {% if url %}
     <tr>
@@ -24,8 +33,13 @@ SPDX-License-Identifier: AGPL-3.0-only
     </tr>
     {% endif %}
     <tr>
-      <td><strong>PeARS Link</strong></td>
-      <td><a href="{{share_url}}">{{share_url}}</a></td>
+      <td><strong>{{gettext('Share link')}}</strong></td>
+      <td>
+        <button type="button" class="copy-link-btn" onclick="copyShareLink(this, '{{share_url}}')">
+          <img src="{{ url_for('static', filename='share-outline.svg')}}" class="icon icon-sm" alt="">
+          {{gettext('Copy link')}}
+        </button>
+      </td>
     </tr>
     <tr>
       <td><strong>{{gettext('Category')}}</strong></td>
@@ -41,12 +55,21 @@ SPDX-License-Identifier: AGPL-3.0-only
 
   <p class="muted-text mt-4">{{gettext('Your entry will appear in search results shortly.')}}</p>
 
-  <div class="flex gap-4 mt-4">
+  <div class="flex gap-4 mt-6">
     <a href="{{url_for('indexer.index')}}" role="button">{{gettext("Index another page")}}</a>
     <a href="{{url_for('indexer.correct_entry')}}" role="button" data-variant="secondary" class="outline"
-       onclick="return confirm('This will delete the entry you just indexed and return you to the form. Continue?')">
-      {{gettext('Edit this entry')}}
+       onclick="return confirm('{{gettext('This will delete the entry you just indexed and return you to the form with your previous entries pre-filled. Continue?')}}')">
+      {{gettext('Undo & redo')}}
     </a>
   </div>
 </div>
+
+<script>
+function copyShareLink(btn, link) {
+  navigator.clipboard.writeText(link);
+  var original = btn.innerHTML;
+  btn.innerHTML = '<img src="{{ url_for('static', filename='checkmark-done-outline.svg')}}" class="icon icon-sm" alt=""> {{gettext("Copied!")}}';
+  setTimeout(function() { btn.innerHTML = original; }, 2000);
+}
+</script>
 {% endblock %}
