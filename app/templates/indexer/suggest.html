@@ -5,7 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 {% extends "base/base.html" %}
-{% from "base/_formhelpers.html" import render_field, render_autocomplete_field, render_captcha_field %}
+{% from "base/_formhelpers.html" import render_captcha_field %}
 {% block title %}Suggest a URL{% endblock %}
 {% block body %}
 
@@ -19,15 +19,50 @@ SPDX-License-Identifier: AGPL-3.0-only
     <form method="POST" accept-charset="UTF-8" action="{{url_for('indexer.run_suggest_url')}}" enctype="multipart/form-data" autocomplete="off">
       <datalist id="themes"></datalist>
       {{ form.hidden_tag() }}
+
       {% if internal_message %}
       <div role="alert" data-variant="warning" class="mb-4">
         {{ internal_message }}
       </div>
       {% endif %}
-      {{ render_field(form.suggested_url) }}
-      {{ render_autocomplete_field(form.theme) }}
-      {{ render_field(form.note) }}
+
+      <!-- URL -->
+      <label>
+        {{gettext("URL to suggest")}}
+        {{ form.suggested_url(placeholder=gettext("https://example.com/interesting-article")) }}
+        {% if form.suggested_url.errors %}
+          {% for error in form.suggested_url.errors %}
+            <small data-variant="error">{{ error }}</small>
+          {% endfor %}
+        {% endif %}
+      </label>
+
+      <!-- Category -->
+      <label>
+        {{gettext("Category")}}
+        {{ form.theme(type="search", list="themes", placeholder=gettext("Start typing — suggestions will appear, or create your own")) }}
+        {% if form.theme.errors %}
+          {% for error in form.theme.errors %}
+            <small data-variant="error">{{ error }}</small>
+          {% endfor %}
+        {% endif %}
+      </label>
+
+      <!-- Note (optional) -->
+      <label>
+        {{gettext("Note")}} <small class="fine-text">{{gettext("optional")}}</small>
+        <textarea name="{{ form.note.name }}" id="{{ form.note.id }}" rows="3"
+          placeholder="{{gettext("Why is this resource useful? Any context for the admin reviewer.")}}">{{ form.note.data or '' }}</textarea>
+        {% if form.note.errors %}
+          {% for error in form.note.errors %}
+            <small data-variant="error">{{ error }}</small>
+          {% endfor %}
+        {% endif %}
+      </label>
+
+      <!-- CAPTCHA -->
       {{ render_captcha_field(form.captcha_answer, form.captcha_id.data) }}
+
       <button type="submit" class="w-full mt-4">{{gettext('Submit suggestion')}}</button>
     </form>
   </article>
