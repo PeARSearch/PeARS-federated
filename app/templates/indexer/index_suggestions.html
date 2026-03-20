@@ -99,16 +99,16 @@ SPDX-License-Identifier: AGPL-3.0-only
       </label>
 
       <label>
-        Pod
-        <fieldset class="group">
-          <select id="suggestion-pod-{{loop.index}}">
-            {% for pod, _ in suggestion.suggestions_by_pod.items() %}
-            <option value="{{pod}}">{{pod}}</option>
-            {% endfor %}
-          </select>
-          <span class="muted-text">or</span>
-          <input id="suggestion-custom-pod-{{loop.index}}" type="text" placeholder="Custom pod">
-        </fieldset>
+        {{gettext('Suggested pod')}}
+        <select id="suggestion-pod-{{loop.index}}">
+          {% for pod, _ in suggestion.suggestions_by_pod.items() %}
+          <option value="{{pod}}">{{pod}}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        {{gettext('Or use a custom pod')}}
+        <input id="suggestion-custom-pod-{{loop.index}}" type="text" placeholder="{{gettext('Leave empty to use suggested pod')}}">
       </label>
 
       <label>

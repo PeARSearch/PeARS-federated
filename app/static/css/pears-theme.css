@@ -413,9 +413,10 @@ mark, .search-highlight {
   outline-offset: 2px;
 }
 
-/* Search inputs: softer focus style */
-input[type="search"]:focus,
-input[type="text"]:focus,
+/* Form inputs: softer focus style */
+input:focus,
+select:focus,
+textarea:focus,
 fieldset.group :focus {
   outline: none;
   box-shadow: 0 0 0 2px light-dark(rgba(230, 126, 34, 0.2), rgba(240, 146, 62, 0.25));
