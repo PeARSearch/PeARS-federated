@@ -151,6 +151,14 @@ SPDX-License-Identifier: AGPL-3.0-only
   {% endfor %}
 
   <script>
+    // CSRF token for AJAX requests
+    var csrfToken = '{{ csrf_token() }}';
+    $.ajaxSetup({
+      beforeSend: function(xhr) {
+        xhr.setRequestHeader('X-CSRFToken', csrfToken);
+      }
+    });
+
     function togglePanel(id, panel) {
       var editPanel = document.getElementById('edit-panel-' + id);
       var rejectPanel = document.getElementById('reject-panel-' + id);
@@ -189,6 +197,8 @@ SPDX-License-Identifier: AGPL-3.0-only
     }
 
     function doIndex($button, url, origUrl, theme, notes, customTheme, id) {
+      // Clear any previous error messages
+      $('#suggestion-form-' + id + ' [role="alert"][data-variant="error"]').remove();
       $.ajax({
         url: '/indexer/index_from_suggestion_ajax',
         type: 'POST',
@@ -200,13 +210,13 @@ SPDX-License-Identifier: AGPL-3.0-only
         })
       }).done(function(resp) {
         if (resp.success) {
-          // Fade out the card
-          $('#suggestion-form-' + id).style = 'opacity: 0.5; pointer-events: none;';
+          var form = document.getElementById('suggestion-form-' + id);
+          if (form) { form.style.opacity = '0.5'; form.style.pointerEvents = 'none'; }
           $button.text('Done!');
           setTimeout(function() { location.reload(); }, 800);
         } else {
           $button.prop('disabled', false).text('Retry');
-          $button.after(
+          $button.closest('.suggestion-action-bar').after(
             $('<div role="alert" data-variant="error" class="mt-2">').text(resp.messages.join(', '))
           );
         }
@@ -215,6 +225,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 
     function confirmReject(id) {
       var $button = $('#suggestion-rej-' + id);
+      // Clear any previous error messages
+      $('#suggestion-form-' + id + ' [role="alert"][data-variant="error"]').remove();
       $button.prop('disabled', true).text('Rejecting...');
       var origUrl = $('#orig-url-' + id).val();
       var url = $('#edited-url-' + id).val();
@@ -227,7 +239,8 @@ SPDX-License-Identifier: AGPL-3.0-only
         data: JSON.stringify({ url: url, origUrl: origUrl, reason: reason })
       }).done(function(resp) {
         if (resp.success) {
-          $('#suggestion-form-' + id).style = 'opacity: 0.5; pointer-events: none;';
+          var form = document.getElementById('suggestion-form-' + id);
+          if (form) { form.style.opacity = '0.5'; form.style.pointerEvents = 'none'; }
           $button.text('Rejected');
           setTimeout(function() { location.reload(); }, 800);
         } else {
