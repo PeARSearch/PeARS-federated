@@ -404,12 +404,21 @@ mark, .search-highlight {
 }
 
 /* --------------------------------------------------------------------------
-   Focus ring — brand-colored
+   Focus ring — subtle brand-colored glow
+   Only visible for keyboard navigation (focus-visible), not mouse clicks.
    -------------------------------------------------------------------------- */
 
 :focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
+}
+
+/* Search inputs: softer focus style */
+input[type="search"]:focus,
+input[type="text"]:focus,
+fieldset.group :focus {
+  outline: none;
+  box-shadow: 0 0 0 2px light-dark(rgba(230, 126, 34, 0.2), rgba(240, 146, 62, 0.25));
 }
 
 /* --------------------------------------------------------------------------
