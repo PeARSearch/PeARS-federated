@@ -1,47 +1,40 @@
 <!--
-SPDX-FileCopyrightText: 2025 PeARS Project, <community@pearsproject.org>, 
+SPDX-FileCopyrightText: 2025 PeARS Project, <community@pearsproject.org>,
 
 SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 {% extends "base/base.html" %}
 {% block body %}
-<div class="container">
+<div class="content-prose">
+  <h2>F.A.Q.</h2>
 
-  <div class="row">
-       <div class="col">
-       <h3>F.A.Q.</h3>
-       <p><a href="#firsttime">What is this?</a><br>
-       <a href="#indexurl">How do I help this instance?</a><br>
-       <a href="#status">What is the status of the project?</a><br>
-       <a href="#contribute">How do I contribute to the code?</a><br>
-       <a href="#copyright">What is your approach to crawling?</a><br>
-       <br><br>
+  <details open>
+    <summary>What is this?</summary>
+    <p>Welcome, stranger! You are on an instance of 'PeARS Federated', a decentralised search engine. Every instance of PeARS can be considered a mini search engine for a single topic of interest. The focus of <a href="{{siteurl}}">{{sitename}}</a> is {{topic}}. Other instances deal with different topics.</p>
+    <p>PeARS is a curated search engine. This means that you can contribute to the content of the search index by suggesting interesting URLs. This ensures that the index is of particularly high quality, as it has been vetted by human contributors.</p>
+  </details>
 
-       <p id="firsttime"><b>What is this?</b></p>
-       <p>Welcome, stranger! You are on an instance of 'PeARS Federated', a decentralised search engine. Every instance of PeARS can be considered a mini search engine for a single topic of interest. The focus of <a href={{siteurl}}>{{sitename}}</a> is {{topic}}. Other instances deal with different topics.</p>
-       <p>PeARS is a curated search engine. This means that you can contribute to the content of the search index by suggesting interesting URLs. This ensures that the index is of particularly high quality, as it has been vetted by human contributors.</p>
+  <details>
+    <summary>How do I help this instance?</summary>
+    <p>Every PeARS instance includes a <a href="{{url_for('indexer.suggest')}}">suggestion page</a> where you can propose URLs to be indexed. Once you have entered a resource, an admin will review your proposal. Suggestions are normally accepted unless they contain offensive content or do not match the theme of the instance. We aim at indexing your entry within 24-48 hours.</p>
+    <p>If you notice any bug or have feedback for us, do not hesitate to send us a message on <a href="https://fosstodon.org/@pears">Mastodon</a>.</p>
+  </details>
 
-       <br><br>
-       <p id="indexurl"><b>How do I help this instance?</b></p>
-       <p>Every PeARS instance includes a <a href="{{url_for('indexer.suggest')}}">suggestion page</a> where you can propose URLs to be indexed. Once you have entered a resource, an admin will review your proposal. Suggestions are normally accepted unless they contain offensive content or do not match the theme of the instance. We aim at indexing your entry within 24-48 hours.</p>
-       <p>If you notice any bug or have feedback for us, do not hesitate to send us a message on <a href="https://fosstodon.org/@pears">Mastodon</a>.</p>
-       
-       <br><br>
-       <p id="status"><b>What is the status of the project?</b></p>
-       <p>PeARS is still in development. We have two test instances at <a href="https://ai-pears.org">https://ai-pears.org</a> and <a href="https://queer-pears.org">https://queer-pears.org</a>. We are currently working on 'linking' instances together, so that you can search any instance on the network from any other instance.</p>
+  <details>
+    <summary>What is the status of the project?</summary>
+    <p>PeARS is still in development. We have two test instances at <a href="https://ai-pears.org">https://ai-pears.org</a> and <a href="https://queer-pears.org">https://queer-pears.org</a>. We are currently working on 'linking' instances together, so that you can search any instance on the network from any other instance.</p>
+  </details>
 
-       <br><br>
-       <p id="contribute"><b>How do I contribute to the PeARS code?</b></p>
-       <p>We'd love to see you on our GitHub repos! Come and join the discussion <a href="https://github.com/orgs/PeARSearch/discussions">here</a>.</p>
+  <details>
+    <summary>How do I contribute to the PeARS code?</summary>
+    <p>We'd love to see you on our GitHub repos! Come and join the discussion <a href="https://github.com/orgs/PeARSearch/discussions">here</a>.</p>
+  </details>
 
-       <br><br>
-       <p id="indexurl"><b>What is your approach to crawling?</b></p>
-       <p>Crawling is a big topic at the moment, as Big Tech companies are often accused of indiscriminately crawling Web content to train AI models, and by extension, AI-based search.</p>
-       <p>PeARS always respects copyright holders. It automatically checks constraints set by robots.txt files and it only displays minimal snippets in search results. If you wish for your site to be removed from the the index, simply contact the admin for this instance, and we will delete your content.</p>
-       
-       <br><br>
-       </div>
-  </div> <!-- /row -->
-</div> <!-- /container full -->
+  <details>
+    <summary>What is your approach to crawling?</summary>
+    <p>Crawling is a big topic at the moment, as Big Tech companies are often accused of indiscriminately crawling Web content to train AI models, and by extension, AI-based search.</p>
+    <p>PeARS always respects copyright holders. It automatically checks constraints set by robots.txt files and it only displays minimal snippets in search results. If you wish for your site to be removed from the the index, simply contact the admin for this instance, and we will delete your content.</p>
+  </details>
+</div>
 {% endblock %}
