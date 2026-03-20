@@ -4,38 +4,21 @@
 
 {% block body %}
 
-<div class="container">
-
-  <div class="row">
-  <div class="col-sm-6">
-    <div class="card">
-      <div class="card-header text-center"><b>{{gettext('Login')}}</b></div>
-      <div class="card-body">
-	{% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <div class="notification is-danger">
-            {{ messages[0] }}</a>
-            </div>
-        {% endif %}
-        {% endwith %}
-      <form method="POST" action="/auth/login" enctype="multipart/form-data">
-        {{ form.hidden_tag() }}
-        <p>{{ render_field(form.email) }}</p>
-        <p>{{ render_password_field(form.password) }}</p>
-      </div><!-- card body -->
-      <div class="card-footer clearfix">
-        <span class="input-group-btn">
-  	<input id="submit_button" type="submit" class="btn btn-success" value="{{gettext('Log in')}}">
-      </div><!-- card footer -->
+<div class="auth-container">
+  <article>
+    <header class="text-center">
+      <h2>{{gettext('Login')}}</h2>
+    </header>
+    <form method="POST" action="/auth/login" enctype="multipart/form-data">
+      {{ form.hidden_tag() }}
+      <p>{{ render_field(form.email) }}</p>
+      <p>{{ render_password_field(form.password) }}</p>
+      <button type="submit">{{gettext('Log in')}}</button>
     </form>
-    </div>
-    {% if new_users_allowed %}
-    <br><p>{{gettext('No account yet?')}} <a href={{url_for('auth.signup')}}>{{gettext('Sign up')}}</a></p>
-    {% endif %}
- </div>
- </div>
- </div>
-
+  </article>
+  {% if new_users_allowed %}
+  <p class="text-center mt-4">{{gettext('No account yet?')}} <a href="{{url_for('auth.signup')}}">{{gettext('Sign up')}}</a></p>
+  {% endif %}
+</div>
 
 {% endblock %}
-

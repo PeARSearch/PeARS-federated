@@ -2,22 +2,14 @@
 
 {% block body %}
 
-<div class="text-center">
-	<h2>{{gettext("Account activation")}}</h2>
-	{% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <div class="notification is-danger">
-            {{ messages[0] }}
-            </div>
-        {% endif %}
-        {% endwith %}
-  <br />
+<div class="auth-container text-center">
+  <h2>{{gettext("Account activation")}}</h2>
   <p>
-  {{gettext("Please check your inbox (and your spam folder) - you should have received an email with a confirmation link.")}}
+    {{gettext("Please check your inbox (and your spam folder) - you should have received an email with a confirmation link.")}}
   </p>
   <p>
-  {{gettext("Didn't get the email?")}}
-  <a href="{{ url_for('auth.resend_confirmation') }}">{{gettext("Resend")}}</a>.
+    {{gettext("Didn't get the email?")}}
+    <a href="{{ url_for('auth.resend_confirmation') }}">{{gettext("Resend")}}</a>.
   </p>
 </div>
 
