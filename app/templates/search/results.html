@@ -98,7 +98,13 @@ SPDX-License-Identifier: AGPL-3.0-only
       <!-- 4. Metadata + actions -->
       <div class="result-meta">
         {% if result['pod_display'] %}
-        <a href="{{url_for('orchard.get_a_pod', pod=result['pod'])}}" class="result-pod-tag">{{result['pod_display']}}</a>
+          {% if result['instance_is_local'] %}
+        <a href="{{url_for('orchard.get_a_pod', pod=result['pod_display'])}}" class="result-pod-tag">{{result['pod_display']}}</a>
+          {% elif result.get('instance_url') %}
+        <a href="{{result['instance_url']}}orchard/get-a-pod?pod={{result['pod_display']}}" class="result-pod-tag" target="_blank">{{result['pod_display']}}</a>
+          {% else %}
+        <span class="result-pod-tag">{{result['pod_display']}}</span>
+          {% endif %}
         {% endif %}
 
         <div class="result-actions">

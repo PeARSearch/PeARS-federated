@@ -116,6 +116,7 @@ def prepare_gui_results(query, results):
         else:
             assert "x_instance_info" in r, f"Instance meta-info is missing in result:\n{r}\nThis might indicate a problem with your sitename."
             r['instance'] = r["x_instance_info"]["sitename"]
+            r['instance_url'] = r["x_instance_info"]["url"]
             r['instance_is_local'] = False
             instance_organization_text = r["x_instance_info"]["organization"] or "an unknown organization"
             instance_topic_text = r["x_instance_info"]["site_topic"]
