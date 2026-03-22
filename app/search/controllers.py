@@ -95,9 +95,9 @@ def prepare_gui_results(query, results):
         else:
             r['pod_display'] = r.get('pod', '')
         # Share URL: for regular URLs, share the actual URL directly.
-        # For pearslocal URLs, share the /api/get link.
+        # For pearslocal URLs, share the full absolute /api/get link.
         if url.startswith('pearslocal'):
-            r['share'] = r['display_url']
+            r['share'] = url_for('api.return_specific_url', url=url, _external=True)
         else:
             r['share'] = url
         logging.debug(f"RESULT URL {url}")
