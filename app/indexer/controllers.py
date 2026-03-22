@@ -47,6 +47,16 @@ def index():
     pods = Pods.query.all()
     themes = list(set([p.name.split('.u.')[0] for p in pods]))
     default_screen = 'url'
+    # Pre-populate forms from retry params (after a failed indexing attempt)
+    if request.args.get('retry_source') == 'manual':
+        form2.title.data = request.args.get('retry_title', '')
+        form2.description.data = request.args.get('retry_description', '')
+        form2.related_url.data = request.args.get('retry_url', '')
+        default_screen = 'manual'
+    elif request.args.get('retry_url'):
+        form1.suggested_url.data = request.args.get('retry_url', '')
+        form1.theme.data = request.args.get('retry_theme', '')
+        form1.note.data = request.args.get('retry_note', '')
     return render_template("indexer/index.html", \
             num_entries=num_db_entries, form1=form1, form2=form2, themes=themes, default_screen=default_screen)
 
@@ -130,7 +140,7 @@ def index_from_url():
         success, messages, share_url = run_indexer_url(url, theme, note, contributor, request.host_url)
         if success:
             return render_template('indexer/success.html', messages=messages, share_url=share_url, url=url, theme=theme, note=note)
-        return render_template('indexer/fail.html', messages = messages)
+        return render_template('indexer/fail.html', messages=messages, url=url, theme=theme, note=note, source='url')
     return render_template('indexer/index.html', form1=form, form2=ManualEntryForm(request.form), themes=themes, default_screen=default_screen)
 
 @indexer.route("/manual", methods=["POST"])
@@ -169,8 +179,8 @@ def index_from_manual():
         session['index_description'] = snippet
         success, messages, share_url = run_indexer_manual(url, title, snippet, theme, lang, note, contributor, request.host_url)
         if success:
-            return render_template('indexer/success.html', messages=messages, share_url=share_url,  theme=theme, note=snippet)
-        return render_template('indexer/fail.html', messages = messages)
+            return render_template('indexer/success.html', messages=messages, share_url=share_url, theme=theme, note=snippet)
+        return render_template('indexer/fail.html', messages=messages, title=title, description=snippet, url=url, source='manual')
     return render_template('indexer/index.html', form1=IndexerForm(request.form), form2=form, themes=themes, default_screen=default_screen)
 
 @indexer.route("/suggestion", methods=["POST"])

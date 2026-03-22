@@ -35,7 +35,13 @@ SPDX-License-Identifier: AGPL-3.0-only
   {% endif %}
 
   <div class="flex gap-4 mt-6">
+    {% if source == 'url' %}
+    <a href="{{url_for('indexer.index', retry_url=url, retry_theme=theme, retry_note=note)}}" role="button">{{gettext("Try again")}}</a>
+    {% elif source == 'manual' %}
+    <a href="{{url_for('indexer.index', retry_title=title, retry_description=description, retry_url=url, retry_source='manual')}}" role="button">{{gettext("Try again")}}</a>
+    {% else %}
     <a href="{{url_for('indexer.index')}}" role="button">{{gettext("Try again")}}</a>
+    {% endif %}
   </div>
 </div>
 {% endblock %}
