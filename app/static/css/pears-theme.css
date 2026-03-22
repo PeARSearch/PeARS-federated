@@ -1189,6 +1189,22 @@ fieldset.group :focus {
   gap: var(--space-1);
 }
 
+.captcha-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--border);
+  padding: var(--space-1);
+  border-radius: var(--radius-medium);
+  cursor: pointer;
+  color: var(--foreground);
+}
+
+.captcha-btn:hover {
+  background-color: var(--muted);
+}
+
 /* TOS / agreement checkbox */
 .tos-check {
   display: flex;

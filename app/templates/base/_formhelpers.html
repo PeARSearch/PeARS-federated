@@ -73,10 +73,10 @@ SPDX-License-Identifier: AGPL-3.0-only
   <div class="captcha-display-row">
     <span id="captcha-display"><img src="/auth/show_captcha/{{captcha_id}}"></span>
     <div class="captcha-controls">
-      <button type="button" class="site-nav-icon-btn" onclick="refreshCaptcha();" data-tooltip="{{gettext('New captcha')}}">
+      <button type="button" class="captcha-btn" onclick="refreshCaptcha();" data-tooltip="{{gettext('New captcha')}}">
         <img src="{{ url_for('static', filename='refresh-circle-outline.svg')}}" class="icon" alt="{{gettext('Refresh')}}">
       </button>
-      <button type="button" class="site-nav-icon-btn" id="captcha-switch" onclick="toggleContentType();" data-tooltip="{{gettext('Audio captcha')}}">
+      <button type="button" class="captcha-btn" id="captcha-switch" onclick="toggleContentType();" data-tooltip="{{gettext('Audio captcha')}}">
         <img src="{{ url_for('static', filename='ear-outline.svg')}}" class="icon" alt="{{gettext('Toggle audio')}}">
       </button>
     </div>
