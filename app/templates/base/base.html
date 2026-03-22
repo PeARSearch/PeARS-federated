@@ -121,13 +121,13 @@ SPDX-License-Identifier: AGPL-3.0-only
     </div>
     <div class="admin-bar-actions">
       <a href="{{url_for('settings.toggle_maintenance_mode')}}" class="admin-bar-action"
-         onclick="return confirm('{{gettext('Toggle maintenance mode? The site will become unavailable to users.')}}')"
+         onclick="if(confirm('{{gettext('Toggle maintenance mode? The site will become unavailable to users.')}}')){this.innerHTML='<span aria-busy=&quot;true&quot;>{{gettext('Toggling...')}}</span>'; return true;} return false;"
          data-tooltip="{{gettext('Toggle maintenance mode')}}">
         <img src="{{ url_for('static', filename='hammer-outline.svg')}}" class="icon icon-sm icon-invert" alt="">
         {{gettext('Maintenance')}}
       </a>
       <a href="{{url_for('settings.refresh_remote_instances')}}" class="admin-bar-action"
-         onclick="return confirm('{{gettext('Refresh the list of remote instances?')}}')"
+         onclick="if(confirm('{{gettext('Refresh the list of remote instances?')}}')){ this.innerHTML='<span aria-busy=&quot;true&quot;>{{gettext('Refreshing...')}}</span>'; return true; } return false;"
          data-tooltip="{{gettext('Refresh remote instances')}}">
         <img src="{{ url_for('static', filename='refresh-circle-outline.svg')}}" class="icon icon-sm icon-invert" alt="">
         {{gettext('Refresh')}}

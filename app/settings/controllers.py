@@ -65,10 +65,10 @@ def toggle_maintenance_mode():
 def refresh_remote_instances():
     try:
         app_module.instances, app_module.M, skipped_instances = filter_instances_by_language()
-        skip_text = gettext('<li class="list-group-item list-group-item-secondary"><small><a href="{}">{}</a><br><span class="badge text-bg-warning"><code>{}</code></span></small></li>')
-        message = "The list of remote instances was successfully refreshed."
+        skip_text = '<li style="margin-bottom:0.5em;"><a href="{}">{}</a><br><code style="font-size:0.85em;color:var(--muted-foreground);">{}</code></li>'
+        message = gettext("The list of remote instances was successfully refreshed.")
         if skipped_instances:
-            message += '<br>Some instances were skipped: <ul class="list-group">'
+            message += '<br>' + gettext('Some instances were skipped:') + '<ul style="margin-top:0.5em;padding-left:1.5em;">'
         for skipped in skipped_instances:
             message += skip_text.format(skipped["instance"], skipped["instance"], skipped["reason"])
         if skipped_instances:
