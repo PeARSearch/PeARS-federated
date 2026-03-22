@@ -70,6 +70,8 @@ class ReportingForm(FlaskForm):
     url = StringField(lazy_gettext('The url you are reporting'), [DataRequired(), URL_or_pearslocal()])
     report = TextAreaField(lazy_gettext('Description of the issue'), [DataRequired(), Length(max=1000)],  render_kw={"placeholder": lazy_gettext("Max 1000 characters.")})
     accept_tos = BooleanField(lazy_gettext('I confirm that I may be contacted in relation to my report.'), [DataRequired()])
+    captcha_id = HiddenField()
+    captcha_answer = StringField(lazy_gettext("Captcha:"))
 
 class FeedbackForm(FlaskForm):
     report = TextAreaField(lazy_gettext('Your feedback'), [DataRequired(), Length(max=1000)],  render_kw={"placeholder": lazy_gettext("Max 1000 characters.")})

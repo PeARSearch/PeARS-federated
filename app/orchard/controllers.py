@@ -13,6 +13,7 @@ from app import app, db
 from app.orchard.mk_urls_file import get_url_list_for_users
 from app.auth.decorators import check_permissions
 from app.auth.token import send_email
+from app.auth.captcha import mk_captcha, check_captcha
 from app.forms import ReportingForm, AnnotationForm, FeedbackForm
 
 dir_path = dirname(dirname(realpath(__file__)))
@@ -72,19 +73,33 @@ def rename_pod():
 
 
 @orchard.route("/report", methods=['GET','POST'])
-@check_permissions(login=True, confirmed=True)
 def report():
-    username = current_user.username
-    email = current_user.email
+    is_logged_in = current_user.is_authenticated and current_user.is_confirmed
+    email = current_user.email if is_logged_in else None
     form = ReportingForm()
+
     if request.method == 'GET':
-        form.url.data=request.args.get('url')
+        form.url.data = request.args.get('url')
+        if not is_logged_in:
+            captcha_id, _ = mk_captcha()
+            form.captcha_id.data = captcha_id
+
     if form.validate_on_submit():
+        # Verify captcha for logged-out users
+        if not is_logged_in:
+            captcha_id = request.form.get('captcha_id')
+            captcha_answer = request.form.get('captcha_answer')
+            if not check_captcha(captcha_id, captcha_answer):
+                flash(gettext("Incorrect captcha. Please try again."), "warning")
+                captcha_id, _ = mk_captcha()
+                form.captcha_id.data = captcha_id
+                return render_template('orchard/report.html', form=form, email=email)
+
         url = request.form.get('url')
         user_report = request.form.get('report')
-        print(url,user_report)
+        reporter = email if email else 'anonymous'
         mail_address = app.config['MAIL_USERNAME']
-        if send_email(mail_address,'URL report','Report from user '+email+'<br>'+url+'<br>'+user_report):
+        if send_email(mail_address, 'URL report', 'Report from user ' + reporter + '<br>' + url + '<br>' + user_report):
             flash(gettext("Your report has been sent. Thank you!"), "success")
         else:
             flash(gettext("We could not send your report. Please try again later or contact the administrator."), "danger")

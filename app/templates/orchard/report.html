@@ -5,7 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 {% extends "base/base.html" %}
-{% from "base/_formhelpers.html" import render_field %}
+{% from "base/_formhelpers.html" import render_field, render_captcha_field %}
 {% block title %}Report{% endblock %}
 {% block body %}
 
@@ -31,10 +31,18 @@ SPDX-License-Identifier: AGPL-3.0-only
       {{ form.hidden_tag() }}
       {{ form.url(type="hidden") }}
       {{ render_field(form.report) }}
+      {% if email %}
       <div class="tos-check">
         {{ form.accept_tos() }}
         <span>{{gettext('I confirm that I may be contacted in relation to my report and that my email address is')}} <strong>{{email}}</strong>.</span>
       </div>
+      {% else %}
+      <div class="tos-check">
+        {{ form.accept_tos() }}
+        <span>{{gettext('I confirm that I may be contacted in relation to my report.')}}</span>
+      </div>
+      {{ render_captcha_field(form.captcha_id, form.captcha_answer) }}
+      {% endif %}
       <button type="submit" class="w-full mt-4">{{gettext('Submit report')}}</button>
     </form>
   </article>
