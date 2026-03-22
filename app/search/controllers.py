@@ -94,6 +94,12 @@ def prepare_gui_results(query, results):
             r['pod_display'] = r['pod'].split('.u.')[0]
         else:
             r['pod_display'] = r.get('pod', '')
+        # Share URL: for regular URLs, share the actual URL directly.
+        # For pearslocal URLs, share the /api/get link.
+        if url.startswith('pearslocal'):
+            r['share'] = r['display_url']
+        else:
+            r['share'] = url
         logging.debug(f"RESULT URL {url}")
         if r['notes'] == 'None':
             r['notes'] = None
