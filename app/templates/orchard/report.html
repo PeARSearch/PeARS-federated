@@ -41,7 +41,7 @@ SPDX-License-Identifier: AGPL-3.0-only
         {{ form.accept_tos() }}
         <span>{{gettext('I confirm that I may be contacted in relation to my report.')}}</span>
       </div>
-      {{ render_captcha_field(form.captcha_id, form.captcha_answer) }}
+      {{ render_captcha_field(form.captcha_answer, form.captcha_id.data) }}
       {% endif %}
       <button type="submit" class="w-full mt-4">{{gettext('Submit report')}}</button>
     </form>
