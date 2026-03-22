@@ -1205,6 +1205,10 @@ fieldset.group :focus {
   background-color: var(--muted);
 }
 
+[data-theme="dark"] .captcha-btn .icon {
+  filter: invert(1);
+}
+
 /* TOS / agreement checkbox */
 .tos-check {
   display: flex;
