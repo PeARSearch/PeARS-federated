@@ -416,6 +416,7 @@
 
 html {
   background-color: var(--background);
+  font-size: clamp(1.0625rem, 0.95rem + 0.35vw, 1.1875rem);
 }
 
 body {
