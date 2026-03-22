@@ -25,7 +25,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% endif %}
 
 <!-- Search bar (compact, at top of results) -->
-<div class="max-w-results mb-2">
+<div class="max-w-results mb-1">
   <form method="POST" action="{{url_for('search.index')}}" enctype="multipart/form-data" id="searchform">
     {{ searchform.hidden_tag() }}
     <fieldset class="group results-search-box">

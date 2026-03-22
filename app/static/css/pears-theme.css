@@ -625,6 +625,8 @@ fieldset.group :focus {
 
 .results-list {
   max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* Compact search box on results page */
@@ -650,7 +652,7 @@ fieldset.group :focus {
 .results-summary {
   font-size: var(--text-7);
   color: var(--muted-foreground);
-  margin-bottom: var(--space-2);
+  margin-bottom: var(--space-3);
 }
 
 .results-summary strong {
@@ -658,19 +660,8 @@ fieldset.group :focus {
 }
 
 .result-item {
-  padding: var(--space-5) var(--space-3);
-  margin: 0 calc(-1 * var(--space-3));
+  padding: var(--space-3) 0;
   border-bottom: 1px solid var(--border);
-  border-radius: var(--radius-medium);
-  transition: background-color var(--transition-fast);
-}
-
-.result-item:hover {
-  background-color: var(--faint);
-}
-
-.result-item:first-child {
-  padding-top: 0;
 }
 
 .result-item:last-child {
@@ -718,11 +709,11 @@ fieldset.group :focus {
 
 .result-snippet {
   color: var(--foreground);
-  font-size: var(--text-regular);
+  font-size: var(--text-7);
   line-height: var(--leading-normal);
-  margin-bottom: var(--space-1);
+  margin-bottom: 0;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -730,11 +721,11 @@ fieldset.group :focus {
 .result-meta {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  margin-top: var(--space-2);
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
   font-size: var(--text-8);
   color: var(--muted-foreground);
-  flex-wrap: wrap;
 }
 
 /* Tooltip overrides — long tooltips on instance badges */
@@ -799,8 +790,7 @@ fieldset.group :focus {
 .result-actions {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  margin-left: auto;
+  gap: var(--space-1);
 }
 
 .result-action-btn {
@@ -901,9 +891,7 @@ fieldset.group :focus {
   }
 
   .result-actions {
-    margin-left: 0;
-    width: 100%;
-    margin-top: var(--space-1);
+    gap: var(--space-1);
   }
 
   .result-action-btn {
@@ -1510,7 +1498,7 @@ fieldset.group :focus {
 .break-all { word-break: break-all; }
 .muted-text { font-size: var(--text-7); color: var(--muted-foreground); }
 .fine-text { font-size: var(--text-8); color: var(--muted-foreground); }
-.max-w-results { max-width: 720px; }
+.max-w-results { max-width: 720px; margin-left: auto; margin-right: auto; }
 .max-w-hero { max-width: 600px; margin: 0 auto; }
 
 /* Settings page */
