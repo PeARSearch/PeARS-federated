@@ -98,7 +98,7 @@ SPDX-License-Identifier: AGPL-3.0-only
       <!-- 4. Metadata + actions -->
       <div class="result-meta">
         {% if result['pod_display'] %}
-        <span class="result-pod-tag">{{result['pod_display']}}</span>
+        <a href="{{url_for('orchard.get_a_pod', pod=result['pod'])}}" class="result-pod-tag">{{result['pod_display']}}</a>
         {% endif %}
 
         <div class="result-actions">
