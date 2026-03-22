@@ -311,10 +311,10 @@
     top: 100%;
     left: 0;
     right: 0;
-    background-color: var(--pears-orange);
-    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
-    padding: var(--space-4);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    background-color: var(--card);
+    border-bottom: 3px solid var(--pears-orange);
+    padding: var(--space-3) var(--space-4);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     z-index: var(--z-dropdown);
   }
 
@@ -336,14 +336,53 @@
 
   .site-nav-links {
     padding-left: 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.25);
-    padding-bottom: var(--space-3);
-    margin-bottom: var(--space-3);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: var(--space-2);
+    margin-bottom: var(--space-2);
   }
 
   .site-nav-links a,
   .site-nav-actions a {
-    padding: var(--space-2) var(--space-3);
+    color: var(--foreground);
+    padding: 12px var(--space-3);
+    border-radius: var(--radius-medium);
+    font-size: var(--text-6);
+  }
+
+  .site-nav-links a:hover,
+  .site-nav-actions a:hover {
+    background-color: var(--muted);
+    color: var(--primary);
+  }
+
+  .site-nav-actions {
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between;
+  }
+
+  .site-nav-actions a[role="button"] {
+    border-color: var(--primary);
+    color: var(--primary);
+    text-align: center;
+  }
+
+  .site-nav-actions a[role="button"]:hover {
+    background-color: var(--primary);
+    color: #fff;
+  }
+
+  .site-nav-icon-btn {
+    color: var(--foreground);
+    padding: 12px;
+  }
+
+  .site-nav-icon-btn .icon {
+    filter: none;
+  }
+
+  [data-theme="dark"] .site-nav-icon-btn .icon {
+    filter: invert(1);
   }
 }
 
@@ -375,10 +414,11 @@
   background-color: #1E1E34;
 }
 
-/* Dark mode mobile menu */
+/* Dark mode mobile menu: border accent swaps to orange */
 @media (max-width: 768px) {
   [data-theme="dark"] .site-nav-menu {
-    background-color: var(--pears-navy);
+    border-bottom-color: var(--pears-orange);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   }
 }
 
