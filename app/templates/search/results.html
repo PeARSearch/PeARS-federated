@@ -103,12 +103,14 @@ SPDX-License-Identifier: AGPL-3.0-only
 
         <div class="result-actions">
           {% if result['instance_is_local'] %}
+          {% if current_user.is_authenticated and current_user.is_confirmed %}
           <a href="{{url_for('orchard.annotate')}}?url={{result['url']}}"
              class="result-action-btn"
              data-tooltip="{{gettext('Add a note')}}"
              aria-label="{{gettext('Add a note to this entry')}}">
             <img src="{{ url_for('static', filename='chatbubble-outline.svg')}}" class="icon" alt="">
           </a>
+          {% endif %}
           <a href="{{url_for('orchard.report')}}?url={{result['url']}}"
              class="result-action-btn"
              data-tooltip="{{gettext('Report')}}"
