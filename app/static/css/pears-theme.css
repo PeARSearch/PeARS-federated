@@ -478,9 +478,14 @@ h1, h2, h3 {
   font-family: var(--font-display);
 }
 
-/* SVG mascots and logos — inherit text color for automatic theme adaptation */
-.mascot {
-  color: var(--foreground);
+/* SVG mascots and logos — invert in dark mode for visibility */
+[data-theme="dark"] .mascot {
+  filter: invert(0.85);
+}
+
+/* Navbar logo icon — always inverted (sits on orange/navy background) */
+.nav-logo-icon {
+  filter: invert(1);
 }
 
 /* --------------------------------------------------------------------------
