@@ -198,7 +198,7 @@
 }
 
 .site-nav-brand img {
-  height: 40px;
+  height: 54px;
   width: auto;
 }
 
@@ -480,11 +480,8 @@ h1, h2, h3 {
 }
 
 /* SVG mascots and logos — invert dark fills for dark mode visibility */
-[data-theme="dark"] .mascot {
-  filter: invert(1) brightness(0.95);
-}
-
-/* Hero logo — full invert for clean white on dark background */
+[data-theme="dark"] .mascot,
+[data-theme="dark"] .auth-logo,
 [data-theme="dark"] .hero-logo {
   filter: invert(1) brightness(0.95);
 }
