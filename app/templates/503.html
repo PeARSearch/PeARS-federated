@@ -5,7 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 {% extends "base/base.html" %}
-{% block title %}Service Unavailable{% endblock %}
+{% block title %}{{gettext('Service Unavailable')}}{% endblock %}
 {% block body %}
 <div class="auth-container text-center">
   <img src="{{ url_for('static', filename='images/sad.svg')}}" width="100" alt="" class="mascot">

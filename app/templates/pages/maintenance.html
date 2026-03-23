@@ -5,7 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 {% extends "base/base.html" %}
-{% block title %}Under Maintenance{% endblock %}
+{% block title %}{{gettext('Under Maintenance')}}{% endblock %}
 {% block body %}
 <div class="auth-container text-center">
   <img src="{{ url_for('static', filename='images/sad.svg')}}" width="120" alt="Under maintenance" class="mascot">

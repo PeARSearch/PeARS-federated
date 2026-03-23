@@ -5,7 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 {% extends "base/base.html" %}
-{% block title %}Review Suggestions{% endblock %}
+{% block title %}{{gettext('Review Suggestions')}}{% endblock %}
 {% block body %}
 
 <div class="content-prose--wide">
@@ -134,7 +134,7 @@ SPDX-License-Identifier: AGPL-3.0-only
     <div id="reject-panel-{{loop.index}}" class="suggestion-panel hidden">
       <label>
         {{gettext('Reason for rejection (optional)')}}
-        <input id="reject-reason-{{loop.index}}" type="text" placeholder="Why is this suggestion being rejected?">
+        <input id="reject-reason-{{loop.index}}" type="text" placeholder="{{gettext('Why is this suggestion being rejected?')}}">
       </label>
       <div class="suggestion-panel-actions">
         <button type="button" data-variant="danger" id="suggestion-rej-{{loop.index}}"
