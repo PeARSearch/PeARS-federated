@@ -188,6 +188,7 @@
   color: #fff;
   font-weight: var(--font-semibold);
   font-size: var(--text-5);
+  margin-left: calc(-1 * var(--space-2));
   white-space: nowrap;
 }
 
@@ -478,9 +479,14 @@ h1, h2, h3 {
   font-family: var(--font-display);
 }
 
-/* SVG mascots and logos — lighten dark parts in dark mode */
+/* SVG mascots and logos — invert dark fills for dark mode visibility */
 [data-theme="dark"] .mascot {
-  filter: brightness(1.6) saturate(1.2);
+  filter: invert(1) brightness(0.95);
+}
+
+/* Hero logo — full invert for clean white on dark background */
+[data-theme="dark"] .hero-logo {
+  filter: invert(1) brightness(0.95);
 }
 
 /* Navbar logo — white on colored background */
