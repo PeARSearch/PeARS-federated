@@ -7,20 +7,34 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% extends "base/base.html" %}
 {% block title %}Acknowledgments{% endblock %}
 {% block body %}
-<div class="content-prose--wide pb-8 text-center">
-  <header class="mb-6">
+<div class="content-prose pb-8">
+  <header class="text-center mb-6">
     <img src="{{ url_for('static', filename='images/happy.svg')}}" width="60" alt="" class="mascot">
     <h2>{{gettext('Acknowledgements')}}</h2>
     <p class="muted-text">{{gettext('PeARS is built by volunteers. We are grateful to everyone who contributes.')}}</p>
   </header>
 
-  <p>The PeARS logo, beautifully designed by <strong>Orion Chambadiyil</strong>, with SVG adaptations by <strong><a href="https://www.inspiredos.com/">Arun Sajeev</a></strong>.</p>
-  <p>The open-source icons offered by <a href="https://ionic.io/ionicons">Ionicons</a>.</p>
-  <p>The <a href="https://oat.ink">Oat UI</a> CSS framework by <strong>Kailash Nadh</strong>.</p>
-  <p>The <a href="https://github.com/adobe-fonts">Source font family</a> by <strong>Adobe</strong>.</p>
-  {% for ack in acknowledgements %}
-  <p>{{ack}}</p>
-  {% endfor %}
+  <h3>{{gettext('Design')}}</h3>
+  <ul>
+    <li>{{gettext('The PeARS logo, beautifully designed by')}} <strong>Orion Chambadiyil</strong>.</li>
+    <li>{{gettext('SVG logo and mascot adaptations by')}} <strong><a href="https://www.inspiredos.com/">Arun Sajeev</a></strong>.</li>
+  </ul>
+
+  <h3>{{gettext('Open source')}}</h3>
+  <ul>
+    <li>{{gettext('Icons by')}} <a href="https://ionic.io/ionicons">Ionicons</a>.</li>
+    <li>{{gettext('CSS framework:')}} <a href="https://oat.ink">Oat UI</a> {{gettext('by')}} <strong>Kailash Nadh</strong>.</li>
+    <li>{{gettext('Typography:')}} <a href="https://github.com/adobe-fonts">Source font family</a> {{gettext('by')}} <strong>Adobe</strong>.</li>
+  </ul>
+
+  {% if acknowledgements %}
+  <h3>{{gettext('Additional credits')}}</h3>
+  <ul>
+    {% for ack in acknowledgements %}
+    <li>{{ack}}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
 
   <hr class="mt-6 mb-6">
 
