@@ -185,7 +185,7 @@
   align-items: center;
   gap: var(--space-2);
   text-decoration: none;
-  color: #fff;
+  color: var(--pears-navy);
   font-weight: var(--font-semibold);
   font-size: var(--text-5);
   margin-left: calc(-1 * var(--space-2));
@@ -243,7 +243,7 @@
   padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-medium);
   text-decoration: none;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--pears-navy);
   font-size: var(--text-7);
   white-space: nowrap;
   transition: background-color var(--transition-fast), color var(--transition-fast);
@@ -251,20 +251,20 @@
 
 .site-nav-links a:hover,
 .site-nav-actions a:hover {
-  background-color: rgba(255, 255, 255, 0.15);
-  color: #fff;
+  background-color: rgba(0, 0, 0, 0.08);
+  color: var(--pears-navy);
 }
 
 /* Login button as ghost button on orange nav */
 .site-nav-actions a[role="button"] {
-  border: 1.5px solid #fff;
+  border: 1.5px solid var(--pears-navy);
   padding: var(--space-1) var(--space-3);
-  color: #fff;
+  color: var(--pears-navy);
   font-weight: var(--font-semibold);
 }
 
 .site-nav-actions a[role="button"]:hover {
-  background-color: #fff;
+  background-color: var(--pears-navy);
   color: var(--pears-orange);
 }
 
@@ -282,12 +282,12 @@
 }
 
 .site-nav-icon-btn:hover {
-  background-color: rgba(255, 255, 255, 0.15);
+  background-color: rgba(0, 0, 0, 0.08);
 }
 
-/* Nav icons are white on the orange background — invert them always */
+/* Nav icons — dark on orange nav (light mode) */
 .site-nav-icon-btn .icon {
-  filter: invert(1);
+  filter: none;
 }
 
 /* Invert dark SVG icons in dark mode where needed.
@@ -387,17 +387,34 @@
   }
 }
 
-/* Dark mode: navy nav with orange accents */
+/* Dark mode: navy nav with white text, orange accents */
 [data-theme="dark"] .site-nav {
   background-color: var(--pears-navy);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   border-bottom-color: var(--pears-orange);
 }
 
+[data-theme="dark"] .site-nav-brand {
+  color: #fff;
+}
+
+[data-theme="dark"] .site-nav-links a,
+[data-theme="dark"] .site-nav-actions a {
+  color: rgba(255, 255, 255, 0.9);
+}
+
 [data-theme="dark"] .site-nav-links a:hover,
 [data-theme="dark"] .site-nav-actions a:hover {
   background-color: rgba(255, 255, 255, 0.1);
   color: var(--pears-orange);
+}
+
+[data-theme="dark"] .site-nav-icon-btn .icon {
+  filter: invert(1);
+}
+
+[data-theme="dark"] .nav-logo-icon {
+  filter: brightness(0) invert(1);
 }
 
 [data-theme="dark"] .site-nav-actions a[role="button"] {
@@ -486,9 +503,9 @@ h1, h2, h3 {
   filter: invert(1) brightness(0.95);
 }
 
-/* Navbar logo — white on colored background */
+/* Navbar logo — no filter in light mode (navy SVG on orange bg) */
 .nav-logo-icon {
-  filter: brightness(0) invert(1);
+  filter: none;
 }
 
 /* --------------------------------------------------------------------------
