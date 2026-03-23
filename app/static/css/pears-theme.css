@@ -256,6 +256,16 @@
   color: var(--pears-navy);
 }
 
+.site-nav-links a[aria-current="page"] {
+  background-color: rgba(0, 0, 0, 0.1);
+  color: var(--pears-navy);
+}
+
+[data-theme="dark"] .site-nav-links a[aria-current="page"] {
+  background-color: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
 /* Login button as ghost button on orange nav */
 .site-nav-actions a[role="button"] {
   border: 1.5px solid var(--pears-navy);

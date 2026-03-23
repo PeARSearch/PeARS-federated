@@ -71,13 +71,13 @@ SPDX-License-Identifier: AGPL-3.0-only
       <div class="site-nav-menu" id="nav-menu">
         {% block navbar_links %}
         <ul class="site-nav-links" role="list">
-          <li><a href="{{url_for('search.index')}}">{{gettext('Search')}}</a></li>
-          <li><a href="{{url_for('indexer.suggest')}}">{{gettext('Suggest')}}</a></li>
-          <li><a href="{{url_for('orchard.index')}}">{{gettext('Categories')}}</a></li>
+          <li><a href="{{url_for('search.index')}}" {% if request.endpoint == 'search.index' %}aria-current="page"{% endif %}>{{gettext('Search')}}</a></li>
+          <li><a href="{{url_for('indexer.suggest')}}" {% if request.endpoint == 'indexer.suggest' %}aria-current="page"{% endif %}>{{gettext('Suggest')}}</a></li>
+          <li><a href="{{url_for('orchard.index')}}" {% if request.endpoint and request.endpoint.startswith('orchard') %}aria-current="page"{% endif %}>{{gettext('Categories')}}</a></li>
           {% if current_user.is_authenticated and current_user.is_confirmed %}
-          <li><a href="{{url_for('settings.index')}}">{{gettext('Profile')}}</a></li>
+          <li><a href="{{url_for('settings.index')}}" {% if request.endpoint and request.endpoint.startswith('settings') %}aria-current="page"{% endif %}>{{gettext('Profile')}}</a></li>
           {% endif %}
-          <li><a href="{{url_for('pages.return_faq')}}">{{gettext('F.A.Q.')}}</a></li>
+          <li><a href="{{url_for('pages.return_faq')}}" {% if request.endpoint == 'pages.return_faq' %}aria-current="page"{% endif %}>{{gettext('F.A.Q.')}}</a></li>
         </ul>
 
         <ul class="site-nav-actions" role="list">
