@@ -9,11 +9,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% block body %}
 <div class="content-prose">
   <div class="text-center mb-4">
-    {% if session.get('theme') == 'dark' %}
-      <img src="{{ url_for('static', filename='sad_pears_dark.png')}}" width="80" alt="">
-    {% else %}
-      <img src="{{ url_for('static', filename='sad_pears.png')}}" width="80" alt="">
-    {% endif %}
+    <img src="{{ url_for('static', filename='images/sad.svg')}}" width="80" alt="" class="mascot">
     <h2>{{gettext('Indexing Failed')}}</h2>
   </div>
 

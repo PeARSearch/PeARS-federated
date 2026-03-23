@@ -8,11 +8,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% block title %}Service Unavailable{% endblock %}
 {% block body %}
 <div class="auth-container text-center">
-  {% if session.get('theme') == 'dark' %}
-    <img src="{{ url_for('static', filename='sad_pears_dark.png')}}" width="100" alt="">
-  {% else %}
-    <img src="{{ url_for('static', filename='sad_pears.png')}}" width="100" alt="">
-  {% endif %}
+  <img src="{{ url_for('static', filename='images/sad.svg')}}" width="100" alt="" class="mascot">
   <h2>{{gettext('Under Maintenance')}}</h2>
   <p class="muted-text">{{gettext("We're performing some maintenance on this instance. Please check back shortly.")}}</p>
 </div>

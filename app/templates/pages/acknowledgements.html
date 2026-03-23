@@ -9,11 +9,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% block body %}
 <div class="content-prose--wide pb-8 text-center">
   <header class="mb-6">
-    {% if session.get('theme') == 'dark' %}
-      <img src="{{ url_for('static', filename='happy_pears_dark.png')}}" width="60" alt="">
-    {% else %}
-      <img src="{{ url_for('static', filename='happy_pears.png')}}" width="60" alt="">
-    {% endif %}
+    <img src="{{ url_for('static', filename='images/happy.svg')}}" width="60" alt="" class="mascot">
     <h2>{{gettext('Acknowledgements')}}</h2>
     <p class="muted-text">{{gettext('PeARS is built by volunteers. We are grateful to everyone who contributes.')}}</p>
   </header>

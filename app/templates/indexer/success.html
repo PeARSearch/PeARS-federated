@@ -9,11 +9,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% block body %}
 <div class="content-prose text-center">
 
-  {% if session.get('theme') == 'dark' %}
-    <img src="{{ url_for('static', filename='happy_pears_dark.png')}}" width="80" alt="" class="mb-2">
-  {% else %}
-    <img src="{{ url_for('static', filename='happy_pears.png')}}" width="80" alt="" class="mb-2">
-  {% endif %}
+  <img src="{{ url_for('static', filename='images/happy.svg')}}" width="80" alt="" class="mascot mb-2">
 
   <h2>{{gettext('Successfully Indexed!')}}</h2>
 

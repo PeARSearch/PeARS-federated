@@ -13,11 +13,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% if internal_message %}
 <div role="alert" data-variant="warning" class="flash-alert mb-4 max-w-results">
   <span class="flex items-center gap-2">
-    {% if session.get('theme') == 'dark' %}
-      <img src="{{ url_for('static', filename='happy_pears_dark.png')}}" width="40" alt="">
-    {% else %}
-      <img src="{{ url_for('static', filename='happy_pears.png')}}" width="40" alt="">
-    {% endif %}
+    <img src="{{ url_for('static', filename='images/happy.svg')}}" width="40" alt="" class="mascot">
     {{internal_message}}
   </span>
   <button type="button" class="flash-dismiss" aria-label="{{gettext('Dismiss')}}" onclick="this.parentElement.remove();">&times;</button>
@@ -44,11 +40,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 <div class="results-list" role="region" aria-label="{{gettext('Search results')}}">
   {% if results == None %}
     <div class="no-results">
-      {% if session.get('theme') == 'dark' %}
-        <img src="{{ url_for('static', filename='sad_pears_dark.png')}}" width="80" alt="">
-      {% else %}
-        <img src="{{ url_for('static', filename='sad_pears.png')}}" width="80" alt="">
-      {% endif %}
+      <img src="{{ url_for('static', filename='images/sad.svg')}}" width="80" alt="" class="mascot">
       <h3>{{gettext('No results found')}}</h3>
       <p>{{gettext("This could be because the topic doesn't match this instance, or the index is still growing.")}}</p>
       <ul class="no-results-suggestions">

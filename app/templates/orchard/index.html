@@ -21,11 +21,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
   {% if not pears %}
   <div class="no-results">
-    {% if session.get('theme') == 'dark' %}
-      <img src="{{ url_for('static', filename='sad_pears_dark.png')}}" width="80" alt="">
-    {% else %}
-      <img src="{{ url_for('static', filename='sad_pears.png')}}" width="80" alt="">
-    {% endif %}
+    <img src="{{ url_for('static', filename='images/sad.svg')}}" width="80" alt="" class="mascot">
     <h3>{{gettext('No categories yet')}}</h3>
     <p>{{gettext("Be the first to contribute!")}}</p>
     <p><a href="{{url_for('indexer.suggest')}}" role="button">{{gettext('Suggest a URL')}}</a></p>

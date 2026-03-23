@@ -18,11 +18,7 @@ SPDX-License-Identifier: AGPL-3.0-only
       <a href="{{ url_for('search.index')}}"><img class="hero-logo" src="{{url_for('serve_logos', path='logo.png')}}" alt="PeARS"></a>
     {% endif %}
   {% else %}
-    {% if session.get('theme') == 'dark' %}
-      <a href="{{ url_for('search.index')}}"><img class="hero-logo" src="{{ url_for('static', filename='pears-logo-dark.png')}}" alt="PeARS"></a>
-    {% else %}
-      <a href="{{ url_for('search.index')}}"><img class="hero-logo" src="{{ url_for('static', filename='pears-logo.png')}}" alt="PeARS"></a>
-    {% endif %}
+    <a href="{{ url_for('search.index')}}"><img class="hero-logo" src="{{ url_for('static', filename='images/logo.svg')}}" alt="PeARS"></a>
   {% endif %}
 
   <!-- Subtitle: what this instance is about -->

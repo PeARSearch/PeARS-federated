@@ -478,6 +478,11 @@ h1, h2, h3 {
   font-family: var(--font-display);
 }
 
+/* SVG mascots and logos — inherit text color for automatic theme adaptation */
+.mascot {
+  color: var(--foreground);
+}
+
 /* --------------------------------------------------------------------------
    Search highlight
    -------------------------------------------------------------------------- */
