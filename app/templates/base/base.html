@@ -71,7 +71,6 @@ SPDX-License-Identifier: AGPL-3.0-only
       <div class="site-nav-menu" id="nav-menu">
         {% block navbar_links %}
         <ul class="site-nav-links" role="list">
-          <li><a href="{{url_for('search.index')}}">{{gettext('Search')}}</a></li>
           <li><a href="{{url_for('indexer.suggest')}}">{{gettext('Suggest')}}</a></li>
           <li><a href="{{url_for('orchard.index')}}">{{gettext('Categories')}}</a></li>
           {% if current_user.is_authenticated and current_user.is_confirmed %}

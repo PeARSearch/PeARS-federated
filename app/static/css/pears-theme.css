@@ -188,7 +188,7 @@
   color: var(--pears-navy);
   font-weight: var(--font-semibold);
   font-size: var(--text-5);
-  margin-left: calc(-1 * var(--space-2));
+  margin-left: 0;
   white-space: nowrap;
 }
 
@@ -245,6 +245,7 @@
   text-decoration: none;
   color: var(--pears-navy);
   font-size: var(--text-7);
+  font-weight: var(--font-semibold);
   white-space: nowrap;
   transition: background-color var(--transition-fast), color var(--transition-fast);
 }
