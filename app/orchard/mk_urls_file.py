@@ -6,6 +6,7 @@ from os.path import dirname, realpath, join
 from os import getenv
 from flask import request
 from app.api.models import Urls
+from app import app
 
 dir_path = dirname(dirname(realpath(__file__)))
 pod_dir = getenv("PODS_DIR", join(dir_path, 'pods'))
@@ -21,12 +22,14 @@ def get_url_list_for_users(theme):
             continue
         if entry.url.startswith('pearslocal'):
             display_url = join(request.host_url,'api','get?url='+entry.url)
+            snippet = entry.snippet
         else:
             display_url = entry.url
+            snippet = ' '.join(entry.snippet.split()[:app.config['SNIPPET_LENGTH']])
         urls.append({
             'url': display_url,
             'title': entry.title or '',
-            'snippet': entry.snippet or '',
+            'snippet': snippet or '',
         })
         f_out.write(display_url+'\n')
     f_out.close()
