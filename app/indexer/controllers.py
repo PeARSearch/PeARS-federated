@@ -294,8 +294,8 @@ def index_url_ajax():
 @indexer.route("/reject_suggestion_ajax", methods=["POST"])
 @check_permissions(login=True, confirmed=True, admin=True)
 def reject_suggestion_ajax():
-    url = request.json.get('orig_url').strip() # json data also contains `url` (cleaned/edited url), but this is unused in the rejection logic for now
-    reason = request.json.get('reason').strip()
+    url = (request.json.get('origUrl') or request.json.get('orig_url', '')).strip()
+    reason = (request.json.get('reason') or '').strip()
     matching_suggestions = (
         db.session
         .query(Suggestions)
