@@ -1,43 +1,39 @@
 <!--
-SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>, 
+SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>,
 
 SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 {% extends "base/base.html" %}
 {% from "base/_formhelpers.html" import render_field %}
+{% block title %}{{gettext('Add Note')}}{% endblock %}
 {% block body %}
-<div class="container">
 
-  <div class="row p-3">
-    <div class="card">
-	    <div class="card-header text-center"><b>{{gettext('Add a note to a URL')}}</b></div>
-      <div class="card-body">
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <div class="notification is-danger">
-            {{ messages[0] }}</a>
-            </div>
-        {% endif %}
-        {% endwith %}
-	<p>{{gettext('You can add here a comment on this URL for the benefit of the community. Your comment will appear <i>with your username</i> under the URL in the search results.')}}</p>
-	<br>
-      <form method="POST" action="/orchard/annotate" enctype="multipart/form-data">
-        {{ form.hidden_tag() }}
-        <p>{{ render_field(form.url, readonly=True) }}</p>
-        <p>{{ render_field(form.note) }}</p>
-	<div class="form-check">
-	  {{ form.accept_tos(class_="form-check-input") }}
-	  <label class="form-check-label" for="legal">{{gettext('I agree for my comment to be included in the public notes for this url, together with my username.')}}</label>
-        </div>
-      </div><!-- card body -->
-      <div class="card-footer clearfix">
-        <span class="input-group-btn">
-        <input id="submit_button" type="submit" class="btn btn-success" value="Add comment">
-      </div><!-- card footer -->
-    </form>
+<div class="auth-container--wide">
+  <article class="form-card">
+    <header class="text-center">
+      <img src="{{ url_for('static', filename='images/pears-icon.svg')}}" width="48" alt="PeARS" class="auth-logo">
+      <h2>{{gettext('Add a note')}}</h2>
+      <p class="muted-text">{{gettext('Share your knowledge about this resource with the community.')}}</p>
+    </header>
+
+    <!-- URL being annotated -->
+    <div class="annotate-url mb-4">
+      <a href="{{form.url.data}}" target="_blank">{{form.url.data}}</a>
     </div>
- </div>
 
-</div><!-- /.container -->
+    <form method="POST" action="/orchard/annotate" enctype="multipart/form-data">
+      {{ form.hidden_tag() }}
+      {{ form.url(type="hidden") }}
+      {{ render_field(form.note) }}
+      <p class="fine-text">{{gettext('Your note will appear with your username under this URL in search results.')}}</p>
+      <div class="tos-check">
+        {{ form.accept_tos() }}
+        <span>{{gettext('I agree for my comment to be included in the public notes for this URL, together with my username.')}}</span>
+      </div>
+      <button type="submit" class="w-full mt-4">{{gettext('Add note')}}</button>
+    </form>
+  </article>
+</div>
+
 {% endblock %}

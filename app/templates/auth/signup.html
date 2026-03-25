@@ -1,47 +1,40 @@
+<!--
+SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>,
+
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
 {% extends "base/base.html" %}
 {% from "base/_formhelpers.html" import render_field, render_captcha_field %}
-
+{% block title %}{{gettext('Sign Up')}}{% endblock %}
 {% block body %}
 
-<div class="container">
-
-  <div class="row">
-  <div class="col-sm-6">
-    <div class="card">
-      <div class="card-header text-center"><b>{{gettext('Signup')}}</b></div>
-      <div class="card-body">
-	{% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <div class="notification is-danger">
-            {{ messages[0] }}
-            </div>
-        {% endif %}
-        {% endwith %}
-        {% if new_users_allowed %}
-        <form method="POST" action="/auth/signup" enctype="multipart/form-data">
-        {{ form.hidden_tag() }}
-        <p>{{ render_field(form.email) }}</p>
-        <p>{{ render_field(form.username) }}</p>
-        <p>{{ render_field(form.password) }}</p>
-        <p>{{ render_field(form.confirm) }}</p>
-        <p>{{ render_captcha_field(form.captcha_answer, form.captcha_id.data) }}</p>
-	<div class="form-check">
-	  {{ form.accept_tos(class_="form-check-input") }}
-	  <label class="form-check-label" for="legal">{{gettext("I agree to the <a href='../../privacy/'>privacy policy</a> and <a href='../../terms-of-service/'>terms of service</a> of this site.")|safe}}</label>
-        </div>
-      </div><!-- card body -->
-      <div class="card-footer clearfix">
-        <span class="input-group-btn">
-		<input id="submit_button" type="submit" class="btn btn-success" value="{{gettext('Sign up')}}">
-      </div><!-- card footer -->
-      </form>
-      {% endif %}
-    </div>
-    <br><p>{{gettext('Do you already have an account?')}}  <a href={{url_for('auth.login')}}>{{gettext('Log in')}}</a></p>
- </div>
- </div>
- </div>
-
+<div class="auth-container">
+  <article class="auth-card">
+    <header class="text-center">
+      <img src="{{ url_for('static', filename='images/pears-icon.svg')}}" width="48" alt="PeARS" class="auth-logo">
+      <h2>{{gettext('Sign Up')}}</h2>
+      <p class="muted-text">{{gettext('Join PeARS and help build the index')}}</p>
+    </header>
+    {% if new_users_allowed %}
+    <form method="POST" action="/auth/signup" enctype="multipart/form-data">
+      {{ form.hidden_tag() }}
+      {{ render_field(form.email) }}
+      {{ render_field(form.username) }}
+      {{ render_field(form.password) }}
+      {{ render_field(form.confirm) }}
+      {{ render_captcha_field(form.captcha_answer, form.captcha_id.data) }}
+      <div class="tos-check">
+        {{ form.accept_tos() }}
+        <span>{{gettext("I agree to the")}} <a href="{{url_for('pages.return_privacy')}}">{{gettext("privacy policy")}}</a> {{gettext("and")}} <a href="{{url_for('pages.return_tos')}}">{{gettext("terms of service")}}</a>.</span>
+      </div>
+      <button type="submit" class="w-full mt-4">{{gettext('Sign up')}}</button>
+    </form>
+    {% else %}
+    <p class="text-center muted-text">{{gettext('Registration is currently closed. Please check back later.')}}</p>
+    {% endif %}
+  </article>
+  <p class="text-center mt-6 muted-text auth-alt-action">{{gettext('Already have an account?')}} <a href="{{url_for('auth.login')}}">{{gettext('Log in')}}</a></p>
+</div>
 
 {% endblock %}
-

@@ -1,59 +1,65 @@
 <!--
-SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>, 
+SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>,
 
 SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 {% extends "base/base.html" %}
 {% from "base/_formhelpers.html" import render_search_field %}
+{% block title %}{{gettext('Home')}}{% endblock %}
 {% block body %}
-  <div class="row">
-    <div class="col-lg-2"></div>
-    <div class="col-lg-8 text-center mt-5">
-      {% if own_brand %}
-	{% if session.get('theme') == 'dark' %}
-          <a href="{{ url_for('search.index')}}"><img width=350px; src="{{url_for('serve_logos', path='logo-dark.png')}}"></a>
-	{% else %}
-          <a href="{{ url_for('search.index')}}"><img width=350px; src="{{url_for('serve_logos', path='logo.png')}}"></a>
-	{% endif %}
-      {% else %}
-	{% if session.get('theme') == 'dark' %}
-          <a href="{{ url_for('search.index')}}"><img width=350px; src="{{ url_for('static', filename='pears-logo-dark.png')}}"></a>
-	{% else %}
-          <a href="{{ url_for('search.index')}}"><img width=350px; src="{{ url_for('static', filename='pears-logo.png')}}"></a>
-	{% endif %}
-      {% endif %}
-      <form method="POST" action="{{url_for('search.index')}}" enctype="multipart/form-data" id='searchform'>
-        {{ searchform.hidden_tag() }}
-        <div class="input-group group mt-4" >
-          {{ render_search_field(searchform.query, placeholder) }}
-	  <button class="btn btn-lg btn-success" type="submit" id='searchbutton'><img src="{{ url_for('static', filename='search-outline.svg')}}" class='ion-icon'/></button>
-          <button class="btn btn-lg btn-success" type="button" id='loadingbutton' style='display:none'>
-            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-          </button>
-        </div>
-      </form>
-      <p class="small text-start">This search box will query the whole PeARS network. To limit your search to this instance, simply add <i>!here</i> to your query.</p>
-	{% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <div class="notification is-danger">
-		    <br><b>{{ messages[0] }}</b>
-            </div>
-        {% endif %}
-        {% endwith %}
-    </div>
-  </div> 
-  {% if internal_message %}
-  <div class="row">
-    <div class="col-lg-8 mt-5 mx-auto">
-      <div class="alert alert-info alert-dismissible">
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        {{internal_message}}
-      </div>
-    </div>
+
+<div class="hero-search">
+  <!-- Logo -->
+  {% if own_brand %}
+    {% if session.get('theme') == 'dark' %}
+      <a href="{{ url_for('search.index')}}"><img class="hero-logo" src="{{url_for('serve_logos', path='logo-dark.png')}}" alt="PeARS"></a>
+    {% else %}
+      <a href="{{ url_for('search.index')}}"><img class="hero-logo" src="{{url_for('serve_logos', path='logo.png')}}" alt="PeARS"></a>
+    {% endif %}
+  {% else %}
+    <a href="{{ url_for('search.index')}}"><img class="hero-logo" src="{{ url_for('static', filename='images/logo.svg')}}" alt="PeARS"></a>
+  {% endif %}
+
+  <!-- Subtitle: what this instance is about -->
+  {% if config['SITE_TOPIC'] %}
+  <p class="hero-subtitle">{{gettext('A federated search engine for')}} <em>{{config['SITE_TOPIC']}}</em></p>
+  {% endif %}
+
+  <!-- Search form -->
+  <div class="search-box">
+    <form method="POST" action="{{url_for('search.index')}}" enctype="multipart/form-data" id="searchform">
+      {{ searchform.hidden_tag() }}
+      <fieldset class="group">
+        {{ render_search_field(searchform.query, placeholder) }}
+        <button type="submit" id="searchbutton" aria-label="{{gettext('Search')}}">
+          <img src="{{ url_for('static', filename='search-outline.svg')}}" class="icon" alt="">
+        </button>
+        <button type="button" id="loadingbutton" class="hidden" aria-busy="true" disabled>
+          {{gettext('Searching...')}}
+        </button>
+      </fieldset>
+    </form>
+    <p class="hero-tagline">
+      {{gettext('Searches the whole PeARS network. Add')}} <code>!here</code> {{gettext('to search this instance only.')}}
+    </p>
   </div>
-      {% endif %}
+
+  <!-- Discovery: browse categories -->
+  <p class="hero-discovery">
+    <a href="{{url_for('orchard.index')}}">{{gettext('Browse categories')}}</a>
+    &middot;
+    <a href="{{url_for('pages.return_faq')}}">{{gettext('Learn more')}}</a>
+  </p>
+</div>
+
+{% if internal_message %}
+<div class="max-w-hero">
+  <div role="alert" data-variant="warning">
+    {{internal_message}}
+  </div>
+</div>
+{% endif %}
 
 <script src="{{ url_for('static', filename='js/loading.js')}}"></script>
 {% endblock %}
-

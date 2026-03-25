@@ -1,26 +1,50 @@
 <!--
-SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>, 
+SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>,
 
 SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 {% extends "base/base.html" %}
+{% block title %}{{ query }}{% endblock %}
 {% block body %}
-<div class="container">
-  <div class="row">
-    <div class="card">
-	    <div class="card-header"><b>{{gettext('Theme')}}: {{query}}</b></div>
-         <div class="card-body">
-	     {% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
-		 <a href={{url_for('orchard.download_file', filename=location)}} target='_blank' class="btn btn-success" role="button">{{gettext('Download')}}</a><hr>
-	     {% endif %}
-	 {% for url in urls %}
-	 <a href='{{url}}'>{{url}}</a>
-	 <br>
-	 {% endfor %}
-         </div>
-       </div>
-    </div>
-  </div> <!-- /row -->
-</div> <!-- /container full -->
+
+<div class="content-prose--wide">
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="{{url_for('orchard.index')}}">{{gettext('Categories')}}</a>
+    <span aria-hidden="true">›</span>
+    <strong>{{query}}</strong>
+  </nav>
+
+  <h2>{{query}}</h2>
+  <p class="muted-text">{{urls|length}} {{gettext('entries')}}</p>
+
+  {% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
+  <p class="mb-4">
+    <a href="{{url_for('orchard.download_file', filename=location)}}" target="_blank" class="fine-text">
+      {{gettext('Download pod data')}}
+    </a>
+  </p>
+  {% endif %}
+
+  {% if urls %}
+  <div class="category-entries">
+    {% for entry in urls %}
+    <article class="category-entry">
+      <a href="{{entry.url}}" class="category-entry-title">{{entry.title if entry.title else entry.url}}</a>
+      <span class="category-entry-url">{{entry.url}}</span>
+      {% if entry.snippet %}
+      <p class="category-entry-snippet">{{entry.snippet}}...</p>
+      {% endif %}
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="no-results mt-6">
+    <p class="muted-text">{{gettext('No entries in this category yet.')}}</p>
+    <p><a href="{{url_for('indexer.suggest')}}" role="button">{{gettext('Suggest a URL')}}</a></p>
+  </div>
+  {% endif %}
+</div>
+
 {% endblock %}

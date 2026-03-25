@@ -1,13 +1,15 @@
+<!--
+SPDX-FileCopyrightText: 2025 PeARS Project, <community@pearsproject.org>,
+
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
 {% extends "base/base.html" %}
+{% block title %}{{gettext('Under Maintenance')}}{% endblock %}
 {% block body %}
-<div class="container">
-
-  <div class="row">
-    <div class="col-md-6">
-       <h3>This PeARS instance is currently under maintenance!</h3>
-
-       <img src="{{ url_for('static', filename='sad_pears.png')}}">
-       </div>
-  </div> <!-- /row -->
-</div> <!-- /container full -->
+<div class="auth-container text-center">
+  <img src="{{ url_for('static', filename='images/sad.svg')}}" width="120" alt="Under maintenance" class="mascot">
+  <h2>{{gettext('Under Maintenance')}}</h2>
+  <p class="muted-text">{{gettext("This PeARS instance is currently undergoing maintenance. We'll be back online soon.")}}</p>
+</div>
 {% endblock %}

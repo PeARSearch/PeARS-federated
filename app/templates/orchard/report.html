@@ -1,43 +1,51 @@
 <!--
-SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>, 
+SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>,
 
 SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 {% extends "base/base.html" %}
-{% from "base/_formhelpers.html" import render_field %}
+{% from "base/_formhelpers.html" import render_field, render_captcha_field %}
+{% block title %}{{gettext('Report')}}{% endblock %}
 {% block body %}
-<div class="container">
 
-  <div class="row p-3">
-    <div class="card">
-	    <div class="card-header text-center"><b>{{gettext('Report a URL')}}</b></div>
-      <div class="card-body">
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <div class="notification is-danger">
-            {{ messages[0] }}</a>
-            </div>
-        {% endif %}
-        {% endwith %}
-	<p>{{gettext('You may want to report a url to us for various reasons. For instance, the url links to harmful content that you think should not be in our index. Or you are the owner of a site who would rather not be listed in our database. Whatever your concern is, please give us as much detail as possible, so that we can resolve the problem quickly. We may contact you at your registered email address if we need further details from you.')}}</p>
-	<br><br>
-      <form method="POST" action="/orchard/report" enctype="multipart/form-data">
-        {{ form.hidden_tag() }}
-        <p>{{ render_field(form.url, readonly=True) }}</p>
-        <p>{{ render_field(form.report) }}</p>
-	<div class="form-check">
-	  {{ form.accept_tos(class_="form-check-input") }}
-	  <label class="form-check-label" for="legal">{{gettext('I confirm that I may be contacted in relation to my report and that my email address is')}} {{email}}.</label>
-        </div>
-      </div><!-- card body -->
-      <div class="card-footer clearfix">
-        <span class="input-group-btn">
-        <input id="submit_button" type="submit" class="btn btn-success" value="Send report">
-      </div><!-- card footer -->
-    </form>
+<div class="auth-container--wide">
+  <article class="form-card">
+    <header class="text-center">
+      <img src="{{ url_for('static', filename='images/pears-icon.svg')}}" width="48" alt="PeARS" class="auth-logo">
+      <h2>{{gettext('Report a URL')}}</h2>
+      <p class="muted-text">{{gettext('Let us know if something is wrong with this entry.')}}</p>
+    </header>
+
+    <!-- URL being reported -->
+    <div class="annotate-url mb-4">
+      <a href="{{form.url.data}}" target="_blank">{{form.url.data}}</a>
     </div>
- </div>
 
-</div><!-- /.container -->
+    <details class="mb-4">
+      <summary class="fine-text">{{gettext('When should I report?')}}</summary>
+      <p class="fine-text muted-text">{{gettext('You may want to report a URL for various reasons: harmful content, copyright concerns, or if you are the site owner and prefer not to be listed. Please give us as much detail as possible so we can resolve the issue quickly.')}}</p>
+    </details>
+
+    <form method="POST" action="/orchard/report" enctype="multipart/form-data">
+      {{ form.hidden_tag() }}
+      {{ form.url(type="hidden") }}
+      {{ render_field(form.report) }}
+      {% if email %}
+      <div class="tos-check">
+        {{ form.accept_tos() }}
+        <span>{{gettext('I confirm that I may be contacted in relation to my report and that my email address is')}} <strong>{{email}}</strong>.</span>
+      </div>
+      {% else %}
+      <div class="tos-check">
+        {{ form.accept_tos() }}
+        <span>{{gettext('I confirm that I may be contacted in relation to my report.')}}</span>
+      </div>
+      {{ render_captcha_field(form.captcha_answer, form.captcha_id.data) }}
+      {% endif %}
+      <button type="submit" class="w-full mt-4">{{gettext('Submit report')}}</button>
+    </form>
+  </article>
+</div>
+
 {% endblock %}

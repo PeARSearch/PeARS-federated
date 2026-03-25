@@ -1,46 +1,7 @@
 <!--
-SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>, 
+SPDX-FileCopyrightText: 2025 PeARS Project, <community@pearsproject.org>,
 
 SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 {% extends 'admin/model/list.html' %}
-
-
-{% block page_body %}
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
-      <a href="{{ url_for('search.index')}}" class="navbar-brand"><img src="{{ url_for('static', filename='pears-logo-small.png')}}" height="50px"></a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item"><a class="nav-link" href="{{url_for('search.index')}}">{{gettext('Search')}}</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{url_for('indexer.index')}}">{{gettext('Indexer')}}</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{url_for('orchard.index')}}">{{gettext('Themes')}}</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{url_for('admin.index')}}">{{gettext('DB admin')}}</a></li>
-        </ul>
-        <ul class="navbar-nav ml-auto">
-          <li class="nav-item"><a class="nav-link" href="{{url_for('settings.index')}}">{{gettext('Profile')}}</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{url_for('pages.return_faq')}}">{{gettext('F.A.Q.')}}</a></li>
-        </ul>
-      </div>
-    </div>
-    </nav>
-
-
-    <div class="container">
-    {{ super() }}
-    <style>
-        .select2-results {
-            max-height: 400px !important;
-        }
-
-        .select2-container {
-            width: 400px !important;
-        }
-    </style>
-    </div>
-{% endblock %}

@@ -456,12 +456,12 @@ admin.add_view(RejectedSuggestionsModelView(RejectedSuggestions, db.session))
 
 @app.errorhandler(404)
 def page_not_found(e):
-    flash("The page that you are trying to access doesn't exist or you don't have sufficient permissions to access it. If you're not logged in, log in and try accessing the page again. If you're sure the page exists and that you should have access to it, contact the administrators.")
+    flash("The page that you are trying to access doesn't exist or you don't have sufficient permissions to access it. If you're not logged in, log in and try accessing the page again. If you're sure the page exists and that you should have access to it, contact the administrators.", "warning")
     return render_template("404.html"), 404
 
 @app.errorhandler(503)
 def maintenance_mode(e):
-    flash("We are doing some (hopefully) quick maintenance on this instance. Please check back later!")
+    flash("We are doing some (hopefully) quick maintenance on this instance. Please check back later!", "warning")
     return render_template("503.html"), 503
 
 @app.route('/manifest.json')

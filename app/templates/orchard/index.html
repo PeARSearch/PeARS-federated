@@ -1,51 +1,89 @@
 <!--
-SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>, 
+SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>,
 
 SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 {% extends "base/base.html" %}
+{% block title %}{{gettext('Categories')}}{% endblock %}
 {% block body %}
-<div class="container-full">
-  <br><br>
-  <div class="row">
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-      <div class="notification is-danger">
-      <b>{{ messages[0] }}</b><br>
-      </div>
-    {% endif %}
-    {% endwith %}
-    <div class="col-md-12 p-3" style="padding-left: 20px; display:flex;  flex-direction: row;  flex-wrap: wrap;  margin-bottom: 45px;">
-      {% for p in pears %}
-      <div class="card bg-light mb-3 themes" style="width: 18rem; margin:20px;">
-	      <div class="card-header" style="border-bottom: var(--bs-card-border-width) solid var(--text-color);"><b>{{gettext("Theme:")}} {{p[0]}}</b></div>
-                <div class="card-body" style="border-bottom: var(--bs-card-border-width) solid var(--text-color);">
-	          <p class="card-text">{{p[1]}} {{gettext("entries")}}.</p>
-		  <a href="{{url_for('orchard.get_a_pod')}}?pod={{p[0]}}" class="btn btn-success">{{gettext("View")}}</a>
-		  {% if p[0] != 'Tips' %}
-		  {% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
-	          <button class="btn btn-link collapsed" data-bs-toggle="collapse" data-bs-target="#collapse{{p[2]}}" aria-expanded="false" aria-controls="collapse{{p[2]}}"><img src="{{ url_for('static', filename='pencil-outline.svg')}}" class='ion-icon'/></button>
-		  {% endif %}
-		  {% endif %}
-              </div>
-            <div class="card card-body">
-	      <div class="collapse" id="collapse{{p[2]}}">
-		      <form  action="{{url_for('orchard.rename_pod')}}" id='renameform'>
-                  <div class="input-group group mt-4" >
-		  <input type="hidden" value="{{p[0]}}" name="oldname" />
-	          <input class="form-control" title="Rename theme" placeholder="{{gettext('Rename theme')}}"  type="search" name='newname' required>
-         	  <button class="btn btn-lg btn-success" type="submit" id='searchbutton'>{{gettext('Rename')}}</button>
-                  </div>
-                </form>
-              </div>
-            </div>
-      </div>
-      {% endfor %}
-    </div>
+
+<div class="content-prose--wide">
+  <h2 class="text-center">{{gettext('Categories')}}</h2>
+
+  {% if pears %}
+  {% set total_entries = [] %}
+  {% for p in pears %}{% if total_entries.append(p[1]) %}{% endif %}{% endfor %}
+  <p class="text-center muted-text mb-6">
+    {{pears|length}} {{gettext('category') if pears|length == 1 else gettext('categories')}} · {{total_entries|sum}} {{gettext('total entries')}}
+  </p>
+  {% endif %}
+
+  {% if not pears %}
+  <div class="no-results">
+    <img src="{{ url_for('static', filename='images/sad.svg')}}" width="80" alt="" class="mascot">
+    <h3>{{gettext('No categories yet')}}</h3>
+    <p>{{gettext("Be the first to contribute!")}}</p>
+    <p><a href="{{url_for('indexer.suggest')}}" role="button">{{gettext('Suggest a URL')}}</a></p>
   </div>
+  {% else %}
+
+  <div class="categories-grid">
+    {% for p in pears|sort(attribute=0) %}
+    <div class="category-item">
+      <a href="{{url_for('orchard.get_a_pod')}}?pod={{p[0]}}" class="category-card" title="{{p[0]}}">
+        <span class="category-initial" data-initial="{{p[0][0]|upper}}">{{p[0][0]|upper}}</span>
+        <span class="category-info">
+          <span class="category-name" title="{{p[0]}}">{{p[0]}}</span>
+          <span class="category-count">{{p[1]}} {{gettext('entry') if p[1] == 1 else gettext('entries')}}</span>
+        </span>
+        {% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
+        {% if p[0] != 'Tips' %}
+        <span class="category-admin-actions" onclick="event.preventDefault(); event.stopPropagation(); document.getElementById('rename{{p[2]}}').classList.toggle('hidden');" data-tooltip="{{gettext('Rename')}}">
+          <img src="{{ url_for('static', filename='pencil-outline.svg')}}" class="icon icon-sm" alt="{{gettext('Rename')}}">
+        </span>
+        {% endif %}
+        {% endif %}
+      </a>
+      {% if p[0] != 'Tips' %}
+      {% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
+      <div id="rename{{p[2]}}" class="hidden category-rename">
+        <div class="flex justify-between items-center mb-2">
+          <label class="fine-text mb-0">{{gettext('Rename')}} "{{p[0]}}"</label>
+          <button type="button" class="flash-dismiss" aria-label="{{gettext('Cancel')}}" onclick="this.closest('.category-rename').classList.add('hidden');">&times;</button>
+        </div>
+        <form action="{{url_for('orchard.rename_pod')}}">
+          <input type="hidden" value="{{p[0]}}" name="oldname">
+          <fieldset class="group">
+            <input type="text" name="newname" placeholder="{{gettext('New name')}}" required>
+            <button type="submit">{{gettext('Save')}}</button>
+          </fieldset>
+        </form>
+      </div>
+      {% endif %}
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+  {% endif %}
 </div>
 
+<script>
+// Assign deterministic colors to category initials based on name hash
+(function() {
+  var hues = [0, 25, 45, 120, 160, 200, 230, 270, 310, 340];
+  var initials = document.querySelectorAll('.category-initial');
+  initials.forEach(function(el) {
+    var name = el.closest('.category-card').querySelector('.category-name').textContent;
+    var hash = 0;
+    for (var i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    var hue = hues[Math.abs(hash) % hues.length];
+    el.style.backgroundColor = 'hsl(' + hue + ', 55%, 45%)';
+  });
+})();
+</script>
+
 {% endblock %}
-
-

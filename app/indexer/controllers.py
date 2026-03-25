@@ -47,6 +47,17 @@ def index():
     pods = Pods.query.all()
     themes = list(set([p.name.split('.u.')[0] for p in pods]))
     default_screen = 'url'
+    # Pre-populate forms from session (after a failed indexing attempt)
+    retry = request.args.get('retry')
+    if retry == 'manual':
+        form2.title.data = session.pop('index_title', '')
+        form2.description.data = session.pop('index_description', '')
+        form2.related_url.data = session.pop('index_url', '')
+        default_screen = 'manual'
+    elif retry == 'url':
+        form1.suggested_url.data = session.pop('index_url', '')
+        form1.theme.data = session.pop('index_theme', '')
+        form1.note.data = session.pop('index_note', '')
     return render_template("indexer/index.html", \
             num_entries=num_db_entries, form1=form1, form2=form2, themes=themes, default_screen=default_screen)
 
@@ -81,7 +92,7 @@ def correct_entry():
     default_screen = "url"
     
     if not session['index_url']:
-        flash(gettext("Nothing to amend."))
+        flash(gettext("Nothing to amend."), "warning")
         return render_template("indexer/index.html", \
             num_entries=num_db_entries, form1=form1, form2=form2, themes=themes)
 
@@ -130,7 +141,7 @@ def index_from_url():
         success, messages, share_url = run_indexer_url(url, theme, note, contributor, request.host_url)
         if success:
             return render_template('indexer/success.html', messages=messages, share_url=share_url, url=url, theme=theme, note=note)
-        return render_template('indexer/fail.html', messages = messages)
+        return render_template('indexer/fail.html', messages=messages, url=url, theme=theme, note=note, source='url')
     return render_template('indexer/index.html', form1=form, form2=ManualEntryForm(request.form), themes=themes, default_screen=default_screen)
 
 @indexer.route("/manual", methods=["POST"])
@@ -169,8 +180,8 @@ def index_from_manual():
         session['index_description'] = snippet
         success, messages, share_url = run_indexer_manual(url, title, snippet, theme, lang, note, contributor, request.host_url)
         if success:
-            return render_template('indexer/success.html', messages=messages, share_url=share_url,  theme=theme, note=snippet)
-        return render_template('indexer/fail.html', messages = messages)
+            return render_template('indexer/success.html', messages=messages, share_url=share_url, theme=theme, note=snippet)
+        return render_template('indexer/fail.html', messages=messages, title=title, description=snippet, url=url, source='manual')
     return render_template('indexer/index.html', form1=IndexerForm(request.form), form2=form, themes=themes, default_screen=default_screen)
 
 @indexer.route("/suggestion", methods=["POST"])
@@ -191,7 +202,7 @@ def run_suggest_url():
             contributor = 'anonymous'
         
         if not check_captcha(captcha_id, captcha_user_answer):
-            flash(gettext('The captcha was incorrectly answered.'))
+            flash(gettext('The captcha was incorrectly answered.'), "danger")
             captcha_id, captcha_correct_answer = mk_captcha()
             form = SuggestionForm()
             form.suggested_url.data = request.form.get('suggested_url').strip()
@@ -205,7 +216,7 @@ def run_suggest_url():
 
         print(url, theme, note)
         create_suggestion_in_db(url=url, pod=theme, notes=note, contributor=contributor)
-        flash(gettext('Many thanks for your suggestion'))
+        flash(gettext('Many thanks for your suggestion'), "success")
         return redirect(url_for('indexer.suggest'))
     print("FORM ERRORS:", form.errors)
     # generate captcha (public code/private string pair)
@@ -283,8 +294,8 @@ def index_url_ajax():
 @indexer.route("/reject_suggestion_ajax", methods=["POST"])
 @check_permissions(login=True, confirmed=True, admin=True)
 def reject_suggestion_ajax():
-    url = request.json.get('orig_url').strip() # json data also contains `url` (cleaned/edited url), but this is unused in the rejection logic for now
-    reason = request.json.get('reason').strip()
+    url = (request.json.get('origUrl') or request.json.get('orig_url', '')).strip()
+    reason = (request.json.get('reason') or '').strip()
     matching_suggestions = (
         db.session
         .query(Suggestions)

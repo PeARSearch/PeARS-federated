@@ -1,30 +1,71 @@
 <!--
-SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>, 
+SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>,
 
 SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 {% extends "base/base.html" %}
+{% block title %}{{gettext('Indexing Successful')}}{% endblock %}
 {% block body %}
-<div class="container-full">
-  <br><br>
-  <div class="row">
-    <div class="col-md-10 p-3" style="padding-left: 20px; display:flex;  flex-direction: row;  flex-wrap: wrap;  margin-bottom: 45px;">
-      {% for message in messages %}
-      <b>{{message}}</b><br>
-      {% endfor %}
-    </div>
-    <p>{{gettext('Your URL has been successfully indexed! Here is a summary of your contribution:')}}</p>
-      {% if url %}
-      <p><img src="{{ url_for('static', filename='globe-outline.svg')}}" class='ion-icon'/><b> WWW Link: </b> <a href={{url}}>{{url}}</a><br></p>
-      {% endif %}
-      <p><img src="{{ url_for('static', filename='search-circle-outline.svg')}}" class='ion-icon'/><b> PeARS Link: </b> <a href={{share_url}}>{{share_url}}</a><br></p>
-      <p><img src="{{ url_for('static', filename='file-tray-stacked-outline.svg')}}" class='ion-icon'/><b> {{gettext('Category:')}} </b> {{theme}}<br></p>
-      <p><img src="{{ url_for('static', filename='chatbubble-ellipses-outline.svg')}}" class='ion-icon'/><b> {{gettext('Note:')}} </b> {{note}}<br></p>
-      <br>
-      <p>{{gettext('Made a mistake? No problem')}}, <a href="{{url_for('indexer.correct_entry')}}" onclick="return confirm('Are you sure you want to amend your contribution? Clicking on this link will delete the resource you have just indexed and send you back to the indexing form, prefilled with your previous entries.')">{{gettext('try again')}}</a></p>
-      <a class="btn btn-primary" href="{{url_for('indexer.index')}}">{{gettext("Index more pages")}}</a>
+<div class="content-prose text-center">
+
+  <img src="{{ url_for('static', filename='images/happy.svg')}}" width="80" alt="" class="mascot mb-2">
+
+  <h2>{{gettext('Successfully Indexed!')}}</h2>
+
+  {% for message in messages %}
+  <div role="alert" data-variant="success" class="text-start">{{message}}</div>
+  {% endfor %}
+
+  <p class="muted-text">{{gettext('Here is a summary of your contribution:')}}</p>
+</div>
+
+<div class="content-prose">
+  <table>
+    {% if url %}
+    <tr>
+      <td><strong>URL</strong></td>
+      <td><a href="{{url}}">{{url}}</a></td>
+    </tr>
+    {% endif %}
+    <tr>
+      <td><strong>{{gettext('Share link')}}</strong></td>
+      <td>
+        <button type="button" class="copy-link-btn" onclick="copyShareLink(this, '{{share_url}}')">
+          <img src="{{ url_for('static', filename='share-outline.svg')}}" class="icon icon-sm" alt="">
+          {{gettext('Copy link')}}
+        </button>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>{{gettext('Category')}}</strong></td>
+      <td>{{theme}}</td>
+    </tr>
+    {% if note %}
+    <tr>
+      <td><strong>{{gettext('Note')}}</strong></td>
+      <td>{{note}}</td>
+    </tr>
+    {% endif %}
+  </table>
+
+  <p class="muted-text mt-4">{{gettext('Your entry will appear in search results shortly.')}}</p>
+
+  <div class="flex gap-4 mt-8 mb-4">
+    <a href="{{url_for('indexer.index')}}" role="button" class="w-full text-center">{{gettext("Index another page")}}</a>
+    <a href="{{url_for('indexer.correct_entry')}}" role="button" data-variant="secondary" class="outline w-full text-center"
+       onclick="return confirm('{{gettext('This will delete the entry you just indexed and return you to the form with your previous entries pre-filled. Continue?')}}')">
+      {{gettext('Undo & redo')}}
+    </a>
   </div>
 </div>
-{% endblock %}
 
+<script>
+function copyShareLink(btn, link) {
+  navigator.clipboard.writeText(link);
+  var original = btn.innerHTML;
+  btn.innerHTML = '<img src="{{ url_for('static', filename='checkmark-done-outline.svg')}}" class="icon icon-sm" alt=""> {{gettext("Copied!")}}';
+  setTimeout(function() { btn.innerHTML = original; }, 2000);
+}
+</script>
+{% endblock %}

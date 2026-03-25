@@ -57,10 +57,10 @@ def login():
         # take the user-supplied password, hash it, and compare it to the hashed password in the database
         try:
             if not user or not check_password_hash(user.password, password):
-                flash(gettext('Please check your login details and try again.'))
+                flash(gettext('Please check your login details and try again.'), "danger")
                 return redirect(url_for('auth.login')) # if the user doesn't exist or password is wrong, reload the page
         except: #the check_password_hash method has failed
-            flash(gettext("We have moved to a more secure authentification method. Please request a password change."))
+            flash(gettext("We have moved to a more secure authentification method. Please request a password change."), "warning")
             return redirect(url_for('auth.password_forgotten'))
 
         # if the above check passes, then we know the user has the right credentials
@@ -69,7 +69,7 @@ def login():
             msg = Markup(gettext("You have not confirmed your account.<br>\
                     Please use the link in the email that was sent to you, \
                     or request a new link by clicking <a href='../auth/resend'>here</a>."))
-            flash(msg)
+            flash(msg, "warning")
         else:
             welcome = "<b>"+gettext('Welcome')+", "+current_user.username+"!</b>"
         return redirect(url_for("search.index"))
@@ -97,15 +97,15 @@ def signup():
         user2 = User.query.filter_by(username=username).first() # if this returns a user, then the username already exists in database
 
         if user1 : # if a user is found, we want to redirect back to signup page so user can try again
-            flash(gettext('Email address already exists.'))
+            flash(gettext('Email address already exists.'), "danger")
             return redirect(url_for('auth.signup'))
 
         if user2 : # if a user is found, we want to redirect back to signup page so user can try again
-            flash(gettext('Username already exists.'))
+            flash(gettext('Username already exists.'), "danger")
             return redirect(url_for('auth.signup'))
 
         if not check_captcha(captcha_id, captcha_user_answer):
-            flash(gettext('The captcha was incorrectly answered.'))
+            flash(gettext('The captcha was incorrectly answered.'), "danger")
             return redirect(url_for('auth.signup'))
 
         # create a new user with the form data. Hash the password so the plaintext version isn't saved.

@@ -1,41 +1,32 @@
+<!--
+SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>,
+
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
 {% extends "base/base.html" %}
 {% from "base/_formhelpers.html" import render_field %}
 {% from "base/_formhelpers.html" import render_password_field %}
-
+{% block title %}{{gettext('Log In')}}{% endblock %}
 {% block body %}
 
-<div class="container">
-
-  <div class="row">
-  <div class="col-sm-6">
-    <div class="card">
-      <div class="card-header text-center"><b>{{gettext('Login')}}</b></div>
-      <div class="card-body">
-	{% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <div class="notification is-danger">
-            {{ messages[0] }}</a>
-            </div>
-        {% endif %}
-        {% endwith %}
-      <form method="POST" action="/auth/login" enctype="multipart/form-data">
-        {{ form.hidden_tag() }}
-        <p>{{ render_field(form.email) }}</p>
-        <p>{{ render_password_field(form.password) }}</p>
-      </div><!-- card body -->
-      <div class="card-footer clearfix">
-        <span class="input-group-btn">
-  	<input id="submit_button" type="submit" class="btn btn-success" value="{{gettext('Log in')}}">
-      </div><!-- card footer -->
+<div class="auth-container">
+  <article class="auth-card">
+    <header class="text-center">
+      <img src="{{ url_for('static', filename='images/pears-icon.svg')}}" width="48" alt="PeARS" class="auth-logo">
+      <h2>{{gettext('Log In')}}</h2>
+      <p class="muted-text">{{gettext('Welcome back to PeARS')}}</p>
+    </header>
+    <form method="POST" action="/auth/login" enctype="multipart/form-data">
+      {{ form.hidden_tag() }}
+      {{ render_field(form.email) }}
+      {{ render_password_field(form.password) }}
+      <button type="submit" class="w-full mt-4">{{gettext('Log in')}}</button>
     </form>
-    </div>
-    {% if new_users_allowed %}
-    <br><p>{{gettext('No account yet?')}} <a href={{url_for('auth.signup')}}>{{gettext('Sign up')}}</a></p>
-    {% endif %}
- </div>
- </div>
- </div>
-
+  </article>
+  {% if new_users_allowed %}
+  <p class="text-center mt-6 muted-text auth-alt-action">{{gettext('No account yet?')}} <a href="{{url_for('auth.signup')}}">{{gettext('Sign up')}}</a></p>
+  {% endif %}
+</div>
 
 {% endblock %}
-

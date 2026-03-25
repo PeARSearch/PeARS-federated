@@ -1,5 +1,11 @@
-{% extends "base/base.html" %}
+<!--
+SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>,
 
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
+{% extends "base/base.html" %}
+{% block title %}{{gettext('Profile')}}{% endblock %}
 {% block body %}
 <h1 class="title">
 	{{gettext('Welcome')}}, {{name}}!

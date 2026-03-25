@@ -1,24 +1,26 @@
-{% extends "base/base.html" %}
+<!--
+SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>,
 
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
+{% extends "base/base.html" %}
+{% block title %}{{gettext('Confirm Your Email')}}{% endblock %}
 {% block body %}
 
-<div class="text-center">
-	<h2>{{gettext("Account activation")}}</h2>
-	{% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <div class="notification is-danger">
-            {{ messages[0] }}
-            </div>
-        {% endif %}
-        {% endwith %}
-  <br />
-  <p>
-  {{gettext("Please check your inbox (and your spam folder) - you should have received an email with a confirmation link.")}}
-  </p>
-  <p>
-  {{gettext("Didn't get the email?")}}
-  <a href="{{ url_for('auth.resend_confirmation') }}">{{gettext("Resend")}}</a>.
-  </p>
+<div class="auth-container">
+  <article class="auth-card text-center">
+    <img src="{{ url_for('static', filename='images/pears-icon.svg')}}" width="48" alt="PeARS" class="auth-logo">
+    <h2>{{gettext("Check Your Email")}}</h2>
+    <p>{{gettext("We've sent a confirmation link to your email address. Click the link to activate your account.")}}</p>
+    <p class="muted-text">{{gettext("Don't see it? Check your spam folder.")}}</p>
+    <hr>
+    <p>
+      {{gettext("Didn't receive the email?")}}
+      <a href="{{ url_for('auth.resend_confirmation') }}">{{gettext("Resend")}}</a>
+    </p>
+  </article>
+  <p class="text-center mt-6 muted-text auth-alt-action"><a href="{{url_for('search.index')}}">{{gettext('Back to home')}}</a></p>
 </div>
 
 {% endblock %}

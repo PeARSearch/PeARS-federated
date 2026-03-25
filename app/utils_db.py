@@ -277,11 +277,6 @@ def mv_pod(src, target, contributor=None):
         target_path = join(pod_path,target+'.npz')
         rename(src_path, target_path)
 
-        #Rename npz to idx
-        src_path = join(pod_path,src+'.npz.idx')
-        target_path = join(pod_path,target+'.npz.idx')
-        rename(src_path, target_path)
-
         #Rename pos
         src_path = join(pod_path,src+'.pos')
         target_path = join(pod_path,target+'.pos')

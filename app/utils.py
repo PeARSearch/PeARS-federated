@@ -230,19 +230,16 @@ def beautify_snippet(snippet, query):
     tmp_snippet = snippet
     for w in query.split():
         if len(w) >= 1:
-            tmp_snippet = tmp_snippet.replace(w,'<b>'+w+'</b>')
-            tmp_snippet = tmp_snippet.replace(w.title(),'<b>'+w.title()+'</b>')
-    #if img != 'None': #None is str in database
-    #    img = join('static','assets',img)
-    #    tmp_snippet = "<img src='"+img+"' style='float:left; width:150px; margin-right: 10px'/>"+tmp_snippet
-    els = re.split(r'<b>|</b>', tmp_snippet)
+            tmp_snippet = tmp_snippet.replace(w,'<mark>'+w+'</mark>')
+            tmp_snippet = tmp_snippet.replace(w.title(),'<mark>'+w.title()+'</mark>')
+    els = re.split(r'<mark>|</mark>', tmp_snippet)
     tmp_snippet = ""
-    tag = '<b>'
+    tag = '<mark>'
     for e in els:
         tmp_snippet+=escape(e)+Markup(tag)
-        tag = '</b>' if tag == '<b>' else '<b>'
+        tag = '</mark>' if tag == '<mark>' else '<mark>'
     # switch tag one last time to remove the correct end of string
-    tag = '</b>' if tag == '<b>' else '<b>'
+    tag = '</mark>' if tag == '<mark>' else '<mark>'
     tmp_snippet = tmp_snippet[:-len(tag)]
     return tmp_snippet
 

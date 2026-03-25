@@ -57,7 +57,7 @@ def index():
         message = Markup(gettext("You have not confirmed your account.<br>\
                 Please use the link in the email that was sent to you, \
                 or request a new link by clicking <a href='../auth/resend'>here</a>."))
-        flash(message)
+        flash(message, "warning")
     if app.config['OWN_BRAND']:
         internal_message = db.session.query(Personalization).filter_by(feature='instance_info').first()
         if internal_message:
@@ -83,6 +83,23 @@ def prepare_gui_results(query, results):
             r["display_url"] = url
         r['title'] = ' '.join(r['title'].split()[:10])
         r['snippet'] = beautify_snippet(r['snippet'], query)
+        # Breadcrumb-style URL for display (strip protocol, www, query params)
+        parsed = urlparse(r.get('url', url))
+        breadcrumb_parts = [parsed.netloc.replace('www.', '')]
+        path_parts = [p for p in parsed.path.strip('/').split('/') if p]
+        breadcrumb_parts.extend(path_parts[:3])  # limit depth
+        r['breadcrumb_url'] = ' › '.join(breadcrumb_parts)
+        # Pod display name (strip .u.contributor suffix)
+        if r.get('pod') and '.u.' in r['pod']:
+            r['pod_display'] = r['pod'].split('.u.')[0]
+        else:
+            r['pod_display'] = r.get('pod', '')
+        # Share URL: for regular URLs, share the actual URL directly.
+        # For pearslocal URLs, share the full absolute /api/get link.
+        if url.startswith('pearslocal'):
+            r['share'] = url_for('api.return_specific_url', url=url, _external=True)
+        else:
+            r['share'] = url
         logging.debug(f"RESULT URL {url}")
         if r['notes'] == 'None':
             r['notes'] = None
@@ -99,6 +116,7 @@ def prepare_gui_results(query, results):
         else:
             assert "x_instance_info" in r, f"Instance meta-info is missing in result:\n{r}\nThis might indicate a problem with your sitename."
             r['instance'] = r["x_instance_info"]["sitename"]
+            r['instance_url'] = r["x_instance_info"]["url"]
             r['instance_is_local'] = False
             instance_organization_text = r["x_instance_info"]["organization"] or "an unknown organization"
             instance_topic_text = r["x_instance_info"]["site_topic"]

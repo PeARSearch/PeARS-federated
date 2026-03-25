@@ -1,33 +1,30 @@
 <!--
-SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>, 
+SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>,
 
 SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 <!DOCTYPE html>
-<html lang="en" class="h-100 {{ 'dark' if session.get('theme') == 'dark' }}">
+<html lang="en">
 
 <head>
     {% block head %}
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png')}}">
     <meta charset="utf-8">
-    <title>PeARS : {% block title %}Search{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="{{ url_for('static', filename='css/bootstrap-5.3.3/bootstrap.min.css')}}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/styles.css')}}" rel="stylesheet">
+    <title>PeARS : {% block title %}{{gettext('Search')}}{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png')}}">
+    <link rel="apple-touch-icon" href="{{url_for('static', filename='pears-logo-green.512x512.png')}}" type="image/png">
+    <meta name="theme-color" content="#E67E22">
+
+    <!-- Oat UI -->
+    <link href="{{ url_for('static', filename='vendor/oat/oat.min.css')}}" rel="stylesheet">
+    <!-- PeARS Theme (fonts, colors, custom components) -->
+    <link href="{{ url_for('static', filename='css/pears-theme.css')}}" rel="stylesheet">
     {% endblock %}
 
-  <meta name="theme-color" content="#317EFB"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" href="{{url_for('static', filename='pears-logo.png')}}" type="image/png">
-  <link rel="icon" href="{{url_for('static', filename='pears-logo.png')}}" type="image/png">
-  <link rel="icon" href="{{url_for('static', filename='pears-logo.png')}}" type="image/png">
-  <link rel="apple-touch-icon" href="{{url_for('static', filename='pears-logo.png')}}" type="image/png">
-  <link rel="apple-touch-icon" href="{{url_for('static', filename='pears-logo.png')}}" type="image/png">
-  <link rel="apple-touch-icon" href="{{url_for('static', filename='pears-logo.png')}}" type="image/png">
-  <link rel="manifest" href="/manifest.json">
-  <script>
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
         navigator.serviceWorker.register("/sw.js").then(function(registration) {
@@ -37,95 +34,164 @@ SPDX-License-Identifier: AGPL-3.0-only
         });
       });
     }
-  </script>
+    </script>
+    <!-- Theme toggle (runs early to prevent flash of wrong theme) -->
+    <script src="{{ url_for('static', filename='js/theme-toggle.js')}}"></script>
 </head>
 
-<body class="d-flex flex-column h-100">
+<body>
+
 {% block navbar %}
-<nav class="navbar navbar-expand-lg navbar-light">
-    <div class="container">
-	{% if own_brand %}
-	<a class="navbar-brand mx-2" href="{{url_for('search.index')}}"><img src="{{url_for('serve_logos', path='logo.png')}}" height="50px"></a>
-	{% else %}
-        <a class="navbar-brand mx-2" href="{{url_for('search.index')}}"><img src="{{ url_for('static', filename='pears_round.png')}}" height="50px"> PeARS</a>
-	{% endif %}
-        {% block navbar_toggler %}
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+<!-- ===== Primary Navigation ===== -->
+<nav class="site-nav" aria-label="{{gettext('Main navigation')}}">
+  <div class="container">
+    <div class="site-nav-inner">
+      <!-- Logo -->
+      {% if own_brand %}
+      <a class="site-nav-brand" href="{{url_for('search.index')}}">
+        <img src="{{url_for('serve_logos', path='logo.png')}}" height="40" alt="Home">
+      </a>
+      {% else %}
+      <a class="site-nav-brand" href="{{url_for('search.index')}}">
+        <img src="{{ url_for('static', filename='images/logo.svg')}}" height="54" alt="PeARS" class="nav-logo-icon">
+      </a>
+      {% endif %}
+
+      {% block navbar_toggler %}
+      <!-- Mobile menu toggle -->
+      <button class="site-nav-toggle" type="button" aria-expanded="false" aria-controls="nav-menu" aria-label="{{gettext('Toggle navigation')}}" onclick="document.getElementById('nav-menu').toggleAttribute('data-open'); this.setAttribute('aria-expanded', this.getAttribute('aria-expanded') === 'true' ? 'false' : 'true');">
+        &#9776;
+      </button>
+      {% endblock %}
+
+      {% block searchbox %}
+      {% endblock %}
+
+      <!-- Nav links -->
+      <div class="site-nav-menu" id="nav-menu">
+        {% block navbar_links %}
+        <ul class="site-nav-links" role="list">
+          <li><a href="{{url_for('search.index')}}" {% if request.endpoint == 'search.index' %}aria-current="page"{% endif %}>{{gettext('Search')}}</a></li>
+          <li><a href="{{url_for('indexer.suggest')}}" {% if request.endpoint == 'indexer.suggest' %}aria-current="page"{% endif %}>{{gettext('Suggest')}}</a></li>
+          <li><a href="{{url_for('orchard.index')}}" {% if request.endpoint and request.endpoint.startswith('orchard') %}aria-current="page"{% endif %}>{{gettext('Categories')}}</a></li>
+          {% if current_user.is_authenticated and current_user.is_confirmed %}
+          <li><a href="{{url_for('settings.index')}}" {% if request.endpoint and request.endpoint.startswith('settings') %}aria-current="page"{% endif %}>{{gettext('Profile')}}</a></li>
+          {% endif %}
+          <li><a href="{{url_for('pages.return_faq')}}" {% if request.endpoint == 'pages.return_faq' %}aria-current="page"{% endif %}>{{gettext('F.A.Q.')}}</a></li>
+        </ul>
+
+        <ul class="site-nav-actions" role="list">
+          <!-- Theme toggle -->
+          <li>
+            <button id="theme-toggle" type="button" class="site-nav-icon-btn" aria-label="{{gettext('Toggle theme')}}">
+              <img id="theme-icon-light" src="{{ url_for('static', filename='sunny-outline.svg')}}" class="icon" alt="" style="display:none;">
+              <img id="theme-icon-dark" src="{{ url_for('static', filename='moon-outline.svg')}}" class="icon" alt="">
+            </button>
+          </li>
+          {% if not current_user.is_authenticated %}
+          <li><a href="{{url_for('auth.login')}}" role="button">{{gettext('Login')}}</a></li>
+          {% endif %}
+          {% if current_user.is_authenticated %}
+          <li><a href="{{url_for('auth.logout')}}">{{gettext('Logout')}}</a></li>
+          {% endif %}
+        </ul>
         {% endblock %}
-
-    {% block searchbox %}
-    {% endblock %}
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            {% block navbar_links %}
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item py-1 col-12 col-lg-auto">
-                    <div class="vr d-none d-lg-flex h-100 mx-lg-2 text-white"></div>
-                    <hr class="d-lg-none text-white-50">
-                </li>
-                <li class="nav-item"><a class="nav-link" href="{{url_for('search.index')}}">{{gettext('Search')}}</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{url_for('indexer.suggest')}}">{{gettext('Suggest')}}</a></li>
-		{% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
-                <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Indexer</a>
-                  <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="{{url_for('indexer.index')}}">{{gettext('Index new pages')}}</a></li>
-                    <li><a class="dropdown-item" href="{{url_for('indexer.index_suggestions')}}">{{gettext('Index suggested pages')}}</a></li>
-                  </ul>
-                </li>
-		{% endif %}
-                <li class="nav-item"><a class="nav-link" href="{{url_for('orchard.index')}}">{{gettext('Categories')}}</a></li>
-		{% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
-                <li class="nav-item"><a class="nav-link" href="{{url_for('admin.index')}}">{{gettext('DB Admin')}}</a></li>          
-		{% endif %}
-            </ul>
-            <ul class="nav nav-pills navbar-nav navbar-right">
-		{% if current_user.is_authenticated and current_user.is_confirmed %}
-                <li class="nav-item"><a class="nav-link" href="{{url_for('settings.index')}}">{{gettext('Profile')}}</a></li>
-		{% endif %}
-                <li class="nav-item"><a class="nav-link" href="{{url_for('pages.return_faq')}}">{{gettext('F.A.Q.')}}</a></li>
-                <li class="nav-item py-1 col-12 col-lg-auto">
-                    <div class="vr d-none d-lg-flex h-100 mx-lg-2 text-white"></div>
-                <li class="nav-item"><a class="nav-link" href="{{url_for('settings.toggle_theme', current_page=request.path)}}">
-				{% if session.get('theme') == 'dark' %}
-				<img src="{{ url_for('static', filename='sunny-outline.svg')}}" class='ion-icon-nav'/>
-				{% else %}
-				<img src="{{ url_for('static', filename='moon-outline.svg')}}" class='ion-icon-nav'/>
-				{% endif %}
-			</a>
-		</li>
-		{% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
-                <li class="nav-item"><a class="nav-link" href="{{url_for('settings.toggle_maintenance_mode')}}" data-toggle="tooltip" title="{{gettext('Toggle maintenance mode.')}}" onclick="return confirm('Are you sure you want to toggle maintenance mode?')"><img src="{{ url_for('static', filename='hammer-outline.svg')}}" class='ion-icon-nav'/></a></li>
-                <li class="nav-item"><a class="nav-link" href="{{url_for('settings.refresh_remote_instances')}}" data-toggle="tooltip" title="{{gettext('Refresh remote instances.')}}" onclick="return confirm('Are you sure you want to refresh the list of available remote instances?')"><img src="{{ url_for('static', filename='planet-outline.svg')}}" class='ion-icon-nav'/></a></li>
-		{% endif %}
-                <hr class="d-lg-none text-white-50">
-		{% if not current_user.is_authenticated %}
-                <li class="nav-item"><a class="nav-link active" href="{{url_for('auth.login')}}">{{gettext('Login')}}</a></li>
-		{% endif %}
-		{% if current_user.is_authenticated %}
-                <li class="nav-item"><a class="nav-link" href="{{url_for('auth.logout')}}">{{gettext('Logout')}}</a></li>
-		{% endif %}
-            </ul>
-            {% endblock %}
-        </div>
+      </div>
     </div>
+  </div>
 </nav>
-{% endblock %}
-    <div class="container pt-5">
-        {% block body %}{% endblock %}
-    </div>
-    <footer class="footer mt-auto py-3 bg-dark">
-    <div class="container">
-	    <span class="text-light"><a class="btn btn-dark" href="{{url_for('pages.return_privacy')}}">{{gettext('Privacy policy')}}</a> | <a class="btn btn-dark" href="{{url_for('pages.return_tos')}}">{{gettext('Terms of service')}}</a> | <a class="btn btn-dark" href="{{url_for('pages.return_contact')}}">{{gettext('Impressum')}}</a> | <a class="btn btn-dark" href="{{url_for('pages.return_licenses')}}">{{gettext('Licenses')}}</a> | <a class="btn btn-dark" href="{{url_for('pages.return_acknowledgements')}}">{{gettext('Acknowledgments')}}</a>   {% if config['FEEDBACK_FORM'] %}| <a class="btn btn-dark" href="{{url_for('orchard.feedback')}}">Feedback</a> | {% endif %}
-	<a class="btn btn-dark" href="https://github.com/PeARSearch"><img src="{{ url_for('static', filename='logo-github.svg')}}" class='ion-icon'/></a></span>
-    </div>
-  </footer>
-</body>
-<!-- script references -->
-<script src="{{ url_for('static', filename='js/jquery-3.7.1.min.js')}}"></script>
-<script src="{{ url_for('static', filename='js/bootstrap-5.3.3/bootstrap.bundle.min.js')}}"></script>
-<script src="{{ url_for('static', filename='js/color.js')}}"></script>
 
+<!-- ===== Admin Toolbar ===== -->
+{% if current_user.is_authenticated and current_user.is_confirmed and current_user.is_admin %}
+<div class="admin-bar" role="toolbar" aria-label="{{gettext('Admin tools')}}">
+  <div class="container">
+    <div class="admin-bar-nav">
+      <a href="{{url_for('indexer.index')}}" class="admin-bar-link">
+        <img src="{{ url_for('static', filename='file-tray-stacked-outline.svg')}}" class="icon icon-sm icon-invert" alt="">
+        {{gettext('Add pages')}}
+      </a>
+      <a href="{{url_for('indexer.index_suggestions')}}" class="admin-bar-link">
+        <img src="{{ url_for('static', filename='ear-outline.svg')}}" class="icon icon-sm icon-invert" alt="">
+        {{gettext('Suggestions')}}
+      </a>
+      <a href="{{url_for('admin.index')}}" class="admin-bar-link">
+        <img src="{{ url_for('static', filename='globe-outline.svg')}}" class="icon icon-sm icon-invert" alt="">
+        {{gettext('Database')}}
+      </a>
+    </div>
+    <div class="admin-bar-actions">
+      <a href="{{url_for('settings.toggle_maintenance_mode')}}" class="admin-bar-action"
+         onclick="if(confirm('{{gettext('Toggle maintenance mode? The site will become unavailable to users.')}}')){this.textContent='{{gettext('Toggling...')}}'; this.style.opacity='0.7'; this.style.pointerEvents='none'; return true;} return false;"
+         data-tooltip="{{gettext('Toggle maintenance mode')}}">
+        <img src="{{ url_for('static', filename='hammer-outline.svg')}}" class="icon icon-sm icon-invert" alt="">
+        {{gettext('Maintenance')}}
+      </a>
+      <a href="{{url_for('settings.refresh_remote_instances')}}" class="admin-bar-action"
+         onclick="if(confirm('{{gettext('Refresh the list of remote instances?')}}')){ this.textContent='{{gettext('Refreshing...')}}'; this.style.opacity='0.7'; this.style.pointerEvents='none'; return true; } return false;"
+         data-tooltip="{{gettext('Refresh remote instances')}}">
+        <img src="{{ url_for('static', filename='refresh-circle-outline.svg')}}" class="icon icon-sm icon-invert" alt="">
+        {{gettext('Refresh')}}
+      </a>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+<!-- ===== Flash Messages ===== -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="container flash-messages">
+    {% for category, message in messages %}
+      {# Map Flask flash categories to Oat alert variants:
+         success -> success, danger -> error, error -> error,
+         warning -> warning, empty/message -> info (default) #}
+      {% if category in ('danger', 'error') %}
+        {% set variant = 'error' %}
+      {% elif category == 'success' %}
+        {% set variant = 'success' %}
+      {% elif category == 'warning' %}
+        {% set variant = 'warning' %}
+      {% else %}
+        {% set variant = 'warning' %}
+      {% endif %}
+      <div role="alert" data-variant="{{ variant }}" class="flash-alert">
+        <span>{{ message }}</span>
+        <button type="button" class="flash-dismiss" aria-label="{{gettext('Dismiss')}}" onclick="this.parentElement.remove();">&times;</button>
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+{% endwith %}
+
+<!-- ===== Main Content ===== -->
+<main>
+  <div class="container">
+    {% block body %}{% endblock %}
+  </div>
+</main>
+
+<!-- ===== Footer ===== -->
+<footer class="site-footer">
+  <div class="container">
+    <nav aria-label="{{gettext('Footer links')}}">
+      <a href="{{url_for('pages.return_privacy')}}">{{gettext('Privacy policy')}}</a>
+      <a href="{{url_for('pages.return_tos')}}">{{gettext('Terms of service')}}</a>
+      <a href="{{url_for('pages.return_contact')}}">{{gettext('Impressum')}}</a>
+      <a href="{{url_for('pages.return_licenses')}}">{{gettext('Licenses')}}</a>
+      <a href="{{url_for('pages.return_acknowledgements')}}">{{gettext('Acknowledgments')}}</a>
+      {% if config['FEEDBACK_FORM'] %}
+      <a href="{{url_for('orchard.feedback')}}">Feedback</a>
+      {% endif %}
+      <a href="https://github.com/PeARSearch" aria-label="GitHub">
+        <img src="{{ url_for('static', filename='logo-github.svg')}}" class="icon" alt="GitHub">
+      </a>
+    </nav>
+  </div>
+</footer>
+
+<!-- ===== Scripts ===== -->
+<script src="{{ url_for('static', filename='vendor/oat/oat.min.js')}}"></script>
+<script src="{{ url_for('static', filename='js/jquery-3.7.1.min.js')}}"></script>
+</body>
 </html>

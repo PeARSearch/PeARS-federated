@@ -1,94 +1,75 @@
 <!--
-SPDX-FileCopyrightText: 2024 PeARS Project, <community@pearsproject.org>, 
+SPDX-FileCopyrightText: 2024 PeARS Project, <community@pearsproject.org>,
 
 SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 {% extends "base/base.html" %}
-{% from "base/_formhelpers.html" import render_field %}
-{% from "base/_formhelpers.html" import render_autocomplete_field %}
+{% from "base/_formhelpers.html" import render_field, render_autocomplete_field %}
+{% block title %}{{gettext('Index Pages')}}{% endblock %}
 {% block body %}
-<div class="container">
-  <div class="row">
-    <div class="col">
-      <div class="alert alert-success text-center">
-	      <b>{{num_entries}} {{gettext("pages recorded")}}</b>
-      </div>
-    </div>
-  </div>
 
-  {% if default_screen == 'url' %}
-  <div class="row p-3" style="display:block; visibility: visible;" id="url_indexing">
-  {% else %}
-  <div class="row p-3" style="display:none; visibility: hidden;" id="url_indexing">
-  {% endif %}
-    <div class="card-group">
-      <div class="card indexer">
-        <div class="card-header text-center"><b>{{gettext("Index a single URL")}}</b></div>
-        <div class="card-body">
-        {% with messages = get_flashed_messages(category_filter=["url"]) %}
-        {% if messages %}
-            <div class="notification is-danger">
-            {{ messages[0] }}</a>
-            </div>
-        {% endif %}
-        {% endwith %}
-	<form method="POST" accept-charset="UTF-8" action="{{url_for('indexer.index_from_url')}}" enctype="multipart/form-data" autocomplete="off">
-	<datalist id="themes"></datalist>
+<div class="auth-container--wide">
+  <article class="form-card">
+    <header class="text-center">
+      <h2>{{gettext("Add to Index")}}</h2>
+      <p class="muted-text">{{num_entries}} {{gettext("pages recorded")}}</p>
+    </header>
+
+    <!-- Mode tabs -->
+    <div class="mode-tabs">
+      <button type="button" class="mode-tab {% if default_screen == 'url' %}active{% endif %}" onclick="switchMode('url')">
+        {{gettext("Index a URL")}}
+      </button>
+      <button type="button" class="mode-tab {% if default_screen == 'manual' %}active{% endif %}" onclick="switchMode('manual')">
+        {{gettext("Add manual entry")}}
+      </button>
+    </div>
+
+    <!-- URL indexing form -->
+    <div id="url_indexing" class="{% if default_screen != 'url' %}hidden{% endif %}">
+      <p class="fine-text mb-4">{{gettext("Paste a web page URL to add it to the search index.")}}</p>
+      {% with messages = get_flashed_messages(category_filter=["url"]) %}
+      {% if messages %}
+        <div role="alert" data-variant="warning" class="mb-4">{{ messages[0] }}</div>
+      {% endif %}
+      {% endwith %}
+      <form method="POST" accept-charset="UTF-8" action="{{url_for('indexer.index_from_url')}}" enctype="multipart/form-data" autocomplete="off">
+        <datalist id="themes"></datalist>
         {{ form1.hidden_tag() }}
-        <p>{{ render_field(form1.suggested_url) }}</p>
-        <p>{{ render_autocomplete_field(form1.theme) }}</p>
-        <p>{{ render_field(form1.note) }}</p>
-        <div class="form-check">
-          {{ form1.accept_tos(class_="form-check-input") }}
-          <label class="form-check-label" for="legal">{{gettext("I confirm that my entry does not contravene the <a href='../terms-of-service'>terms of service</a> of this site.")}}</label>
+        {{ render_field(form1.suggested_url) }}
+        {{ render_autocomplete_field(form1.theme) }}
+        {{ render_field(form1.note) }}
+        <div class="tos-check">
+          {{ form1.accept_tos() }}
+          <span>{{gettext("I confirm that my entry does not contravene the")}} <a href="{{url_for('pages.return_tos')}}">{{gettext("terms of service")}}</a> {{gettext("of this site.")}}</span>
         </div>
-      </div><!-- card body -->
-      <div class="card-footer clearfix">
-        <span class="input-group-btn">
-                <input id="submit_button" type="submit" class="btn btn-success" value="{{gettext('Add')}}">
-      </div><!-- card footer -->
-    </form>
+        <button type="submit" class="w-full mt-4">{{gettext('Index URL')}}</button>
+      </form>
     </div>
-   </div>
-   <button class="btn btn-link" onclick="toggle()">{{gettext('Or add a manual resource')}}</button>
-  </div>
 
-  {% if default_screen == 'manual' %}
-  <div class="row p-3" style="display:block; visibility: visible;" id="manual_indexing">
-  {% else %}
-  <div class="row p-3" style="display:none; visibility: hidden;" id="manual_indexing">
-  {% endif %}
-    <div class="card indexer">
-    <div class="card-header text-center"><b>{{gettext("Add an offline resource")}}</b></div>
-      <div class="card-body">
-        {% with messages = get_flashed_messages(category_filter=["offline"]) %}
-        {% if messages %}
-            <div class="notification is-danger">
-            {{ messages[0] }}</a>
-            </div>
-        {% endif %}
-        {% endwith %}
-	<form method="POST" action="{{url_for('indexer.index_from_manual')}}" enctype="multipart/form-data">
+    <!-- Manual entry form -->
+    <div id="manual_indexing" class="{% if default_screen != 'manual' %}hidden{% endif %}">
+      <p class="fine-text mb-4">{{gettext("Create a manual entry for an offline resource or tip. Manual entries are filed under the \"Tips\" category.")}}</p>
+      {% with messages = get_flashed_messages(category_filter=["offline"]) %}
+      {% if messages %}
+        <div role="alert" data-variant="warning" class="mb-4">{{ messages[0] }}</div>
+      {% endif %}
+      {% endwith %}
+      <form method="POST" action="{{url_for('indexer.index_from_manual')}}" enctype="multipart/form-data">
         {{ form2.hidden_tag() }}
-        <p>{{ render_field(form2.title) }}</p>
-        <p>{{ render_field(form2.related_url) }}</p>
-        <p>{{ render_field(form2.description) }}</p>
-	<div class="form-check">
-	  {{ form2.accept_tos(class_="form-check-input") }}
-	  <label class="form-check-label" for="legal">{{gettext("I confirm that my entry does not contravene the <a href='../terms-of-service'>terms of service</a> of this site.")}}</label>
+        {{ render_field(form2.title) }}
+        {{ render_field(form2.related_url) }}
+        {{ render_field(form2.description) }}
+        <div class="tos-check">
+          {{ form2.accept_tos() }}
+          <span>{{gettext("I confirm that my entry does not contravene the")}} <a href="{{url_for('pages.return_tos')}}">{{gettext("terms of service")}}</a> {{gettext("of this site.")}}</span>
         </div>
-      </div><!-- card body -->
-      <div class="card-footer clearfix">
-        <span class="input-group-btn">
-		<input id="submit_button" type="submit" class="btn btn-success" value="{{gettext('Add')}}">
-      </div><!-- card footer -->
-    </form>
+        <button type="submit" class="w-full mt-4">{{gettext('Add entry')}}</button>
+      </form>
     </div>
-    <button class="btn btn-link" onclick="toggle()">{{gettext('Or index a URL')}}</button>
- </div>
-</div><!-- /.container -->
-
+  </article>
+</div>
 
 <script>
   let themes = {{themes|tojson}};
@@ -100,19 +81,21 @@ SPDX-License-Identifier: AGPL-3.0-only
 </script>
 
 <script>
-function toggle() {
-  url = document.getElementById("url_indexing");
-  manual = document.getElementById("manual_indexing");
-  if (url.style.display === "none") {
-    url.style.display = "block";
-    url.style.visibility = "visible";
-    manual.style.display = "none";
-    manual.style.visibility = "hidden";
+function switchMode(mode) {
+  var urlPanel = document.getElementById('url_indexing');
+  var manualPanel = document.getElementById('manual_indexing');
+  var tabs = document.querySelectorAll('.mode-tab');
+
+  if (mode === 'url') {
+    urlPanel.classList.remove('hidden');
+    manualPanel.classList.add('hidden');
+    tabs[0].classList.add('active');
+    tabs[1].classList.remove('active');
   } else {
-    url.style.display = "none";
-    url.style.visibility = "hidden";
-    manual.style.display = "block";
-    manual.style.visibility = "visible";
+    urlPanel.classList.add('hidden');
+    manualPanel.classList.remove('hidden');
+    tabs[0].classList.remove('active');
+    tabs[1].classList.add('active');
   }
 }
 </script>
