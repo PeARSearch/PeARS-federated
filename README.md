@@ -62,6 +62,47 @@ If you want to search and index in several languages at the same time, you can a
 where you should replace lc with a language code of your choice. For now, we are only supporting English (en), German (de), French (fr) and Malayalam (ml) but more languages are coming!
 
 
+## Contributing translations
+
+PeARS uses [Flask-Babel](https://python-babel.github.io/flask-babel/) for UI translations. Translation files live in the `translations/` directory.
+
+### Translating into an existing language
+
+1. Open `translations/<lang_code>/LC_MESSAGES/messages.po` in a text editor or a PO editor like [Poedit](https://poedit.net/).
+2. Fill in the `msgstr` for each `msgid`. Leave `msgstr` empty to fall back to English.
+3. Submit a pull request with your changes. The `.mo` binary files are compiled automatically on merge.
+
+### Adding a new language
+
+1. Extract the current translatable strings:
+
+       pybabel extract -F babel.cfg -k lazy_gettext -o messages.pot .
+
+2. Initialise the new language (replace `fr` with your language code):
+
+       pybabel init -i messages.pot -d translations -l fr
+
+3. Edit `translations/fr/LC_MESSAGES/messages.po` and fill in the translations.
+4. Submit a pull request. The `.mo` files are compiled automatically.
+
+The UI language switcher automatically detects new languages when their `.mo` files are present, and displays each language in its native name.
+
+### Updating translations after code changes
+
+When new `gettext()` strings are added to the code, existing translations need to be updated:
+
+    pybabel extract -F babel.cfg -k lazy_gettext -o messages.pot .
+    pybabel update -i messages.pot -d translations
+
+This adds new strings to all existing `.po` files while preserving existing translations.
+
+### How it works
+
+- Users can switch the UI language from the language icon in the navigation bar.
+- The language preference is stored in the session and also respects the browser's language setting.
+- A GitHub Action automatically compiles `.po` → `.mo` when translation changes are pushed to `main`.
+
+
 ##### 5. Set up your configuration
 
 There is a .env template file at *.env-template* in the root directory of the repository. You should copy it to *.env* and fill in the information for your setup.

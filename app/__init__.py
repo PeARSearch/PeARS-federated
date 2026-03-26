@@ -44,21 +44,23 @@ first_lang = app.config['LANGS'][0]
 
 
 def get_available_ui_languages():
-    """Return dict of locale code -> language name for available UI translations."""
-    from app.multilinguality import read_language_codes
+    """Return dict of locale code -> native display name for available UI translations."""
     import os
-    codes = read_language_codes()
+    from babel import Locale
     default_locale = app.config['BABEL_DEFAULT_LOCALE']
     trans_dir = app.config.get('BABEL_TRANSLATION_DIRECTORIES')
     available = {}
     # Default locale is always available (needs no translation files)
-    available[default_locale] = codes.get(default_locale, default_locale)
+    available[default_locale] = Locale.parse(default_locale).get_display_name()
     # Scan translations directory for compiled .mo files
     if trans_dir and os.path.isdir(trans_dir):
         for entry in os.listdir(trans_dir):
             mo_path = os.path.join(trans_dir, entry, 'LC_MESSAGES', 'messages.mo')
-            if os.path.isfile(mo_path) and entry in codes:
-                available[entry] = codes[entry]
+            if os.path.isfile(mo_path):
+                try:
+                    available[entry] = Locale.parse(entry).get_display_name()
+                except Exception:
+                    continue
     return available
 
 AVAILABLE_UI_LANGUAGES = get_available_ui_languages()
