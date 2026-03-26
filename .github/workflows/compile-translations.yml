@@ -10,11 +10,6 @@ on:
       - main
     paths:
       - 'translations/**/*.po'
-  pull_request:
-    branches:
-      - '*'
-    paths:
-      - 'translations/**/*.po'
 
 jobs:
   compile:
@@ -48,15 +43,10 @@ jobs:
         fi
 
     - name: Commit compiled translations
-      if: steps.changes.outputs.changed == 'true' && github.event_name == 'push'
+      if: steps.changes.outputs.changed == 'true'
       run: |
         git config user.name "github-actions[bot]"
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
         git add translations/**/*.mo
         git commit -m "Compile translation files (.po → .mo)"
         git push
-
-    - name: Warn about outdated .mo files in PR
-      if: steps.changes.outputs.changed == 'true' && github.event_name == 'pull_request'
-      run: |
-        echo "::warning::The .mo files are out of date with the .po files. They will be auto-compiled on merge to main."
