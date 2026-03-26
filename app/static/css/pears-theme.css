@@ -330,6 +330,11 @@
 
 .lang-menu a.active {
   font-weight: 700;
+  color: var(--pears-orange);
+}
+
+.lang-menu a.active::before {
+  content: "✓ ";
 }
 
 /* Nav icons — dark on orange nav (light mode) */
