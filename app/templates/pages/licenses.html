@@ -8,26 +8,26 @@ SPDX-License-Identifier: AGPL-3.0-only
 {% block title %}{{gettext('Licenses')}}{% endblock %}
 {% block body %}
 <div class="content-prose--wide">
-  <h2>Licenses</h2>
+  <h2>{{gettext('Licenses')}}</h2>
 
-  <p>The PeARS code uses the following client-side libraries and assets:</p>
+  <p>{{gettext('The PeARS code uses the following client-side libraries and assets:')}}</p>
 
-  <h3>Libraries</h3>
+  <h3>{{gettext('Libraries')}}</h3>
   <ul>
     <li><a href="https://github.com/jquery/jquery">jQuery</a> 3.7.1 — MIT license</li>
-    <li><a href="https://github.com/twbs/bootstrap">Bootstrap</a> 5.3.3 — MIT license (admin interface)</li>
+    <li><a href="https://github.com/twbs/bootstrap">Bootstrap</a> 5.3.3 — MIT license ({{gettext('admin interface')}})</li>
     <li><a href="https://github.com/knadh/oat">Oat UI</a> 0.4.2 — MIT license</li>
     <li><a href="https://ionic.io/ionicons">Ionicons</a> — MIT license</li>
   </ul>
 
-  <h3>Fonts</h3>
+  <h3>{{gettext('Fonts')}}</h3>
   <ul>
     <li><a href="https://github.com/adobe-fonts/source-sans">Source Sans 3</a> by Adobe — SIL Open Font License 1.1</li>
     <li><a href="https://github.com/adobe-fonts/source-serif">Source Serif 4</a> by Adobe — SIL Open Font License 1.1</li>
     <li><a href="https://github.com/adobe-fonts/source-code-pro">Source Code Pro</a> by Adobe — SIL Open Font License 1.1</li>
   </ul>
 
-  <h3>License texts</h3>
+  <h3>{{gettext('License texts')}}</h3>
 
   <details>
     <summary>MIT License (jQuery, Bootstrap, Oat UI, Ionicons)</summary>
