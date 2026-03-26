@@ -5,7 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ current_locale }}">
 
 <head>
     {% block head %}
@@ -81,6 +81,24 @@ SPDX-License-Identifier: AGPL-3.0-only
         </ul>
 
         <ul class="site-nav-actions" role="list">
+          <!-- Language switcher -->
+          {% if available_languages|length > 1 %}
+          <li class="lang-switcher">
+            <button type="button" class="site-nav-icon-btn" aria-label="{{gettext('Change language')}}" aria-expanded="false" onclick="var m=document.getElementById('lang-menu'); var open=m.classList.toggle('hidden'); this.setAttribute('aria-expanded', !open);">
+              <img src="{{ url_for('static', filename='language-outline.svg')}}" class="icon" alt="">
+            </button>
+            <ul id="lang-menu" class="lang-menu hidden" role="menu">
+              {% for code, name in available_languages.items() %}
+              <li role="menuitem">
+                <a href="{{url_for('settings.set_language', lang=code, current_page=request.path)}}"
+                   {% if code == current_locale %}aria-current="true" class="active"{% endif %}>
+                  {{ name }}
+                </a>
+              </li>
+              {% endfor %}
+            </ul>
+          </li>
+          {% endif %}
           <!-- Theme toggle -->
           <li>
             <button id="theme-toggle" type="button" class="site-nav-icon-btn" aria-label="{{gettext('Toggle theme')}}">
@@ -193,5 +211,17 @@ SPDX-License-Identifier: AGPL-3.0-only
 <!-- ===== Scripts ===== -->
 <script src="{{ url_for('static', filename='vendor/oat/oat.min.js')}}"></script>
 <script src="{{ url_for('static', filename='js/jquery-3.7.1.min.js')}}"></script>
+{% if available_languages|length > 1 %}
+<script>
+// Close language menu when clicking outside
+document.addEventListener('click', function(e) {
+  var switcher = document.querySelector('.lang-switcher');
+  if (switcher && !switcher.contains(e.target)) {
+    document.getElementById('lang-menu').classList.add('hidden');
+    switcher.querySelector('button').setAttribute('aria-expanded', 'false');
+  }
+});
+</script>
+{% endif %}
 </body>
 </html>

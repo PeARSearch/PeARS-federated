@@ -36,10 +36,47 @@ mail_logger = run_logging()
 ################
 
 from app.init_config import run_config
-from flask_babel import Babel, gettext
+from flask_babel import Babel, gettext, refresh as babel_refresh
+from flask import session
+
 app = run_config(app)
 first_lang = app.config['LANGS'][0]
-babel = Babel(app)
+
+
+def get_available_ui_languages():
+    """Return dict of locale code -> language name for available UI translations."""
+    from app.multilinguality import read_language_codes
+    import os
+    codes = read_language_codes()
+    default_locale = app.config['BABEL_DEFAULT_LOCALE']
+    trans_dir = app.config.get('BABEL_TRANSLATION_DIRECTORIES')
+    available = {}
+    # Default locale is always available (needs no translation files)
+    available[default_locale] = codes.get(default_locale, default_locale)
+    # Scan translations directory for compiled .mo files
+    if trans_dir and os.path.isdir(trans_dir):
+        for entry in os.listdir(trans_dir):
+            mo_path = os.path.join(trans_dir, entry, 'LC_MESSAGES', 'messages.mo')
+            if os.path.isfile(mo_path) and entry in codes:
+                available[entry] = codes[entry]
+    return available
+
+AVAILABLE_UI_LANGUAGES = get_available_ui_languages()
+
+
+def get_locale():
+    # 1. Explicit user choice stored in session
+    locale = session.get('locale')
+    if locale and locale in AVAILABLE_UI_LANGUAGES:
+        return locale
+    # 2. Best match from browser Accept-Language header
+    best = request.accept_languages.best_match(AVAILABLE_UI_LANGUAGES.keys())
+    if best:
+        return best
+    # 3. Fall back to configured default
+    return app.config['BABEL_DEFAULT_LOCALE']
+
+babel = Babel(app, locale_selector=get_locale)
 
 # Make sure user data directories exist
 DEFAULT_PATH = dir_path
@@ -68,6 +105,15 @@ def inject_brand():
     (logo on all pages and info on start page.)
     """
     return dict(own_brand=app.config['OWN_BRAND'], logo_path=app.config['LOGO_PATH'])
+
+@app.context_processor
+def inject_locale():
+    """Inject available UI languages and current locale into all templates."""
+    from flask_babel import get_locale as babel_get_locale
+    return dict(
+        available_languages=AVAILABLE_UI_LANGUAGES,
+        current_locale=str(babel_get_locale()),
+    )
 
 @app.route('/static/assets/<path:path>')
 def serve_logos(path):
