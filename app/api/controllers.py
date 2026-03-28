@@ -12,7 +12,9 @@ from scipy.sparse import vstack, save_npz, load_npz
 from app.forms import SearchForm
 from app.api.models import Urls, Pods
 from app.auth.decorators import check_permissions, check_is_confirmed
-from app import app, db, models
+from flask import current_app
+from app.extensions import db
+
 from app.indexer.posix import load_posix, dump_posix
 from app.indexer.vectorizer import scale
 from app.search.controllers import get_local_search_results, prepare_gui_results
@@ -29,14 +31,14 @@ pod_dir = getenv("PODS_DIR", join(dir_path, 'pods'))
 def return_instance_languages():
     """Returns the languages of this instance.
     For use by other PeARS instances."""
-    return jsonify(json_list=app.config['LANGS'])
+    return jsonify(json_list=current_app.config['LANGS'])
 
 @api.route('/identity', methods=["GET", "POST"])
 def return_identity_info():
     return jsonify({
-        "sitename": app.config["SITENAME"],
-        "site_topic": app.config["SITE_TOPIC"],
-        "organization": app.config["ORG_NAME"] 
+        "sitename": current_app.config["SITENAME"],
+        "site_topic": current_app.config["SITE_TOPIC"],
+        "organization": current_app.config["ORG_NAME"] 
     })
 
 @api.route('/signature/<lang>/', methods=["GET", "POST"])
@@ -67,7 +69,7 @@ def return_specific_url():
     internal_message = ""
     u = request.args.get('url')
     url = db.session.query(Urls).filter_by(url=u).first().as_dict()
-    url["instance"] = app.config["SITENAME"]
+    url["instance"] = current_app.config["SITENAME"]
     if u.startswith('pearslocal'):
         u = url_for('api.return_specific_url')+'?url='+u
         url['url'] = u

@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-from app import db
+from app.extensions import db
 from flask_login import UserMixin
 import numpy as np
 import configparser

@@ -12,8 +12,9 @@ from markupsafe import Markup
 from flask import Blueprint, flash, request, render_template, redirect, url_for, session
 from flask_login import current_user, logout_user
 from flask_babel import gettext
+from flask import current_app
 import app as app_module
-from app import app, db
+from app.extensions import db
 from app.search.cross_instance_search import filter_instances_by_language
 from app.api.models import Urls, User
 from app.forms import EmailChangeForm, UsernameChangeForm

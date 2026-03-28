@@ -11,7 +11,8 @@ import justext
 from langdetect import detect
 from app.indexer.access import request_url
 from app.indexer import detect_open
-from app import app, LANGUAGE_CODES
+from flask import current_app
+from app import LANGUAGE_CODES
 from app.utils import remove_emails
 
 def remove_boilerplates(response, lang):
@@ -33,7 +34,7 @@ def remove_boilerplates(response, lang):
 def BS_parse(url):
     bs_obj = None
     req = None
-    headers = {'User-Agent': app.config['USER-AGENT']}
+    headers = {'User-Agent': current_app.config['USER-AGENT']}
     try:
         req = requests.head(url, timeout=30, headers=headers)
     except Exception:
@@ -54,7 +55,7 @@ def BS_parse(url):
 
 def extract_links(url):
     links = []
-    headers = {'User-Agent': app.config['USER-AGENT']}
+    headers = {'User-Agent': current_app.config['USER-AGENT']}
     try:
         req = requests.head(url, timeout=30, headers=headers)
         if req.status_code >= 400:
@@ -96,9 +97,9 @@ def extract_html(url):
     body_str = ""
     snippet = ""
     cc = False
-    language = app.config['LANGS'][0]
+    language = current_app.config['LANGS'][0]
     error = None
-    snippet_length = app.config['SNIPPET_LENGTH']
+    snippet_length = current_app.config['SNIPPET_LENGTH']
     
     bs_obj, req = BS_parse(url)
     if not bs_obj:
@@ -125,9 +126,9 @@ def extract_html(url):
             try:
                 language = detect(title + " " + tmp_body_str)
             except:
-                language = app.config['LANGS'][0]
+                language = current_app.config['LANGS'][0]
             try:
-                if language in app.config['LANGS']:
+                if language in current_app.config['LANGS']:
                     body_str = remove_boilerplates(req, language)
                 else:
                     if og_description:
@@ -146,9 +147,9 @@ def extract_html(url):
                 title = ""
                 error = "\t>> ERROR: extract_html: Couldn't detect page language."
                 return title, body_str, snippet, cc, error
-            if language not in app.config['LANGS']:
+            if language not in current_app.config['LANGS']:
                 logging.error(f"\t>> ERROR: extract_html: language {language} is not supported. Moving to default language.")
-                language = app.config['LANGS'][0]
+                language = current_app.config['LANGS'][0]
             # Process snippet
             if og_description:
                 snippet = og_description['content'][:1000]

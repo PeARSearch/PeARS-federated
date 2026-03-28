@@ -6,7 +6,8 @@ import numpy as np
 import pandas as pd
 from scipy.sparse import vstack, load_npz, save_npz, csr_matrix
 from sqlalchemy import create_engine
-from app import db, VEC_SIZE
+from app.extensions import db
+from app import VEC_SIZE
 from app.api.models import User, Personalization
 from app.utils_db import create_or_replace_url_in_db, create_pod_in_db, create_pod_npz_pos
 

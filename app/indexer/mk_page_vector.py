@@ -7,7 +7,7 @@ from os.path import dirname, join, realpath
 from os import getenv
 import numpy as np
 from scipy.sparse import csr_matrix, vstack, save_npz, load_npz
-from app import models, VEC_SIZE, DEFAULT_PATH
+import app as app_module
 from app.api.models import sp
 from app.indexer.htmlparser import extract_html
 from app.indexer.pdfparser import extract_txt
@@ -24,7 +24,7 @@ def tokenize_text(text, lang, stringify = True):
 
     Arguments: the text to be tokenized.
     """
-    sp.load(join(DEFAULT_PATH, f'api/models/{lang}/{lang}wiki.16k.model'))
+    sp.load(join(app_module.DEFAULT_PATH, f'api/models/{lang}/{lang}wiki.16k.model'))
     tokens = [wp for wp in sp.encode_as_pieces(text.lower())]
     if stringify:
         text = ' '.join([wp for wp in sp.encode_as_pieces(text.lower())])
@@ -38,7 +38,7 @@ def compute_and_stack_new_vec(lang, tokenized_text, pod_m):
     """ Given the tokenized text, compute a new vector
     and stack it onto the existing matrix for that pod.
     """
-    v = vectorize_scale(lang, tokenized_text, 5, VEC_SIZE) #log prob power 5
+    v = vectorize_scale(lang, tokenized_text, 5, app_module.VEC_SIZE) #log prob power 5
     if np.sum(v) != 0:
         logging.debug(f"compute_and_stack_new_vec 1 {pod_m.shape[0]}")
         pod_m = vstack((pod_m,csr_matrix(v)))
@@ -107,7 +107,7 @@ def compute_query_vectors(query, lang, expansion_length=None):
     model and vectorizing.
     """
     print("QUERY LANG",lang)
-    nns = models[lang]['nns']
+    nns = app_module.models[lang]['nns']
     words = query.split()
     print("QUERY SPLIT:",words)
 

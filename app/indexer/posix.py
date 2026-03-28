@@ -2,7 +2,7 @@ import joblib
 from glob import glob
 from os import getenv
 from os.path import join, dirname, realpath
-from app import models
+import app as app_module
     
 dir_path = dirname(dirname(realpath(__file__)))
 pod_dir = getenv("PODS_DIR", join(dir_path, 'pods'))
@@ -21,7 +21,7 @@ def dump_posix(posindex, contributor, lang, theme):
 def posix_doc(text, doc_id, contributor, lang, theme):
     pod_name = theme+'.u.'+contributor
     posindex = load_posix(contributor, lang, theme)
-    vocab = models[lang]['vocab']
+    vocab = app_module.models[lang]['vocab']
     for pos, token in enumerate(text.split()):
         if token not in vocab:
             # tqdm.write(f"WARNING: token \"{token}\" not found in vocab")

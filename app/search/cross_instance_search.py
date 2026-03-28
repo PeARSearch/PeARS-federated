@@ -5,7 +5,8 @@ import requests
 from requests.exceptions import ConnectionError
 from os.path import dirname, realpath, join, exists
 from scipy.spatial import distance
-from app import app, LANGUAGE_CODES
+from flask import current_app
+import app as app_module
 from app.search.score_pages import compute_query_vectors
 
 base_dir_path = dirname(dirname(dirname(realpath(__file__))))
@@ -23,16 +24,16 @@ def filter_instances_by_language():
     ''' Return only instances that match the main language
     of this instance.
     '''
-    this_instance_language = list(LANGUAGE_CODES.keys())[0]
+    this_instance_language = list(app_module.LANGUAGE_CODES.keys())[0]
     instances = get_known_instances()
     filtered_instances = []
     filtered_matrix = []
     skipped_instances = []
-    headers = {'User-Agent': app.config['USER-AGENT']}
+    headers = {'User-Agent': current_app.config['USER-AGENT']}
     for i in instances:
 
         # make sure that we're not trying to index with ourselves
-        if i.rstrip("/") == app.config["SITENAME"].rstrip("/"):
+        if i.rstrip("/") == current_app.config["SITENAME"].rstrip("/"):
             print(f"WARNING: It seems like you're trying to federate with yourself. Consider removing the name of your local site from .known_hosts.txt if it's on it. For now, I'm skipping this instance ({i}).")
             skipped_instances.append({"instance": i, "reason": "it seems like you're trying to federate with yourself"})
             continue
@@ -119,7 +120,7 @@ def get_cross_instance_results(query, instances):
     from app import M
     best_instances = get_best_instances(query, 'en', instances, M, top_k=2)
     results = {}
-    headers = {'User-Agent': app.config['USER-AGENT']}
+    headers = {'User-Agent': current_app.config['USER-AGENT']}
     for instance in best_instances:
         url = join(instance["url"], 'api', 'search?q='+query)
         req_success = False
