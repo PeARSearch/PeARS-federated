@@ -4,10 +4,8 @@
 
 # Run a test server.
 
-from app import create_app
+from app import app
 from decouple import config
-
-app = create_app()
 
 if config("FLASK_ENV") == "development":
     debug_mode = True
