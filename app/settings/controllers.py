@@ -11,7 +11,7 @@ from os.path import dirname, realpath, join, isdir, exists
 from markupsafe import Markup
 from flask import Blueprint, flash, request, render_template, redirect, url_for, session
 from flask_login import current_user, logout_user
-from flask_babel import gettext
+from flask_babel import gettext, refresh as babel_refresh
 import app as app_module
 from app import app, db
 from app.search.cross_instance_search import filter_instances_by_language
@@ -119,6 +119,16 @@ def toggle_theme():
     else:
         session["theme"] = "dark"
     return redirect(request.args.get('current_page'))
+
+
+@settings.route("/set-language")
+def set_language():
+    from app import AVAILABLE_UI_LANGUAGES
+    lang = request.args.get('lang')
+    if lang and lang in AVAILABLE_UI_LANGUAGES:
+        session['locale'] = lang
+        babel_refresh()
+    return redirect(request.args.get('current_page', url_for('search.index')))
 
 
 @settings.route('/delete', methods=['GET'])

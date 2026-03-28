@@ -11,3 +11,4 @@ app.db
 .env
 .captchas/
 .maintenance_mode
+messages.pot

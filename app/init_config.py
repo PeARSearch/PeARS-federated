@@ -1,4 +1,5 @@
 from os import getenv
+from os.path import abspath, dirname, join, realpath
 from dotenv import load_dotenv
 
 def run_config(app):
@@ -22,7 +23,7 @@ def run_config(app):
     # Secrets
     app.config['SECRET_KEY'] = getenv("SECRET_KEY")                         
     app.config['SECURITY_PASSWORD_SALT'] = getenv("SECURITY_PASSWORD_SALT")
-    app.config['SESSION_COOKIE_SECURE'] = True
+    app.config['SESSION_COOKIE_SECURE'] = True if getenv("SESSION_COOKIE_SECURE", "true").lower() == 'true' else False
     app.config['SESSION_COOKIE_HTTPONLY'] = False
     app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
     app.config['CSRF_ENABLED'] = True
@@ -50,7 +51,12 @@ def run_config(app):
     # Localization
     app.config['LANGS'] = getenv('PEARS_LANGS', "en").split(',')
     app.config['BABEL_DEFAULT_LOCALE'] = app.config['LANGS'][0]
-    app.config['BABEL_TRANSLATION_DIRECTORIES'] = getenv("TRANSLATION_DIR")
+    trans_dir = getenv("TRANSLATION_DIR", "translations")
+    if not abspath(trans_dir) == trans_dir:
+        # Resolve relative paths against the project root (parent of app/)
+        project_root = dirname(dirname(realpath(__file__)))
+        trans_dir = join(project_root, trans_dir)
+    app.config['BABEL_TRANSLATION_DIRECTORIES'] = trans_dir
 
     # Optimization
     app.config['LIVE_MATRIX'] = True if getenv("LIVE_MATRIX", "false").lower() == 'true' else False

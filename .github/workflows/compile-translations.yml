@@ -1,0 +1,52 @@
+# SPDX-FileCopyrightText: 2025 PeARS Project, <community@pearsproject.org>
+#
+# SPDX-License-Identifier: AGPL-3.0-only
+
+name: Compile translations
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'translations/**/*.po'
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.head_ref || github.ref_name }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install Babel
+      run: pip install Babel
+
+    - name: Compile .po to .mo
+      run: pybabel compile -d translations
+
+    - name: Check for changes
+      id: changes
+      run: |
+        if git diff --quiet translations/; then
+          echo "changed=false" >> "$GITHUB_OUTPUT"
+        else
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Commit compiled translations
+      if: steps.changes.outputs.changed == 'true'
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git add translations/**/*.mo
+        git commit -m "Compile translation files (.po → .mo)"
+        git push

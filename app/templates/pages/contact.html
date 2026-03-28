@@ -13,27 +13,27 @@ SPDX-License-Identifier: AGPL-3.0-only
     <p class="muted-text">{{gettext('Any question, comment, or complaint? Let us help you!')}}</p>
   </header>
 
-  <p>PeARS is <a href="https://pearsproject.org/">open-source software</a> developed by volunteers and freely available for all to use and modify. It receives development support from the non-profit collective <a href="https://possible-worlds.eu/">Possible Worlds Research</a>.</p>
+  <p>{{gettext('PeARS is <a href="https://pearsproject.org/">open-source software</a> developed by volunteers and freely available for all to use and modify. It receives development support from the non-profit collective <a href="https://possible-worlds.eu/">Possible Worlds Research</a>.')}}</p>
 
-  <p>This specific instance is run by <strong>{{orgname}}</strong>. You can contact us at:</p>
+  <p>{{gettext('This specific instance is run by <strong>%(orgname)s</strong>. You can contact us at:', orgname=orgname)}}</p>
 
   <article class="form-card mb-4">
     <p><strong>{{orgname}}</strong></p>
     <p>{{address}}</p>
     <p><a href="mailto:{{email}}">{{email}}</a></p>
     {% if tax_office and registration_number %}
-    <p class="fine-text">Registered at {{tax_office}} {{registration_number}}</p>
+    <p class="fine-text">{{gettext('Registered at %(tax_office)s %(registration_number)s', tax_office=tax_office, registration_number=registration_number)}}</p>
     {% endif %}
     {% if vat_number %}
-    <p class="fine-text">USt. ID {{vat_number}}</p>
+    <p class="fine-text">{{gettext('USt. ID %(vat_number)s', vat_number=vat_number)}}</p>
     {% endif %}
   </article>
 
   {% if eu %}
-  <h3>EU Digital Services Act</h3>
-  <p>Point of contact for Member States authorities (Art. 11 DSA): {{email}}</p>
-  <p>Point of contact for Users (Art. 12 DSA): {{email}}</p>
-  <p>The European Commission provides an <a href="http://ec.europa.eu/consumers/odr/">online dispute resolution platform</a> for consumer dispute resolution.</p>
+  <h3>{{gettext('EU Digital Services Act')}}</h3>
+  <p>{{gettext('Point of contact for Member States authorities (Art. 11 DSA): %(email)s', email=email)}}</p>
+  <p>{{gettext('Point of contact for Users (Art. 12 DSA): %(email)s', email=email)}}</p>
+  <p>{{gettext('The European Commission provides an <a href="http://ec.europa.eu/consumers/odr/">online dispute resolution platform</a> for consumer dispute resolution.')}}</p>
   {% endif %}
 </div>
 {% endblock %}

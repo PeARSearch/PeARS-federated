@@ -13,52 +13,52 @@ SPDX-License-Identifier: AGPL-3.0-only
     <p class="muted-text">{{gettext('Rules for using this PeARS instance')}}</p>
   </header>
 
-  <p>Welcome to <em>{{sitename}}</em>!</p>
+  <p>{{gettext('Welcome to <em>%(sitename)s</em>!', sitename=sitename)}}</p>
 
-  <p><em>{{sitename}}</em> is an instance of PeARS Federated. PeARS is <a href="https://pearsproject.org/">open-source software</a> developed by volunteers and freely available for all to use and modify. It receives development support from the non-profit collective <a href="https://possible-worlds.eu/">Possible Worlds Research</a>.</p>
+  <p>{{gettext('<em>%(sitename)s</em> is an instance of PeARS Federated. PeARS is <a href="https://pearsproject.org/">open-source software</a> developed by volunteers and freely available for all to use and modify. It receives development support from the non-profit collective <a href="https://possible-worlds.eu/">Possible Worlds Research</a>.', sitename=sitename)}}</p>
 
-  <p>The instance of PeARS on {{sitename}} ('this Site') is provided by {{orgname}} ('we/us'). These Terms of Service govern your use of PeARS on this instance. When you create an account or use PeARS on <em>{{sitename}}</em>, you agree to these terms.</p>
+  <p>{{gettext('The instance of PeARS on %(sitename)s (\'this Site\') is provided by %(orgname)s (\'we/us\'). These Terms of Service govern your use of PeARS on this instance. When you create an account or use PeARS on <em>%(sitename)s</em>, you agree to these terms.', sitename=sitename, orgname=orgname)}}</p>
 
-  <h3>Impressum</h3>
-  <p>You can contact us at:</p>
+  <h3>{{gettext('Impressum')}}</h3>
+  <p>{{gettext('You can contact us at:')}}</p>
   <p>{{address}}<br>{{email}}.</p>
-  <p>More detail can be found on our <a href="{{url_for('pages.return_contact')}}">contact</a> page.</p>
+  <p>{{gettext('More detail can be found on our <a href="%(contact_url)s">contact</a> page.', contact_url=url_for('pages.return_contact'))}}</p>
 
-  <h3>Funding</h3>
-  <p>There are no ads on this Site. PeARS relies on <a href="https://opencollective.com/possible-worlds-research/projects/decentralized-web-search">donations</a> and public funding for its development.</p>
+  <h3>{{gettext('Funding')}}</h3>
+  <p>{{gettext('There are no ads on this Site. PeARS relies on <a href="https://opencollective.com/possible-worlds-research/projects/decentralized-web-search">donations</a> and public funding for its development.')}}</p>
 
-  <h3>Your commitments</h3>
+  <h3>{{gettext('Your commitments')}}</h3>
   <ul>
-    <li><strong>No unlawful use:</strong> You cannot use this site for an unlawful or unauthorized purpose, or in a way that interferes with the operation of the Service. This includes creating accounts automatically or adding harmful links to our index.</li>
-    <li><strong>Respect copyright:</strong> You cannot post content that infringes the rights of other copyright holders, or violates their confidentiality. You confirm that you have the copyright holder's permission for any content you post.</li>
-    <li><strong>No discrimination:</strong> You cannot post content that discriminates against others, including on grounds of ethnicity, nationality, gender, sexual orientation, disability status or religion.</li>
+    <li>{{gettext('<strong>No unlawful use:</strong> You cannot use this site for an unlawful or unauthorized purpose, or in a way that interferes with the operation of the Service. This includes creating accounts automatically or adding harmful links to our index.')}}</li>
+    <li>{{gettext('<strong>Respect copyright:</strong> You cannot post content that infringes the rights of other copyright holders, or violates their confidentiality. You confirm that you have the copyright holder\'s permission for any content you post.')}}</li>
+    <li>{{gettext('<strong>No discrimination:</strong> You cannot post content that discriminates against others, including on grounds of ethnicity, nationality, gender, sexual orientation, disability status or religion.')}}</li>
   </ul>
 
-  <h3>Content review</h3>
-  <p>We do not review any content. Nonetheless we reserve the right to conduct random checks, particularly in response to reports of infringements. We also do not use automatic review systems, filters or similar tools.</p>
+  <h3>{{gettext('Content review')}}</h3>
+  <p>{{gettext('We do not review any content. Nonetheless we reserve the right to conduct random checks, particularly in response to reports of infringements. We also do not use automatic review systems, filters or similar tools.')}}</p>
 
-  <h3>Violations of your commitments</h3>
-  <p>We will, at our discretion, either edit or delete any content that violates legal provisions, rights or these terms of service. We may also delete your account and/or issue a ban in the event of serious violations or repeated minor violations.</p>
-  <p>We will always act carefully, objectively and proportionately when reviewing content and taking action.</p>
+  <h3>{{gettext('Violations of your commitments')}}</h3>
+  <p>{{gettext('We will, at our discretion, either edit or delete any content that violates legal provisions, rights or these terms of service. We may also delete your account and/or issue a ban in the event of serious violations or repeated minor violations.')}}</p>
+  <p>{{gettext('We will always act carefully, objectively and proportionately when reviewing content and taking action.')}}</p>
 
-  <h3>The rights you give to us</h3>
-  <p>You grant us a non-exclusive, transferable, sub-licensable, worldwide license to host, use, distribute, modify, run, copy, publicly perform or display, translate, and create derivative works of your content for purposes of making the Service available. You are responsible for any infringements caused by your uploads.</p>
+  <h3>{{gettext('The rights you give to us')}}</h3>
+  <p>{{gettext('You grant us a non-exclusive, transferable, sub-licensable, worldwide license to host, use, distribute, modify, run, copy, publicly perform or display, translate, and create derivative works of your content for purposes of making the Service available. You are responsible for any infringements caused by your uploads.')}}</p>
 
-  <h3>Content and account removal</h3>
+  <h3>{{gettext('Content and account removal')}}</h3>
   <ul>
-    <li>You can delete your own contributions and close your account at any time. See our <a href="{{url_for('pages.return_privacy')}}">Privacy Policy</a> for more detail.</li>
-    <li>We can remove any content you post on the Service if we believe it interferes with the Service or violates these Terms.</li>
-    <li>If you repeatedly violate these Terms, we reserve the right to delete your account.</li>
-    <li>If you think we have removed your account in error, contact us using the email on our <a href="{{url_for('pages.return_contact')}}">contact page</a>.</li>
+    <li>{{gettext('You can delete your own contributions and close your account at any time. See our <a href="%(privacy_url)s">Privacy Policy</a> for more detail.', privacy_url=url_for('pages.return_privacy'))}}</li>
+    <li>{{gettext('We can remove any content you post on the Service if we believe it interferes with the Service or violates these Terms.')}}</li>
+    <li>{{gettext('If you repeatedly violate these Terms, we reserve the right to delete your account.')}}</li>
+    <li>{{gettext('If you think we have removed your account in error, contact us using the email on our <a href="%(contact_url)s">contact page</a>.', contact_url=url_for('pages.return_contact'))}}</li>
   </ul>
 
-  <h3>Licensing</h3>
-  <p>These terms do not restrict rights granted by the <a href="https://github.com/PeARSearch/PeARS-federated?tab=License-1-ov-file#readme">AGPL-3.0 license</a>, under which the <a href="https://github.com/PeARSearch/PeARS-federated">PeARS code</a> is released.</p>
+  <h3>{{gettext('Licensing')}}</h3>
+  <p>{{gettext('These terms do not restrict rights granted by the <a href="https://github.com/PeARSearch/PeARS-federated?tab=License-1-ov-file#readme">AGPL-3.0 license</a>, under which the <a href="https://github.com/PeARSearch/PeARS-federated">PeARS code</a> is released.')}}</p>
 
-  <h3>Your privacy</h3>
-  <p>We take your privacy seriously. By accepting these Terms, you confirm that you have read and accepted our <a href="{{url_for('pages.return_privacy')}}">Privacy Policy</a>.</p>
+  <h3>{{gettext('Your privacy')}}</h3>
+  <p>{{gettext('We take your privacy seriously. By accepting these Terms, you confirm that you have read and accepted our <a href="%(privacy_url)s">Privacy Policy</a>.', privacy_url=url_for('pages.return_privacy'))}}</p>
 
-  <h3>Applicable law</h3>
-  <p>These terms are governed by the law of {{applicable_law}}.</p>
+  <h3>{{gettext('Applicable law')}}</h3>
+  <p>{{gettext('These terms are governed by the law of %(applicable_law)s.', applicable_law=applicable_law)}}</p>
 </div>
 {% endblock %}
