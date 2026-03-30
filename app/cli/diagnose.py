@@ -1,4 +1,4 @@
-from app import app
+from flask import current_app
 from app.api.models import Urls
 
 def check_sitename():
@@ -9,8 +9,8 @@ def check_sitename():
     '''
     urls = Urls.query.all()
     for u in urls:
-        if 'pearslocal' not in u.share and app.config['SITENAME'] not in u.share:
-            print(f"\nERROR: URL share is {u.share} but this instance's sitename is {app.config['SITENAME']}")
+        if 'pearslocal' not in u.share and current_app.config['SITENAME'] not in u.share:
+            print(f"\nERROR: URL share is {u.share} but this instance's sitename is {current_app.config['SITENAME']}")
             print("It seems some of your database urls do not match the name of your instance.")
             print("This could cause issues when performing cross-instance search. Please double-check your SITENAME value in the .env file.")
             print("In case of issues with your share urls, you can easily rename part of them by using the CLI updateinstancename command.")

@@ -3,7 +3,7 @@ from urllib.parse import urlparse
 from os.path import join
 import re
 import requests
-from app import app
+from flask import current_app
 
 def robotcheck(url):
     scheme = urlparse(url).scheme
@@ -44,7 +44,7 @@ def request_url(url):
     access = None
     req = None
     errs = []
-    headers = {'User-Agent': app.config['USER-AGENT']}
+    headers = {'User-Agent': current_app.config['USER-AGENT']}
     try:
         req = requests.head(url, timeout=30, headers=headers)
     except:

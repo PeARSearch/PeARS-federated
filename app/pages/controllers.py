@@ -6,7 +6,8 @@
 from flask import Blueprint, render_template, request
 
 from app.api.models import Pods, Personalization
-from app import app, db
+from flask import current_app
+from app.extensions import db
 
 # Define the blueprint:
 pages = Blueprint('pages', __name__, url_prefix='')
@@ -15,8 +16,8 @@ pages = Blueprint('pages', __name__, url_prefix='')
 @pages.route('/faq/')
 def return_faq():
     siteurl = request.host_url
-    sitename = app.config["SITENAME"]
-    topic = app.config["SITE_TOPIC"]
+    sitename = current_app.config["SITENAME"]
+    topic = current_app.config["SITE_TOPIC"]
     return render_template("pages/faq.html", sitename=sitename, siteurl=siteurl, topic=topic)
 
 @pages.route('/licenses/')
@@ -35,32 +36,32 @@ def return_acknowledgements():
 
 @pages.route('/privacy/')
 def return_privacy():
-    sitename = app.config["SITENAME"]
-    orgname = app.config["ORG_NAME"]
-    address = app.config["ORG_ADDRESS"]
-    email = app.config["ORG_EMAIL"]
-    servers = app.config["SERVERS"]
+    sitename = current_app.config["SITENAME"]
+    orgname = current_app.config["ORG_NAME"]
+    address = current_app.config["ORG_ADDRESS"]
+    email = current_app.config["ORG_EMAIL"]
+    servers = current_app.config["SERVERS"]
     return render_template("pages/privacy.html", sitename=sitename, orgname=orgname, address=address, email=email, servers=servers)
 
 @pages.route('/terms-of-service/')
 def return_tos():
-    applicable_law = app.config["APPLICABLE_LAW"]
-    sitename = app.config["SITENAME"]
-    orgname = app.config["ORG_NAME"]
-    address = app.config["ORG_ADDRESS"]
-    email = app.config["ORG_EMAIL"]
+    applicable_law = current_app.config["APPLICABLE_LAW"]
+    sitename = current_app.config["SITENAME"]
+    orgname = current_app.config["ORG_NAME"]
+    address = current_app.config["ORG_ADDRESS"]
+    email = current_app.config["ORG_EMAIL"]
     return render_template("pages/tos.html", applicable_law=applicable_law, sitename=sitename, orgname=orgname, address=address, email=email)
 
 @pages.route('/impressum/')
 def return_contact():
-    sitename = app.config["SITENAME"]
-    orgname = app.config["ORG_NAME"]
-    address = app.config["ORG_ADDRESS"]
-    email = app.config["ORG_EMAIL"]
-    eu = app.config["EU_SPECIFIC"]
-    tax_office = app.config["TAX_OFFICE"]
-    registration_number = app.config["REGISTRATION_NUMBER"]
-    vat_number = app.config["VAT_NUMBER"]
+    sitename = current_app.config["SITENAME"]
+    orgname = current_app.config["ORG_NAME"]
+    address = current_app.config["ORG_ADDRESS"]
+    email = current_app.config["ORG_EMAIL"]
+    eu = current_app.config["EU_SPECIFIC"]
+    tax_office = current_app.config["TAX_OFFICE"]
+    registration_number = current_app.config["REGISTRATION_NUMBER"]
+    vat_number = current_app.config["VAT_NUMBER"]
     return render_template("pages/contact.html", email=email, orgname=orgname, address=address, eu=eu, \
             tax_office=tax_office, registration_number=registration_number, vat_number=vat_number)
 

@@ -11,7 +11,8 @@ import joblib
 from sqlalchemy import update
 import numpy as np
 from scipy.sparse import csr_matrix, load_npz, vstack, save_npz
-from app import db, models, VEC_SIZE
+from app.extensions import db
+import app as app_module
 from app.api.models import Urls, Pods, Suggestions
 from app.indexer.posix import load_posix, dump_posix
 
@@ -38,10 +39,10 @@ def create_pod_npz_pos(contributor, theme, lang):
     user_dir = join(pod_dir,contributor, lang)
     Path(user_dir).mkdir(parents=True, exist_ok=True)
     pod_path = join(user_dir, theme+'.u.'+contributor )
-    vocab = models[lang]['vocab']
+    vocab = app_module.models[lang]['vocab']
     if not isfile(pod_path+'.npz'):
         logging.debug(">> UTILS_DB: create_pod_npz_pos: Making 0 CSR matrix for new pod")
-        pod = np.zeros((1,VEC_SIZE))
+        pod = np.zeros((1,app_module.VEC_SIZE))
         pod = csr_matrix(pod)
         save_npz(pod_path+'.npz', pod)
         logging.debug(f">> UTILS_DB: create_pod_npz_pos: {pod.shape[0]}")
@@ -228,7 +229,7 @@ def rm_doc_from_pos(vid, pod):
     Returns: the content of the positional index for that vector.
     """
     contributor, theme, lang = parse_pod_name(pod)
-    vocab = models[lang]['vocab']
+    vocab = app_module.models[lang]['vocab']
     posindex = load_posix(contributor, lang, theme)
     remaining_posindex = []
     deleted_posindex = []

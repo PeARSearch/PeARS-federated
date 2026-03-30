@@ -10,7 +10,8 @@ from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.api.models import User
 from app.forms import RegistrationForm, LoginForm, PasswordForgottenForm, PasswordChangeForm
-from app import app, db
+from flask import current_app
+from app.extensions import db
 from captcha.image import ImageCaptcha
 from flask import (Blueprint, flash, request, render_template, Response, redirect, url_for, session, abort)
 from flask_babel import gettext
@@ -43,7 +44,7 @@ def logout():
 
 @auth.route('/login', methods=['GET','POST'])
 def login():
-    new_users_allowed = app.config['NEW_USERS']
+    new_users_allowed = current_app.config['NEW_USERS']
     form = LoginForm(request.form)
     
     if form.validate_on_submit():
@@ -83,7 +84,7 @@ def login():
 
 @auth.route('/signup', methods=['GET','POST'])
 def signup():
-    new_users_allowed = app.config['NEW_USERS']
+    new_users_allowed = current_app.config['NEW_USERS']
     form = RegistrationForm(request.form)
     if form.validate_on_submit():
 
@@ -127,8 +128,8 @@ def signup():
             return redirect(url_for("auth.inactive"))
 
         # alert admin (assume for now the admin's address is the default sender)
-        admin_mail = app.config["MAIL_DEFAULT_SENDER"]
-        sitename = app.config["SITENAME"]
+        admin_mail = current_app.config["MAIL_DEFAULT_SENDER"]
+        sitename = current_app.config["SITENAME"]
         subject = f"New signup on your PeARS instance: {sitename}"
         html = f"User: {username}, email: {email}"
         send_email(admin_mail, subject, html)
