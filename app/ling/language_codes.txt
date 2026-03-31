@@ -4,7 +4,7 @@ fr;French
 ml;Malayalam
 da;Danish
 ar;Arabic
-nb;Bengali
+bn;Bengali
 eu;Basque
 ca;Catalan
 zh;Chinese
