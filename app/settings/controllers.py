@@ -216,7 +216,11 @@ def delete_account():
     idx = [0]
     for u in users:
         if u.username.startswith('deleteduser'):
-            idx.append(int(u.username.replace('deleteduser','')))
+            suffix = u.username.replace('deleteduser', '')
+            try:
+                idx.append(int(suffix))
+            except ValueError:
+                continue
     new_deleted_user = 'deleteduser'+str(max(idx)+1)
     print(">> CREATING DELETED USER", new_deleted_user)
     rename_notes(username, new_deleted_user)
