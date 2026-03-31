@@ -17,7 +17,7 @@ from app.utils import remove_emails
 
 def remove_boilerplates(response, lang):
     text = ""
-    print("REMOVING BOILERPLATES FOR LANG",lang,"(",LANGUAGE_CODES[lang],").")
+    logging.info(f"REMOVING BOILERPLATES FOR LANG {lang} ({LANGUAGE_CODES[lang]}).")
     paragraphs = justext.justext(
         response.content,
         justext.get_stoplist(LANGUAGE_CODES[lang]),

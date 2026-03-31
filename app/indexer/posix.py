@@ -1,3 +1,4 @@
+import logging
 import joblib
 from glob import glob
 from os import getenv
@@ -56,6 +57,6 @@ def load_posindices(lang, n = -1):
         n_pod_names = dict(list(pod_sizes.items())[:n])
         for filename, size in n_pod_names.items():
             theme, contributor = filename.replace('.pos','').split('.u.')
-            print("Loading pod", theme, contributor, size)
+            logging.info(f"Loading pod {theme} {contributor} {size}")
             posindices[theme] = load_posix(contributor, lang, theme)
     return posindices

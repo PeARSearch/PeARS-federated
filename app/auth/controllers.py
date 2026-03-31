@@ -74,7 +74,7 @@ def login():
         else:
             welcome = "<b>"+gettext('Welcome')+", "+current_user.username+"!</b>"
         return redirect(url_for("search.index"))
-    print(form.errors)
+    logging.debug(f"{form.errors}")
     return render_template('auth/login.html', form=form, new_users_allowed=new_users_allowed)
 
 
@@ -137,7 +137,7 @@ def signup():
         flash(gettext("Welcome! Your signup is almost complete; confirm your email address to fully activate your account."), "success")
         return redirect(url_for("auth.inactive"))
     else:
-        print("FORM ERRORS:", form.errors)
+        logging.debug(f"FORM ERRORS: {form.errors}")
 
         # generate captcha (public code/private string pair)
         captcha_id, captcha_correct_answer = mk_captcha()

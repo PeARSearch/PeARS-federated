@@ -1,3 +1,4 @@
+import logging
 from os.path import basename, join, isdir, isfile, dirname, realpath
 from pathlib import Path
 import operator
@@ -73,7 +74,7 @@ def mk_captcha():
     Generates a pair of a public ID number and a 'secret' string to be shown in the image 
     """
 
-    print(captcha_dir)
+    logging.debug(f"{captcha_dir}")
     if not isdir(captcha_dir):
         Path(captcha_dir).mkdir(parents=True, exist_ok=True)
     else:

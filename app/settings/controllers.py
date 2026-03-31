@@ -52,12 +52,12 @@ def set_maintenance_mode(mode):
 @check_permissions(login=True, confirmed=True, admin=True)
 def toggle_maintenance_mode():
     maintenance_mode = get_maintance_mode()
-    print("Current status of maintenance:", maintenance_mode)
+    logging.info(f"Current status of maintenance: {maintenance_mode}")
     if not maintenance_mode:
-        print("Switching on maintenance")
+        logging.info("Switching on maintenance")
         set_maintenance_mode(True)
     else:
-        print("Switching off maintenance")
+        logging.info("Switching off maintenance")
         set_maintenance_mode(False)
     return redirect(url_for("search.index"))
 
@@ -114,7 +114,7 @@ def index():
 @settings.route("/toggle-theme")
 def toggle_theme():
     current_theme = session.get("theme")
-    print(current_theme, request.args.get('current_page'))
+    logging.debug(f"{current_theme} {request.args.get('current_page')}")
     if current_theme == "dark":
         session["theme"] = "light"
     else:
@@ -218,11 +218,11 @@ def delete_account():
         if u.username.startswith('deleteduser'):
             idx.append(int(u.username.replace('deleteduser','')))
     new_deleted_user = 'deleteduser'+str(max(idx)+1)
-    print(">> CREATING DELETED USER", new_deleted_user)
+    logging.info(f">> CREATING DELETED USER {new_deleted_user}")
     rename_notes(username, new_deleted_user)
     rename_user_files(username, new_deleted_user)
 
-    print(">> DELETING ACCOUNT",username)
+    logging.info(f">> DELETING ACCOUNT {username}")
     current_user.remove()
     db.session.commit()
     logout_user()
@@ -246,7 +246,7 @@ def change_email():
         db.session.commit()
         flash(gettext("Your email has been successfully modified."), "success")
         return redirect(url_for("settings.index"))
-    print(form.errors)
+    logging.debug(f"{form.errors}")
     return redirect(url_for("settings.index"))
 
 
@@ -269,5 +269,5 @@ def change_username():
         db.session.commit()
         flash(gettext("Your username has been successfully modified."), "success")
         return redirect(url_for("settings.index"))
-    print(form.errors)
+    logging.debug(f"{form.errors}")
     return redirect(url_for("settings.index"))

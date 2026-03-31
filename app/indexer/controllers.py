@@ -75,7 +75,7 @@ def suggest():
     themes = list(set([p.name.split('.u.')[0] for p in pods]))
     internal_message = db.session.query(Personalization).filter_by(feature='suggestions_info').first()
     if internal_message:
-        print("MSG",internal_message)
+        logging.debug(f"MSG {internal_message}")
         internal_message = internal_message.text
     return render_template("indexer/suggest.html", form=form, themes=themes, internal_message=internal_message)
 
@@ -122,7 +122,7 @@ def index_from_url():
     Validates the suggestion form and calls the
     indexer (progres_file).
     """
-    print("\t>> Indexer : from_url")
+    logging.info("\t>> Indexer : from_url")
     contributor = current_user.username
     pods = Pods.query.all()
     themes = list(set([p.name.split('.u.')[0] for p in pods]))
@@ -154,7 +154,7 @@ def index_from_manual():
     Validates the ManualEntryForm and calls the
     indexer (manual_progres_file).
     """
-    print("\t>> Indexer : manual")
+    logging.info("\t>> Indexer : manual")
     contributor = current_user.username
     pods = Pods.query.all()
     themes = list(set([p.name.split('.u.')[0] for p in pods]))
@@ -165,7 +165,7 @@ def index_from_manual():
         title = request.form.get('title').strip()
         snippet = request.form.get('description').strip()
         url = request.form.get('related_url').strip()
-        print("MANUAL URL",url)
+        logging.debug(f"MANUAL URL {url}")
         lang = detect(snippet)
         # Hack if language of contribution is not recognized
         if lang not in current_app.config['LANGS']:
@@ -189,7 +189,7 @@ def index_from_manual():
 def run_suggest_url():
     """ Save the suggested URL in waiting list.
     """
-    print(">> INDEXER: run_suggest_url: Save suggested URL.")
+    logging.info(">> INDEXER: run_suggest_url: Save suggested URL.")
     form = SuggestionForm(request.form)
     if form.validate_on_submit():
         url = request.form.get('suggested_url').strip()
@@ -215,11 +215,11 @@ def run_suggest_url():
             themes = list(set([p.name.split('.u.')[0] for p in pods]))
             return render_template('indexer/suggest.html', form=form, themes=themes)
 
-        print(url, theme, note)
+        logging.debug(f"{url} {theme} {note}")
         create_suggestion_in_db(url=url, pod=theme, notes=note, contributor=contributor)
         flash(gettext('Many thanks for your suggestion'), "success")
         return redirect(url_for('indexer.suggest'))
-    print("FORM ERRORS:", form.errors)
+    logging.debug(f"FORM ERRORS: {form.errors}")
     # generate captcha (public code/private string pair)
     captcha_id, captcha_correct_answer = mk_captcha()
     form.captcha_id.data = captcha_id
@@ -398,7 +398,7 @@ def run_indexer_url(url, theme, note, contributor, host_url):
     index as well as vectors. A new entry is also
     added to the database.
     """
-    print(">> INDEXER: run_indexer_url: Running indexer over suggested URL.")
+    logging.info(">> INDEXER: run_indexer_url: Running indexer over suggested URL.")
     messages = []
     indexed = False
     share_url = ''
@@ -432,7 +432,7 @@ def run_indexer_manual(url, title, doc, theme, lang, note, contributor, host_url
     the title and content of the added document, a topic, language, note 
     information, as well as the username of the contributor.
     """
-    print(">> INDEXER: run_indexer_manual: Running indexer over manually added information.")
+    logging.info(">> INDEXER: run_indexer_manual: Running indexer over manually added information.")
     messages = []
     indexed = False
     create_pod_npz_pos(contributor, theme, lang)

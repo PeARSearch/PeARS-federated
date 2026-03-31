@@ -52,9 +52,9 @@ def compute_vector(url, theme, contributor, url_type):
     page, extracting the title and text from it, and adding the 
     document vector to the matrix for the user's chosen theme.
     """
-    print("Computing vector for", url, "(",theme,")")
+    logging.info(f"Computing vector for {url} ({theme})")
     messages = []
-    print("CONTENT TYPE",url_type)
+    logging.debug(f"CONTENT TYPE {url_type}")
     if 'text/html' in url_type:
         title, body_str, lang, snippet, cc, error = extract_html(url)
     elif 'application/pdf' in url_type:
@@ -106,16 +106,16 @@ def compute_query_vectors(query, lang, expansion_length=None):
     pre-computed wordpiece neighbours from a FastText 
     model and vectorizing.
     """
-    print("QUERY LANG",lang)
+    logging.debug(f"QUERY LANG {lang}")
     nns = app_module.models[lang]['nns']
     words = query.split()
-    print("QUERY SPLIT:",words)
+    logging.debug(f"QUERY SPLIT: {words}")
 
     # Individual words tokenized
     words_tokenized = []
     for w in words:
         words_tokenized.append(tokenize_text(w, lang, stringify=False))
-    print("WORDS TOKENIZED:",words_tokenized)
+    logging.debug(f"WORDS TOKENIZED: {words_tokenized}")
 
     # Add similar tokens
     words_tokenized_expanded = []
@@ -132,7 +132,7 @@ def compute_query_vectors(query, lang, expansion_length=None):
                 sims.extend(neighbours)
         sims = list(set(sims))
         words_tokenized_expanded.append(sims)
-    print("WORDS TOKENIZED EXPANDED:",words_tokenized_expanded)
+    logging.debug(f"WORDS TOKENIZED EXPANDED: {words_tokenized_expanded}")
     logging.debug(f"WORDS TOKENIZED EXPANDED {words_tokenized_expanded}")
 
     v_query = []

@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
+import logging
 import os
 import requests
 import codecs
@@ -29,13 +30,13 @@ def cache_file(url, html):
     url_parsed = urlparse(url)
     path_dirs = url_parsed.path[1:].split('/')
     page = path_dirs[-1]
-    print("CACHING", page, "ON", url_parsed.netloc)
+    logging.info(f"CACHING {page} ON {url_parsed.netloc}")
     cached_netloc = "./pears/html_cache/" + url_parsed.netloc
     if page == "":
         page = "index.html"
     if page[-5:] != ".html":
         page = page + ".html"
-    print("PAGE", page)
+    logging.debug(f"PAGE {page}")
     cached_dir = cached_netloc + "/" + '/'.join(path_dirs[:-1]) + "/"
     if not os.path.isdir(cached_dir):
         os.makedirs(cached_dir)
@@ -60,7 +61,7 @@ def cache_pdf(url):
             with open(cached_page, 'wb') as f:
                 f.write(response.content)
     except Exception:
-        print("Error caching the pdf...")
+        logging.error("Error caching the pdf...")
 
 
 def get_images(url):
@@ -69,10 +70,10 @@ def get_images(url):
     soup = BeautifulSoup(req.text, "lxml")
     # url_parsed = list(urlparse(url))
     for image in soup.findAll("img"):
-        print("Image: %(src)s" % image)
+        logging.debug("Image: %(src)s" % image)
         if not image["src"].lower().startswith("http"):
             img_path = urljoin(url, image["src"])
-            print(img_path)
+            logging.debug(f"{img_path}")
             cache_file(img_path)
 
 
@@ -83,15 +84,15 @@ def get_css(url):
     # url_parsed = list(urlparse(url))
     for link in soup.findAll("link"):
         if link["rel"][0] == "stylesheet":
-            print("Link: %(href)s" % link)
+            logging.debug("Link: %(href)s" % link)
             if not link["href"].lower().startswith("http"):
                 css_path = urljoin(url, link["href"])
-                print(css_path)
+                logging.debug(f"{css_path}")
                 cache_file(css_path)
 
 
 def runScript(url, html):
-    print("Caching", url, "...")
+    logging.info(f"Caching {url} ...")
     cache_file(url, html)
     # Optional: grab the images and css for that page
     # get_images(url)

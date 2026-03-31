@@ -340,9 +340,9 @@ class UrlsModelView(ModelView):
     def delete_model(self, model):
         try:
             self.on_model_delete(model)
-            print("DELETING",model.url)
+            logging.info(f"DELETING {model.url}")
             # Add your custom logic here and don't forget to commit any changes e.g.
-            print(delete_url_representations(model.url))
+            logging.info(f"{delete_url_representations(model.url)}")
             self.session.commit()
         except Exception as ex:
             if not self.handle_view_exception(ex):
@@ -384,8 +384,8 @@ class UrlsModelView(ModelView):
         else:
             # model is now committed to the database
             if old_pod != new_pod:
-                print(f"Pod name has changed from {old_pod} to {new_pod}!")
-                print("Move vector in npz file")
+                logging.info(f"Pod name has changed from {old_pod} to {new_pod}!")
+                logging.info("Move vector in npz file")
                 try:
                     pod_path = create_pod_npz_pos(contributor, new_theme, lang)
                     create_pod_in_db(contributor, new_theme, lang)
@@ -433,7 +433,7 @@ class PodsModelView(ModelView):
     def delete_model(self, model):
         try:
             self.on_model_delete(model)
-            print("DELETING",model.name)
+            logging.info(f"DELETING {model.name}")
             # Add your custom logic here and don't forget to commit any changes e.g.
             delete_pod_representations(model.name)
             self.session.commit()

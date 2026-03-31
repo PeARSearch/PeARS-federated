@@ -144,11 +144,11 @@ def get_local_search_results(query):
         languages = [lang]
     for lang in languages:
         clean_query = ' '.join([w for w in query.split() if w not in app_module.models[lang]['stopwords']])
-        print("\n\n>>>>>>>>>>>>>>>>>>>>>>")
-        print(">> SEARCH:CONTROLLERS:get_local_search_results: searching in",lang)
-        print(">>>>>>>>>>>>>>>>>>>>>>")
+        logging.info(">>>>>>>>>>>>>>>>>>>>>>")
+        logging.info(f">> SEARCH:CONTROLLERS:get_local_search_results: searching in {lang}")
+        logging.info(">>>>>>>>>>>>>>>>>>>>>>")
 
-        print("\n Getting results on this instance")
+        logging.info("Getting results on this instance")
         r, s = score_pages.run_search(clean_query, lang, extended=current_app.config['EXTEND_QUERY'])
         for res in r.values():
             res["instance"] = current_app.config["SITENAME"]  # to distinguish local results from remote ones later on
@@ -175,29 +175,29 @@ def get_search_results(query):
         languages = [lang]
     for lang in languages:
         clean_query = ' '.join([w for w in query.split() if w not in app_module.models[lang]['stopwords']])
-        print("\n\n>>>>>>>>>>>>>>>>>>>>>>")
-        print(">> SEARCH:CONTROLLERS:get_search_results: searching in",lang)
-        print(">>>>>>>>>>>>>>>>>>>>>>")
+        logging.info(">>>>>>>>>>>>>>>>>>>>>>")
+        logging.info(f">> SEARCH:CONTROLLERS:get_search_results: searching in {lang}")
+        logging.info(">>>>>>>>>>>>>>>>>>>>>>")
 
         try:
-            print("\n Getting results on this instance")
+            logging.info("Getting results on this instance")
             r, s = score_pages.run_search(clean_query, lang, extended=current_app.config['EXTEND_QUERY'])
             for res in r.values():
                 res["instance"] = current_app.config["SITENAME"]  # to distinguish local results from remote ones later on
             results.update(r)
             scores.extend(s)
         except Exception as e:
-            print(f"Error during local search: {e}")
+            logging.error(f"Error during local search: {e}")
 
         try:
-            print("\n Getting results cross-instances")
+            logging.info("Getting results cross-instances")
             r = get_cross_instance_results(clean_query, instances)
             for url, dic in r.items():
                 if url not in results:
                     results[url] = dic
                     scores.append(dic['score'])
         except Exception as e:
-            print(f"Unknown error during remote search: {e}")
+            logging.error(f"Unknown error during remote search: {e}")
     sorted_scores = np.argsort(scores)[::-1]
     sorted_results = {}
     for i in sorted_scores:

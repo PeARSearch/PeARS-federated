@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
+import logging
 # Import flask dependencies
 from flask import Blueprint, request, render_template, send_from_directory, flash, redirect, url_for
 from flask_login import current_user
@@ -51,14 +52,14 @@ def index():
 def get_a_pod():
     query = request.args.get('pod')
     filename, urls = get_url_list_for_users(query)
-    print("\t>> Orchard: get_a_pod: generated", filename)
+    logging.info(f"\t>> Orchard: get_a_pod: generated {filename}")
     return render_template('orchard/get-a-pod.html', urls=urls, query=query, location=filename)
 
 @orchard.route("/download", methods=['GET'])
 @check_permissions(login=True, confirmed=True, admin=True)
 def download_file():
     filename = request.args.get('filename')
-    print('>> orchard: download_file:',filename)
+    logging.info(f">> orchard: download_file: {filename}")
     return send_from_directory(join(dir_path,'pods'), filename, as_attachment=True)
 
 
@@ -117,7 +118,7 @@ def feedback():
     form = FeedbackForm()
     if form.validate_on_submit():
         user_report = request.form.get('report')
-        print(user_report)
+        logging.debug(f"{user_report}")
         mail_address = current_app.config['MAIL_USERNAME']
         if send_email(mail_address,'Feedback report', 'Feedback from user '+email+'<br>'+user_report):
             flash(gettext("Your feedback has been sent. Thank you!"), "success")
@@ -138,7 +139,7 @@ def annotate():
     if form.validate_on_submit():
         url = request.form.get('url')
         note = request.form.get('note')
-        print(url,note)
+        logging.debug(f"{url} {note}")
         u = db.session.query(Urls).filter_by(url=url).first()
         note = '@'+username+' >> '+note
         if u.notes is not None:

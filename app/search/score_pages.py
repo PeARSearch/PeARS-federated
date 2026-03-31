@@ -247,7 +247,7 @@ def score_pods(query_words, query_vectors, extended_q_vectors, lang):
 
     Returns: a list of the best <max_pods: int> pods.
     """
-    print(">> SEARCH: SCORE PAGES: SCORE PODS")
+    logging.info(">> SEARCH: SCORE PAGES: SCORE PODS")
 
     max_pods = current_app.config["MAX_PODS"] # How many pods to return
     pod_scores = {}
@@ -274,7 +274,7 @@ def score_pods(query_words, query_vectors, extended_q_vectors, lang):
         d = dict(Counter(d).most_common())
         best_bins = list(d.keys())
         best_bins = [b-1 for b in best_bins] #digitize starts at 1, not 0
-        print(best_bins)
+        logging.debug(f"{best_bins}")
         best_scores = list(d.values())
         max_score = max(best_scores)
         best_scores = np.array(best_scores) / max_score
