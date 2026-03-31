@@ -1,7 +1,9 @@
 import logging
 from itsdangerous import URLSafeTimedSerializer
 from flask_mail import Message
-from app import app, mail, mail_logger
+from flask import current_app
+from app.extensions import mail
+from app import mail_logger
 import os
 
 def generate_token(email):
@@ -20,7 +22,7 @@ def confirm_token(token, expiration=3600):
         return None
 
 def send_email(to, subject, template):
-    if not app.config.get("MAIL_ENABLED", False):
+    if not current_app.config.get("MAIL_ENABLED", False):
         mail_logger.mailing(f"[MAIL DISABLED] To: {to}, Subject: {subject}")
         return True
     try:
@@ -28,7 +30,7 @@ def send_email(to, subject, template):
             subject,
             recipients=[to],
             html=template,
-            sender=app.config["MAIL_DEFAULT_SENDER"],
+            sender=current_app.config["MAIL_DEFAULT_SENDER"],
         )
         mail.send(msg)
         mail_logger.mailing(f"Mailed {to} with subject {subject}")
@@ -38,7 +40,7 @@ def send_email(to, subject, template):
         return False
 
 def send_reset_password_email(to, subject, template):
-    if not app.config.get("MAIL_ENABLED", False):
+    if not current_app.config.get("MAIL_ENABLED", False):
         mail_logger.mailing(f"[MAIL DISABLED] To: {to}, Subject: {subject}")
         return True
     try:
@@ -46,7 +48,7 @@ def send_reset_password_email(to, subject, template):
             subject,
             recipients=[to],
             html=template,
-            sender=app.config["MAIL_DEFAULT_SENDER"],
+            sender=current_app.config["MAIL_DEFAULT_SENDER"],
         )
         mail.send(msg)
         mail_logger.mailing(f"Mailed {to} with subject {subject}.")

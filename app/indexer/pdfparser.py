@@ -13,7 +13,7 @@ from bs4 import BeautifulSoup
 from pdfminer.high_level import extract_pages
 from pdfminer import pdfparser, pdfdocument
 from langdetect import detect
-from app import app
+from flask import current_app
 from app.indexer import detect_open
 from app.api.models import installed_languages
 from app.utils import remove_emails
@@ -57,9 +57,9 @@ def extract_txt(url, contributor):
     body_str = ""
     snippet = ""
     cc = False
-    language = app.config['LANGS'][0]
+    language = current_app.config['LANGS'][0]
     error = None
-    snippet_length = app.config['SNIPPET_LENGTH']
+    snippet_length = current_app.config['SNIPPET_LENGTH']
     local_pdf_path = join(app_dir_path, 'userdata', contributor+'.'+url.split('/')[-1])
     try:
         req = requests.get(url, allow_redirects=True, timeout=30)

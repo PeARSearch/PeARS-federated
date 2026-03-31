@@ -5,7 +5,7 @@
 import numpy as np
 from scipy.sparse import csr_matrix
 from sklearn import preprocessing
-from app import models
+import app as app_module
 
 
 def wta_vectorized(feature_mat, k, percent=True):
@@ -47,8 +47,8 @@ def read_n_encode_dataset(doc=None, vectorizer=None, logprobs=None, power=None, 
 
 def vectorize(lang, text, logprob_power, top_words):
       '''Takes input file and return vectorized /scaled dataset'''
-      vectorizer = models[lang]['vectorizer']
-      logprobs = models[lang]['logprobs']
+      vectorizer = app_module.models[lang]['vectorizer']
+      logprobs = app_module.models[lang]['logprobs']
       dataset = read_n_encode_dataset(text, vectorizer, logprobs, logprob_power, top_words)
       dataset = dataset.todense()
       return np.asarray(dataset)

@@ -5,7 +5,7 @@
 import re
 import string
 import logging
-from app import models, VEC_SIZE
+import app as app_module
 from app.indexer.posix import load_posix
 import numpy as np
 from scipy.spatial.distance import cdist
@@ -61,7 +61,7 @@ def dice_overlap(i1, i2):
     return dice(set(words1), set(words2))
 
 def completeness(v, m):
-    v = v.reshape(VEC_SIZE,)
+    v = v.reshape(app_module.VEC_SIZE,)
     idx = np.where(v != 0)
     v_nz = v[idx]
     numcols = v_nz.shape[0]
@@ -135,8 +135,8 @@ def posix_score_seq(posl, enforce_subwords=True):
         return np.max(scores)  # meaning: 1.0 if there is at least one pair of tokens that is consecutive both in the query and in the document. Otherwise a fraction of this. 
 
 def posix(q, posindex, lang):
-    vocab = models[lang]['vocab']
-    inverted_vocab = models[lang]['inverted_vocab']
+    vocab = app_module.models[lang]['vocab']
+    inverted_vocab = app_module.models[lang]['inverted_vocab']
     query_vocab_ids = [vocab.get(wp) for wp in q.split()]
     if any([i is None for i in query_vocab_ids]):
         print("WARNING: there were unknown tokens in the query")
@@ -173,7 +173,7 @@ def posix(q, posindex, lang):
 
 
 def posix_no_seq(q, posindex, lang):
-    vocab = models[lang]['vocab']
+    vocab = app_module.models[lang]['vocab']
     query_vocab_ids = [vocab.get(wp) for wp in q.split()]
     if any([i is None for i in query_vocab_ids]):
         print("WARNING: there were unknown tokens in the query. This can happen while computing the extended query because the FastText neighbours may not be in the vocabulary.")

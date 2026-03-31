@@ -17,7 +17,9 @@ from scipy.spatial import distance
 from scipy.sparse import load_npz, csr_matrix, vstack
 import numpy as np
 from flask import url_for
-from app import app, db, models
+from flask import current_app
+from app.extensions import db
+import app as app_module
 from app.api.models import Urls
 from app.search.overlap_calculation import (snippet_overlap,
         score_url_overlap, posix, posix_no_seq)
@@ -62,30 +64,29 @@ def mk_vec_matrix(lang):
     for npz in npzs:
         podnames.append(npz.split('/')[-1].replace('.npz',''))
 
-    with app.app_context():
-        for i in range(len(podnames)):
-            us = db.session.query(Urls).filter_by(pod=podnames[i]).all()
-            if len(us) == 0:
-                continue
-            upaths = [u.url for u in us if u.vector is not None]
-            idvs = [u.vector for u in us if u.vector is not None]
-            urls.extend(upaths)
-            npz = load_npz(npzs[i]).toarray()
-            npz = npz[idvs,:]
-            m.append(csr_matrix(npz))
-            c+=npz.shape[0]
-            bins.append(c)
-        m = vstack(m)
-        m = csr_matrix(m)
+    for i in range(len(podnames)):
+        us = db.session.query(Urls).filter_by(pod=podnames[i]).all()
+        if len(us) == 0:
+            continue
+        upaths = [u.url for u in us if u.vector is not None]
+        idvs = [u.vector for u in us if u.vector is not None]
+        urls.extend(upaths)
+        npz = load_npz(npzs[i]).toarray()
+        npz = npz[idvs,:]
+        m.append(csr_matrix(npz))
+        c+=npz.shape[0]
+        bins.append(c)
+    m = vstack(m)
+    m = csr_matrix(m)
     return m, bins, podnames, urls
 
 
 def load_vec_matrix(lang):
-    if 'm' in models[lang]:
-        m = models[lang]['m']
-        bins = models[lang]['mbins']
-        podnames = models[lang]['podnames']
-        urls = models[lang]['urls']
+    if 'm' in app_module.models[lang]:
+        m = app_module.models[lang]['m']
+        bins = app_module.models[lang]['mbins']
+        podnames = app_module.models[lang]['podnames']
+        urls = app_module.models[lang]['urls']
     else:
         m, bins, podnames, urls = mk_vec_matrix(lang)
     m = m.todense()
@@ -95,7 +96,7 @@ def load_vec_matrix(lang):
 
 @timer
 def compute_scores(query, query_vectors, lang):
-    snippet_length = app.config['SNIPPET_LENGTH']
+    snippet_length = current_app.config['SNIPPET_LENGTH']
     m, bins, podnames, urls = load_vec_matrix(lang)
     query_vector = np.sum(query_vectors, axis=0)
     
@@ -165,7 +166,7 @@ def return_best_urls(doc_scores):
 
 
 def output(best_urls, scores):
-    snippet_length = app.config['SNIPPET_LENGTH']
+    snippet_length = current_app.config['SNIPPET_LENGTH']
     results = {}
     urls = Urls.query.filter(Urls.url.in_(best_urls)).all()
     urls = [next(u for u in urls if u.url == best_url) for best_url in best_urls]
@@ -248,7 +249,7 @@ def score_pods(query_words, query_vectors, extended_q_vectors, lang):
     """
     print(">> SEARCH: SCORE PAGES: SCORE PODS")
 
-    max_pods = app.config["MAX_PODS"] # How many pods to return
+    max_pods = current_app.config["MAX_PODS"] # How many pods to return
     pod_scores = {}
 
     m, bins, podnames = load_vec_matrix(lang)

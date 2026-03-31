@@ -17,7 +17,8 @@ from flask_babel import gettext
 from langdetect import detect
 from app.auth.captcha import mk_captcha, check_captcha
 from app.auth.decorators import check_permissions
-from app import app, db
+from flask import current_app
+from app.extensions import db
 from app.api.models import Urls, Pods, Suggestions, RejectedSuggestions, Personalization
 from app.indexer import mk_page_vector
 from app.utils import read_urls, parse_query
@@ -167,8 +168,8 @@ def index_from_manual():
         print("MANUAL URL",url)
         lang = detect(snippet)
         # Hack if language of contribution is not recognized
-        if lang not in app.config['LANGS']:
-            lang = app.config['LANGS'][0]
+        if lang not in current_app.config['LANGS']:
+            lang = current_app.config['LANGS'][0]
         if not url:
             h = hashlib.new('sha256')
             h.update(snippet.encode())

@@ -11,12 +11,10 @@ import logging
 # Import flask and template operators
 from flask import Flask, flash, render_template, send_file, send_from_directory, request, abort, url_for
 from flask_admin import Admin, AdminIndexView
-from flask_mail import Mail
+from flask_login import current_user
 
-# Import SQLAlchemy and LoginManager
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask_login import LoginManager, current_user
+# Extensions are created in app.extensions to avoid circular imports.
+from app.extensions import db, migrate, mail, login_manager
 
 dir_path = dirname(realpath(__file__))
 
@@ -35,11 +33,20 @@ mail_logger = run_logging()
 # Configurations
 ################
 
-from app.init_config import run_config
 from flask_babel import Babel, gettext, refresh as babel_refresh
 from flask import session
 
-app = run_config(app)
+# Support testing: when _PEARS_CONFIG is set, use that config class
+# instead of the normal init_config path.
+_config_override = getenv('_PEARS_CONFIG')
+if _config_override == 'testing':
+    from config import TestingConfig
+    app.config.from_object(TestingConfig)
+    app.config.setdefault('USER-AGENT', 'PeARSbot-test/0.1')
+else:
+    from app.init_config import run_config
+    app = run_config(app)
+
 first_lang = app.config['LANGS'][0]
 
 
@@ -86,8 +93,11 @@ Path(path.join(DEFAULT_PATH,'userdata')).mkdir(parents=True, exist_ok=True)
 if getenv("SUGGESTIONS_DIR", "") != "":
     Path(getenv("SUGGESTIONS_DIR")).mkdir(parents=True, exist_ok=True)
 
-# Mail
-mail = Mail(app)
+# Initialize extensions with the app
+db.init_app(app)
+migrate.init_app(app, db)
+mail.init_app(app)
+login_manager.init_app(app)
 
 
 ########################
@@ -126,38 +136,41 @@ def serve_logos(path):
 # Load pretrained models
 ########################
 
-from app.readers import read_vocab, read_cosines
-from app.multilinguality import read_language_codes, read_stopwords
-from sklearn.feature_extraction.text import CountVectorizer
-
-LANGUAGE_CODES = read_language_codes()
+LANGUAGE_CODES = {}
 models = dict()
-for LANG in app.config['LANGS']:
-    models[LANG] = {}
-    spm_vocab_path = f'app/api/models/{LANG}/{LANG}wiki.16k.vocab'
-    ft_path = f'app/api/models/{LANG}/{LANG}wiki.16k.cos'
-    vocab, inverted_vocab, logprobs = read_vocab(spm_vocab_path)
-    vectorizer = CountVectorizer(vocabulary=vocab, lowercase=True, token_pattern='[^ ]+')
-    ftcos = read_cosines(ft_path)
-    models[LANG]['vocab'] = vocab
-    models[LANG]['inverted_vocab'] = inverted_vocab
-    models[LANG]['logprobs'] = logprobs
-    models[LANG]['vectorizer'] = vectorizer
-    models[LANG]['nns'] = ftcos
-    if LANG in LANGUAGE_CODES:
-        models[LANG]['stopwords'] = read_stopwords(LANGUAGE_CODES[LANG].lower())
-    else:
-        models[LANG]['stopwords'] = []
+VEC_SIZE = 0
 
-# All vocabs have the same vector size
-VEC_SIZE = len(models[first_lang]['vocab'])
+if app.config.get('LOAD_MODELS', True):
+    from app.readers import read_vocab, read_cosines
+    from app.multilinguality import read_language_codes, read_stopwords
+    from sklearn.feature_extraction.text import CountVectorizer
+
+    LANGUAGE_CODES = read_language_codes()
+    for LANG in app.config['LANGS']:
+        models[LANG] = {}
+        spm_vocab_path = f'app/api/models/{LANG}/{LANG}wiki.16k.vocab'
+        ft_path = f'app/api/models/{LANG}/{LANG}wiki.16k.cos'
+        vocab, inverted_vocab, logprobs = read_vocab(spm_vocab_path)
+        vectorizer = CountVectorizer(vocabulary=vocab, lowercase=True, token_pattern='[^ ]+')
+        ftcos = read_cosines(ft_path)
+        models[LANG]['vocab'] = vocab
+        models[LANG]['inverted_vocab'] = inverted_vocab
+        models[LANG]['logprobs'] = logprobs
+        models[LANG]['vectorizer'] = vectorizer
+        models[LANG]['nns'] = ftcos
+        if LANG in LANGUAGE_CODES:
+            models[LANG]['stopwords'] = read_stopwords(LANGUAGE_CODES[LANG].lower())
+        else:
+            models[LANG]['stopwords'] = []
+
+    # All vocabs have the same vector size
+    VEC_SIZE = len(models[first_lang]['vocab'])
 
 ##########
 # Database
 ##########
 
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+
 
 
 #########
@@ -212,7 +225,7 @@ def reroute_for_maintenance(path):
 dir_path = dirname(realpath(__file__))
 pod_dir = getenv("PODS_DIR", join(dir_path, 'pods'))
 
-if not app.config['LIVE_MATRIX']:
+if app.config.get('LOAD_MODELS', True) and not app.config.get('LIVE_MATRIX', False):
     from app.search.score_pages import mk_vec_matrix
     for LANG in app.config['LANGS']:
         npzs = glob(join(pod_dir,'*',LANG,'*.u.*npz'))
@@ -229,8 +242,6 @@ if not app.config['LIVE_MATRIX']:
 # Decentralized search
 #######################
 
-from app.search.cross_instance_search import filter_instances_by_language
-from flask import url_for
 import threading
 import numpy as np
 
@@ -239,29 +250,33 @@ import numpy as np
 instances = []
 M = np.array([])
 
-def _load_remote_instances():
-    global instances, M
-    try:
-        instances, M, skipped = filter_instances_by_language()
-        if skipped:
-            for s in skipped:
-                logging.warning(f"Skipped remote instance {s['instance']}: {s['reason']}")
-        logging.info(f"Loaded {len(instances)} remote instance(s) in background.")
-    except Exception as e:
-        logging.error(f"Failed to load remote instances: {e}")
+if not app.config.get('TESTING'):
+    from app.search.cross_instance_search import filter_instances_by_language
 
-_instance_loader = threading.Thread(target=_load_remote_instances, daemon=True)
-_instance_loader.start()
+    def _load_remote_instances():
+        global instances, M
+        with app.app_context():
+            try:
+                instances, M, skipped = filter_instances_by_language()
+                if skipped:
+                    for s in skipped:
+                        logging.warning(f"Skipped remote instance {s['instance']}: {s['reason']}")
+                logging.info(f"Loaded {len(instances)} remote instance(s) in background.")
+            except Exception as e:
+                logging.error(f"Failed to load remote instances: {e}")
 
-_sitename_check_completed = False
-@app.before_request
-def check_sitename_and_hostname():
-    global _sitename_check_completed
-    if not _sitename_check_completed: # only do this once
-        host_url = url_for("search.index", _external=True)
-        if host_url.rstrip("/") != app.config["SITENAME"]:
-            logging.error("`host_url` and `SITENAME` do not match -- this can cause errors, correct this unless you know what you are doing!")
-        _sitename_check_completed = True
+    _instance_loader = threading.Thread(target=_load_remote_instances, daemon=True)
+    _instance_loader.start()
+
+    _sitename_check_completed = False
+    @app.before_request
+    def check_sitename_and_hostname():
+        global _sitename_check_completed
+        if not _sitename_check_completed: # only do this once
+            host_url = url_for("search.index", _external=True)
+            if host_url.rstrip("/") != app.config["SITENAME"]:
+                logging.error("`host_url` and `SITENAME` do not match -- this can cause errors, correct this unless you know what you are doing!")
+            _sitename_check_completed = True
 
 
 #######
@@ -276,15 +291,6 @@ from app.utils_db import delete_url_representations, delete_pod_representations,
 from flask_admin import expose
 from flask_admin.contrib.sqla.view import ModelView
 from flask_admin.model.template import EndpointLinkRowAction
-
-# Authentification
-class MyLoginManager(LoginManager):
-    def unauthorized(self):
-        return abort(404)        
-
-login_manager = MyLoginManager()
-login_manager.login_view = 'auth.login'
-login_manager.init_app(app)
 
 @login_manager.user_loader
 def load_user(user_id):

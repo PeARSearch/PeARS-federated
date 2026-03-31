@@ -25,7 +25,9 @@ from app.indexer.access import request_url
 from app.indexer.posix import load_posix
 from app.indexer.htmlparser import extract_links
 from app.orchard.mk_urls_file import get_reindexable_pod_for_admin
-from app import db, User, Urls, Pods, VEC_SIZE
+from app.extensions import db
+from app.api.models import User, Urls, Pods
+from app import VEC_SIZE
 
 pears = Blueprint('pears', __name__)
 

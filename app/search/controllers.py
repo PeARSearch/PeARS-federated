@@ -16,7 +16,9 @@ from flask_babel import gettext
 from app.forms import SearchForm
 from app.search import score_pages
 from app.utils import parse_query, beautify_title, beautify_snippet
-from app import app, models, db
+from flask import current_app
+from app.extensions import db
+import app as app_module
 from app.api.models import Personalization
 from app.search.cross_instance_search import get_cross_instance_results
 
@@ -51,14 +53,14 @@ def index():
                 internal_message=internal_message, searchform=searchform)
 
 
-    placeholder = app.config['SEARCH_PLACEHOLDER']
+    placeholder = current_app.config['SEARCH_PLACEHOLDER']
     searchform.query(render_kw={"placeholder": placeholder})
     if current_user.is_authenticated and not current_user.is_confirmed:
         message = Markup(gettext("You have not confirmed your account.<br>\
                 Please use the link in the email that was sent to you, \
                 or request a new link by clicking <a href='../auth/resend'>here</a>."))
         flash(message, "warning")
-    if app.config['OWN_BRAND']:
+    if current_app.config['OWN_BRAND']:
         internal_message = db.session.query(Personalization).filter_by(feature='instance_info').first()
         if internal_message:
             internal_message = internal_message.text
@@ -105,7 +107,7 @@ def prepare_gui_results(query, results):
             r['notes'] = None
         else:
             r['notes'] = r['notes'].split('<br>')
-        sitename = app.config['SITENAME']
+        sitename = current_app.config['SITENAME']
         
         # results from our own instance
         if 'instance' in r and r['instance'] == sitename:
@@ -137,19 +139,19 @@ def get_local_search_results(query):
     scores = []
     query, _, lang = parse_query(query.lower())
     if lang is None:
-        languages = app.config['LANGS']
+        languages = current_app.config['LANGS']
     else:
         languages = [lang]
     for lang in languages:
-        clean_query = ' '.join([w for w in query.split() if w not in models[lang]['stopwords']])
+        clean_query = ' '.join([w for w in query.split() if w not in app_module.models[lang]['stopwords']])
         print("\n\n>>>>>>>>>>>>>>>>>>>>>>")
         print(">> SEARCH:CONTROLLERS:get_local_search_results: searching in",lang)
         print(">>>>>>>>>>>>>>>>>>>>>>")
 
         print("\n Getting results on this instance")
-        r, s = score_pages.run_search(clean_query, lang, extended=app.config['EXTEND_QUERY'])
+        r, s = score_pages.run_search(clean_query, lang, extended=current_app.config['EXTEND_QUERY'])
         for res in r.values():
-            res["instance"] = app.config["SITENAME"]  # to distinguish local results from remote ones later on
+            res["instance"] = current_app.config["SITENAME"]  # to distinguish local results from remote ones later on
         results.update(r)
         scores.extend(s)
     sorted_scores = np.argsort(scores)[::-1]
@@ -168,20 +170,20 @@ def get_search_results(query):
     scores = []
     query, _, lang = parse_query(query.lower())
     if lang is None:
-        languages = app.config['LANGS']
+        languages = current_app.config['LANGS']
     else:
         languages = [lang]
     for lang in languages:
-        clean_query = ' '.join([w for w in query.split() if w not in models[lang]['stopwords']])
+        clean_query = ' '.join([w for w in query.split() if w not in app_module.models[lang]['stopwords']])
         print("\n\n>>>>>>>>>>>>>>>>>>>>>>")
         print(">> SEARCH:CONTROLLERS:get_search_results: searching in",lang)
         print(">>>>>>>>>>>>>>>>>>>>>>")
 
         try:
             print("\n Getting results on this instance")
-            r, s = score_pages.run_search(clean_query, lang, extended=app.config['EXTEND_QUERY'])
+            r, s = score_pages.run_search(clean_query, lang, extended=current_app.config['EXTEND_QUERY'])
             for res in r.values():
-                res["instance"] = app.config["SITENAME"]  # to distinguish local results from remote ones later on
+                res["instance"] = current_app.config["SITENAME"]  # to distinguish local results from remote ones later on
             results.update(r)
             scores.extend(s)
         except Exception as e:

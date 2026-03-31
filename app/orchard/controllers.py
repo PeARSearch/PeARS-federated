@@ -9,7 +9,8 @@ from flask_babel import gettext
 from os.path import dirname, realpath, join
 from app.api.models import Urls, Pods
 from app.utils_db import mv_pod
-from app import app, db
+from flask import current_app
+from app.extensions import db
 from app.orchard.mk_urls_file import get_url_list_for_users
 from app.auth.decorators import check_permissions
 from app.auth.token import send_email
@@ -98,7 +99,7 @@ def report():
         url = request.form.get('url')
         user_report = request.form.get('report')
         reporter = email if email else 'anonymous'
-        mail_address = app.config['MAIL_USERNAME']
+        mail_address = current_app.config['MAIL_USERNAME']
         if send_email(mail_address, 'URL report', 'Report from user ' + reporter + '<br>' + url + '<br>' + user_report):
             flash(gettext("Your report has been sent. Thank you!"), "success")
         else:
@@ -117,7 +118,7 @@ def feedback():
     if form.validate_on_submit():
         user_report = request.form.get('report')
         print(user_report)
-        mail_address = app.config['MAIL_USERNAME']
+        mail_address = current_app.config['MAIL_USERNAME']
         if send_email(mail_address,'Feedback report', 'Feedback from user '+email+'<br>'+user_report):
             flash(gettext("Your feedback has been sent. Thank you!"), "success")
         else:
