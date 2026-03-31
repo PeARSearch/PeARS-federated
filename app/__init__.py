@@ -225,7 +225,7 @@ def reroute_for_maintenance(path):
 dir_path = dirname(realpath(__file__))
 pod_dir = getenv("PODS_DIR", join(dir_path, 'pods'))
 
-if app.config.get('LOAD_MODELS', True) and not app.config.get('LIVE_MATRIX', True):
+if app.config.get('LOAD_MODELS', True) and not app.config.get('LIVE_MATRIX', False):
     from app.search.score_pages import mk_vec_matrix
     for LANG in app.config['LANGS']:
         npzs = glob(join(pod_dir,'*',LANG,'*.u.*npz'))

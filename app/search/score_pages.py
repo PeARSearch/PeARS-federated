@@ -64,21 +64,20 @@ def mk_vec_matrix(lang):
     for npz in npzs:
         podnames.append(npz.split('/')[-1].replace('.npz',''))
 
-    with current_app.app_context():
-        for i in range(len(podnames)):
-            us = db.session.query(Urls).filter_by(pod=podnames[i]).all()
-            if len(us) == 0:
-                continue
-            upaths = [u.url for u in us if u.vector is not None]
-            idvs = [u.vector for u in us if u.vector is not None]
-            urls.extend(upaths)
-            npz = load_npz(npzs[i]).toarray()
-            npz = npz[idvs,:]
-            m.append(csr_matrix(npz))
-            c+=npz.shape[0]
-            bins.append(c)
-        m = vstack(m)
-        m = csr_matrix(m)
+    for i in range(len(podnames)):
+        us = db.session.query(Urls).filter_by(pod=podnames[i]).all()
+        if len(us) == 0:
+            continue
+        upaths = [u.url for u in us if u.vector is not None]
+        idvs = [u.vector for u in us if u.vector is not None]
+        urls.extend(upaths)
+        npz = load_npz(npzs[i]).toarray()
+        npz = npz[idvs,:]
+        m.append(csr_matrix(npz))
+        c+=npz.shape[0]
+        bins.append(c)
+    m = vstack(m)
+    m = csr_matrix(m)
     return m, bins, podnames, urls
 
 

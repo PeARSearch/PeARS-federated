@@ -25,7 +25,7 @@ class TestingConfig:
     SEARCH_PLACEHOLDER = 'test search'
     LANGS = ['en']
     BABEL_DEFAULT_LOCALE = 'en'
-    BABEL_TRANSLATION_DIRECTORIES = 'translations'
+    BABEL_TRANSLATION_DIRECTORIES = os.path.join(BASE_DIR, 'translations')
     MAIL_ENABLED = False
     MAIL_DEFAULT_SENDER = 'test@test.com'
     MAIL_SERVER = 'localhost'
