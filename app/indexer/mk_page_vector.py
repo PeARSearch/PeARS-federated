@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 import logging
+logger = logging.getLogger(__name__)
 from os.path import dirname, join, realpath
 from os import getenv
 import numpy as np
@@ -40,9 +41,9 @@ def compute_and_stack_new_vec(lang, tokenized_text, pod_m):
     """
     v = vectorize_scale(lang, tokenized_text, 5, app_module.VEC_SIZE) #log prob power 5
     if np.sum(v) != 0:
-        logging.debug(f"compute_and_stack_new_vec 1 {pod_m.shape[0]}")
+        logger.debug("compute_and_stack_new_vec before: %s", pod_m.shape[0])
         pod_m = vstack((pod_m,csr_matrix(v)))
-        logging.debug(f"compute_and_stack_new_vec 2 {pod_m.shape[0]}")
+        logger.debug("compute_and_stack_new_vec after: %s", pod_m.shape[0])
         return pod_m, True
     return pod_m, False
 
@@ -52,17 +53,17 @@ def compute_vector(url, theme, contributor, url_type):
     page, extracting the title and text from it, and adding the 
     document vector to the matrix for the user's chosen theme.
     """
-    logging.info(f"Computing vector for {url} ({theme})")
+    logger.info("Computing vector for %s (%s)", url, theme)
     messages = []
-    logging.debug(f"CONTENT TYPE {url_type}")
+    logger.debug("Content type: %s", url_type)
     if 'text/html' in url_type:
         title, body_str, lang, snippet, cc, error = extract_html(url)
     elif 'application/pdf' in url_type:
         title, body_str, lang, snippet, cc, error = extract_txt(url, contributor)
     else:
-        error = ">> INDEXER: MK_PAGE_VECTORS: ERROR: compute_vectors: No supported content type."
+        error = "compute_vectors: No supported content type."
     if error is None:
-        logging.info(f"TITLE {title} SNIPPET {snippet} CC {cc} ERROR {error}")
+        logger.info("title=%s snippet=%s cc=%s error=%s", title, snippet, cc, error)
         create_pod_npz_pos(contributor, theme, lang)
         user_dir = join(pod_dir, contributor, lang)
         npz_path = join(user_dir,theme+'.u.'+contributor+'.npz')
@@ -74,7 +75,7 @@ def compute_vector(url, theme, contributor, url_type):
             save_npz(npz_path,pod_m)
             idv = pod_m.shape[0]-1
             return True, tokenized_text, lang, title, snippet, idv, messages
-    messages.append(">> INDEXER ERROR: compute_vectors: error during parsing")
+    messages.append("compute_vectors: error during parsing")
     return False, None, None, None, None, None, messages
 
 
@@ -106,16 +107,16 @@ def compute_query_vectors(query, lang, expansion_length=None):
     pre-computed wordpiece neighbours from a FastText 
     model and vectorizing.
     """
-    logging.debug(f"QUERY LANG {lang}")
+    logger.debug("Query lang: %s", lang)
     nns = app_module.models[lang]['nns']
     words = query.split()
-    logging.debug(f"QUERY SPLIT: {words}")
+    logger.debug("Query split: %s", words)
 
     # Individual words tokenized
     words_tokenized = []
     for w in words:
         words_tokenized.append(tokenize_text(w, lang, stringify=False))
-    logging.debug(f"WORDS TOKENIZED: {words_tokenized}")
+    logger.debug("Words tokenized: %s", words_tokenized)
 
     # Add similar tokens
     words_tokenized_expanded = []
@@ -132,8 +133,7 @@ def compute_query_vectors(query, lang, expansion_length=None):
                 sims.extend(neighbours)
         sims = list(set(sims))
         words_tokenized_expanded.append(sims)
-    logging.debug(f"WORDS TOKENIZED EXPANDED: {words_tokenized_expanded}")
-    logging.debug(f"WORDS TOKENIZED EXPANDED {words_tokenized_expanded}")
+    logger.debug("Words tokenized expanded: %s", words_tokenized_expanded)
 
     v_query = []
     for w in words_tokenized:

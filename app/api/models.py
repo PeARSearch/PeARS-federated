@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 import logging
+logger = logging.getLogger(__name__)
 from app.extensions import db
 from flask_login import UserMixin
 import numpy as np
@@ -16,14 +17,14 @@ sp = spm.SentencePieceProcessor()
 
 def get_installed_languages():
     dir_path = dirname(dirname(realpath(__file__)))
-    logging.debug(f"PATH {dir_path}")
+    logger.debug("Path: %s", dir_path)
     installed_languages = []
     spm_dir = ''
     language_paths = glob(join(dir_path,'api/models/*/'))
     for p in language_paths:
         lang = p[:-1].split('/')[-1]
         installed_languages.append(lang)
-    logging.info(f"Installed languages: {installed_languages}")
+    logger.info("Installed languages: %s", installed_languages)
     return installed_languages
 
 installed_languages = get_installed_languages()

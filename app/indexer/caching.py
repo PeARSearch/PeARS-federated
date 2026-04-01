@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 import logging
+logger = logging.getLogger(__name__)
 import os
 import requests
 import codecs
@@ -30,13 +31,13 @@ def cache_file(url, html):
     url_parsed = urlparse(url)
     path_dirs = url_parsed.path[1:].split('/')
     page = path_dirs[-1]
-    logging.info(f"CACHING {page} ON {url_parsed.netloc}")
+    logger.info("Caching %s on %s", page, url_parsed.netloc)
     cached_netloc = "./pears/html_cache/" + url_parsed.netloc
     if page == "":
         page = "index.html"
     if page[-5:] != ".html":
         page = page + ".html"
-    logging.debug(f"PAGE {page}")
+    logger.debug("Page: %s", page)
     cached_dir = cached_netloc + "/" + '/'.join(path_dirs[:-1]) + "/"
     if not os.path.isdir(cached_dir):
         os.makedirs(cached_dir)
@@ -61,7 +62,7 @@ def cache_pdf(url):
             with open(cached_page, 'wb') as f:
                 f.write(response.content)
     except Exception:
-        logging.error("Error caching the pdf...")
+        logger.error("Error caching the pdf...")
 
 
 def get_images(url):
@@ -70,10 +71,10 @@ def get_images(url):
     soup = BeautifulSoup(req.text, "lxml")
     # url_parsed = list(urlparse(url))
     for image in soup.findAll("img"):
-        logging.debug("Image: %(src)s" % image)
+        logger.debug("Image: %s", image.get("src", ""))
         if not image["src"].lower().startswith("http"):
             img_path = urljoin(url, image["src"])
-            logging.debug(f"{img_path}")
+            logger.debug("%s", img_path)
             cache_file(img_path)
 
 
@@ -84,15 +85,15 @@ def get_css(url):
     # url_parsed = list(urlparse(url))
     for link in soup.findAll("link"):
         if link["rel"][0] == "stylesheet":
-            logging.debug("Link: %(href)s" % link)
+            logger.debug("Link: %s", link.get("href", ""))
             if not link["href"].lower().startswith("http"):
                 css_path = urljoin(url, link["href"])
-                logging.debug(f"{css_path}")
+                logger.debug("%s", css_path)
                 cache_file(css_path)
 
 
 def runScript(url, html):
-    logging.info(f"Caching {url} ...")
+    logger.info("Caching %s ...", url)
     cache_file(url, html)
     # Optional: grab the images and css for that page
     # get_images(url)

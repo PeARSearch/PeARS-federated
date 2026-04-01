@@ -5,6 +5,7 @@
 
 # Import flask dependencies
 import logging
+logger = logging.getLogger(__name__)
 from glob import glob
 from os import rename, getenv
 from os.path import dirname, realpath, join, isdir, exists
@@ -52,12 +53,12 @@ def set_maintenance_mode(mode):
 @check_permissions(login=True, confirmed=True, admin=True)
 def toggle_maintenance_mode():
     maintenance_mode = get_maintance_mode()
-    logging.info(f"Current status of maintenance: {maintenance_mode}")
+    logger.info("Current status of maintenance: %s", maintenance_mode)
     if not maintenance_mode:
-        logging.info("Switching on maintenance")
+        logger.info("Switching on maintenance")
         set_maintenance_mode(True)
     else:
-        logging.info("Switching off maintenance")
+        logger.info("Switching off maintenance")
         set_maintenance_mode(False)
     return redirect(url_for("search.index"))
 
@@ -114,7 +115,7 @@ def index():
 @settings.route("/toggle-theme")
 def toggle_theme():
     current_theme = session.get("theme")
-    logging.debug(f"{current_theme} {request.args.get('current_page')}")
+    logger.debug("%s %s", current_theme, request.args.get('current_page'))
     if current_theme == "dark":
         session["theme"] = "light"
     else:
@@ -218,11 +219,11 @@ def delete_account():
         if u.username.startswith('deleteduser'):
             idx.append(int(u.username.replace('deleteduser','')))
     new_deleted_user = 'deleteduser'+str(max(idx)+1)
-    logging.info(f">> CREATING DELETED USER {new_deleted_user}")
+    logger.info("Creating deleted user %s", new_deleted_user)
     rename_notes(username, new_deleted_user)
     rename_user_files(username, new_deleted_user)
 
-    logging.info(f">> DELETING ACCOUNT {username}")
+    logger.info("Deleting account %s", username)
     current_user.remove()
     db.session.commit()
     logout_user()
@@ -246,7 +247,7 @@ def change_email():
         db.session.commit()
         flash(gettext("Your email has been successfully modified."), "success")
         return redirect(url_for("settings.index"))
-    logging.debug(f"{form.errors}")
+    logger.debug("%s", form.errors)
     return redirect(url_for("settings.index"))
 
 
@@ -269,5 +270,5 @@ def change_username():
         db.session.commit()
         flash(gettext("Your username has been successfully modified."), "success")
         return redirect(url_for("settings.index"))
-    logging.debug(f"{form.errors}")
+    logger.debug("%s", form.errors)
     return redirect(url_for("settings.index"))

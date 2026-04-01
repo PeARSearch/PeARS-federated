@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 import logging
+logger = logging.getLogger(__name__)
 import subprocess
 from shutil import which
 from os import getenv, remove
@@ -29,13 +30,13 @@ def pdf_mine(pdf_path, max_pages = 12):
     title = metadata[0]['Title'].decode(encoding='utf-8', errors='ignore').replace('\x00', '')
     #authors = metadata[0]['Author'].decode(encoding='utf-8', errors='ignore').replace('\x00', '')
     if which('pdftotext') is not None:
-        logging.info("Indexing with installed pdftotext")
+        logger.info("Indexing with installed pdftotext")
         subprocess.call(['pdftotext', '-l', str(max_pages), pdf_path])
         txt_path = pdf_path.replace('.pdf','.txt')
         with open(txt_path, 'r') as ftxt:
             body = ftxt.read().replace('\n', ' ')
     else:
-        logging.info("Indexing with pdfminer")
+        logger.info("Indexing with pdfminer")
         c = 0
         for page_layout in extract_pages(pdf_path):
             for element in page_layout:
@@ -67,14 +68,14 @@ def extract_txt(url, contributor):
         with open(local_pdf_path,'wb') as f_out:
             f_out.write(req.content)
     except Exception:
-        logging.error(f"ERROR accessing resource {url} ...")
+        logger.error("Accessing resource %s ...", url)
         return title, body_str, language, snippet, cc, error
     
     try:
         body_str, title = pdf_mine(local_pdf_path)
         body_str = remove_emails(body_str)
     except Exception:
-        logging.error("ERROR extracting body text from pdf...")
+        logger.error("Extracting body text from pdf...")
         remove(local_pdf_path)
         try:
             remove(local_pdf_path.replace('.pdf','.txt'))
@@ -86,7 +87,7 @@ def extract_txt(url, contributor):
         title = url.split('/')[-1]
     try:
         language = detect(body_str)
-        logging.info(f"Language for {url}: {language}")
+        logger.info("Language for %s: %s", url, language)
     except Exception:
         title = ""
         error = "ERROR extract_html: Couldn't detect page language."

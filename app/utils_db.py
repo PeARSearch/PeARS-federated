@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 import logging
+logger = logging.getLogger(__name__)
 from os import remove, rename, getenv
 from os.path import dirname, realpath, join, isfile
 from pathlib import Path
@@ -20,7 +21,7 @@ dir_path = dirname(dirname(realpath(__file__)))
 pod_dir = getenv("PODS_DIR", join(dir_path, 'app', 'pods'))
 
 def parse_pod_name(pod_name):
-    logging.debug(f">> UTILS_DB: parse_pod_name: {pod_name}")
+    logger.debug("parse_pod_name: %s", pod_name)
     theme = pod_name.split('.u.')[0]
     contributor = pod_name.split('.u.')[1]
     lang = Pods.query.filter_by(name=pod_name).first().language
@@ -41,14 +42,14 @@ def create_pod_npz_pos(contributor, theme, lang):
     pod_path = join(user_dir, theme+'.u.'+contributor )
     vocab = app_module.models[lang]['vocab']
     if not isfile(pod_path+'.npz'):
-        logging.debug(">> UTILS_DB: create_pod_npz_pos: Making 0 CSR matrix for new pod")
+        logger.debug("create_pod_npz_pos: Making 0 CSR matrix for new pod")
         pod = np.zeros((1,app_module.VEC_SIZE))
         pod = csr_matrix(pod)
         save_npz(pod_path+'.npz', pod)
-        logging.debug(f">> UTILS_DB: create_pod_npz_pos: {pod.shape[0]}")
+        logger.debug("create_pod_npz_pos: %s", pod.shape[0])
 
     if not isfile(pod_path+'.pos'):
-        logging.debug(">> UTILS_DB: create_pod_npz_pos: Making empty positional index for new pod")
+        logger.debug("create_pod_npz_pos: Making empty positional index for new pod")
         posindex = [{} for _ in range(len(vocab))]
         joblib.dump(posindex, pod_path+'.pos')
     return pod_path
@@ -133,7 +134,7 @@ def add_to_npz(v, pod_path):
 def delete_pod_representations(pod_name):
     if '.u.' in pod_name:
         theme, contributor = pod_name.split('.u.')
-        logging.debug(theme, contributor)
+        logger.debug("%s %s", theme, contributor)
     else:
         theme = pod_name
         contributor = None
@@ -164,20 +165,20 @@ def delete_url_representations(url):
     u = db.session.query(Urls).filter_by(url=url).first()
     pod = u.pod
     username = pod.split('.u.')[1]
-    logging.debug(f">> UTILS_DB: delete_url_representations: POD {pod}, USER {username}")
+    logger.debug("delete_url_representations: pod=%s, user=%s", pod, username)
 
     #Remove document row from .npz matrix
     try:
         idv, _ = rm_from_npz(u.vector, pod)
         update_db_idvs_after_npz_delete(idv, pod)
     except:
-        logging.debug(f">> UTILS_DB: delete_url_representations: could not remove vector from npz file.")
+        logger.debug("delete_url_representations: could not remove vector from npz file.")
 
     #Remove doc from positional index
     try:
         rm_doc_from_pos(u.id, pod)
     except:
-        logging.debug(f">> UTILS_DB: delete_url_representations: could not remove vector from pos file.")
+        logger.debug("delete_url_representations: could not remove vector from pos file.")
 
     #Delete from database
     db.session.delete(u)
@@ -201,13 +202,13 @@ def rm_from_npz(vid, pod_name):
     contributor, _, lang = parse_pod_name(pod_name)
     pod_path = join(pod_dir, contributor, lang, pod_name+'.npz')
     pod_m = load_npz(pod_path)
-    logging.debug(f">> UTILS_DB: rm_from_npz: SHAPE OF NPZ MATRIX BEFORE RM: {pod_m.shape}")
+    logger.debug("rm_from_npz: shape of npz matrix before rm: %s", pod_m.shape)
     v = pod_m[vid]
-    logging.debug(f">> UTILS_DB: rm_from_npz: CHECKING SHAPE OF DELETED VEC: {pod_m.shape}")
+    logger.debug("rm_from_npz: shape of deleted vec: %s", pod_m.shape)
     m1 = pod_m[:vid]
     m2 = pod_m[vid+1:]
     pod_m = vstack((m1,m2))
-    logging.debug(f">> UTILS_DB: rm_from_npz: SHAPE OF NPZ MATRIX AFTER RM: {pod_m.shape}")
+    logger.debug("rm_from_npz: shape of npz matrix after rm: %s", pod_m.shape)
     save_npz(pod_path, pod_m)
     return vid, v
 
@@ -233,7 +234,7 @@ def rm_doc_from_pos(vid, pod):
     posindex = load_posix(contributor, lang, theme)
     remaining_posindex = []
     deleted_posindex = []
-    logging.debug(f">> UTILS_DB: rm_from_npz: DELETING DOC ID {vid}")
+    logger.debug("rm_doc_from_pos: deleting doc id %s", vid)
     for token in vocab:
         token_id = vocab[token]
         tmp_remaining = {}
@@ -284,7 +285,7 @@ def mv_pod(src, target, contributor=None):
         rename(src_path, target_path)
         
         #Rename in DB
-        logging.debug(p.name)
+        logger.debug("Pod: %s", p.name)
         p.name = target
         p.description = target
         p.url = join('http://localhost:8080/api/pods/',target.replace(' ','+'))

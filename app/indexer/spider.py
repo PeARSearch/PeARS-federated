@@ -5,6 +5,7 @@
 '''Spider code, heavily influenced by http://www.netinstructions.com/how-to-make-a-web-crawler-in-under-50-lines-of-python-code/.'''
 
 import logging
+logger = logging.getLogger(__name__)
 from html.parser import HTMLParser
 from urllib.request import urlopen
 from urllib import parse
@@ -48,12 +49,12 @@ def get_links(base_url, max_pages):
         pages_visited.append(url)
         pages_to_visit = pages_to_visit[1:]
         try:
-            logging.info(f"{number_visited} Scraping: {url}")
+            logger.info("%d Scraping: %s", number_visited, url)
             parser = LinkParser()
             data, links = parser.getLinks(url)
             for link in links:
                 if link not in pages_visited and link not in pages_to_visit and '#' not in link and base_url in link:
                     pages_to_visit.append(link)
         except:
-            logging.error(" **Failed visiting current url!**")
+            logger.error("Failed visiting current url")
     return pages_visited
