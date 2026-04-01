@@ -48,7 +48,7 @@ class TestingConfig:
 
 
 # Legacy flat config values used by app.config.from_object('config')
-DEBUG = True
+DEBUG = os.getenv('FLASK_ENV', 'production') == 'development'
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(BASE_DIR, 'app.db')
 DATABASE_CONNECT_OPTIONS = {}
 THREADS_PER_PAGE = 2
