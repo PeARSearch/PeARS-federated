@@ -122,13 +122,14 @@ def index_from_url():
         theme = request.form.get('theme').strip()
         note = request.form.get('note').strip()
         snippet_length = int(request.form.get('snippet_length'))
+        licensing_notes = request.form.get('licensing_notes', '').strip()
         session['index_url'] = url
         session['index_theme'] = theme
         session['index_note'] = note
         if note is None:
             note = ''
         logging.debug(f"INDEXING URL: {url} THEME: {theme} NOTE: {note} CONTRIBUTOR: {contributor}")
-        success, messages, share_url = run_indexer_url(url, theme, note, contributor, snippet_length, request.host_url)
+        success, messages, share_url = run_indexer_url(url, theme, note, contributor, snippet_length, licensing_notes, request.host_url)
         if success:
             return render_template('indexer/success.html', messages=messages, share_url=share_url, url=url, theme=theme, note=note)
         return render_template('indexer/fail.html', messages = messages)
@@ -149,6 +150,7 @@ def index_from_manual():
     themes = list(set([p.name.split('.u.')[0] for p in pods]))
     default_screen = "manual"
     snippet_length = int(request.form.get('snippet_length'))
+    licensing_notes = request.form.get('licensing_notes', '').strip()
 
     form = ManualEntryForm(request.form)
     if form.validate_on_submit():
@@ -169,7 +171,7 @@ def index_from_manual():
         session['index_url'] = url
         session['index_title'] = title
         session['index_description'] = snippet
-        success, messages, share_url = run_indexer_manual(url, title, snippet, theme, lang, note, contributor, snippet_length, request.host_url)
+        success, messages, share_url = run_indexer_manual(url, title, snippet, theme, lang, note, contributor, snippet_length, licensing_notes, request.host_url)
         if success:
             return render_template('indexer/success.html', messages=messages, share_url=share_url,  theme=theme, note=snippet)
         return render_template('indexer/fail.html', messages = messages)
@@ -186,6 +188,7 @@ def run_suggest_url():
         theme = request.form.get('theme').strip()
         note = request.form.get('note').strip()
         allows_reproduction = request.form.get('allows_reproduction') == "y"
+        licensing_notes = request.form.get('licensing_notes', '').strip()
         captcha_id = request.form.get('captcha_id')
         captcha_user_answer = request.form.get('captcha_answer')
         if current_user.is_authenticated:
@@ -201,6 +204,7 @@ def run_suggest_url():
             form.theme.data = request.form.get('theme').strip()
             form.note.data = request.form.get('note').strip()
             form.allows_reproduction.data = request.form.get('allows_reproduction')
+            form.licensing_notes.data = ""
             form.captcha_answer.data = ""
             form.captcha_id.data = captcha_id
             pods = Pods.query.all()
@@ -208,7 +212,7 @@ def run_suggest_url():
             return render_template('indexer/suggest.html', form=form, themes=themes)
 
         print(url, theme, note)
-        create_suggestion_in_db(url=url, pod=theme, notes=note, contributor=contributor, allows_reproduction=allows_reproduction)
+        create_suggestion_in_db(url=url, pod=theme, notes=note, contributor=contributor, allows_reproduction=allows_reproduction, licensing_notes=licensing_notes)
         flash(gettext('Many thanks for your suggestion'))
         return redirect(url_for('indexer.suggest'))
     print("FORM ERRORS:", form.errors)
@@ -235,7 +239,7 @@ def index_url_ajax():
                            "success": False,
                            "messages": ["Snippet length must be an integer (-1 <= n <= 10,000)"]
                        })
-
+    licensing_notes = request.json.get('licensing_notes', '').strip()
     if not theme:
         return jsonify({
             "success": False,
@@ -278,7 +282,7 @@ def index_url_ajax():
             "messages": [f"could not find suggestion with original url {orig_url}"]
         })
 
-    s_success, s_messages, _ = run_indexer_url(url, theme, notes, current_user.username, snippet_length, request.host_url)
+    s_success, s_messages, _ = run_indexer_url(url, theme, notes, current_user.username, snippet_length, licensing_notes, request.host_url)
 
     # we keep the suggestion in the DB but change the url so it matches with what we indexed  
     suggestion.url = url
@@ -358,12 +362,14 @@ def index_suggestions():
         pod_counts = {}
         created_dates = []
         notes = []
+        licensing_notes = []
         allows_reproduction = False
         grouped_by_pod = itertools.groupby(suggestions_with_url, lambda s: s.pod)
         for pod, suggestions_with_pod in grouped_by_pod:
             suggestion_list = list(suggestions_with_pod)
             created_dates.extend([s.date_created for s in suggestion_list])
             notes.extend([s.notes.strip() for s in suggestion_list if s.notes])
+            licensing_notes.extend([s.licensing_notes.strip() for s in suggestion_list if s.licensing_notes])
             pod_count = len(suggestion_list)
             pod_counts[pod] = pod_count
             total_count += pod_count
@@ -375,6 +381,8 @@ def index_suggestions():
         notes_combined = "\n\n".join(notes_sorted)
         _notes_preview = " | ".join(notes_sorted)[:50]
         notes_preview = _notes_preview if len(_notes_preview) < 50 else _notes_preview + "..."
+        licensing_notes_sorted = np.array(licensing_notes)[sort_by_date_idx] if len(licensing_notes) > 0 else []
+        licensing_notes_combined = " ||| ".join(licensing_notes_sorted)
         suggestions_summary.append({
             "url": url, 
             "cleaned_url": _clean_url(url),
@@ -385,7 +393,8 @@ def index_suggestions():
             "notes": notes_combined,
             "notes_preview": notes_preview,
             "already_indexed_in": [u.pod for u in existing_urls],
-            "allows_reproduction": allows_reproduction
+            "allows_reproduction": allows_reproduction,
+            "licensing_notes": licensing_notes_combined
         })
 
     suggestions_sorted = sorted(suggestions_summary, key=lambda s: s["first_created"], reverse=True)
@@ -396,7 +405,7 @@ def _clean_url(url):
     return urljoin(url, urlparse(url).path)
 
 
-def run_indexer_url(url, theme, note, contributor, snippet_length, host_url):
+def run_indexer_url(url, theme, note, contributor, snippet_length, licensing_notes, host_url):
     """ Run the indexer over the suggested URL.
     This includes checking the robots.txt, and producing 
     representations that include entries in the positional
@@ -421,7 +430,7 @@ def run_indexer_url(url, theme, note, contributor, snippet_length, host_url):
             #posix_doc(text, idx, contributor, lang, theme)
             share_url = join(host_url,'api', 'get?url='+url)
             create_or_replace_url_in_db(\
-                    url, title, idv, snippet, theme, lang, note, share_url, contributor, snippet_length, 'url')
+                    url, title, idv, snippet, theme, lang, note, share_url, contributor, snippet_length, licensing_notes, 'url')
             indexed = True
         else:
             messages.extend(mgs)
@@ -430,7 +439,7 @@ def run_indexer_url(url, theme, note, contributor, snippet_length, host_url):
     return indexed, messages, share_url
 
 
-def run_indexer_manual(url, title, doc, theme, lang, note, contributor, snippet_length, host_url):
+def run_indexer_manual(url, title, doc, theme, lang, note, contributor, snippet_length, licensing_notes, host_url):
     """ Run the indexer over manually contributed information.
     
     Arguments: a url (internal and bogus, constructed by 'index_from_manual'),
@@ -447,7 +456,7 @@ def run_indexer_manual(url, title, doc, theme, lang, note, contributor, snippet_
     if success:
         create_pod_in_db(contributor, theme, lang)
         #posix_doc(text, idx, contributor, lang, theme)
-        create_or_replace_url_in_db(url, title, idv, snippet, theme, lang, note, share_url, contributor, snippet_length, 'doc')
+        create_or_replace_url_in_db(url, title, idv, snippet, theme, lang, note, share_url, contributor, snippet_length, licensing_notes, 'doc')
         indexed = True
     else:
         messages.append(gettext("There was a problem indexing your entry. Please check the submitted data."))
@@ -456,7 +465,7 @@ def run_indexer_manual(url, title, doc, theme, lang, note, contributor, snippet_
     return indexed, messages, share_url
 
 
-def index_doc_from_cli(title, doc, theme, lang, contributor, snippet_length, url, note, host_url):
+def index_doc_from_cli(title, doc, theme, lang, contributor, snippet_length, licensing_notes, url, note, host_url):
     """ Index a single doc, to be called by a CLI function."""
     u = db.session.query(Urls).filter_by(url=url).first()
     if u:
@@ -468,7 +477,7 @@ def index_doc_from_cli(title, doc, theme, lang, contributor, snippet_length, url
         create_pod_in_db(contributor, theme, lang)
         share_url = join(host_url,'api', 'get?url='+url)
         create_or_replace_url_in_db(\
-                url, title, idv, snippet, theme, lang, note, share_url, contributor, snippet_length, 'url')
+                url, title, idv, snippet, theme, lang, note, share_url, contributor, snippet_length, licensing_notes, 'url')
         return True
     else:
         return False

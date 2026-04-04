@@ -80,6 +80,14 @@ SPDX-License-Identifier: AGPL-3.0-only
               {{gettext("At least one instance of this suggestion marked the page as having no or reduced copyright restrictions on displaying snippets.")}}
               {{gettext("Before indexing, please check if this is indeed the case and enter an appropriate snippet size.")}}
             </small>
+            {% if suggestion.licensing_notes %}
+              <div class="input-group mt-3">
+                <div class="input-group-prepend">
+                  <span class="input-group-text text-white bg-dark">Licensing notes:</span>
+                </div>
+                <input id="licensing-notes-{{loop.index}}" type="text" class="form-control" value="{{suggestion.licensing_notes}}">
+              </div>
+            {% endif %}
           </div>
           {% endif %}
           <div class="input-group mb-3">
@@ -144,6 +152,7 @@ SPDX-License-Identifier: AGPL-3.0-only
           let $deleteReasonField = $(`#reject-reason-${suggestionID}`);
           let url = $(`#edited-url-${suggestionID}`).val();
           let origUrl = $(`#orig-url-${suggestionID}`).val();
+          let licensingNotes = $(`#licensing-notes-${suggestionID}`).val();
           let snippetLength = $(`#snippet-length-${suggestionID}`).val();
           let theme = $(`#suggestion-pod-${suggestionID}`).val();          
           if (customPod) {

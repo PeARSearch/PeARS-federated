@@ -221,7 +221,7 @@ def index(host_url, filepath):
             pod = m.group(2)
             user = m.group(3)
             snippet_length = 0 # TODO export snippet_length in manual URL files
-            run_indexer_url(url, pod, None, user, snippet_length, host_url)
+            run_indexer_url(url, pod, None, user, snippet_length, None, host_url)
 
 
 @pears.cli.command('randomcrawl')
@@ -307,7 +307,9 @@ def index_wiki(folder, regex, lang, contributor, host_url):
                     print(url,theme,title,doc[:30])
                     note = ""
                     if not title.startswith("Talk:"):
-                        index_doc_from_cli(title, doc, theme, lang, contributor, url, note, host_url)
+                        snippet_length = 0
+                        licensing_notes = None
+                        index_doc_from_cli(title, doc, theme, lang, contributor, snippet_length, licensing_notes, url, note, host_url)
                     doc = ""
                 else:
                     doc+=l+' '

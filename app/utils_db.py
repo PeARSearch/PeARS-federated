@@ -68,13 +68,13 @@ def create_pod_in_db(contributor, theme, lang):
         db.session.add(p)
         db.session.commit()
 
-def create_suggestion_in_db(url, pod, notes, contributor, allows_reproduction):
+def create_suggestion_in_db(url, pod, notes, contributor, allows_reproduction, licensing_notes):
     '''Add suggestion to database'''
-    s = Suggestions(url=url, pod=pod, notes=notes, contributor=contributor, allows_reproduction=allows_reproduction)
+    s = Suggestions(url=url, pod=pod, notes=notes, contributor=contributor, allows_reproduction=allows_reproduction, licensing_notes=licensing_notes)
     db.session.add(s)
     db.session.commit()
 
-def create_or_replace_url_in_db(url, title, idv, snippet, theme, lang, note, share, contributor, snippet_length, entry_type):
+def create_or_replace_url_in_db(url, title, idv, snippet, theme, lang, note, share, contributor, snippet_length, licensing_notes, entry_type):
     """Add a new URL to the database or update it.
     Arguments: url, title, snippet, theme, language,
     note warning, username, type (url or doc).
@@ -93,6 +93,7 @@ def create_or_replace_url_in_db(url, title, idv, snippet, theme, lang, note, sha
     u.contributor = contributor
     u.doctype = entry_type
     u.snippet_length = snippet_length
+    u.licensing_notes = licensing_notes
     if note != '':
         note = '@'+contributor+' >> '+note
         if u.notes is not None:

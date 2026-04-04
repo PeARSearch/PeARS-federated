@@ -96,7 +96,8 @@ def rebuild_pods_and_urls(pod_dir, basedir):
                 if url['notes']:
                     notes = url['notes']
                 snippet_length = url.get('snippet_length', 0)
-                create_or_replace_url_in_db(url['url'], url['title'], vector, url['snippet'], theme, lang, notes, url['share'], url['contributor'], snippet_length, url['doctype'])
+                licensing_notes = None
+                create_or_replace_url_in_db(url['url'], url['title'], vector, url['snippet'], theme, lang, notes, url['share'], url['contributor'], snippet_length, licensing_notes, url['doctype'])
             except:
                     print(">> CLI:REBUILD DB: Problem with url",url['url'])
         save_npz(new_npz_path, m)

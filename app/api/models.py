@@ -48,13 +48,15 @@ class Suggestions(Base):
     notes = db.Column(db.String(1000))
     contributor = db.Column(db.String(1000))
     allows_reproduction = db.Column(db.Boolean, default=False)
+    licensing_notes = db.Column(db.String(1000))
 
-    def __init__(self, url=None, pod=None, notes=None, contributor=None, allows_reproduction=False):
+    def __init__(self, url=None, pod=None, notes=None, contributor=None, allows_reproduction=False, licensing_notes=None):
         self.url = url
         self.pod = pod
         self.notes = notes
         self.contributor = contributor
         self.allows_reproduction = allows_reproduction
+        self.licensing_notes = licensing_notes
 
     def __repr__(self):
         return self.url
@@ -66,7 +68,8 @@ class Suggestions(Base):
             'pod': self.pod,
             'notes': self.notes,
             'contributor': self.contributor,
-            'allows_reproduction': allows_reproduction
+            'allows_reproduction': allows_reproduction,
+            'licensing_notes': licensing_notes
         }
 
     def as_dict(self):
@@ -121,6 +124,7 @@ class Urls(Base):
     share = db.Column(db.String(1000))
     contributor = db.Column(db.String(1000))
     snippet_length = db.Column(db.Integer, default=0)
+    licensing_notes = db.Column(db.String(1000))
 
     def __init__(self,
                  url=None,

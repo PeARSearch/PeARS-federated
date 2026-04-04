@@ -80,6 +80,9 @@ SPDX-License-Identifier: AGPL-3.0-only
               </button>
               <div class="collapse" id="expanded-snippet-{{result['id']}}">
                 <p class="card-text small p-3 text-bg-dark"><em>{{result['snippet']|safe}}</em></p>
+                {% if result['licensing_notes'] %}
+                  <p class="alert alert-dark">Licensing notes: {{result['licensing_notes']|safe}}</p>
+                {% endif %}
               </div>
               {% endif %}
               {% if result['notes'] != None %}
