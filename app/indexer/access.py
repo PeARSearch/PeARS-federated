@@ -1,4 +1,5 @@
 import logging
+logger = logging.getLogger(__name__)
 from urllib.parse import urlparse
 from os.path import join
 import re
@@ -34,13 +35,13 @@ def robotcheck(url):
     for u in disallowed:
         m = re.search(u.replace('*','.*'),url)
         if m:
-            error = "ERROR: robotcheck: "+url+" is disallowed because of "+u
-            logging.error(error)
+            error = "robotcheck: "+url+" is disallowed because of "+u
+            logger.error(error)
             getpage = False
     return getpage
 
 def request_url(url):
-    logging.info(">> CHECKING URL CAN BE REQUESTED")
+    logger.info("Checking URL can be requested")
     access = None
     req = None
     errs = []
@@ -48,13 +49,13 @@ def request_url(url):
     try:
         req = requests.head(url, timeout=30, headers=headers)
     except:
-        error = "ERROR: request_url: request timed out."
-        logging.error(error)
+        error = "request_url: request timed out."
+        logger.error(error)
         errs.append(error)
         return access, req, errs
     if req.status_code >= 400:
-        error = "ERROR: request_url: status code is "+str(req.status_code)
-        logging.error(error)
+        error = "request_url: status code is "+str(req.status_code)
+        logger.error(error)
         errs.append(error)
         return access, req, errs
     else:
@@ -62,12 +63,12 @@ def request_url(url):
             if robotcheck(url):
                 access = True
             else:
-                error = "ERROR: request_url: robot.txt disallows the url "+url+"."
-                logging.error(error)
+                error = "request_url: robot.txt disallows the url "+url+"."
+                logger.error(error)
                 errs.append(error)
         except:
-            error = "ERROR: issues reading the robots.txt file for this site."
-            logging.error(error)
+            error = "Issues reading the robots.txt file for this site."
+            logger.error(error)
             errs.append(error)
     return access, req, errs
 

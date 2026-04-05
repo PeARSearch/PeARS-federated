@@ -7,6 +7,7 @@ from glob import glob
 from pathlib import Path
 from os.path import join, dirname, realpath, isfile
 import logging
+logger = logging.getLogger(__name__)
 
 # Import flask and template operators
 from flask import Flask, flash, render_template, send_file, send_from_directory, request, abort, url_for
@@ -260,10 +261,10 @@ if not app.config.get('TESTING'):
                 instances, M, skipped = filter_instances_by_language()
                 if skipped:
                     for s in skipped:
-                        logging.warning(f"Skipped remote instance {s['instance']}: {s['reason']}")
-                logging.info(f"Loaded {len(instances)} remote instance(s) in background.")
+                        logger.warning("Skipped remote instance %s: %s", s['instance'], s['reason'])
+                logger.info("Loaded %d remote instance(s) in background.", len(instances))
             except Exception as e:
-                logging.error(f"Failed to load remote instances: {e}")
+                logger.error("Failed to load remote instances: %s", e)
 
     _instance_loader = threading.Thread(target=_load_remote_instances, daemon=True)
     _instance_loader.start()
@@ -275,7 +276,7 @@ if not app.config.get('TESTING'):
         if not _sitename_check_completed: # only do this once
             host_url = url_for("search.index", _external=True)
             if host_url.rstrip("/") != app.config["SITENAME"]:
-                logging.error("`host_url` and `SITENAME` do not match -- this can cause errors, correct this unless you know what you are doing!")
+                logger.error("`host_url` and `SITENAME` do not match -- this can cause errors, correct this unless you know what you are doing!")
             _sitename_check_completed = True
 
 
@@ -340,9 +341,9 @@ class UrlsModelView(ModelView):
     def delete_model(self, model):
         try:
             self.on_model_delete(model)
-            print("DELETING",model.url)
+            logger.info("Deleting %s", model.url)
             # Add your custom logic here and don't forget to commit any changes e.g.
-            print(delete_url_representations(model.url))
+            logger.info("%s", delete_url_representations(model.url))
             self.session.commit()
         except Exception as ex:
             if not self.handle_view_exception(ex):
@@ -384,8 +385,8 @@ class UrlsModelView(ModelView):
         else:
             # model is now committed to the database
             if old_pod != new_pod:
-                print(f"Pod name has changed from {old_pod} to {new_pod}!")
-                print("Move vector in npz file")
+                logger.info("Pod name has changed from %s to %s", old_pod, new_pod)
+                logger.info("Move vector in npz file")
                 try:
                     pod_path = create_pod_npz_pos(contributor, new_theme, lang)
                     create_pod_in_db(contributor, new_theme, lang)
@@ -433,7 +434,7 @@ class PodsModelView(ModelView):
     def delete_model(self, model):
         try:
             self.on_model_delete(model)
-            print("DELETING",model.name)
+            logger.info("Deleting %s", model.name)
             # Add your custom logic here and don't forget to commit any changes e.g.
             delete_pod_representations(model.name)
             self.session.commit()

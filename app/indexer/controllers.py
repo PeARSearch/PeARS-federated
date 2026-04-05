@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 import logging
+logger = logging.getLogger(__name__)
 from os import getenv
 from os.path import dirname, join, realpath
 from time import sleep
@@ -75,7 +76,7 @@ def suggest():
     themes = list(set([p.name.split('.u.')[0] for p in pods]))
     internal_message = db.session.query(Personalization).filter_by(feature='suggestions_info').first()
     if internal_message:
-        print("MSG",internal_message)
+        logger.debug("MSG %s", internal_message)
         internal_message = internal_message.text
     return render_template("indexer/suggest.html", form=form, themes=themes, internal_message=internal_message)
 
@@ -122,7 +123,7 @@ def index_from_url():
     Validates the suggestion form and calls the
     indexer (progres_file).
     """
-    print("\t>> Indexer : from_url")
+    logger.info("index_from_url")
     contributor = current_user.username
     pods = Pods.query.all()
     themes = list(set([p.name.split('.u.')[0] for p in pods]))
@@ -138,7 +139,7 @@ def index_from_url():
         session['index_note'] = note
         if note is None:
             note = ''
-        logging.debug(f"INDEXING URL: {url} THEME: {theme} NOTE: {note} CONTRIBUTOR: {contributor}")
+        logger.debug("Indexing url=%s theme=%s note=%s contributor=%s", url, theme, note, contributor)
         success, messages, share_url = run_indexer_url(url, theme, note, contributor, request.host_url)
         if success:
             return render_template('indexer/success.html', messages=messages, share_url=share_url, url=url, theme=theme, note=note)
@@ -154,7 +155,7 @@ def index_from_manual():
     Validates the ManualEntryForm and calls the
     indexer (manual_progres_file).
     """
-    print("\t>> Indexer : manual")
+    logger.info("index_from_manual")
     contributor = current_user.username
     pods = Pods.query.all()
     themes = list(set([p.name.split('.u.')[0] for p in pods]))
@@ -165,7 +166,7 @@ def index_from_manual():
         title = request.form.get('title').strip()
         snippet = request.form.get('description').strip()
         url = request.form.get('related_url').strip()
-        print("MANUAL URL",url)
+        logger.debug("Manual URL: %s", url)
         lang = detect(snippet)
         # Hack if language of contribution is not recognized
         if lang not in current_app.config['LANGS']:
@@ -189,7 +190,7 @@ def index_from_manual():
 def run_suggest_url():
     """ Save the suggested URL in waiting list.
     """
-    print(">> INDEXER: run_suggest_url: Save suggested URL.")
+    logger.info("run_suggest_url: Save suggested URL.")
     form = SuggestionForm(request.form)
     if form.validate_on_submit():
         url = request.form.get('suggested_url').strip()
@@ -215,11 +216,11 @@ def run_suggest_url():
             themes = list(set([p.name.split('.u.')[0] for p in pods]))
             return render_template('indexer/suggest.html', form=form, themes=themes)
 
-        print(url, theme, note)
+        logger.debug("%s %s %s", url, theme, note)
         create_suggestion_in_db(url=url, pod=theme, notes=note, contributor=contributor)
         flash(gettext('Many thanks for your suggestion'), "success")
         return redirect(url_for('indexer.suggest'))
-    print("FORM ERRORS:", form.errors)
+    logger.debug("Form errors: %s", form.errors)
     # generate captcha (public code/private string pair)
     captcha_id, captcha_correct_answer = mk_captcha()
     form.captcha_id.data = captcha_id
@@ -398,7 +399,7 @@ def run_indexer_url(url, theme, note, contributor, host_url):
     index as well as vectors. A new entry is also
     added to the database.
     """
-    print(">> INDEXER: run_indexer_url: Running indexer over suggested URL.")
+    logger.info("run_indexer_url: Running indexer over suggested URL.")
     messages = []
     indexed = False
     share_url = ''
@@ -432,7 +433,7 @@ def run_indexer_manual(url, title, doc, theme, lang, note, contributor, host_url
     the title and content of the added document, a topic, language, note 
     information, as well as the username of the contributor.
     """
-    print(">> INDEXER: run_indexer_manual: Running indexer over manually added information.")
+    logger.info("run_indexer_manual: Running indexer over manually added information.")
     messages = []
     indexed = False
     create_pod_npz_pos(contributor, theme, lang)

@@ -4,6 +4,7 @@
 
 import re
 import logging
+logger = logging.getLogger(__name__)
 import requests
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
@@ -17,7 +18,7 @@ from app.utils import remove_emails
 
 def remove_boilerplates(response, lang):
     text = ""
-    print("REMOVING BOILERPLATES FOR LANG",lang,"(",LANGUAGE_CODES[lang],").")
+    logger.info("Removing boilerplates for lang %s (%s)", lang, LANGUAGE_CODES[lang])
     paragraphs = justext.justext(
         response.content,
         justext.get_stoplist(LANGUAGE_CODES[lang]),
@@ -38,16 +39,16 @@ def BS_parse(url):
     try:
         req = requests.head(url, timeout=30, headers=headers)
     except Exception:
-        logging.eror(f"\t>> ERROR: BS_parse: request.head failed trying to access {url}...")
+        logger.error("BS_parse: request.head failed trying to access %s", url)
         pass
     if "text/html" not in req.headers["content-type"]:
-        logging.error(f"\t>> ERROR: BS_parse: Not a HTML document...")
+        logger.error("BS_parse: Not a HTML document...")
         return bs_obj, req
     try:
         req = requests.get(url, allow_redirects=True, timeout=30, headers=headers)
         req.encoding = 'utf-8'
     except Exception:
-        logging.error(f"\t>> ERROR: BS_parse: request failed trying to access {url}...")
+        logger.error("BS_parse: request failed trying to access %s", url)
         return bs_obj, req
     bs_obj = BeautifulSoup(req.text, "lxml")
     return bs_obj, req
@@ -59,13 +60,13 @@ def extract_links(url):
     try:
         req = requests.head(url, timeout=30, headers=headers)
         if req.status_code >= 400:
-            logging.error(f"\t>> ERROR: extract_links: status code is {req.status_code}")
+            logger.error("extract_links: status code is %s", req.status_code)
             return links
         if "text/html" not in req.headers["content-type"]:
-            logging.error(f"\t>> ERROR: Not a HTML document...")
+            logger.error("Not a HTML document...")
             return links
     except Exception:
-        logging.error(f"\t>> ERROR: extract_links: request.head failed trying to access {url}...")
+        logger.error("extract_links: request.head failed trying to access %s", url)
         return links
     bs_obj, req = BS_parse(url)
     if not bs_obj:
@@ -103,14 +104,14 @@ def extract_html(url):
     
     bs_obj, req = BS_parse(url)
     if not bs_obj:
-        error = "\t>> ERROR: extract_html: Failed to get BeautifulSoup object."
+        error = "extract_html: Failed to get BeautifulSoup object."
         return title, body_str, language, snippet, cc, error
     if hasattr(bs_obj.title, 'string'):
         if url.startswith('http'):
             og_title = bs_obj.find("meta", property="og:title")
             og_description = bs_obj.find("meta", property="og:description")
-            logging.info(f"OG TITLE: {og_title}")
-            logging.info(f"OG DESC: {og_description}")
+            logger.info("OG title: %s", og_title)
+            logger.info("OG desc: %s", og_description)
 
             # Process title
             if not og_title:
@@ -139,16 +140,16 @@ def extract_html(url):
                     body_str = ' '.join(og_description['content'].split()[:100])+' '
                 body_str+=tmp_body_str
             body_str = remove_emails(body_str)
-            logging.debug(body_str[:500])
+            logger.debug("%s", body_str[:500])
             try:
                 language = detect(title + " " + body_str)
-                logging.info(f"\t>> INFO: Language for {url}: {language}")
+                logger.info("Language for %s: %s", url, language)
             except Exception:
                 title = ""
-                error = "\t>> ERROR: extract_html: Couldn't detect page language."
+                error = "extract_html: Couldn't detect page language."
                 return title, body_str, snippet, cc, error
             if language not in current_app.config['LANGS']:
-                logging.error(f"\t>> ERROR: extract_html: language {language} is not supported. Moving to default language.")
+                logger.error("extract_html: language %s is not supported. Moving to default language.", language)
                 language = current_app.config['LANGS'][0]
             # Process snippet
             if og_description:

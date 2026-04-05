@@ -1,4 +1,5 @@
 import logging
+logger = logging.getLogger(__name__)
 from itsdangerous import URLSafeTimedSerializer
 from flask_mail import Message
 from flask import current_app
@@ -36,7 +37,7 @@ def send_email(to, subject, template):
         mail_logger.mailing(f"Mailed {to} with subject {subject}")
         return True
     except Exception as e:
-        logging.error(f"Failed to send email to {to}: {e}")
+        logger.error("Failed to send email to %s: %s", to, e)
         return False
 
 def send_reset_password_email(to, subject, template):
@@ -54,5 +55,5 @@ def send_reset_password_email(to, subject, template):
         mail_logger.mailing(f"Mailed {to} with subject {subject}.")
         return True
     except Exception as e:
-        logging.error(f"Failed to send password reset email to {to}: {e}")
+        logger.error("Failed to send password reset email to %s: %s", to, e)
         return False

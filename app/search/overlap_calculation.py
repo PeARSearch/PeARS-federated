@@ -5,6 +5,7 @@
 import re
 import string
 import logging
+logger = logging.getLogger(__name__)
 import app as app_module
 from app.indexer.posix import load_posix
 import numpy as np
@@ -139,8 +140,8 @@ def posix(q, posindex, lang):
     inverted_vocab = app_module.models[lang]['inverted_vocab']
     query_vocab_ids = [vocab.get(wp) for wp in q.split()]
     if any([i is None for i in query_vocab_ids]):
-        print("WARNING: there were unknown tokens in the query")
-        print(q.split(), query_vocab_ids)
+        logger.warning("There were unknown tokens in the query")
+        logger.warning("%s %s", q.split(), query_vocab_ids)
         query_vocab_ids = [i for i in query_vocab_ids if i is not None]
 
     idx = []
@@ -152,14 +153,14 @@ def posix(q, posindex, lang):
 
     matching_docs = list(set.intersection(*idx))   # intersect doc lists to only retain the docs that contain *all* tokens
     #if len(matching_docs) > 0:
-    logging.debug(f"MATCHING DOCS: {matching_docs}")
+    logger.debug("Matching docs: %s", matching_docs)
     doc_scores = {}
     for doc in matching_docs:
         positions = []
         for w in query_vocab_ids:
             token_str = inverted_vocab[w]
             token_positions = posindex[w][doc]
-            logging.debug(f"DOC {doc} TOKEN STR {token_str}")
+            logger.debug("doc=%s token_str=%s", doc, token_str)
             if token_str.startswith("▁") or len(positions) == 0:
                 positions.append((token_positions,))
             else:
@@ -168,7 +169,7 @@ def posix(q, posindex, lang):
 
         final_score = posix_score_seq(positions)
         doc_scores[doc] = final_score
-        logging.debug(f"\tFINAL SCORE FOR DOC {doc}: {final_score}\n")
+        logger.debug("Final score for doc %s: %s", doc, final_score)
     return doc_scores
 
 
@@ -176,7 +177,7 @@ def posix_no_seq(q, posindex, lang):
     vocab = app_module.models[lang]['vocab']
     query_vocab_ids = [vocab.get(wp) for wp in q.split()]
     if any([i is None for i in query_vocab_ids]):
-        print("WARNING: there were unknown tokens in the query. This can happen while computing the extended query because the FastText neighbours may not be in the vocabulary.")
+        logger.warning("There were unknown tokens in the query. This can happen while computing the extended query because the FastText neighbours may not be in the vocabulary.")
         #print(q.split(), query_vocab_ids)
         query_vocab_ids = [i for i in query_vocab_ids if i is not None]
 

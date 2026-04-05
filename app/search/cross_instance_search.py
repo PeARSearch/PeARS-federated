@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger(__name__)
 from time import time
 from urllib.parse import urlparse
 import numpy as np
@@ -34,7 +36,7 @@ def filter_instances_by_language():
 
         # make sure that we're not trying to index with ourselves
         if i.rstrip("/") == current_app.config["SITENAME"].rstrip("/"):
-            print(f"WARNING: It seems like you're trying to federate with yourself. Consider removing the name of your local site from .known_hosts.txt if it's on it. For now, I'm skipping this instance ({i}).")
+            logger.warning("It seems like you're trying to federate with yourself. Consider removing the name of your local site from .known_hosts.txt if it's on it. For now, I'm skipping this instance (%s).", i)
             skipped_instances.append({"instance": i, "reason": "it seems like you're trying to federate with yourself"})
             continue
 
@@ -43,11 +45,11 @@ def filter_instances_by_language():
         try:
             resp = requests.get(url, timeout=30, headers=headers)
         except Exception as e:
-            print(f"\t>> ERROR: filter_instances_by_language: request failed trying to access {url}; error message {e}")
+            logger.error("filter_instances_by_language: request failed trying to access %s; error message %s", url, e)
             skipped_instances.append({"instance": i, "reason": "connection error for /api/languages"})
             continue
         if resp.status_code != 200:
-            print(f"\t>> ERROR: filter_instances_by_language: got non-200 status code when trying to access {url}...")    
+            logger.error("filter_instances_by_language: got non-200 status code when trying to access %s", url)    
             skipped_instances.append({"instance": i, "reason": f"status code {resp.status_code} for /api/languages"})
             continue        
         languages = resp.json()['json_list']
@@ -61,11 +63,11 @@ def filter_instances_by_language():
         try:
             resp = requests.get(url, timeout=30, headers=headers)
         except Exception as e:
-            print(f"\t>> ERROR: filter_instances_by_language: request failed trying to access {url}; error message: {e}")
+            logger.error("filter_instances_by_language: request failed trying to access %s; error message: %s", url, e)
             skipped_instances.append({"instance": i, "reason": "connection error for /api/signature"})
             continue
         if resp.status_code != 200:
-            print(f"\t>> ERROR: filter_instances_by_language: got an error code trying to access {url}...")
+            logger.error("filter_instances_by_language: got an error code trying to access %s", url)
             skipped_instances.append({"instance": i, "reason": f"status code {resp.status_code} for /api/signature"})
             continue
 
@@ -79,7 +81,7 @@ def filter_instances_by_language():
             if identity_info["sitename"].startswith("http"):
                 identity_info["sitename"] = urlparse(identity_info["sitename"]).hostname
         except Exception as e:
-            print(f"\t>> ERROR: filter_instances_by_language: request failed trying to access {identity_info_url}, error message: {e}")
+            logger.error("filter_instances_by_language: request failed trying to access %s, error message: %s", identity_info_url, e)
             identity_info = {
                 "url": i,
                 "sitename": urlparse(i).hostname,
@@ -111,7 +113,7 @@ def get_best_instances(query, lang, instances, m, top_k=3):
     # Get instances
     document_scores = {}
     best_instances = [instances[i] for i in idx][:top_k]
-    print("BEST INSTANCES", [i["url"] for i in best_instances])
+    logger.info("Best instances: %s", [i['url'] for i in best_instances])
 
     return best_instances
 
@@ -130,9 +132,9 @@ def get_cross_instance_results(query, instances):
             req_success = True
             t_after = time()
             t_delta = t_after - t_before
-            print(f"Request to remote instance (url={url}) took {t_delta:.3f}s")
+            logger.info("Request to remote instance (url=%s) took %.3fs", url, t_delta)
         except Exception as e:
-            print(f"Error when connecting to {url}, error message: {e}")
+            logger.error("Error when connecting to %s, error message: %s", url, e)
 
         if req_success and resp.status_code == 200:
             json_result = resp.json()['json_list']
@@ -143,7 +145,7 @@ def get_cross_instance_results(query, instances):
             else:
                 remote_results = json_result
         else:
-            print(f"Got non-200 status code from {url}")
+            logger.error("Got non-200 status code from %s", url)
             remote_results = {}
 
         remote_results_updated = {}

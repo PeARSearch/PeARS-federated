@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger(__name__)
 
 def read_vocab(vocab_file):
     c = 0
@@ -9,7 +11,7 @@ def read_vocab(vocab_file):
             l = l.rstrip('\n').strip()  # Remove any trailing newline and extra spaces
             vocab_list = l.rsplit(maxsplit=1)
             if len(vocab_list) < 2:
-                print("Couldn't split the line:", l)
+                logger.warning("Couldn't split the line: %s", l)
                 continue
             wp = vocab_list[0]
             logprob = -(float(vocab_list[1]))

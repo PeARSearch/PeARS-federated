@@ -24,7 +24,7 @@ def run_config(app):
     app.config['SECRET_KEY'] = getenv("SECRET_KEY")                         
     app.config['SECURITY_PASSWORD_SALT'] = getenv("SECURITY_PASSWORD_SALT")
     app.config['SESSION_COOKIE_SECURE'] = True if getenv("SESSION_COOKIE_SECURE", "true").lower() == 'true' else False
-    app.config['SESSION_COOKIE_HTTPONLY'] = False
+    app.config['SESSION_COOKIE_HTTPONLY'] = True if getenv("SESSION_COOKIE_HTTPONLY", "true").lower() == 'true' else False
     app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
     app.config['CSRF_ENABLED'] = True
     app.config['CSRF_SESSION_KEY'] = getenv("CSRF_SESSION_KEY")

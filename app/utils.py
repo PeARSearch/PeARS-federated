@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
+import logging
+logger = logging.getLogger(__name__)
 from os.path import dirname, join, realpath
 import re
 from time import time
@@ -51,7 +53,7 @@ def _extract_url_info(line):
             kwd = 'home'
         return url, kwd, trigger, contributor
     except:
-        print(">> UTILS: _EXTRACT_URL_INFO: ERROR: .suggestions file does not have the right format.")
+        logger.error("_extract_url_info: .suggestions file does not have the right format.")
         return None
 
 
@@ -146,7 +148,7 @@ def sim_to_matrix(dm_dict, vec, n):
     for t in sorted(cosines, key=cosines.get, reverse=True):
         if c < n:
             if t.isalpha():
-                print(t, cosines[t])
+                logger.debug("%s %s", t, cosines[t])
                 neighbours.append(t)
                 c += 1
         else:
@@ -176,14 +178,14 @@ def sim_to_matrix_url(url_dict, vec, n):
 
 
 def get_pod_info(url):
-    print("Fetching pod", urljoin(url, "api/self/"))
+    logger.info("Fetching pod %s", urljoin(url, 'api/self/'))
     pod = None
     try:
         r = requests.get(urljoin(url, "api/self/"))
         if r.status_code == 200:
             pod = r.json()
     except Exception:
-        print("Problem fetching pod...")
+        logger.error("Problem fetching pod...")
     return pod
 
 
@@ -202,7 +204,7 @@ def parse_query(query):
         else:
             clean_query+=w+' '
     clean_query = clean_query[:-1]
-    print(clean_query, doctype)
+    logger.debug("%s %s", clean_query, doctype)
     return clean_query, doctype, lang
 
 def remove_emails(doc):
@@ -250,6 +252,6 @@ def timer(func):
         t1 = time()
         result = func(*args, **kwargs)
         t2 = time()
-        print(f'>> TIMER: Function {func.__name__!r} executed in {(t2-t1):.4f}s')
+        logger.info("Function %r executed in %.4fs", func.__name__, t2-t1)
         return result
     return wrap_func

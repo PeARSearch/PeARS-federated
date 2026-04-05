@@ -4,6 +4,7 @@
 
 import math
 import logging
+logger = logging.getLogger(__name__)
 from time import time
 from os import getenv
 from os.path import dirname, join, realpath
@@ -218,7 +219,7 @@ def intersect_best_posix_lists(query_tokenized, posindex, lang):
     # Loop throught the token list corresponding to each word
     for word_tokens in query_tokenized:
         scores = posix(' '.join(word_tokens), posindex, lang)
-        logging.debug(f"POSIX SCORES: {scores}")
+        logger.debug("Posix scores: %s", scores)
         tmp_best_docs.append(list(scores.keys()))
         for k,v in scores.items():
             if k in posix_scores:
@@ -232,7 +233,7 @@ def intersect_best_posix_lists(query_tokenized, posindex, lang):
     for d in q_best_docs:
         docscore = np.mean(posix_scores[d])
         best_docs[d] = docscore
-    logging.info(f"BEST DOCS FROM POS INDEX: {best_docs}")
+    logger.info("Best docs from pos index: %s", best_docs)
     return best_docs
 
 
@@ -247,7 +248,7 @@ def score_pods(query_words, query_vectors, extended_q_vectors, lang):
 
     Returns: a list of the best <max_pods: int> pods.
     """
-    print(">> SEARCH: SCORE PAGES: SCORE PODS")
+    logger.info("Scoring pods")
 
     max_pods = current_app.config["MAX_PODS"] # How many pods to return
     pod_scores = {}
@@ -274,7 +275,7 @@ def score_pods(query_words, query_vectors, extended_q_vectors, lang):
         d = dict(Counter(d).most_common())
         best_bins = list(d.keys())
         best_bins = [b-1 for b in best_bins] #digitize starts at 1, not 0
-        print(best_bins)
+        logger.debug("%s", best_bins)
         best_scores = list(d.values())
         max_score = max(best_scores)
         best_scores = np.array(best_scores) / max_score

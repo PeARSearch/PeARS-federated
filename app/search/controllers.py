@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 import logging
+logger = logging.getLogger(__name__)
 from os import getenv
 from os.path import dirname, join, realpath
 from glob import glob
@@ -102,7 +103,7 @@ def prepare_gui_results(query, results):
             r['share'] = url_for('api.return_specific_url', url=url, _external=True)
         else:
             r['share'] = url
-        logging.debug(f"RESULT URL {url}")
+        logger.debug("Result URL: %s", url)
         if r['notes'] == 'None':
             r['notes'] = None
         else:
@@ -144,11 +145,8 @@ def get_local_search_results(query):
         languages = [lang]
     for lang in languages:
         clean_query = ' '.join([w for w in query.split() if w not in app_module.models[lang]['stopwords']])
-        print("\n\n>>>>>>>>>>>>>>>>>>>>>>")
-        print(">> SEARCH:CONTROLLERS:get_local_search_results: searching in",lang)
-        print(">>>>>>>>>>>>>>>>>>>>>>")
-
-        print("\n Getting results on this instance")
+        logger.info("get_local_search_results: searching in %s", lang)
+        logger.info("Getting results on this instance")
         r, s = score_pages.run_search(clean_query, lang, extended=current_app.config['EXTEND_QUERY'])
         for res in r.values():
             res["instance"] = current_app.config["SITENAME"]  # to distinguish local results from remote ones later on
@@ -159,7 +157,7 @@ def get_local_search_results(query):
     for i in sorted_scores:
         url = list(results.keys())[i]
         sorted_results[url] = results[url]
-    logging.debug(f"SORTED LOCAL RESULTS: {sorted_results}")
+    logger.debug("Sorted local results: %s", sorted_results)
     return clean_query, sorted_results
 
 
@@ -175,35 +173,32 @@ def get_search_results(query):
         languages = [lang]
     for lang in languages:
         clean_query = ' '.join([w for w in query.split() if w not in app_module.models[lang]['stopwords']])
-        print("\n\n>>>>>>>>>>>>>>>>>>>>>>")
-        print(">> SEARCH:CONTROLLERS:get_search_results: searching in",lang)
-        print(">>>>>>>>>>>>>>>>>>>>>>")
-
+        logger.info("get_search_results: searching in %s", lang)
         try:
-            print("\n Getting results on this instance")
+            logger.info("Getting results on this instance")
             r, s = score_pages.run_search(clean_query, lang, extended=current_app.config['EXTEND_QUERY'])
             for res in r.values():
                 res["instance"] = current_app.config["SITENAME"]  # to distinguish local results from remote ones later on
             results.update(r)
             scores.extend(s)
         except Exception as e:
-            print(f"Error during local search: {e}")
+            logger.error("Error during local search: %s", e)
 
         try:
-            print("\n Getting results cross-instances")
+            logger.info("Getting results cross-instances")
             r = get_cross_instance_results(clean_query, instances)
             for url, dic in r.items():
                 if url not in results:
                     results[url] = dic
                     scores.append(dic['score'])
         except Exception as e:
-            print(f"Unknown error during remote search: {e}")
+            logger.error("Unknown error during remote search: %s", e)
     sorted_scores = np.argsort(scores)[::-1]
     sorted_results = {}
     for i in sorted_scores:
         url = list(results.keys())[i]
         sorted_results[url] = results[url]
-    logging.debug(f"SORTED RESULTS: {sorted_results}")
+    logger.debug("Sorted results: %s", sorted_results)
     return clean_query, sorted_results
 
 
