@@ -143,9 +143,8 @@ def delete_pod_representations(pod_name):
     urls = db.session.query(Urls).filter_by(pod=pod_name).all()
     if urls is not None:
         for u in urls:
-            #This is going to be slow for many urls...
             db.session.delete(u)
-            db.session.commit()
+        db.session.commit()
     npz_path = join(pod_dir, contributor, lang, pod_name+'.npz')
     if isfile(npz_path):
         remove(npz_path)
@@ -297,7 +296,7 @@ def mv_pod(src, target, contributor=None):
         for url in urls:
             url.pod = target
             db.session.add(url)
-            db.session.commit()
+        db.session.commit()
     except:
         return "Renaming failed. Contact your administrator."
     return "Moved pod "+src.split('.u.')[0]+" to "+target.split('.u.')[0]
