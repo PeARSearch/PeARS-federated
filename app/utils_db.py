@@ -76,32 +76,33 @@ def create_suggestion_in_db(url, pod, notes, contributor):
     db.session.add(s)
     db.session.commit()
 
-def create_or_replace_url_in_db(url, title, idv, snippet, theme, lang, note, share, contributor, entry_type):
+def create_or_replace_url_in_db(url, title, snippet, doctype, idv, theme, notes, content, \
+        img, share, contributor, url_license=None, allows_reproduction=None, licensing_notes=None):
     """Add a new URL to the database or update it.
-    Arguments: url, title, snippet, theme, language,
-    note warning, username, type (url or doc).
     """
-    cc = False
     entry = db.session.query(Urls).filter_by(url=url).first()
     if entry:
         u = db.session.query(Urls).filter_by(url=url).first()
     else:
         u = Urls(url=url)
     u.title = title
-    u.vector = idv
     u.snippet = snippet
+    u.doctype = doctype
+    u.vector = idv
     u.pod = theme+'.u.'+contributor
-    u.language = lang
+    u.content = content
+    u.img = img
     u.share = share
     u.contributor = contributor
-    u.doctype = entry_type
-    u.cc = cc
-    if note != '':
-        note = '@'+contributor+' >> '+note
+    u.url_license = url_license
+    u.allows_reproduction = allows_reproduction
+    u.licensing_notes = licensing_notes
+    if notes and notes != '':
+        notes = '@'+contributor+' >> '+notes
         if u.notes is not None:
-            u.notes = u.notes+'<br>'+note
+            u.notes = u.notes+'<br>'+notes
         else:
-            u.notes = note
+            u.notes = notes
     db.session.add(u)
     db.session.commit()
     return u.id

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2024 PeARS Project, <community@pearsproject.org>,
+# SPDX-FileCopyrightText: 2026 PeARS Project, <community@pearsproject.org>,
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
@@ -12,13 +12,13 @@ import itertools
 import hashlib
 from urllib.parse import urljoin, urlparse
 import numpy as np
+from flask import current_app
 from flask import session, Blueprint, request, render_template, url_for, flash, redirect, jsonify
 from flask_login import login_required, current_user
 from flask_babel import gettext
 from langdetect import detect
 from app.auth.captcha import mk_captcha, check_captcha
 from app.auth.decorators import check_permissions
-from flask import current_app
 from app.extensions import db
 from app.api.models import Urls, Pods, Suggestions, RejectedSuggestions, Personalization
 from app.indexer import mk_page_vector
@@ -392,7 +392,7 @@ def _clean_url(url):
     return urljoin(url, urlparse(url).path)
 
 
-def run_indexer_url(url, theme, note, contributor, host_url):
+def run_indexer_url(url, theme, notes, contributor, host_url):
     """ Run the indexer over the suggested URL.
     This includes checking the robots.txt, and producing 
     representations that include entries in the positional
@@ -402,7 +402,10 @@ def run_indexer_url(url, theme, note, contributor, host_url):
     logger.info("run_indexer_url: Running indexer over suggested URL.")
     messages = []
     indexed = False
+    doctype = 'url'
     share_url = ''
+    content = None
+    img = None
     access, req, request_errors = request_url(url)
     if access:
         try:
@@ -410,14 +413,13 @@ def run_indexer_url(url, theme, note, contributor, host_url):
         except:
             messages.append(gettext('ERROR: Content type could not be retrieved from header.'))
             return indexed, messages, share_url
-        success, text, lang, title, snippet, idv, mgs = \
+        success, _, lang, title, snippet, idv, mgs = \
                 mk_page_vector.compute_vector(url, theme, contributor, url_type)
         if success:
             create_pod_in_db(contributor, theme, lang)
             #posix_doc(text, idx, contributor, lang, theme)
             share_url = join(host_url,'api', 'get?url='+url)
-            create_or_replace_url_in_db(\
-                    url, title, idv, snippet, theme, lang, note, share_url, contributor, 'url')
+            create_or_replace_url_in_db(url, title, snippet, doctype, idv, theme, notes, content, img, share_url, contributor)
             indexed = True
         else:
             messages.extend(mgs)
@@ -426,15 +428,20 @@ def run_indexer_url(url, theme, note, contributor, host_url):
     return indexed, messages, share_url
 
 
-def run_indexer_manual(url, title, doc, theme, lang, note, contributor, host_url):
+def run_indexer_manual(url, title, doc, theme, lang, content, contributor, host_url):
     """ Run the indexer over manually contributed information.
     
     Arguments: a url (internal and bogus, constructed by 'index_from_manual'),
-    the title and content of the added document, a topic, language, note 
+    the title and content of the added document, a topic, language, content
     information, as well as the username of the contributor.
     """
     logger.info("run_indexer_manual: Running indexer over manually added information.")
     messages = []
+    indexed = False
+    doctype = 'comment'
+    share_url = ''
+    notes = None
+    img = None
     indexed = False
     create_pod_npz_pos(contributor, theme, lang)
     success, text, snippet, idv = mk_page_vector.compute_vector_local_docs(\
@@ -443,7 +450,7 @@ def run_indexer_manual(url, title, doc, theme, lang, note, contributor, host_url
     if success:
         create_pod_in_db(contributor, theme, lang)
         #posix_doc(text, idx, contributor, lang, theme)
-        create_or_replace_url_in_db(url, title, idv, snippet, theme, lang, note, share_url, contributor, 'doc')
+        create_or_replace_url_in_db(url, title, snippet, doctype, idv, theme, notes, content, img, share_url, contributor)
         indexed = True
     else:
         messages.append(gettext("There was a problem indexing your entry. Please check the submitted data."))
@@ -452,8 +459,11 @@ def run_indexer_manual(url, title, doc, theme, lang, note, contributor, host_url
     return indexed, messages, share_url
 
 
-def index_doc_from_cli(title, doc, theme, lang, contributor, url, note, host_url):
+def index_doc_from_cli(title, doc, theme, lang, contributor, url, notes, host_url):
     """ Index a single doc, to be called by a CLI function."""
+    doctype='url'
+    content=None
+    img=None
     u = db.session.query(Urls).filter_by(url=url).first()
     if u:
         return False #URL exists already
@@ -463,8 +473,7 @@ def index_doc_from_cli(title, doc, theme, lang, contributor, url, note, host_url
     if success:
         create_pod_in_db(contributor, theme, lang)
         share_url = join(host_url,'api', 'get?url='+url)
-        create_or_replace_url_in_db(\
-                url, title, idv, snippet, theme, lang, note, share_url, contributor, 'url')
+        create_or_replace_url_in_db(url, title, snippet, doctype, idv, theme, notes, content, img, share_url, contributor)
         return True
     else:
         return False

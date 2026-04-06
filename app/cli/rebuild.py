@@ -45,6 +45,9 @@ def rebuild_users(basedir):
         db.session.commit()
 
 def rebuild_pods_and_urls(pod_dir, basedir):
+    '''
+    Rebuild pos and urls from a backup contained in basedir.
+    '''
     source_db = 'sqlite:///' + join(basedir, 'app.db')
     source_pod_dir = join(basedir, 'pods')
     cnx = create_engine(source_db).connect()
@@ -56,20 +59,6 @@ def rebuild_pods_and_urls(pod_dir, basedir):
         theme = p['name'].split('.u.')[0]
         username = p['name'].split('.u.')[1]
         lang = p['language']
-        try:
-            idx_path = join(source_pod_dir, username, username+'.idx')
-            idx_to_url = joblib.load(idx_path)
-            print(">> Shape idx to url:", len(idx_to_url))
-        except:
-            continue
-        
-        try:
-            npz_idx_path = join(source_pod_dir, username, lang, p['name']+'.npz.idx')
-            npz_to_idx = joblib.load(npz_idx_path)
-            print(">> Shape npz to idx:", len(idx_to_url))
-        except:
-            continue
-
         try:
             npz_path = join(source_pod_dir, username, lang, p['name']+'.npz')
             npz = load_npz(npz_path).toarray()
@@ -83,21 +72,17 @@ def rebuild_pods_and_urls(pod_dir, basedir):
         new_npz_path = join(pod_dir, username, lang, p['name']+'.npz')
         m = np.zeros((1,VEC_SIZE))
         m = csr_matrix(m)
-        
         for _, url in urls.iterrows():
-            try:
-                k = idx_to_url[1].index(url['url'])
-                idx = idx_to_url[0][k]
-                k = npz_to_idx[1].index(idx)
-                row = npz_to_idx[0][k]
-                v = npz[row]
-                m = vstack((m,v))
-                vector = m.shape[0]-1
-                notes = ''
-                if url['notes']:
-                    notes = url['notes']
-                create_or_replace_url_in_db(url['url'], url['title'], vector, url['snippet'], theme, lang, notes, url['share'], url['contributor'], url['doctype'])
-            except:
-                    print(">> CLI:REBUILD DB: Problem with url",url['url'])
+            notes = url['notes'] if 'notes' in url else None
+            content = url['content'] if 'content' in url else None
+
+            #try:
+            row = url['vector']
+            v = npz[row]
+            m = vstack((m,v))
+            vector = m.shape[0]-1
+            create_or_replace_url_in_db(url['url'], url['title'], url['snippet'], url['doctype'], vector, theme, notes, content, url['img'], url['share'], url['contributor'])
+            #except:
+            #    print(">> CLI:REBUILD DB: Problem with url",url['url'])
         save_npz(new_npz_path, m)
 
