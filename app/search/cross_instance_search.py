@@ -147,7 +147,7 @@ def get_cross_instance_results(query, instances):
 
         remote_results_updated = {}
         for url, result_data in remote_results.items():
-            result_data_updated = {k: v for k, v in result_data.items()}
+            result_data_updated = dict(result_data.items())
             result_data_updated["x_instance_info"] = instance
             # make sure pearslocal URLs point to the remote instance
             remote_results_updated[url] = result_data_updated

@@ -94,7 +94,8 @@ def prepare_gui_results(query, results):
         
         # results from our own instance
         if 'instance' in r and r['instance'] == sitename:
-            r['instance'] = urlparse(sitename).hostname # make the name nicer to read
+            if not sitename.startswith('localhost'):
+                r['instance'] = urlparse(sitename).hostname # make the name nicer to read
             r['instance_is_local'] = True
             r['instance_info_text'] = gettext("This result originates from the local PeARS instance.")
         # cross-instance results
@@ -141,7 +142,7 @@ def get_local_search_results(query):
     for i in sorted_scores:
         url = list(results.keys())[i]
         sorted_results[url] = results[url]
-    logging.debug(f"SORTED LOCAL RESULTS: {sorted_results}")
+    #print(f"SORTED LOCAL RESULTS: {sorted_results}")
     return clean_query, sorted_results
 
 

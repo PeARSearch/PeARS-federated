@@ -167,9 +167,10 @@ def edit_content():
     if url.contributor != username:
         flash(gettext("URL does not belong to you and cannot be edited."))
         return redirect(url_for("settings.index"))
+    content = url.snippet.replace(' || ', '\r\n')
     pods = Pods.query.all()
     themes = list({p.name.split('.u.')[0] for p in pods})
-    form = NewContentForm(title=url.title, content=url.snippet)
+    form = NewContentForm(title=url.title, content=content)
     return render_template('indexer/write_and_index.html', num_entries=num_db_entries, form=form, themes=themes)
 
 

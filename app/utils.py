@@ -227,7 +227,8 @@ def beautify_snippet(snippet, query):
     ''' Beautify snippet on result page by marking in bold
     the words that also appeared in the query.'''
     snippet = snippet.replace('og desc:','')
-    snippet = snippet.replace('|| ','') #Remove paragraph markers for PeARS content
+    snippet = snippet.replace(' ||','') #Remove paragraph markers for PeARS content
+    snippet = snippet.replace('#','') #Remove paragraph markers for PeARS content
     if snippet[-3:] != '...':
         snippet+='...'
     tmp_snippet = snippet
