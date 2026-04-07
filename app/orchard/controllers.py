@@ -5,7 +5,8 @@
 import logging
 logger = logging.getLogger(__name__)
 # Import flask dependencies
-from flask import Blueprint, request, render_template, send_from_directory, flash, redirect, url_for
+from flask import Blueprint, request, render_template, send_from_directory, flash, redirect, url_for, abort
+from werkzeug.utils import secure_filename
 from flask_login import current_user
 from flask_babel import gettext
 from os.path import dirname, realpath, join
@@ -60,6 +61,11 @@ def get_a_pod():
 @check_permissions(login=True, confirmed=True, admin=True)
 def download_file():
     filename = request.args.get('filename')
+    if not filename:
+        abort(400)
+    filename = secure_filename(filename)
+    if not filename:
+        abort(400)
     logger.info("download_file: %s", filename)
     return send_from_directory(join(dir_path,'pods'), filename, as_attachment=True)
 
