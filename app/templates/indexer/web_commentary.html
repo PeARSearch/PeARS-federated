@@ -5,7 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 {% extends "base/base.html" %}
-{% from "base/_formhelpers.html" import render_field, render_autocomplete_field %}
+{% from "base/_formhelpers.html" import render_field, render_select_field, render_autocomplete_field %}
 {% block title %}{{gettext('Index Pages')}}{% endblock %}
 {% block body %}
 
@@ -31,7 +31,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 	<p>{{ render_autocomplete_field(form.theme) }}</p>
 	<p>{{ render_field(form.related_url) }}</p>
 	<p>{{ render_field(form.description) }}</p>
-	<p>{{ render_field(form.chosen_license) }}</p>
+	<p>{{ render_select_field(form.chosen_license) }}</p>
         <div class="tos-check">
           {{ form.accept_tos() }}
           <span>{{gettext("I confirm that my entry does not contravene the")}} <a href="{{url_for('pages.return_tos')}}">{{gettext("terms of service")}}</a> {{gettext("of this site.")}}</span>

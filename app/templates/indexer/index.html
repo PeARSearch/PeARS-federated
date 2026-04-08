@@ -16,16 +16,6 @@ SPDX-License-Identifier: AGPL-3.0-only
       <p class="muted-text">{{num_entries}} {{gettext("pages recorded")}}</p>
     </header>
 
-    <!-- Mode tabs -->
-    <div class="mode-tabs">
-      <button type="button" class="mode-tab {% if default_screen == 'url' %}active{% endif %}" onclick="switchMode('url')">
-        {{gettext("Index a URL")}}
-      </button>
-      <button type="button" class="mode-tab {% if default_screen == 'manual' %}active{% endif %}" onclick="switchMode('manual')">
-        {{gettext("Add manual entry")}}
-      </button>
-    </div>
-
     <!-- URL indexing form -->
     <div id="url_indexing">
       <p class="fine-text mb-4">{{gettext("Paste a web page URL to add it to the search index.")}}</p>
@@ -57,26 +47,6 @@ SPDX-License-Identifier: AGPL-3.0-only
     str += '<option value="' + theme + '" />';
   }
   document.getElementById("themes").innerHTML = str;
-</script>
-
-<script>
-function switchMode(mode) {
-  var urlPanel = document.getElementById('url_indexing');
-  var manualPanel = document.getElementById('manual_indexing');
-  var tabs = document.querySelectorAll('.mode-tab');
-
-  if (mode === 'url') {
-    urlPanel.classList.remove('hidden');
-    manualPanel.classList.add('hidden');
-    tabs[0].classList.add('active');
-    tabs[1].classList.remove('active');
-  } else {
-    urlPanel.classList.add('hidden');
-    manualPanel.classList.remove('hidden');
-    tabs[0].classList.remove('active');
-    tabs[1].classList.add('active');
-  }
-}
 </script>
 
 {% endblock %}

@@ -99,13 +99,11 @@ def create_or_replace_url_in_db(url, title, snippet, doctype, idv, theme, notes,
     u.contributor = contributor
     u.url_license = url_license
     u.allows_reproduction = allows_reproduction
+    if url_license in ["CC-BY", "CC-BY-NC"]:
+        u.allows_reproduction = True
+    else:
+        u.allows_reproduction = False
     u.licensing_notes = licensing_notes
-    if notes and notes != '':
-        notes = '@'+contributor+' >> '+notes
-        if u.notes is not None:
-            u.notes = u.notes+'<br>'+notes
-        else:
-            u.notes = notes
     db.session.add(u)
     db.session.commit()
     return u.id

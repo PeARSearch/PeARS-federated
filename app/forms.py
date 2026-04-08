@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, StringField, TextAreaField, PasswordField, HiddenField, URLField
+from wtforms import BooleanField, StringField, TextAreaField, PasswordField, HiddenField, URLField, SelectField
 from wtforms.validators import Length, Optional, DataRequired, InputRequired, EqualTo, Email, URL, ValidationError
 from flask_babel import lazy_gettext
 
@@ -65,8 +65,7 @@ class WebSourceForm(FlaskForm):
     related_url = URLField(lazy_gettext('The URL you are writing about'), [DataRequired(), URL()], render_kw={"placeholder": lazy_gettext("Your entry will automatically link to this URL.")})
     theme = StringField(lazy_gettext('Category'), [DataRequired(), Length(max=50)],  render_kw={"placeholder": lazy_gettext("A category for your URL. Start typing and suggestions will appear, but you can also write your own.")})
     description = TextAreaField(lazy_gettext('Description'), [DataRequired(), Length(max=10000)],  render_kw={"placeholder": lazy_gettext("Anything you would like people to know about this resource. (Max 10000 characters.)"), "rows":6})
-    chosen_license = StringField(lazy_gettext('License'), [Length(max=100)], \
-            render_kw={"placeholder": lazy_gettext("Optional license for your comment, e.g. Creative Commons.")})
+    chosen_license = SelectField(lazy_gettext("Optional license"), choices=[("None", "None"), ("CC-BY", "CC-BY"), ("CC-BY-NC", "CC-BY-NC")])
     accept_tos = BooleanField(lazy_gettext('I confirm that my entry does not contravene the Terms of Service'), [DataRequired()])
 
 class NewContentForm(FlaskForm):
@@ -75,8 +74,7 @@ class NewContentForm(FlaskForm):
     theme = StringField(lazy_gettext('Category'), [DataRequired(), Length(max=50)],  render_kw={"placeholder": lazy_gettext("A category for your URL. Start typing and suggestions will appear, but you can also write your own.")})
     content = TextAreaField(lazy_gettext('Description'), [DataRequired(), Length(max=10000)],\
             render_kw={"placeholder": lazy_gettext("Your content (max 10000 characters.)"), "rows":8})
-    chosen_license = StringField(lazy_gettext('License'), [Length(max=100)], \
-            render_kw={"placeholder": lazy_gettext("Optional license, e.g. Creative Commons.")})
+    chosen_license = SelectField(lazy_gettext("Optional license"), choices=[("None", "None"), ("CC-BY", "CC-BY"), ("CC-BY-NC", "CC-BY-NC")])
     accept_tos = BooleanField(lazy_gettext('I confirm that my entry does not contravene the Terms of Service'), [DataRequired()])
 
 class ReportingForm(FlaskForm):

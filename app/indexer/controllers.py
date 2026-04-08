@@ -120,6 +120,7 @@ def index_from_url():
         return render_template('indexer/fail.html', messages=messages, url=url, theme=theme, note=note, source='url')
     return render_template('indexer/index.html', form=form, themes=themes)
 
+
 @indexer.route("/commentary", methods=["POST"])
 @check_permissions(login=True, confirmed=True, admin=True)
 def index_from_web_commentary():
@@ -137,9 +138,13 @@ def index_from_web_commentary():
         content = escape(request.form.get('description').strip())
         chosen_license = request.form.get('chosen_license').strip()
         share_url = request.form.get('related_url').strip()
-        url = 'comment-'+title.lower().replace(' ','-')
+        if "editcomment?" in request.referrer:
+            edit = True
+            url = request.referrer.split("show?url=")[1]
+        else:
+            url = f"comment-{contributor}-{title.lower().replace(' ','-')[:40]}"
         c = 2
-        while check_url_exists(url):
+        while check_url_exists(url) and not edit:
             url+=f"-{c}"
             c+=1
         logger.debug("Manual URL: %s", url)
@@ -155,7 +160,7 @@ def index_from_web_commentary():
 
 
 @indexer.route("/newcontent", methods=["POST"])
-@check_permissions(login=True, confirmed=True, admin=True)
+@check_permissions(login=True, confirmed=True)
 def index_from_new_content():
     """ Route for new content entry form.
     """
@@ -163,6 +168,7 @@ def index_from_new_content():
     contributor = current_user.username
     pods = Pods.query.all()
     themes = list({p.name.split('.u.')[0] for p in pods})
+    edit = False
 
     form = NewContentForm(request.form)
     if form.validate_on_submit():
@@ -174,9 +180,13 @@ def index_from_new_content():
         # Hack if language of contribution is not recognized
         if lang not in current_app.config['LANGS']:
             lang = current_app.config['LANGS'][0]
-        url = 'content-'+title.lower().replace(' ','-')
+        if "editcontent?" in request.referrer:
+            edit = True
+            url = request.referrer.split("show?url=")[1]
+        else:
+            url = f"content-{contributor}-{title.lower().replace(' ','-')[:40]}"
         c = 2
-        while check_url_exists(url):
+        while check_url_exists(url) and not edit:
             url+=f"-{c}"
             c+=1
         share_url = join(request.host_url, 'api', 'show?url='+url)

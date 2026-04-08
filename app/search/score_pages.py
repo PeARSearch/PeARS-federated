@@ -175,7 +175,7 @@ def output(best_urls, scores):
         url = u.url
         results[url] = u.as_dict()
         results[url]['score'] = scores[i]
-        if not url.startswith('pearslocal'):
+        if not u.allows_reproduction:
             results[url]['snippet'] = ' '.join(results[url]['snippet'].split()[:snippet_length])
     return results
 
