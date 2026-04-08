@@ -35,6 +35,7 @@ lxml_html_clean>=0.4.4
 Mako>=1.3.10
 MarkupSafe>=3.0.3
 mccabe>=0.7.0
+mistletoe>=1.5.1
 numpy>=2.4.3
 pandas>=3.0.1
 pdfminer.six>=20260107

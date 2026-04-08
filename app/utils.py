@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 import logging
-logger = logging.getLogger(__name__)
 from os.path import dirname, join, realpath
 import re
 from time import time
@@ -13,8 +12,10 @@ import requests
 import numpy as np
 from scipy.spatial import distance
 from markupsafe import Markup, escape
+import mistletoe
 
 dir_path = dirname(realpath(__file__))
+logger = logging.getLogger(__name__)
 
 def read_language_codes():
     """ Read language code information from static/ling 
@@ -226,7 +227,10 @@ def beautify_title(title, doctype):
     return title
 
 def beautify_snippet(snippet, query):
+    ''' Beautify snippet on result page by marking in bold
+    the words that also appeared in the query.'''
     snippet = snippet.replace('og desc:','')
+    snippet = snippet.replace('|| ','') #Remove paragraph markers for PeARS content
     if snippet[-3:] != '...':
         snippet+='...'
     tmp_snippet = snippet
@@ -245,9 +249,17 @@ def beautify_snippet(snippet, query):
     tmp_snippet = tmp_snippet[:-len(tag)]
     return tmp_snippet
 
+def beautify_pears_content(content):
+    '''Beautify pears-created content, in particular
+    by converting basic markdown into html.
+    '''
+    rendered = mistletoe.markdown(content.replace('<br>','\n'))
+    return rendered
+
 def timer(func):
-    # This function shows the execution time of
-    # the function object passed
+    ''' This function shows the execution time of
+    the function object passed
+    '''
     def wrap_func(*args, **kwargs):
         t1 = time()
         result = func(*args, **kwargs)

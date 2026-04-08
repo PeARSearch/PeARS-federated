@@ -71,11 +71,15 @@ SPDX-License-Identifier: AGPL-3.0-only
 
     {% if contributions %}
     <details>
-      <summary><span>{{gettext('Web content')}}</span> <small class="muted-text">{{contributions|length}}</small></summary>
+      <summary><span>{{gettext('Your content')}}</span> <small class="muted-text">{{contributions|length}}</small></summary>
       <ul class="settings-url-list">
         {% for url in contributions %}
         <li>
           <a href="{{url[0]}}">{{url[1] or url[0]}}</a>
+          <a href="{{url_for('settings.edit_content')}}?url={{url[0]}}" class="result-action-btn"
+             data-tooltip="{{gettext('Edit')}}">
+            <img src="{{ url_for('static', filename='pencil-outline.svg')}}" class="icon icon-sm" alt="{{gettext('Edit')}}">
+          </a>
           <a href="{{url_for('settings.delete_url')}}?url={{url[0]}}" class="result-action-btn"
              data-tooltip="{{gettext('Delete')}}"
              onclick="return confirm('{{gettext('Are you sure you want to delete this resource?')}}')">
@@ -87,11 +91,11 @@ SPDX-License-Identifier: AGPL-3.0-only
     </details>
     {% endif %}
 
-    {% if tips %}
+    {% if urls %}
     <details>
-      <summary><span>{{gettext('Tips')}}</span> <small class="muted-text">{{tips|length}}</small></summary>
+      <summary><span>{{gettext('Indexed urls')}}</span> <small class="muted-text">{{urls|length}}</small></summary>
       <ul class="settings-url-list">
-        {% for url in tips %}
+        {% for url in urls %}
         <li>
           <a href="{{url[0]}}">{{url[1] or url[0]}}</a>
           <a href="{{url_for('settings.delete_url')}}?url={{url[0]}}" class="result-action-btn"

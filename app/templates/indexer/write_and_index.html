@@ -12,39 +12,31 @@ SPDX-License-Identifier: AGPL-3.0-only
 <div class="auth-container--wide">
   <article class="form-card">
     <header class="text-center">
-      <h2>{{gettext("Add to Index")}}</h2>
+      <h2>{{gettext("Write new content")}}</h2>
       <p class="muted-text">{{num_entries}} {{gettext("pages recorded")}}</p>
     </header>
 
-    <!-- Mode tabs -->
-    <div class="mode-tabs">
-      <button type="button" class="mode-tab {% if default_screen == 'url' %}active{% endif %}" onclick="switchMode('url')">
-        {{gettext("Index a URL")}}
-      </button>
-      <button type="button" class="mode-tab {% if default_screen == 'manual' %}active{% endif %}" onclick="switchMode('manual')">
-        {{gettext("Add manual entry")}}
-      </button>
-    </div>
 
-    <!-- URL indexing form -->
+    <!-- Content indexing form -->
     <div id="url_indexing">
-      <p class="fine-text mb-4">{{gettext("Paste a web page URL to add it to the search index.")}}</p>
+      <p class="fine-text mb-4">{{gettext("Write new content on this instance.")}}</p>
       {% with messages = get_flashed_messages(category_filter=["url"]) %}
       {% if messages %}
         <div role="alert" data-variant="warning" class="mb-4">{{ messages[0] }}</div>
       {% endif %}
       {% endwith %}
-      <form method="POST" accept-charset="UTF-8" action="{{url_for('indexer.index_from_url')}}" enctype="multipart/form-data" autocomplete="off">
+      <form method="POST" accept-charset="UTF-8" action="{{url_for('indexer.index_from_new_content')}}" enctype="multipart/form-data" autocomplete="off">
         <datalist id="themes"></datalist>
-        {{ form.hidden_tag() }}
-        {{ render_field(form.suggested_url) }}
-        {{ render_autocomplete_field(form.theme) }}
-        {{ render_field(form.note) }}
+	{{ form.hidden_tag() }}
+	<p>{{ render_field(form.title) }}</p>
+	<p>{{ render_autocomplete_field(form.theme) }}</p>
+	<p>{{ render_field(form.content) }}</p>
+	<p>{{ render_field(form.chosen_license) }}</p>
         <div class="tos-check">
           {{ form.accept_tos() }}
           <span>{{gettext("I confirm that my entry does not contravene the")}} <a href="{{url_for('pages.return_tos')}}">{{gettext("terms of service")}}</a> {{gettext("of this site.")}}</span>
         </div>
-        <button type="submit" class="w-full mt-4">{{gettext('Index URL')}}</button>
+        <button type="submit" class="w-full mt-4">{{gettext('Add')}}</button>
       </form>
     </div>
   </article>

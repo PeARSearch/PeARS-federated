@@ -82,6 +82,8 @@ def prepare_gui_results(query, results):
         # r["url"] keeps the original version of the URL as stored in the DB
         if url.startswith('pearslocal'):
             r["display_url"] = url_for('api.return_specific_url')+'?url='+url
+        elif url.startswith('content'):
+            r["display_url"] = url_for('api.display_content')+'?url='+url
         else:
             r["display_url"] = url
         r['title'] = ' '.join(r['title'].split()[:10])

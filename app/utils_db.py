@@ -27,6 +27,9 @@ def parse_pod_name(pod_name):
     lang = Pods.query.filter_by(name=pod_name).first().language
     return contributor, theme, lang
 
+def check_url_exists(url):
+    u = db.session.query(Urls).filter_by(url=url).all()
+    return bool(len(u) > 0)
 
 ###########
 # Creating
