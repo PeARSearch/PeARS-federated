@@ -61,16 +61,14 @@ def return_query_results():
 def return_urls():
     return jsonify(json_list=[i.serialize for i in Urls.query.all()])
 
+
 @api.route('/get', methods=["GET"])
 def return_specific_url():
     internal_message = ""
-    u = request.args.get('url')
+    u = request.full_path.split('api/get?url=')[1]
     url = db.session.query(Urls).filter_by(url=u).first().as_dict()
     url["instance"] = current_app.config["SITENAME"]
-    if u.startswith('pearslocal'):
-        u = url_for('api.return_specific_url')+'?url='+u
-        url['url'] = u
-    elif u.startswith('content'):
+    if u.startswith('content') or u.startswith('comment'):
         u = url_for('api.display_content')+'?url='+u
         url['url'] = u
     displayresults = prepare_gui_results("",{u:url})
@@ -80,7 +78,9 @@ def return_specific_url():
 
 @api.route('/show', methods=["GET"])
 def display_content():
-    u = request.args.get('url')
+    u = request.full_path.split('api/show?url=')[1]
     url = db.session.query(Urls).filter_by(url=u).first()
     content = beautify_pears_content(url.content)
-    return render_template('search/display.html', title=url.title, contributor=url.contributor, date=url.date_created, content=content)
+    comment = True if u.startswith('comment') else False
+    return render_template('search/display.html', title=url.title, contributor=url.contributor, \
+            date=url.date_created, share_url=url.share, content=content, comment=comment)

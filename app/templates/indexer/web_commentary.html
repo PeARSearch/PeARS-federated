@@ -12,14 +12,14 @@ SPDX-License-Identifier: AGPL-3.0-only
 <div class="auth-container--wide">
   <article class="form-card">
     <header class="text-center">
-      <h2>{{gettext("Add source URL")}}</h2>
+      <h2>{{gettext("Write about a URL")}}</h2>
       <p class="muted-text">{{num_entries}} {{gettext("pages recorded")}}</p>
     </header>
 
 
     <!-- Web source indexing form -->
     <div id="url_indexing">
-      <p class="fine-text mb-4">{{gettext("Paste a web page URL to add it to the search index.")}}</p>
+      <p class="fine-text mb-4">{{gettext("Write a commentary about a URL and add your thoughts to the search index.")}}</p>
       {% with messages = get_flashed_messages(category_filter=["url"]) %}
       {% if messages %}
         <div role="alert" data-variant="warning" class="mb-4">{{ messages[0] }}</div>

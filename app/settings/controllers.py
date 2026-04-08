@@ -8,7 +8,6 @@ from glob import glob
 from os import rename, getenv
 from os.path import dirname, realpath, join, isdir, exists
 from markupsafe import Markup
-from flask import current_app
 from flask import Blueprint, flash, request, render_template, redirect, url_for, session
 from flask_login import current_user, logout_user
 from flask_babel import gettext, refresh as babel_refresh
@@ -98,18 +97,16 @@ def index():
         if i.url.startswith('content'):
             url = join(request.host_url,'api','show?url='+i.url)
             contributions.append([url, i.title])
+        elif i.url.startswith('comment'):
+            url = join(request.host_url,'api','show?url='+i.url)
+            comments.append([url, i.title])
         else:
             url = join(request.host_url,'api','get?url='+i.url)
             indexed_urls.append([url, i.title])
     contributions = contributions[::-1] #reverse from most recent
-    indexed_urls = indexed_urls[::-1] #reverse from most recent
-    num_contributions = len(contributions)+len(indexed_urls)
-    
-    for i in db.session.query(Urls).filter(Urls.notes.isnot(None)).all():
-        url = join(request.host_url,'api','get?url='+i.url)
-        notes = ['@'+note.replace('<br>','') for note in i.notes.split('@') if note.startswith(username)]
-        note = ' | '.join(notes)
-        comments.append([url, note])
+    comments = comments[::-1]
+    indexed_urls = indexed_urls[::-1]
+    num_contributions = len(contributions)+len(indexed_urls)+len(comments)
     return render_template("settings/index.html", username=username, email=email, num_contributions=num_contributions, \
             contributions=contributions, urls=indexed_urls, comments=comments, emailform=emailform, usernameform=usernameform)
 
@@ -136,10 +133,10 @@ def set_language():
 
 
 @settings.route('/delete', methods=['GET'])
-@check_permissions(login=True, confirmed=True, admin=True)
+@check_permissions(login=True, confirmed=True)
 def delete_url():
     username = current_user.username
-    url = request.args.get('url').split('get?url=')[1]
+    url = request.full_path.split('show?url=')[1]
     pod = db.session.query(Urls).filter_by(url=url).first().pod
     # Double check url belongs to the user
     contributor = pod.split('.u.')[1]
@@ -153,22 +150,6 @@ def delete_url():
         flash(gettext("There was a problem deleting URL ")+url+gettext(" Please contact your administrator."), "danger")
     return redirect(url_for("settings.index"))
 
-@settings.route('/delcomment', methods=['GET'])
-@check_permissions(login=True, confirmed=True)
-def delete_comment():
-    username = current_user.username
-    u = request.args.get('url').split('get?url=')[1]
-    url = db.session.query(Urls).filter_by(url=u).first()
-    notes = ['@'+note for note in url.notes.split('@') if not note.startswith(username)]
-    notes = [note for note in notes if note !='@']
-    if len(notes) > 0:
-        url.notes = '<br>'.join(notes)
-    else:
-        url.notes = None
-    db.session.commit()
-    flash(gettext("Your comments for ")+u+gettext(" were successfully deleted."), "success")
-    return redirect(url_for("settings.index"))
-
 
 @settings.route('/editcontent', methods=['GET'])
 @check_permissions(login=True, confirmed=True)
@@ -177,7 +158,7 @@ def edit_content():
     content.'''
     num_db_entries = len(Urls.query.all())
     username = current_user.username
-    u = request.args.get('url').split('show?url=')[1]
+    u = request.full_path.split('show?url=')[1]
     url = db.session.query(Urls).filter_by(url=u).first()
     # Double check url belongs to the user
     if url.contributor != username:
@@ -185,8 +166,8 @@ def edit_content():
         return redirect(url_for("settings.index"))
     pods = Pods.query.all()
     themes = list({p.name.split('.u.')[0] for p in pods})
-    content = url.content.replace('<br>', '\n')
-    form = NewContentForm(title=url.title, content=content)
+    content = Markup(url.content.replace('<br>', '\n')).unescape() #unescaping should be safe since escaping will happen again on submit
+    form = NewContentForm(title=url.title, content=content, theme=url.pod.split('.u.')[0], chosen_license=url.url_license)
     return render_template('indexer/write_and_index.html', num_entries=num_db_entries, form=form, themes=themes)
 
 
@@ -197,15 +178,16 @@ def edit_comment():
     comment.'''
     num_db_entries = len(Urls.query.all())
     username = current_user.username
-    u = request.args.get('url').split('get?url=')[1]
+    u = request.full_path.split('show?url=')[1]
     url = db.session.query(Urls).filter_by(url=u).first()
     # Double check url belongs to the user
-    if u.contributor != username:
-        flash(gettext("URL does not belong to you and cannot be edited."), 'danger')
-        return redirect(url_for("settings.index"))
+    if url.contributor != username:
+        flash(gettext("URL does not belong to you and cannot directly be edited. You can however add a note to the existing record."), 'danger')
+        return redirect(url.share_url)
     pods = Pods.query.all()
     themes = list({p.name.split('.u.')[0] for p in pods})
-    form = WebSourceForm(title=url.title, content=url.content)
+    description = Markup(url.content.replace('<br>', '\n')).unescape() #unescaping should be safe since escaping will happen again on submit
+    form = WebSourceForm(title=url.title, description=description, related_url=url.share, theme=url.pod.split('.u.')[0], chosen_license=url.url_license)
     return render_template('indexer/web_commentary.html', num_entries=num_db_entries, form=form, themes=themes)
 
 

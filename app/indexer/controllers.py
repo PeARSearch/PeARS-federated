@@ -3,30 +3,24 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 import logging
-from os import getenv
 from os.path import dirname, join, realpath
-from time import sleep
 from datetime import datetime
 import itertools
-import hashlib
 from urllib.parse import urljoin, urlparse
 import numpy as np
 from flask import current_app
 from flask import session, Blueprint, request, render_template, url_for, flash, redirect, jsonify
-from flask_login import login_required, current_user
+from flask_login import current_user
 from flask_babel import gettext
 from langdetect import detect
 from markupsafe import Markup, escape
-import app as app_module
 from app.auth.captcha import mk_captcha, check_captcha
 from app.auth.decorators import check_permissions
 from app.extensions import db
 from app.api.models import Urls, Pods, Suggestions, RejectedSuggestions, Personalization
 from app.indexer import mk_page_vector
-from app.utils import read_urls, parse_query
 from app.utils_db import create_pod_in_db, create_pod_npz_pos, create_or_replace_url_in_db, delete_url_representations, create_suggestion_in_db, check_url_exists
 from app.indexer.access import request_url
-from app.indexer.posix import posix_doc
 from app.forms import IndexerForm, WebSourceForm, NewContentForm, SuggestionForm
 
 app_dir_path = dirname(dirname(realpath(__file__)))
@@ -49,12 +43,10 @@ def index():
     form = IndexerForm(request.form)
     pods = Pods.query.all()
     themes = list(set([p.name.split('.u.')[0] for p in pods]))
-    default_screen = 'url'
     form.suggested_url.data = session.pop('index_url', '')
     form.theme.data = session.pop('index_theme', '')
     form.note.data = session.pop('index_note', '')
-    return render_template("indexer/index.html", \
-            num_entries=num_db_entries, form=form, themes=themes, default_screen=default_screen)
+    return render_template("indexer/index.html", num_entries=num_db_entries, form=form, themes=themes)
 
 
 @indexer.route("/write-and-index", methods=["GET"])
@@ -113,7 +105,6 @@ def index_from_url():
     contributor = current_user.username
     pods = Pods.query.all()
     themes = themes = list({p.name.split('.u.')[0] for p in pods})
-    default_screen = "url"
 
     form = IndexerForm(request.form)
     if form.validate_on_submit():
@@ -127,7 +118,7 @@ def index_from_url():
         if success:
             return render_template('indexer/success.html', messages=messages, share_url=share_url, url=url, theme=theme, note=note)
         return render_template('indexer/fail.html', messages=messages, url=url, theme=theme, note=note, source='url')
-    return render_template('indexer/index.html', form=form, themes=themes, default_screen=default_screen)
+    return render_template('indexer/index.html', form=form, themes=themes)
 
 @indexer.route("/commentary", methods=["POST"])
 @check_permissions(login=True, confirmed=True, admin=True)
@@ -145,13 +136,18 @@ def index_from_web_commentary():
         theme = request.form.get('theme').strip()
         content = escape(request.form.get('description').strip())
         chosen_license = request.form.get('chosen_license').strip()
-        url = request.form.get('related_url').strip()
+        share_url = request.form.get('related_url').strip()
+        url = 'comment-'+title.lower().replace(' ','-')
+        c = 2
+        while check_url_exists(url):
+            url+=f"-{c}"
+            c+=1
         logger.debug("Manual URL: %s", url)
         lang = detect(content)
         # Hack if language of contribution is not recognized
         if lang not in current_app.config['LANGS']:
             lang = current_app.config['LANGS'][0]
-        success, messages, snippet, share_url = run_indexer_manual(url, title, theme, lang, content, contributor, chosen_license, request.host_url)
+        success, messages, snippet = run_indexer_manual(url, title, theme, lang, share_url, content, contributor, chosen_license, request.host_url)
         if success:
             return render_template('indexer/success.html', messages=messages, share_url=share_url, theme=theme, note=snippet)
         return render_template('indexer/fail.html', messages=messages, title=title, description=snippet, url=url, source='manual')
@@ -183,7 +179,8 @@ def index_from_new_content():
         while check_url_exists(url):
             url+=f"-{c}"
             c+=1
-        success, messages, snippet, share_url = run_indexer_manual(url, title, theme, lang, content, contributor, chosen_license, request.host_url)
+        share_url = join(request.host_url, 'api', 'show?url='+url)
+        success, messages, snippet = run_indexer_manual(url, title, theme, lang, share_url, content, contributor, chosen_license, request.host_url)
         if success:
             return render_template('indexer/success.html', messages=messages, share_url=share_url,  theme=theme, note=snippet)
         return render_template('indexer/fail.html', messages = messages)
@@ -434,7 +431,7 @@ def run_indexer_url(url, theme, notes, contributor, host_url):
         messages.extend(request_errors)
     return indexed, messages, share_url
 
-def run_indexer_manual(url, title, theme, lang, usercontent, contributor, chosen_license, host_url):
+def run_indexer_manual(url, title, theme, lang, share_url, usercontent, contributor, chosen_license, host_url):
     """ Run the indexer over manually contributed information.
     
     Arguments: a url (internal and bogus, constructed by 'index_from_manual'),
@@ -446,7 +443,6 @@ def run_indexer_manual(url, title, theme, lang, usercontent, contributor, chosen
     indexed = False
     doctype = 'content'
     snippet = ''
-    share_url = ''
     notes = None
     img = None
     indexed = False
@@ -454,7 +450,6 @@ def run_indexer_manual(url, title, theme, lang, usercontent, contributor, chosen
     create_pod_npz_pos(contributor, theme, lang)
     success, _, snippet, idv = mk_page_vector.compute_vector_local_docs(\
             title, usercontent, theme, lang, contributor)
-    share_url = join(host_url,'api', 'show?url='+url)
     if success:
         create_pod_in_db(contributor, theme, lang)
         #posix_doc(text, idx, contributor, lang, theme)
@@ -467,7 +462,7 @@ def run_indexer_manual(url, title, theme, lang, usercontent, contributor, chosen
         messages.append(gettext("There was a problem indexing your entry. Please check the submitted data."))
         messages.append(gettext("Your entry:"), usercontent)
         indexed = False
-    return indexed, messages, snippet, share_url
+    return indexed, messages, snippet
 
 
 def index_doc_from_cli(title, doc, theme, lang, contributor, url, notes, host_url):

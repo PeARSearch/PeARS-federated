@@ -80,9 +80,7 @@ def prepare_gui_results(query, results):
         # display version of URL: should be clickable
         # (for pearslocal URLs: "/api/get?url=pearslocal..."; for other URLs: identical to the actual URL)
         # r["url"] keeps the original version of the URL as stored in the DB
-        if url.startswith('pearslocal'):
-            r["display_url"] = url_for('api.return_specific_url')+'?url='+url
-        elif url.startswith('content'):
+        if url.startswith('content') or url.startswith('comment'):
             r["display_url"] = url_for('api.display_content')+'?url='+url
         else:
             r["display_url"] = url
@@ -101,8 +99,8 @@ def prepare_gui_results(query, results):
             r['pod_display'] = r.get('pod', '')
         # Share URL: for regular URLs, share the actual URL directly.
         # For pearslocal URLs, share the full absolute /api/get link.
-        if url.startswith('pearslocal'):
-            r['share'] = url_for('api.return_specific_url', url=url, _external=True)
+        if url.startswith('content') or url.startswith('comment'):
+            r['share'] = url_for('api.display_content', url=url, _external=True)
         else:
             r['share'] = url
         logger.debug("Result URL: %s", url)
