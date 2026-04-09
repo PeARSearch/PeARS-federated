@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 def pdf_mine(pdf_path, max_pages = 12):
     body = ""
     title = ""
-    parse = pdfparser.PDFParser(open(pdf_path,'rb', encoding='utf-8'))
+    parse = pdfparser.PDFParser(open(pdf_path,'rb'))
     metadata = pdfdocument.PDFDocument(parse).info
     title = metadata[0]['Title'].decode(encoding='utf-8', errors='ignore').replace('\x00', '')
     #authors = metadata[0]['Author'].decode(encoding='utf-8', errors='ignore').replace('\x00', '')
