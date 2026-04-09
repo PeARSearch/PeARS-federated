@@ -470,7 +470,7 @@ def run_indexer_manual(url, title, theme, lang, share_url, usercontent, contribu
         indexed = True
     else:
         messages.append(gettext("There was a problem indexing your entry. Please check the submitted data."))
-        messages.append(gettext("Your entry:"), usercontent)
+        messages.append(gettext("Your entry:") + " " + str(usercontent))
         indexed = False
     return indexed, messages, snippet
 
