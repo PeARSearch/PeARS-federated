@@ -130,6 +130,7 @@ def index_from_web_commentary():
     contributor = current_user.username
     pods = Pods.query.all()
     themes = list({p.name.split('.u.')[0] for p in pods})
+    edit = False
 
     form = WebSourceForm(request.form)
     if form.validate_on_submit():
@@ -138,7 +139,7 @@ def index_from_web_commentary():
         content = escape(request.form.get('description').strip())
         chosen_license = request.form.get('chosen_license').strip()
         share_url = request.form.get('related_url').strip()
-        if "editcomment?" in request.referrer:
+        if request.referrer and "editcomment?" in request.referrer:
             edit = True
             url = request.referrer.split("show?url=")[1]
         else:
@@ -180,7 +181,7 @@ def index_from_new_content():
         # Hack if language of contribution is not recognized
         if lang not in current_app.config['LANGS']:
             lang = current_app.config['LANGS'][0]
-        if "editcontent?" in request.referrer:
+        if request.referrer and "editcontent?" in request.referrer:
             edit = True
             url = request.referrer.split("show?url=")[1]
         else:
