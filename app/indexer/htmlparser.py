@@ -106,6 +106,7 @@ def process_page_title(bs_obj, snippet_length):
 
 
 def process_body_string(req, bs_obj, title):
+    body_str = ""
     og_description = bs_obj.find("meta", property="og:description")
     logger.info("OG desc: %s", og_description)
     tmp_body_str = naive_text_extract(bs_obj)
