@@ -90,7 +90,7 @@ SPDX-License-Identifier: AGPL-3.0-only
             <ul id="lang-menu" class="lang-menu hidden" role="menu">
               {% for code, name in available_languages.items() %}
               <li role="menuitem">
-                <a href="{{url_for('settings.set_language', lang=code, current_page=request.path)}}"
+                <a href="{{url_for('settings.set_language', lang=code, current_page=request.full_path)}}"
                    {% if code == current_locale %}aria-current="true" class="active"{% endif %}>
                   {{ name }}
                 </a>
