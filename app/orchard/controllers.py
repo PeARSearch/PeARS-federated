@@ -16,7 +16,7 @@ from app.orchard.mk_urls_file import get_url_list_for_users
 from app.auth.decorators import check_permissions
 from app.auth.token import send_email
 from app.auth.captcha import mk_captcha, check_captcha
-from app.forms import ReportingForm, WebSourceForm, FeedbackForm
+from app.forms import ReportingForm, AnnotationForm, FeedbackForm
 
 dir_path = dirname(dirname(realpath(__file__)))
 logger = logging.getLogger(__name__)
@@ -130,11 +130,25 @@ def feedback():
 
 
 
-@orchard.route("/annotate", methods=['GET'])
+@orchard.route("/annotate", methods=['GET','POST'])
 @check_permissions(login=True, confirmed=True)
 def annotate():
-    url=request.full_path.split('annotate?url=')[1]
-    form = WebSourceForm(related_url=url)
-    pods = db.session.query(Pods).all()
-    themes = [p.name.split('.u.')[0] for p in pods]
-    return render_template('indexer/web_commentary.html', form=form, themes=themes)
+    username = current_user.username
+    form = AnnotationForm()
+    if request.method == 'GET':
+        form.url.data=request.args.get('url')
+    if form.validate_on_submit():
+        url = request.form.get('url')
+        note = request.form.get('note')
+        logger.debug("%s %s", url, note)
+        u = db.session.query(Urls).filter_by(url=url).first()
+        note = '@'+username+' >> '+note
+        if u.notes is not None:
+            u.notes = u.notes+'<br>'+note
+        else:
+            u.notes = note
+        db.session.add(u)
+        db.session.commit()
+        flash(gettext("Your note has been saved. Thank you!"), "success")
+        return redirect(request.referrer or url_for('search.index'))
+    return render_template('orchard/annotate.html', form=form)

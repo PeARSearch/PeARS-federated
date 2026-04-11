@@ -79,7 +79,7 @@ def create_suggestion_in_db(url, pod, notes, contributor):
     db.session.add(s)
     db.session.commit()
 
-def create_or_replace_url_in_db(url, title, snippet, doctype, idv, theme, notes, content, \
+def create_or_replace_url_in_db(url, title, snippet, doctype, idv, theme, note, content, \
         img, share, contributor, url_license=None, allows_reproduction=None, licensing_notes=None):
     """Add a new URL to the database or update it.
     """
@@ -104,6 +104,12 @@ def create_or_replace_url_in_db(url, title, snippet, doctype, idv, theme, notes,
     else:
         u.allows_reproduction = False
     u.licensing_notes = licensing_notes
+    if note != '':
+        note = '@'+contributor+' >> '+note
+        if u.notes is not None:
+            u.notes = u.notes+'<br>'+note
+        else:
+            u.notes = note
     db.session.add(u)
     db.session.commit()
     return u.id

@@ -90,8 +90,9 @@ def index():
     emailform = EmailChangeForm()
     usernameform = UsernameChangeForm()
     contributions = []
-    indexed_urls = []
     comments = []
+    indexed_urls = []
+    short_notes = []
 
     for i in db.session.query(Urls).filter_by(contributor=username).all():
         if i.url.startswith('content'):
@@ -107,8 +108,13 @@ def index():
     comments = comments[::-1]
     indexed_urls = indexed_urls[::-1]
     num_contributions = len(contributions)+len(indexed_urls)+len(comments)
+    for i in db.session.query(Urls).filter(Urls.notes.isnot(None)).all():
+        url = join(request.host_url,'api','get?url='+i.url)
+        notes = ['@'+note.replace('<br>','') for note in i.notes.split('@') if note.startswith(username)]
+        note = ' | '.join(notes)
+        short_notes.append([url, note])
     return render_template("settings/index.html", username=username, email=email, num_contributions=num_contributions, \
-            contributions=contributions, urls=indexed_urls, comments=comments, emailform=emailform, usernameform=usernameform)
+            contributions=contributions, urls=indexed_urls, comments=comments, notes=short_notes, emailform=emailform, usernameform=usernameform)
 
 
 @settings.route("/toggle-theme")
@@ -189,6 +195,23 @@ def edit_comment():
     description = Markup(url.content.replace('<br>', '\n')).unescape() #unescaping should be safe since escaping will happen again on submit
     form = WebSourceForm(title=url.title, description=description, related_url=url.share, theme=url.pod.split('.u.')[0], chosen_license=url.url_license)
     return render_template('indexer/web_commentary.html', num_entries=num_db_entries, form=form, themes=themes)
+
+
+@settings.route('/deletenotes', methods=['GET'])
+@check_permissions(login=True, confirmed=True)
+def delete_notes():
+    username = current_user.username
+    u = request.args.get('url').split('get?url=')[1]
+    url = db.session.query(Urls).filter_by(url=u).first()
+    notes = ['@'+note for note in url.notes.split('@') if not note.startswith(username)]
+    notes = [note for note in notes if note !='@']
+    if len(notes) > 0:
+        url.notes = '<br>'.join(notes)
+    else:
+        url.notes = None
+    db.session.commit()
+    flash(gettext("Your notes for ")+u+gettext(" were successfully deleted."), "success")
+    return redirect(url_for("settings.index"))
 
 
 def rename_user_files(username, new_user):

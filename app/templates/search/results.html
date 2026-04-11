@@ -105,8 +105,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 	  {% if result['display_url'].startswith('http') %}
           <a href="{{url_for('orchard.annotate')}}?url={{result['url']}}"
              class="result-action-btn"
-             data-tooltip="{{gettext('Add a comment')}}"
-             aria-label="{{gettext('Add a comment to this entry')}}">
+             data-tooltip="{{gettext('Add a note')}}"
+             aria-label="{{gettext('Add a note to this entry')}}">
             <img src="{{ url_for('static', filename='chatbubble-outline.svg')}}" class="icon" alt="">
           </a>
           {% endif %}
@@ -129,7 +129,7 @@ SPDX-License-Identifier: AGPL-3.0-only
           <button type="button" class="result-action-btn"
                   aria-expanded="false"
                   aria-controls="notes{{result['id']}}"
-                  aria-label="{{gettext('Show comments')}}"
+                  aria-label="{{gettext('Show notes')}}"
                   onclick="toggleNotes(this, 'notes{{result['id']}}')">
             <img src="{{ url_for('static', filename='chatbubble-ellipses-outline.svg')}}" class="icon" alt="">
           </button>
