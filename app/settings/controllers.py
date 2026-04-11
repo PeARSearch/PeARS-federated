@@ -3,9 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 
-# Import flask dependencies
 import logging
-logger = logging.getLogger(__name__)
 from glob import glob
 from os import rename, getenv
 from os.path import dirname, realpath, join, isdir, exists
@@ -13,12 +11,11 @@ from markupsafe import Markup
 from flask import Blueprint, flash, request, render_template, redirect, url_for, session
 from flask_login import current_user, logout_user
 from flask_babel import gettext, refresh as babel_refresh
-from flask import current_app
 import app as app_module
 from app.extensions import db
 from app.search.cross_instance_search import filter_instances_by_language
-from app.api.models import Urls, User
-from app.forms import EmailChangeForm, UsernameChangeForm
+from app.api.models import Urls, Pods, User
+from app.forms import EmailChangeForm, UsernameChangeForm, NewContentForm, WebSourceForm
 from app.utils_db import delete_url_representations
 from app.auth.decorators import check_permissions
 from app.auth.token import send_email
@@ -29,24 +26,27 @@ settings = Blueprint('settings', __name__, url_prefix='/settings')
 
 dir_path = dirname(dirname(realpath(__file__)))
 app_dir_path = dirname(dir_path)
-maintenance_mode_file = getenv("MAINTENANCE_MODE_FILE", join(app_dir_path, '.maintenance_mode')) 
+maintenance_mode_file = getenv("MAINTENANCE_MODE_FILE", join(app_dir_path, '.maintenance_mode'))
 pod_dir = getenv("PODS_DIR", join(dir_path,'pods'))
+logger = logging.getLogger(__name__)
 
 
 def get_maintance_mode():
     if not exists(maintenance_mode_file):
         return False
-    with open(maintenance_mode_file) as f:
+    with open(maintenance_mode_file, 'r', encoding='utf-8') as f:
         maintenance_setting = f.read().strip()
         assert maintenance_setting in ["TRUE", "FALSE"], "Maintenance setting file got corrupted, please change the file content manually back to 'TRUE' or 'FALSE'!"
         return maintenance_setting == "TRUE"
 
+
 def set_maintenance_mode(mode):
-    with open(maintenance_mode_file, "w") as f:
+    with open(maintenance_mode_file, 'w', encoding='utf-8') as f:
         if mode:
             f.write("TRUE")
         else:
             f.write("FALSE")
+
 
 # Abusing this controller to set maintenance mode
 @settings.route("/maintenance")
@@ -61,6 +61,7 @@ def toggle_maintenance_mode():
         logger.info("Switching off maintenance")
         set_maintenance_mode(False)
     return redirect(url_for("search.index"))
+
 
 @settings.route("refresh_remotes")
 @check_permissions(login=True, confirmed=True, admin=True)
@@ -81,8 +82,6 @@ def refresh_remote_instances():
     return redirect(url_for("search.index"))
 
 
-
-# Set the route and accepted methods
 @settings.route("/")
 @check_permissions(login=True)
 def index():
@@ -91,25 +90,31 @@ def index():
     emailform = EmailChangeForm()
     usernameform = UsernameChangeForm()
     contributions = []
-    tips = []
     comments = []
+    indexed_urls = []
+    short_notes = []
 
     for i in db.session.query(Urls).filter_by(contributor=username).all():
-        url = join(request.host_url,'api','get?url='+i.url)
-        if i.pod.split('.u.')[0] == 'Tips':
-            tips.append([url, i.title])
-        else:
+        if i.url.startswith('content'):
+            url = join(request.host_url,'api','show?url='+i.url)
             contributions.append([url, i.title])
+        elif i.url.startswith('comment'):
+            url = join(request.host_url,'api','show?url='+i.url)
+            comments.append([url, i.title])
+        else:
+            url = join(request.host_url,'api','get?url='+i.url)
+            indexed_urls.append([url, i.title])
     contributions = contributions[::-1] #reverse from most recent
-    tips = tips[::-1] #reverse from most recent
-    num_contributions = len(contributions)+len(tips)
-    
+    comments = comments[::-1]
+    indexed_urls = indexed_urls[::-1]
+    num_contributions = len(contributions)+len(indexed_urls)+len(comments)
     for i in db.session.query(Urls).filter(Urls.notes.isnot(None)).all():
         url = join(request.host_url,'api','get?url='+i.url)
         notes = ['@'+note.replace('<br>','') for note in i.notes.split('@') if note.startswith(username)]
         note = ' | '.join(notes)
-        comments.append([url, note])
-    return render_template("settings/index.html", username=username, email=email, num_contributions=num_contributions, contributions=contributions, tips=tips, comments=comments, emailform=emailform, usernameform = usernameform)
+        short_notes.append([url, note])
+    return render_template("settings/index.html", username=username, email=email, num_contributions=num_contributions, \
+            contributions=contributions, urls=indexed_urls, comments=comments, notes=short_notes, emailform=emailform, usernameform=usernameform)
 
 
 @settings.route("/toggle-theme")
@@ -134,10 +139,10 @@ def set_language():
 
 
 @settings.route('/delete', methods=['GET'])
-@check_permissions(login=True, confirmed=True, admin=True)
+@check_permissions(login=True, confirmed=True)
 def delete_url():
     username = current_user.username
-    url = request.args.get('url').split('get?url=')[1]
+    url = request.full_path.split('show?url=')[1]
     pod = db.session.query(Urls).filter_by(url=url).first().pod
     # Double check url belongs to the user
     contributor = pod.split('.u.')[1]
@@ -151,9 +156,50 @@ def delete_url():
         flash(gettext("There was a problem deleting URL ")+url+gettext(" Please contact your administrator."), "danger")
     return redirect(url_for("settings.index"))
 
-@settings.route('/delcomment', methods=['GET'])
+
+@settings.route('/editcontent', methods=['GET'])
 @check_permissions(login=True, confirmed=True)
-def delete_comment():
+def edit_content():
+    '''Open edit page so that user can change their
+    content.'''
+    num_db_entries = len(Urls.query.all())
+    username = current_user.username
+    u = request.full_path.split('show?url=')[1]
+    url = db.session.query(Urls).filter_by(url=u).first()
+    # Double check url belongs to the user
+    if url.contributor != username:
+        flash(gettext("URL does not belong to you and cannot be edited."), 'danger')
+        return redirect(url_for("settings.index"))
+    pods = Pods.query.all()
+    themes = list({p.name.split('.u.')[0] for p in pods})
+    content = Markup(url.content.replace('<br>', '\n')).unescape() #unescaping should be safe since escaping will happen again on submit
+    form = NewContentForm(title=url.title, content=content, theme=url.pod.split('.u.')[0], chosen_license=url.url_license)
+    return render_template('indexer/write_and_index.html', num_entries=num_db_entries, form=form, themes=themes)
+
+
+@settings.route('/editcomment', methods=['GET'])
+@check_permissions(login=True, confirmed=True)
+def edit_comment():
+    '''Open edit page so that user can change their
+    comment.'''
+    num_db_entries = len(Urls.query.all())
+    username = current_user.username
+    u = request.full_path.split('show?url=')[1]
+    url = db.session.query(Urls).filter_by(url=u).first()
+    # Double check url belongs to the user
+    if url.contributor != username:
+        flash(gettext("URL does not belong to you and cannot directly be edited. You can however add a note to the existing record."), 'danger')
+        return redirect(url.share_url)
+    pods = Pods.query.all()
+    themes = list({p.name.split('.u.')[0] for p in pods})
+    description = Markup(url.content.replace('<br>', '\n')).unescape() #unescaping should be safe since escaping will happen again on submit
+    form = WebSourceForm(title=url.title, description=description, related_url=url.share, theme=url.pod.split('.u.')[0], chosen_license=url.url_license)
+    return render_template('indexer/web_commentary.html', num_entries=num_db_entries, form=form, themes=themes)
+
+
+@settings.route('/deletenotes', methods=['GET'])
+@check_permissions(login=True, confirmed=True)
+def delete_notes():
     username = current_user.username
     u = request.args.get('url').split('get?url=')[1]
     url = db.session.query(Urls).filter_by(url=u).first()
@@ -164,7 +210,7 @@ def delete_comment():
     else:
         url.notes = None
     db.session.commit()
-    flash(gettext("Your comments for ")+u+gettext(" were successfully deleted."), "success")
+    flash(gettext("Your notes for ")+u+gettext(" were successfully deleted."), "success")
     return redirect(url_for("settings.index"))
 
 

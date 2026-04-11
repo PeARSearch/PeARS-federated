@@ -20,8 +20,8 @@ def get_url_list_for_users(theme):
     for entry in Urls.query.filter(Urls.pod.contains(theme+'.u.')).all():
         if not entry.pod.startswith(theme+'.u.'):
             continue
-        if entry.url.startswith('pearslocal'):
-            display_url = join(request.host_url,'api','get?url='+entry.url)
+        if entry.url.startswith('content') or entry.url.startswith('comment'):
+            display_url = join(request.host_url, 'api', 'show?url='+entry.url)
             snippet = entry.snippet
         else:
             display_url = entry.url

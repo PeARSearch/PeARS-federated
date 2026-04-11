@@ -26,6 +26,18 @@ SPDX-License-Identifier: AGPL-3.0-only
 </label>
 {% endmacro %}
 
+{% macro render_select_field(field, readonly=False) %}
+<label>
+  {{ field.label.text }}
+  {{ field(readonly=readonly) }}
+  {% if field.errors %}
+    {% for error in field.errors %}
+      <small data-variant="error">{{ error }}</small>
+    {% endfor %}
+  {% endif %}
+</label>
+{% endmacro %}
+
 {% macro render_captcha_field(field, captcha_id) %}
 <div class="captcha-section">
   {% set explain_image = gettext("To verify that you are a human being, we ask you to write down the sequence of numbers that you see in the image below. If the sequence is too hard, click the refresh button to get a new one, or click on the ear icon to get a new sequence as an audio file.") %}

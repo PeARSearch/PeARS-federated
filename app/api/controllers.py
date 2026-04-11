@@ -2,23 +2,21 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-import joblib
 import json
+from os import getenv
+from os.path import dirname, join, realpath
 import numpy as np
-from os import remove, getenv
-from os.path import dirname, join, realpath, isfile
-from flask import Blueprint, jsonify, request, render_template, url_for
-from scipy.sparse import vstack, save_npz, load_npz
-from app.forms import SearchForm
-from app.api.models import Urls, Pods
-from app.auth.decorators import check_permissions, check_is_confirmed
 from flask import current_app
+from flask import Blueprint, jsonify, request, render_template, url_for
+from scipy.sparse import save_npz
+from app.forms import SearchForm
+from app.api.models import Urls
+from app.auth.decorators import check_permissions
 from app.extensions import db
-from app.indexer.posix import load_posix, dump_posix
 from app.indexer.vectorizer import scale
 from app.search.controllers import get_local_search_results, prepare_gui_results
 from app.search.score_pages import mk_podsum_matrix
-from app.utils_db import delete_pod_representations, create_suggestion_in_db
+from app.utils import beautify_pears_content
 
 # Define the blueprint:
 api = Blueprint('api', __name__, url_prefix='/api')
@@ -63,15 +61,26 @@ def return_query_results():
 def return_urls():
     return jsonify(json_list=[i.serialize for i in Urls.query.all()])
 
+
 @api.route('/get', methods=["GET"])
 def return_specific_url():
     internal_message = ""
-    u = request.args.get('url')
+    u = request.full_path.split('api/get?url=')[1]
     url = db.session.query(Urls).filter_by(url=u).first().as_dict()
     url["instance"] = current_app.config["SITENAME"]
-    if u.startswith('pearslocal'):
-        u = url_for('api.return_specific_url')+'?url='+u
+    if u.startswith('content') or u.startswith('comment'):
+        u = url_for('api.display_content')+'?url='+u
         url['url'] = u
     displayresults = prepare_gui_results("",{u:url})
     return render_template('search/results.html', query="", results=displayresults, \
             internal_message=internal_message, searchform=SearchForm())
+
+
+@api.route('/show', methods=["GET"])
+def display_content():
+    u = request.full_path.split('api/show?url=')[1]
+    url = db.session.query(Urls).filter_by(url=u).first()
+    content = beautify_pears_content(url.content)
+    comment = True if u.startswith('comment') else False
+    return render_template('search/display.html', title=url.title, contributor=url.contributor, \
+            date=url.date_created, share_url=url.share, content=content, comment=comment)

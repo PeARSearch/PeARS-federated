@@ -27,6 +27,9 @@ def parse_pod_name(pod_name):
     lang = Pods.query.filter_by(name=pod_name).first().language
     return contributor, theme, lang
 
+def check_url_exists(url):
+    u = db.session.query(Urls).filter_by(url=url).all()
+    return bool(len(u) > 0)
 
 ###########
 # Creating
@@ -76,26 +79,31 @@ def create_suggestion_in_db(url, pod, notes, contributor):
     db.session.add(s)
     db.session.commit()
 
-def create_or_replace_url_in_db(url, title, idv, snippet, theme, lang, note, share, contributor, entry_type):
+def create_or_replace_url_in_db(url, title, snippet, doctype, idv, theme, note, content, \
+        img, share, contributor, url_license=None, allows_reproduction=None, licensing_notes=None):
     """Add a new URL to the database or update it.
-    Arguments: url, title, snippet, theme, language,
-    note warning, username, type (url or doc).
     """
-    cc = False
     entry = db.session.query(Urls).filter_by(url=url).first()
     if entry:
         u = db.session.query(Urls).filter_by(url=url).first()
     else:
         u = Urls(url=url)
     u.title = title
-    u.vector = idv
     u.snippet = snippet
+    u.doctype = doctype
+    u.vector = idv
     u.pod = theme+'.u.'+contributor
-    u.language = lang
+    u.content = content
+    u.img = img
     u.share = share
     u.contributor = contributor
-    u.doctype = entry_type
-    u.cc = cc
+    u.url_license = url_license
+    u.allows_reproduction = allows_reproduction
+    if url_license in ["CC-BY", "CC-BY-NC"]:
+        u.allows_reproduction = True
+    else:
+        u.allows_reproduction = False
+    u.licensing_notes = licensing_notes
     if note != '':
         note = '@'+contributor+' >> '+note
         if u.notes is not None:

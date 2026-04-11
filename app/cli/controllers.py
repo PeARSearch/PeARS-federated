@@ -471,6 +471,12 @@ def check_pos_vs_npz_to_idx(pod, username, language):
 @pears.cli.command('rebuildfromdb')
 @click.argument('basedir')
 def rebuild_from_db(basedir):
+    '''
+    Rebuild from a backup directory containing current DB and pods.
+    Run flask pears backup <path-to-backup-directory> to do a backup 
+    before rebuilding. You will also need to delete the current 
+    database (at your own risks!!!)
+    '''
     from app.cli.rebuild import rebuild_pods_and_urls, rebuild_users, rebuild_personalization
     rebuild_pods_and_urls(pod_dir, basedir)
     rebuild_users(basedir)

@@ -1,0 +1,22 @@
+<!--
+	SPDX-FileCopyrightText: 2026 PeARS Project, <community@pearsproject.org>, 
+
+	SPDX-License-Identifier: AGPL-3.0-only
+-->
+
+{% extends "base/base.html" %}
+{% block body %}
+<div class="container">
+
+	<div class="row h-100 justify-content-center align-items-center">
+		<div class="col-8">
+			<h1>{{title}}</h1>
+			{% if comment %} 
+			<p>{{gettext('A commentary on ')}}<a href={{share_url}}>{{share_url}}</a></p>
+			{% endif %}
+			<p><i>{{contributor}}, {{date}}</i></p>
+			{{content|safe}}
+		</div>
+	</div> <!-- /row -->
+</div> <!-- /container full -->
+{% endblock %}
