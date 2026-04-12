@@ -7,7 +7,7 @@ from os import getenv
 from os.path import dirname, join, realpath
 import numpy as np
 from flask import current_app
-from flask import Blueprint, jsonify, request, render_template, url_for
+from flask import Blueprint, jsonify, request, render_template, url_for, abort
 from scipy.sparse import save_npz
 from app.forms import SearchForm
 from app.api.models import Urls
@@ -65,8 +65,11 @@ def return_urls():
 @api.route('/get', methods=["GET"])
 def return_specific_url():
     internal_message = ""
-    u = request.full_path.split('api/get?url=')[1]
-    url = db.session.query(Urls).filter_by(url=u).first().as_dict()
+    u = request.args.get('url')
+    entry = db.session.query(Urls).filter_by(url=u).first()
+    if not u or not entry:
+        abort(404)
+    url = entry.as_dict()
     url["instance"] = current_app.config["SITENAME"]
     if u.startswith('content') or u.startswith('comment'):
         u = url_for('api.display_content')+'?url='+u
@@ -78,8 +81,10 @@ def return_specific_url():
 
 @api.route('/show', methods=["GET"])
 def display_content():
-    u = request.full_path.split('api/show?url=')[1]
+    u = request.args.get('url')
     url = db.session.query(Urls).filter_by(url=u).first()
+    if not u or not url or not url.content:
+        abort(404)
     content = beautify_pears_content(url.content)
     comment = True if u.startswith('comment') else False
     return render_template('search/display.html', title=url.title, contributor=url.contributor, \
