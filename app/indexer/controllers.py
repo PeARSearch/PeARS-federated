@@ -330,7 +330,7 @@ def reject_suggestion_ajax():
     rs_ids = []
     for s in matching_suggestions:
         rs = RejectedSuggestions(url=url, pod=s.pod, notes=s.notes, contributor=s.contributor, rejection_reason=reason)
-        rs_ids.append(rs_ids)
+        rs_ids.append(rs.id)
         db.session.add(rs)
 
         # remove original suggestion from DB
