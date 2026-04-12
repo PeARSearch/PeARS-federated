@@ -2,15 +2,11 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
+RUN apt-get update && apt-get install -y --no-install-recommends poppler-utils && rm -rf /var/lib/apt/lists/*
+
 COPY requirements.txt /tmp/
-RUN pip install --requirement /tmp/requirements.txt
+RUN pip install --no-cache-dir --requirement /tmp/requirements.txt gunicorn
 
-RUN apt update && apt install -y poppler-utils
-
-# Additionally, install Gunicorn
-RUN pip install gunicorn
-
-# Make port 8000 available to the world outside this container
 EXPOSE 8000
 
 ENV SQLALCHEMY_DATABASE_URI="sqlite:////var/lib/pears/data/app.db"
@@ -27,5 +23,4 @@ COPY . /app
 RUN chmod +x /app/deployment/entrypoint.sh
 RUN chmod +x /app/deployment/install-lang.py
 
-# Set the entrypoint script to be executed
 ENTRYPOINT ["/app/deployment/entrypoint.sh"]
