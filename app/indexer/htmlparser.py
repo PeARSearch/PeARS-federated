@@ -39,7 +39,8 @@ def BS_parse(url):
         req = requests.head(url, timeout=30, headers=headers)
     except Exception:
         logger.error("BS_parse: request.head failed trying to access %s", url)
-    if "text/html" not in req.headers["content-type"]:
+        return bs_obj, req
+    if "text/html" not in req.headers.get("content-type", ""):
         logger.error("BS_parse: Not a HTML document...")
         return bs_obj, req
     try:
@@ -154,7 +155,7 @@ def extract_html(url):
             except Exception:
                 title = ""
                 error = "extract_html: Couldn't detect page language."
-                return title, body_str, snippet, cc, error
+                return title, body_str, language, snippet, cc, error
             if language not in current_app.config['LANGS']:
                 logger.error("extract_html: language %s is not supported. Moving to default language.", language)
                 language = current_app.config['LANGS'][0]
