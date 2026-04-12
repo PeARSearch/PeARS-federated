@@ -166,6 +166,7 @@ def get_search_results(query):
     results = {}
     scores = []
     query, _, lang = parse_query(query.lower())
+    clean_query  = ""
     if lang is None:
         languages = current_app.config['LANGS']
     else:
