@@ -5,6 +5,7 @@
 from os.path import dirname, realpath, join
 from os import getenv
 from flask import request
+from werkzeug.utils import secure_filename
 from app.api.models import Urls
 from flask import current_app
 
@@ -14,7 +15,7 @@ pod_dir = getenv("PODS_DIR", join(dir_path, 'pods'))
 
 def get_url_list_for_users(theme):
     urls = []
-    url_theme = theme.replace(' ', '_')
+    url_theme = secure_filename(theme.replace(' ', '_'))
     hfile = join(pod_dir, url_theme + ".pears.txt")
     f_out = open(hfile,'w', encoding='utf-8')
     for entry in Urls.query.filter(Urls.pod.contains(theme+'.u.')).all():
