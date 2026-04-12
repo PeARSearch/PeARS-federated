@@ -142,7 +142,11 @@ def set_language():
 @check_permissions(login=True, confirmed=True)
 def delete_url():
     username = current_user.username
-    url = request.full_path.split('show?url=')[1]
+    full_path = request.full_path
+    if 'show?url=' in full_path:
+        url = full_path.split('show?url=')[1]
+    else:
+        url = full_path.split('get?url=')[1]
     pod = db.session.query(Urls).filter_by(url=url).first().pod
     # Double check url belongs to the user
     contributor = pod.split('.u.')[1]
@@ -189,7 +193,7 @@ def edit_comment():
     # Double check url belongs to the user
     if url.contributor != username:
         flash(gettext("URL does not belong to you and cannot directly be edited. You can however add a note to the existing record."), 'danger')
-        return redirect(url.share_url)
+        return redirect(url.share)
     pods = Pods.query.all()
     themes = list({p.name.split('.u.')[0] for p in pods})
     description = Markup(url.content.replace('<br>', '\n')).unescape() #unescaping should be safe since escaping will happen again on submit
@@ -233,11 +237,9 @@ def rename_user_files(username, new_user):
 
 
 def rename_notes(username, new_user):
-    notes = ""
     for url in db.session.query(Urls).filter(Urls.notes.isnot(None)).all():
         if '@'+username+' >>' in url.notes:
-            notes = url.notes.replace(username+' >>', new_user+' >>')
-        url.notes = notes
+            url.notes = url.notes.replace(username+' >>', new_user+' >>')
     db.session.commit()
 
 

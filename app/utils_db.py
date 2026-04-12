@@ -104,7 +104,7 @@ def create_or_replace_url_in_db(url, title, snippet, doctype, idv, theme, note, 
     else:
         u.allows_reproduction = False
     u.licensing_notes = licensing_notes
-    if note != '':
+    if note:
         note = '@'+contributor+' >> '+note
         if u.notes is not None:
             u.notes = u.notes+'<br>'+note
