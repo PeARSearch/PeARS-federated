@@ -21,6 +21,7 @@ from app.api.models import Urls, Pods, Suggestions, RejectedSuggestions, Persona
 from app.indexer import mk_page_vector
 from app.utils_db import create_pod_in_db, create_pod_npz_pos, create_or_replace_url_in_db, delete_url_representations, create_suggestion_in_db, check_url_exists
 from app.indexer.access import request_url
+from app.utils import make_slug
 from app.forms import IndexerForm, WebSourceForm, NewContentForm, SuggestionForm
 
 app_dir_path = dirname(dirname(realpath(__file__)))
@@ -143,7 +144,7 @@ def index_from_web_commentary():
             edit = True
             url = request.referrer.split("show?url=")[1]
         else:
-            url = f"comment-{contributor}-{title.lower().replace(' ','-')[:40]}"
+            url = f"comment-{contributor}-{make_slug(title)}"
         c = 2
         while check_url_exists(url) and not edit:
             url+=f"-{c}"
@@ -185,7 +186,7 @@ def index_from_new_content():
             edit = True
             url = request.referrer.split("show?url=")[1]
         else:
-            url = f"content-{contributor}-{title.lower().replace(' ','-')[:40]}"
+            url = f"content-{contributor}-{make_slug(title)}"
         c = 2
         while check_url_exists(url) and not edit:
             url+=f"-{c}"

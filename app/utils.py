@@ -249,6 +249,15 @@ def beautify_snippet(snippet, query):
     tmp_snippet = tmp_snippet[:-len(tag)]
     return tmp_snippet
 
+def make_slug(text, max_length=40):
+    """Convert text to a URL-safe slug (lowercase, alphanumeric and hyphens only)."""
+    import unicodedata
+    text = unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('ascii')
+    text = re.sub(r'[^\w\s-]', '', text.lower())
+    text = re.sub(r'[-\s]+', '-', text).strip('-')
+    return text[:max_length].rstrip('-')
+
+
 def beautify_pears_content(content):
     '''Beautify pears-created content, in particular
     by converting basic markdown into html.
