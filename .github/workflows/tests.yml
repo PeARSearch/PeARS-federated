@@ -1,0 +1,33 @@
+# SPDX-FileCopyrightText: 2026 PeARS Project, <community@pearsproject.org>
+#
+# SPDX-License-Identifier: AGPL-3.0-only
+
+name: Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Run tests
+      run: python -m pytest tests/ -v

@@ -12,6 +12,7 @@ import joblib
 from sqlalchemy import update
 import numpy as np
 from scipy.sparse import csr_matrix, load_npz, vstack, save_npz
+from flask import current_app
 from app.extensions import db
 import app as app_module
 from app.api.models import Urls, Pods, Suggestions
@@ -63,7 +64,7 @@ def create_pod_in_db(contributor, theme, lang):
     '''
     if contributor is not None:
         theme = theme+'.u.'+contributor
-    url = join("http://localhost:8080/api/pods/",contributor,lang,theme.replace(' ', '+'))
+    url = join(current_app.config['SITENAME'], "api/pods/", contributor, lang, theme.replace(' ', '+'))
     if not db.session.query(Pods).filter_by(url=url).all():
         p = Pods(url=url)
         p.name = theme
@@ -295,7 +296,7 @@ def mv_pod(src, target, contributor=None):
         logger.debug("Pod: %s", p.name)
         p.name = target
         p.description = target
-        p.url = join('http://localhost:8080/api/pods/',target.replace(' ','+'))
+        p.url = join(current_app.config['SITENAME'], 'api/pods/', contributor, lang, target.replace(' ','+'))
         db.session.add(p)
         db.session.commit()
 
