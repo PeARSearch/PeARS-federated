@@ -96,23 +96,23 @@ def index():
 
     for i in db.session.query(Urls).filter_by(contributor=username).all():
         if i.url.startswith('content'):
-            url = join(request.host_url,'api','show?url='+i.url)
-            contributions.append([url, i.title])
+            display_url = join(request.host_url,'api','show?url='+i.url)
+            contributions.append([display_url, i.title, i.url])
         elif i.url.startswith('comment'):
-            url = join(request.host_url,'api','show?url='+i.url)
-            comments.append([url, i.title])
+            display_url = join(request.host_url,'api','show?url='+i.url)
+            comments.append([display_url, i.title, i.url])
         else:
-            url = join(request.host_url,'api','get?url='+i.url)
-            indexed_urls.append([url, i.title])
+            display_url = join(request.host_url,'api','get?url='+i.url)
+            indexed_urls.append([display_url, i.title, i.url])
     contributions = contributions[::-1] #reverse from most recent
     comments = comments[::-1]
     indexed_urls = indexed_urls[::-1]
     num_contributions = len(contributions)+len(indexed_urls)+len(comments)
     for i in db.session.query(Urls).filter(Urls.notes.isnot(None)).all():
-        url = join(request.host_url,'api','get?url='+i.url)
+        display_url = join(request.host_url,'api','get?url='+i.url)
         notes = ['@'+note.replace('<br>','') for note in i.notes.split('@') if note.startswith(username)]
         note = ' | '.join(notes)
-        short_notes.append([url, note])
+        short_notes.append([display_url, note, i.url])
     return render_template("settings/index.html", username=username, email=email, num_contributions=num_contributions, \
             contributions=contributions, urls=indexed_urls, comments=comments, notes=short_notes, emailform=emailform, usernameform=usernameform)
 
@@ -142,12 +142,12 @@ def set_language():
 @check_permissions(login=True, confirmed=True)
 def delete_url():
     username = current_user.username
-    full_path = request.full_path
-    if 'show?url=' in full_path:
-        url = full_path.split('show?url=')[1]
-    else:
-        url = full_path.split('get?url=')[1]
-    pod = db.session.query(Urls).filter_by(url=url).first().pod
+    url = request.args.get('url')
+    entry = db.session.query(Urls).filter_by(url=url).first()
+    if not url or not entry:
+        flash(gettext("Content not found."), "danger")
+        return redirect(url_for("settings.index"))
+    pod = entry.pod
     # Double check url belongs to the user
     contributor = pod.split('.u.')[1]
     if contributor != username:
@@ -168,8 +168,11 @@ def edit_content():
     content.'''
     num_db_entries = len(Urls.query.all())
     username = current_user.username
-    u = request.full_path.split('show?url=')[1]
+    u = request.args.get('url')
     url = db.session.query(Urls).filter_by(url=u).first()
+    if not u or not url:
+        flash(gettext("Content not found."), "danger")
+        return redirect(url_for("settings.index"))
     # Double check url belongs to the user
     if url.contributor != username:
         flash(gettext("URL does not belong to you and cannot be edited."), 'danger')
@@ -188,8 +191,11 @@ def edit_comment():
     comment.'''
     num_db_entries = len(Urls.query.all())
     username = current_user.username
-    u = request.full_path.split('show?url=')[1]
+    u = request.args.get('url')
     url = db.session.query(Urls).filter_by(url=u).first()
+    if not u or not url:
+        flash(gettext("Content not found."), "danger")
+        return redirect(url_for("settings.index"))
     # Double check url belongs to the user
     if url.contributor != username:
         flash(gettext("URL does not belong to you and cannot directly be edited. You can however add a note to the existing record."), 'danger')
@@ -205,8 +211,11 @@ def edit_comment():
 @check_permissions(login=True, confirmed=True)
 def delete_notes():
     username = current_user.username
-    u = request.args.get('url').split('get?url=')[1]
+    u = request.args.get('url')
     url = db.session.query(Urls).filter_by(url=u).first()
+    if not u or not url or not url.notes:
+        flash(gettext("Content not found."), "danger")
+        return redirect(url_for("settings.index"))
     notes = ['@'+note for note in url.notes.split('@') if not note.startswith(username)]
     notes = [note for note in notes if note !='@']
     if len(notes) > 0:
