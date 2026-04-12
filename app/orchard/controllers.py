@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 import logging
-logger = logging.getLogger(__name__)
 # Import flask dependencies
 from flask import Blueprint, request, render_template, send_from_directory, flash, redirect, url_for
 from flask_login import current_user
@@ -20,6 +19,7 @@ from app.auth.captcha import mk_captcha, check_captcha
 from app.forms import ReportingForm, AnnotationForm, FeedbackForm
 
 dir_path = dirname(dirname(realpath(__file__)))
+logger = logging.getLogger(__name__)
 
 # Define the blueprint:
 orchard = Blueprint('orchard', __name__, url_prefix='/orchard')
@@ -151,5 +151,4 @@ def annotate():
         db.session.commit()
         flash(gettext("Your note has been saved. Thank you!"), "success")
         return redirect(request.referrer or url_for('search.index'))
-    else:
-        return render_template('orchard/annotate.html', form=form)
+    return render_template('orchard/annotate.html', form=form)

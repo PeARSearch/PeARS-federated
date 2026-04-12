@@ -72,10 +72,13 @@ SPDX-License-Identifier: AGPL-3.0-only
         {% block navbar_links %}
         <ul class="site-nav-links" role="list">
           <li><a href="{{url_for('search.index')}}" {% if request.endpoint == 'search.index' %}aria-current="page"{% endif %}>{{gettext('Search')}}</a></li>
-          <li><a href="{{url_for('indexer.suggest')}}" {% if request.endpoint == 'indexer.suggest' %}aria-current="page"{% endif %}>{{gettext('Suggest')}}</a></li>
           <li><a href="{{url_for('orchard.index')}}" {% if request.endpoint and request.endpoint.startswith('orchard') %}aria-current="page"{% endif %}>{{gettext('Categories')}}</a></li>
           {% if current_user.is_authenticated and current_user.is_confirmed %}
+          <li><a href="{{url_for('indexer.write_and_index')}}" {% if request.endpoint and request.endpoint.startswith('indexer.write_and') %}aria-current="page"{% endif %}>{{gettext('Write content')}}</a></li>
+          <li><a href="{{url_for('indexer.write_source_commentary')}}" {% if request.endpoint and request.endpoint.startswith('indexer.write_source') %}aria-current="page"{% endif %}>{{gettext('Add comment')}}</a></li>
           <li><a href="{{url_for('settings.index')}}" {% if request.endpoint and request.endpoint.startswith('settings') %}aria-current="page"{% endif %}>{{gettext('Profile')}}</a></li>
+	  {% else %}
+          <li><a href="{{url_for('indexer.suggest')}}" {% if request.endpoint == 'indexer.suggest' %}aria-current="page"{% endif %}>{{gettext('Suggest')}}</a></li>
           {% endif %}
           <li><a href="{{url_for('pages.return_faq')}}" {% if request.endpoint == 'pages.return_faq' %}aria-current="page"{% endif %}>{{gettext('F.A.Q.')}}</a></li>
         </ul>

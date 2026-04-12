@@ -65,36 +65,22 @@ SPDX-License-Identifier: AGPL-3.0-only
   <article class="form-card mb-6">
     <h3>{{gettext("Your contributions")}}</h3>
 
-    {% if not contributions and not tips and not comments %}
+    {% if not contributions and not urls and not comments %}
     <p class="muted-text">{{gettext("You haven't made any contributions yet.")}}</p>
     {% endif %}
 
     {% if contributions %}
     <details>
-      <summary><span>{{gettext('Web content')}}</span> <small class="muted-text">{{contributions|length}}</small></summary>
+      <summary><span>{{gettext('Your content')}}</span> <small class="muted-text">{{contributions|length}}</small></summary>
       <ul class="settings-url-list">
         {% for url in contributions %}
         <li>
           <a href="{{url[0]}}">{{url[1] or url[0]}}</a>
-          <a href="{{url_for('settings.delete_url')}}?url={{url[0]}}" class="result-action-btn"
-             data-tooltip="{{gettext('Delete')}}"
-             onclick="return confirm('{{gettext('Are you sure you want to delete this resource?')}}')">
-            <img src="{{ url_for('static', filename='trash-outline.svg')}}" class="icon icon-sm" alt="{{gettext('Delete')}}">
+          <a href="{{url_for('settings.edit_content', url=url[2])}}" class="result-action-btn"
+             data-tooltip="{{gettext('Edit')}}">
+            <img src="{{ url_for('static', filename='pencil-outline.svg')}}" class="icon icon-sm" alt="{{gettext('Edit')}}">
           </a>
-        </li>
-        {% endfor %}
-      </ul>
-    </details>
-    {% endif %}
-
-    {% if tips %}
-    <details>
-      <summary><span>{{gettext('Tips')}}</span> <small class="muted-text">{{tips|length}}</small></summary>
-      <ul class="settings-url-list">
-        {% for url in tips %}
-        <li>
-          <a href="{{url[0]}}">{{url[1] or url[0]}}</a>
-          <a href="{{url_for('settings.delete_url')}}?url={{url[0]}}" class="result-action-btn"
+          <a href="{{url_for('settings.delete_url', url=url[2])}}" class="result-action-btn"
              data-tooltip="{{gettext('Delete')}}"
              onclick="return confirm('{{gettext('Are you sure you want to delete this resource?')}}')">
             <img src="{{ url_for('static', filename='trash-outline.svg')}}" class="icon icon-sm" alt="{{gettext('Delete')}}">
@@ -111,15 +97,58 @@ SPDX-License-Identifier: AGPL-3.0-only
       <ul class="settings-comment-list">
         {% for url in comments %}
         <li>
+          <p class="settings-comment-text">{{url[1]}}</p>
+          <div class="flex items-center gap-2">
+          <a href="{{url[0]}}" class="fine-text break-all">{{url[0]}}</a>
+          <a href="{{url_for('settings.edit_comment', url=url[2])}}" class="result-action-btn"
+             data-tooltip="{{gettext('Edit')}}">
+            <img src="{{ url_for('static', filename='pencil-outline.svg')}}" class="icon icon-sm" alt="{{gettext('Edit')}}">
+          </a>
+            <a href="{{url_for('settings.delete_url', url=url[2])}}" class="result-action-btn"
+               data-tooltip="{{gettext('Delete comment')}}"
+               onclick="return confirm('{{gettext('Are you sure you want to delete your comment for this URL?')}}')">
+              <img src="{{ url_for('static', filename='trash-outline.svg')}}" class="icon icon-sm" alt="{{gettext('Delete')}}">
+            </a>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </details>
+    {% endif %}
+
+    {% if notes %}
+    <details>
+      <summary><span>{{gettext('Short notes')}}</span> <small class="muted-text">{{notes|length}}</small></summary>
+      <ul class="settings-comment-list">
+        {% for url in notes %}
+        <li>
           <p class="settings-comment-text">{{url[1]|replace('@' + username + ' >> ', '')}}</p>
           <div class="flex items-center gap-2">
-            <a href="{{url[0]}}" class="fine-text break-all">{{url[0]|replace('http://localhost:8080/api/get?url=', '')}}</a>
-            <a href="{{url_for('settings.delete_comment')}}?url={{url[0]}}" class="result-action-btn"
-               data-tooltip="{{gettext('Delete comments')}}"
+            <a href="{{url[0]}}" class="fine-text break-all">{{url[2]}}</a>
+            <a href="{{url_for('settings.delete_notes', url=url[2])}}" class="result-action-btn"
+               data-tooltip="{{gettext('Delete notes')}}"
                onclick="return confirm('{{gettext('Are you sure you want to delete all your comments for this URL?')}}')">
               <img src="{{ url_for('static', filename='trash-outline.svg')}}" class="icon icon-sm" alt="{{gettext('Delete')}}">
             </a>
           </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </details>
+    {% endif %}
+
+    {% if urls %}
+    <details>
+      <summary><span>{{gettext('Indexed urls')}}</span> <small class="muted-text">{{urls|length}}</small></summary>
+      <ul class="settings-url-list">
+        {% for url in urls %}
+        <li>
+          <a href="{{url[0]}}">{{url[1] or url[0]}}</a>
+          <a href="{{url_for('settings.delete_url', url=url[2])}}" class="result-action-btn"
+             data-tooltip="{{gettext('Delete')}}"
+             onclick="return confirm('{{gettext('Are you sure you want to delete this resource?')}}')">
+            <img src="{{ url_for('static', filename='trash-outline.svg')}}" class="icon icon-sm" alt="{{gettext('Delete')}}">
+          </a>
         </li>
         {% endfor %}
       </ul>

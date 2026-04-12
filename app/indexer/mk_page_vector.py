@@ -1,13 +1,13 @@
-# SPDX-FileCopyrightText: 2022 PeARS Project, <community@pearsproject.org>, 
+# SPDX-FileCopyrightText: 2026 PeARS Project, <community@pearsproject.org>, 
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
 import logging
-logger = logging.getLogger(__name__)
 from os.path import dirname, join, realpath
 from os import getenv
 import numpy as np
 from scipy.sparse import csr_matrix, vstack, save_npz, load_npz
+from flask import current_app
 import app as app_module
 from app.api.models import sp
 from app.indexer.htmlparser import extract_html
@@ -18,6 +18,7 @@ from app.utils_db import create_pod_npz_pos
 
 dir_path = dirname(dirname(realpath(__file__)))
 pod_dir = getenv("PODS_DIR", join(dir_path, 'pods'))
+logger = logging.getLogger(__name__)
 
 def tokenize_text(text, lang, stringify = True):
     """ Load the SentencePiece model included in the install
@@ -56,6 +57,10 @@ def compute_vector(url, theme, contributor, url_type):
     logger.info("Computing vector for %s (%s)", url, theme)
     messages = []
     logger.debug("Content type: %s", url_type)
+    lang = current_app.config['LANGS'][0]
+    title = ''
+    body_str = ''
+    snippet = ''
     if 'text/html' in url_type:
         title, body_str, lang, snippet, cc, error = extract_html(url)
     elif 'application/pdf' in url_type:
@@ -63,7 +68,7 @@ def compute_vector(url, theme, contributor, url_type):
     else:
         error = "compute_vectors: No supported content type."
     if error is None:
-        logger.info("title=%s snippet=%s cc=%s error=%s", title, snippet, cc, error)
+        logger.info("title=%s snippet=%s error=%s", title, snippet, error)
         create_pod_npz_pos(contributor, theme, lang)
         user_dir = join(pod_dir, contributor, lang)
         npz_path = join(user_dir,theme+'.u.'+contributor+'.npz')
@@ -83,6 +88,7 @@ def compute_vector_local_docs(title, doc, theme, lang, contributor):
     """ Compute vector for manual document and add it to the matrix
     for the user's chosen theme.
     """
+    logger.debug("Computing vector for local doc: %s", title)
     user_dir = join(pod_dir, contributor, lang)
     npz_path = join(user_dir,theme+'.u.'+contributor+'.npz')
     pod_m = load_npz(npz_path)
@@ -91,7 +97,7 @@ def compute_vector_local_docs(title, doc, theme, lang, contributor):
     text = tokenize_text(text, lang)
     pod_m, success = compute_and_stack_new_vec(lang, text, pod_m)
     if doc != "":
-        snippet = doc[:500]+'...'
+        snippet = doc
     else:
         snippet = title
     if success:

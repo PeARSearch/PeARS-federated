@@ -3,23 +3,21 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 import logging
-logger = logging.getLogger(__name__)
 import subprocess
 from shutil import which
-from os import getenv, remove
+from os import remove
 from os.path import join, dirname, realpath
-import requests
 from urllib.parse import urljoin
-from bs4 import BeautifulSoup
+import requests
 from pdfminer.high_level import extract_pages
 from pdfminer import pdfparser, pdfdocument
 from langdetect import detect
 from flask import current_app
-from app.indexer import detect_open
 from app.api.models import installed_languages
 from app.utils import remove_emails
 
 app_dir_path = dirname(dirname(realpath(__file__)))
+logger = logging.getLogger(__name__)
 
 
 def pdf_mine(pdf_path, max_pages = 12):
@@ -33,7 +31,7 @@ def pdf_mine(pdf_path, max_pages = 12):
         logger.info("Indexing with installed pdftotext")
         subprocess.call(['pdftotext', '-l', str(max_pages), pdf_path])
         txt_path = pdf_path.replace('.pdf','.txt')
-        with open(txt_path, 'r') as ftxt:
+        with open(txt_path, 'r', encoding='utf-8') as ftxt:
             body = ftxt.read().replace('\n', ' ')
     else:
         logger.info("Indexing with pdfminer")
@@ -58,8 +56,8 @@ def extract_txt(url, contributor):
     body_str = ""
     snippet = ""
     cc = False
-    language = current_app.config['LANGS'][0]
     error = None
+    language = current_app.config['LANGS'][0]
     snippet_length = current_app.config['SNIPPET_LENGTH']
     local_pdf_path = join(app_dir_path, 'userdata', contributor+'.'+url.split('/')[-1])
     try:
@@ -70,7 +68,6 @@ def extract_txt(url, contributor):
     except Exception:
         logger.error("Accessing resource %s ...", url)
         return title, body_str, language, snippet, cc, error
-    
     try:
         body_str, title = pdf_mine(local_pdf_path)
         body_str = remove_emails(body_str)

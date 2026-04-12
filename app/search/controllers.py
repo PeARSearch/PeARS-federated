@@ -1,25 +1,23 @@
-# SPDX-FileCopyrightText: 2024 PeARS Project, <community@pearsproject.org>,
+# SPDX-FileCopyrightText: 2026 PeARS Project, <community@pearsproject.org>,
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
 import logging
-logger = logging.getLogger(__name__)
 from os import getenv
 from os.path import dirname, join, realpath
-from glob import glob
-import numpy as np
 from random import shuffle
 from urllib.parse import urlparse
 from markupsafe import Markup
-from flask import Blueprint, request, render_template, flash, url_for, redirect
+import numpy as np
+from flask import current_app
+from flask import Blueprint, request, render_template, flash, url_for
 from flask_login import current_user
 from flask_babel import gettext
+import app as app_module
 from app.forms import SearchForm
 from app.search import score_pages
 from app.utils import parse_query, beautify_title, beautify_snippet
-from flask import current_app
 from app.extensions import db
-import app as app_module
 from app.api.models import Personalization
 from app.search.cross_instance_search import get_cross_instance_results
 
@@ -28,6 +26,7 @@ search = Blueprint('search', __name__, url_prefix='')
 
 dir_path = dirname(dirname(dirname(realpath(__file__))))
 pod_dir = getenv("PODS_DIR", join(dir_path, 'app','pods'))
+logger = logging.getLogger(__name__)
 
 
 @search.route('/', methods=["GET","POST"])
@@ -78,10 +77,10 @@ def prepare_gui_results(query, results):
     for url, r in results.items():
 
         # display version of URL: should be clickable
-        # (for pearslocal URLs: "/api/get?url=pearslocal..."; for other URLs: identical to the actual URL)
+        # (for local URLs: "/api/show?url=content..."; for other URLs: identical to the actual URL)
         # r["url"] keeps the original version of the URL as stored in the DB
-        if url.startswith('pearslocal'):
-            r["display_url"] = url_for('api.return_specific_url')+'?url='+url
+        if url.startswith('content') or url.startswith('comment'):
+            r["display_url"] = url_for('api.display_content')+'?url='+url
         else:
             r["display_url"] = url
         r['title'] = ' '.join(r['title'].split()[:10])
@@ -99,8 +98,8 @@ def prepare_gui_results(query, results):
             r['pod_display'] = r.get('pod', '')
         # Share URL: for regular URLs, share the actual URL directly.
         # For pearslocal URLs, share the full absolute /api/get link.
-        if url.startswith('pearslocal'):
-            r['share'] = url_for('api.return_specific_url', url=url, _external=True)
+        if url.startswith('content') or url.startswith('comment'):
+            r['share'] = url_for('api.display_content', url=url, _external=True)
         else:
             r['share'] = url
         logger.debug("Result URL: %s", url)
@@ -200,5 +199,3 @@ def get_search_results(query):
         sorted_results[url] = results[url]
     logger.debug("Sorted results: %s", sorted_results)
     return clean_query, sorted_results
-
-

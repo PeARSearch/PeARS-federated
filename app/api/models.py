@@ -1,38 +1,39 @@
-# SPDX-FileCopyrightText: 2023 PeARS Project, <community@pearsproject.org>, 
+# SPDX-FileCopyrightText: 2026 PeARS Project, <community@pearsproject.org>, 
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-import logging
-logger = logging.getLogger(__name__)
-from app.extensions import db
-from flask_login import UserMixin
-import numpy as np
-import configparser
-import joblib
+from os.path import join, dirname, realpath
 from glob import glob
-from os.path import join, isdir, exists, dirname, realpath
+import logging
 import sentencepiece as spm
+from flask_login import UserMixin
+from app.extensions import db
 
+logger = logging.getLogger(__name__)
 sp = spm.SentencePieceProcessor()
 
 def get_installed_languages():
+    '''
+    Return languages for which model files are available
+    on this instance.
+    '''
     dir_path = dirname(dirname(realpath(__file__)))
     logger.debug("Path: %s", dir_path)
-    installed_languages = []
-    spm_dir = ''
+    languages = []
     language_paths = glob(join(dir_path,'api/models/*/'))
     for p in language_paths:
         lang = p[:-1].split('/')[-1]
-        installed_languages.append(lang)
-    logger.info("Installed languages: %s", installed_languages)
-    return installed_languages
+        languages.append(lang)
+    logger.info("Installed languages: %s", languages)
+    return languages
 
 installed_languages = get_installed_languages()
 
 
-# Define a base model for other database tables to inherit
 class Base(db.Model):
-
+    '''
+    Define a base model for other database tables to inherit.
+    '''
     __abstract__ = True
 
     id = db.Column(db.Integer, primary_key=True)
@@ -44,17 +45,30 @@ class Base(db.Model):
 
 
 class Suggestions(Base):
+    '''
+    Suggestions are url proposed by public users
+    without an account on the instance. Those urls
+    are supposed to be checked by the admin prior to
+    indexing.
+    '''
     id = db.Column(db.Integer, primary_key=True)
     url = db.Column(db.String(1000))
     pod = db.Column(db.String(1000))
     notes = db.Column(db.String(1000))
     contributor = db.Column(db.String(1000))
+    url_license = db.Column(db.String(1000))
+    allows_reproduction = db.Column(db.Boolean, default=False)
+    licensing_notes = db.Column(db.String(1000))
 
-    def __init__(self, url=None, pod=None, notes=None, contributor=None):
+    def __init__(self, url=None, pod=None, notes=None, contributor=None, url_license=None, \
+            allows_reproduction=False, licensing_notes=None):
         self.url = url
         self.pod = pod
         self.notes = notes
         self.contributor = contributor
+        self.url_license = url_license
+        self.allows_reproduction = allows_reproduction
+        self.licensing_notes = licensing_notes
 
     def __repr__(self):
         return self.url
@@ -65,7 +79,10 @@ class Suggestions(Base):
             'id': self.id,
             'pod': self.pod,
             'notes': self.notes,
-            'contributor': self.contributor
+            'contributor': self.contributor,
+            'license': self.url_license,
+            'reproduction allowed': self.allows_reproduction,
+            'licensing_notes': self.licensing_notes
         }
 
     def as_dict(self):
@@ -73,6 +90,11 @@ class Suggestions(Base):
 
 
 class RejectedSuggestions(Base):
+    '''
+    Rejected suggestions are suggestions that the admin
+    decided not to index. They are kept in the database
+    with the rejection reason.
+    '''
     id = db.Column(db.Integer, primary_key=True)
     url = db.Column(db.String(1000))
     pod = db.Column(db.String(1000))
@@ -105,29 +127,28 @@ class RejectedSuggestions(Base):
 
 
 class Urls(Base):
+    '''
+    Main class to record urls indexed on the instance.
+    '''
     id = db.Column(db.Integer, primary_key=True)
     url = db.Column(db.String(1000))
     title = db.Column(db.String(1000))
     snippet = db.Column(db.String(1000))
-    doctype = db.Column(db.String(1000))
+    doctype = db.Column(db.String(1000)) #weburl, content or comment
     vector = db.Column(db.Integer)
     pod = db.Column(db.String(1000))
     notes = db.Column(db.String(1000))
+    content = db.Column(db.String(10000)) #user-generated content
     img = db.Column(db.String(1000))
     share = db.Column(db.String(1000))
     contributor = db.Column(db.String(1000))
+    url_license = db.Column(db.String(1000))
+    allows_reproduction = db.Column(db.Boolean, default=False)
+    licensing_notes = db.Column(db.String(1000))
 
-    def __init__(self,
-                 url=None,
-                 title=None,
-                 snippet=None,
-                 doctype=None,
-                 vector=None,
-                 pod=None,
-                 notes=None,
-                 img=None,
-                 share=None,
-                 contributor=None):
+    def __init__(self, url=None, title=None, snippet=None, doctype=None, vector=None, pod=None, \
+                 notes=None, content=None, img=None, share=None, contributor=None, url_license=None, \
+                 allows_reproduction=False, licensing_notes=None):
         self.url = url
         self.title = title
         self.snippet = snippet
@@ -135,9 +156,13 @@ class Urls(Base):
         self.vector = vector
         self.pod = pod
         self.notes = notes
+        self.content = content
         self.img = img
         self.share = share
         self.contributor = contributor
+        self.url_license = url_license
+        self.allows_reproduction = allows_reproduction
+        self.licensing_notes = licensing_notes
 
     def __repr__(self):
         return self.url
@@ -153,9 +178,13 @@ class Urls(Base):
             'vector': self.vector,
             'pod': self.pod,
             'notes': self.notes,
+            'content': self.content,
             'img': self.img,
             'share': self.share,
-            'contributor': self.contributor
+            'contributor': self.contributor,
+            'license': self.url_license,
+            'reproduction allowed': self.allows_reproduction,
+            'licensing_notes': self.licensing_notes
         }
 
     def as_dict(self):
@@ -163,27 +192,22 @@ class Urls(Base):
 
 
 class Pods(Base):
+    '''
+    Pods contain specific topics. Urls are organised into pods
+    '''
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(1000))
     url = db.Column(db.String(1000))
     description = db.Column(db.String(7000))
     language = db.Column(db.String(1000))
-    DS_vector = db.Column(db.String(7000))
-    word_vector = db.Column(db.String(7000))
     registered = db.Column(db.Boolean)
 
-    def __init__(self,
-                 name=None,
-                 url=None,
-                 description=None,
-                 language=None,
-                 DS_vector=None,
-                 word_vector=None,
-                 registered=False):
+    def __init__(self, name=None, url=None, description=None, language=None, registered=False):
         self.name = name
         self.url = url
         self.description = description
         self.language = language
+        self.registered = registered
 
     @property
     def serialize(self):
@@ -192,14 +216,15 @@ class Pods(Base):
             'url': self.url,
             'description': self.description,
             'language': self.language,
-            'DSvector': self.DS_vector,
-            'wordvector': self.word_vector,
             'registered': self.registered
         }
 
 
 
 class User(UserMixin, db.Model):
+    '''
+    Class for instance users.
+    '''
     id = db.Column(db.Integer, primary_key=True) # primary keys are required by SQLAlchemy
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
@@ -237,6 +262,11 @@ class User(UserMixin, db.Model):
 
 
 class Personalization(Base):
+    '''
+    The personlization class allows the admin to add
+    messages in various locations of the instance, e.g.
+    acknowledgements.
+    '''
     id = db.Column(db.Integer, primary_key=True)
     feature = db.Column(db.String(1000))
     text = db.Column(db.String(7000))

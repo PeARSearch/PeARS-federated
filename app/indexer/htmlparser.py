@@ -1,20 +1,19 @@
-# SPDX-FileCopyrightText: 2025 PeARS Project, <community@pearsproject.org>, 
+# SPDX-FileCopyrightText: 2026 PeARS Project, <community@pearsproject.org>, 
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
 import re
 import logging
-logger = logging.getLogger(__name__)
-import requests
 from urllib.parse import urljoin
+import requests
 from bs4 import BeautifulSoup
 import justext
 from langdetect import detect
-from app.indexer.access import request_url
-from app.indexer import detect_open
 from flask import current_app
 from app import LANGUAGE_CODES
 from app.utils import remove_emails
+
+logger = logging.getLogger(__name__)
 
 def remove_boilerplates(response, lang):
     text = ""
@@ -40,7 +39,6 @@ def BS_parse(url):
         req = requests.head(url, timeout=30, headers=headers)
     except Exception:
         logger.error("BS_parse: request.head failed trying to access %s", url)
-        pass
     if "text/html" not in req.headers["content-type"]:
         logger.error("BS_parse: Not a HTML document...")
         return bs_obj, req
@@ -91,56 +89,65 @@ def naive_text_extract(bs_obj):
     return body_str
 
 
+def process_page_title(bs_obj, snippet_length):
+    '''Check whether page contains open graph info,
+    otherwise, get title from beautifulsoup object.
+    '''
+    og_title = bs_obj.find("meta", property="og:title")
+    logger.info("OG title: %s", og_title)
+    if not og_title:
+        title = bs_obj.title.string
+        if title is None:
+            title = ""
+    else:
+        title = og_title['content']
+    title = ' '.join(title.split()[:snippet_length])
+    return title
+
+
+def process_body_string(req, bs_obj, title):
+    body_str = ""
+    og_description = bs_obj.find("meta", property="og:description")
+    logger.info("OG desc: %s", og_description)
+    tmp_body_str = naive_text_extract(bs_obj)
+    try:
+        language = detect(title + " " + tmp_body_str)
+    except:
+        language = current_app.config['LANGS'][0]
+    try:
+        if language in current_app.config['LANGS']:
+            body_str = remove_boilerplates(req, language)
+        else:
+            if og_description:
+                body_str = ' '.join(og_description['content'].split()[:100])+' '
+            body_str+=tmp_body_str
+    except:
+        if og_description:
+            body_str = ' '.join(og_description['content'].split()[:100])+' '
+        body_str+=tmp_body_str
+    body_str = remove_emails(body_str)
+    logger.debug("%s", body_str[:500])
+    return body_str, og_description
+
+
 def extract_html(url):
     '''From history info, extract url, title and body of page,
     cleaned with BeautifulSoup'''
     title = ""
     body_str = ""
     snippet = ""
-    cc = False
-    language = current_app.config['LANGS'][0]
+    cc = False #Keep for future reference
     error = None
+    language = current_app.config['LANGS'][0]
     snippet_length = current_app.config['SNIPPET_LENGTH']
-    
     bs_obj, req = BS_parse(url)
     if not bs_obj:
         error = "extract_html: Failed to get BeautifulSoup object."
         return title, body_str, language, snippet, cc, error
     if hasattr(bs_obj.title, 'string'):
         if url.startswith('http'):
-            og_title = bs_obj.find("meta", property="og:title")
-            og_description = bs_obj.find("meta", property="og:description")
-            logger.info("OG title: %s", og_title)
-            logger.info("OG desc: %s", og_description)
-
-            # Process title
-            if not og_title:
-                title = bs_obj.title.string
-                if title is None:
-                    title = ""
-            else:
-                title = og_title['content']
-            title = ' '.join(title.split()[:snippet_length])
-            
-            # Get body string
-            tmp_body_str = naive_text_extract(bs_obj)
-            try:
-                language = detect(title + " " + tmp_body_str)
-            except:
-                language = current_app.config['LANGS'][0]
-            try:
-                if language in current_app.config['LANGS']:
-                    body_str = remove_boilerplates(req, language)
-                else:
-                    if og_description:
-                        body_str = ' '.join(og_description['content'].split()[:100])+' '
-                    body_str+=tmp_body_str
-            except:
-                if og_description:
-                    body_str = ' '.join(og_description['content'].split()[:100])+' '
-                body_str+=tmp_body_str
-            body_str = remove_emails(body_str)
-            logger.debug("%s", body_str[:500])
+            title = process_page_title(bs_obj, snippet_length)
+            body_str, og_description = process_body_string(req, bs_obj, title)
             try:
                 language = detect(title + " " + body_str)
                 logger.info("Language for %s: %s", url, language)
