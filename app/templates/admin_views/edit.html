@@ -1,0 +1,92 @@
+<!--
+SPDX-FileCopyrightText: 2026 PeARS Project, <community@pearsproject.org>
+
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
+{% extends "base/base.html" %}
+{% block title %}
+  {% if is_create %}{{ gettext('New') }}{% else %}{{ gettext('Edit') }}{% endif %}
+  &mdash; {{ gettext(admin.display_name) }}
+{% endblock %}
+{% block body %}
+
+<div class="admin-shell">
+  {% include 'admin_views/_sidebar.html' %}
+  <div class="admin-main admin-main--narrow">
+  <header class="admin-page-header">
+    <div>
+      <p class="muted-text">
+        <a href="{{ url_for('admin_views.list_view', model=admin.endpoint) }}">
+          &larr; {{ gettext(admin.display_name) }}
+        </a>
+      </p>
+      <h2>
+        {% if is_create %}
+          {{ gettext('New') }} {{ gettext(admin.display_name) }}
+        {% else %}
+          {{ gettext('Edit') }} {{ gettext(admin.display_name) }}
+        {% endif %}
+      </h2>
+    </div>
+  </header>
+
+  <form method="post" class="admin-form">
+    {% for field in fields %}
+    <label data-field{% if field.readonly %} class="is-readonly"{% endif %}>
+      {{ gettext(field.label) }}{% if field.required %} <span aria-hidden="true">*</span>{% endif %}
+
+      {% if field.input_type == 'textarea' %}
+      <textarea name="{{ field.name }}" rows="5"
+                {% if field.readonly %}readonly disabled{% endif %}
+                {% if field.required %}required{% endif %}>{{ field.value or '' }}</textarea>
+
+      {% elif field.input_type == 'checkbox' %}
+      <span class="checkbox-row">
+        <input type="checkbox" name="{{ field.name }}" value="1"
+               {% if field.value %}checked{% endif %}
+               {% if field.readonly %}disabled{% endif %}>
+        <small data-hint>{{ gettext('Toggle on or off') }}</small>
+      </span>
+
+      {% elif field.input_type == 'number' %}
+      <input type="number" name="{{ field.name }}"
+             value="{{ field.value if field.value is not none else '' }}"
+             {% if field.readonly %}readonly disabled{% endif %}
+             {% if field.required %}required{% endif %}>
+
+      {% elif field.input_type == 'date' %}
+      <input type="date" name="{{ field.name }}"
+             value="{{ field.value.strftime('%Y-%m-%d') if field.value else '' }}"
+             {% if field.readonly %}readonly disabled{% endif %}
+             {% if field.required %}required{% endif %}>
+
+      {% elif field.input_type == 'datetime' %}
+      <input type="datetime-local" name="{{ field.name }}"
+             value="{{ field.value.strftime('%Y-%m-%dT%H:%M') if field.value else '' }}"
+             {% if field.readonly %}readonly disabled{% endif %}
+             {% if field.required %}required{% endif %}>
+
+      {% else %}
+      <input type="text" name="{{ field.name }}"
+             value="{{ field.value if field.value is not none else '' }}"
+             {% if field.max_length %}maxlength="{{ field.max_length }}"{% endif %}
+             {% if field.readonly %}readonly disabled{% endif %}
+             {% if field.required %}required{% endif %}>
+      {% endif %}
+    </label>
+    {% endfor %}
+
+    <div class="admin-form-actions">
+      <button type="submit" data-variant="primary">
+        {% if is_create %}{{ gettext('Create') }}{% else %}{{ gettext('Save changes') }}{% endif %}
+      </button>
+      <a href="{{ url_for('admin_views.list_view', model=admin.endpoint) }}" role="button" data-variant="secondary">
+        {{ gettext('Cancel') }}
+      </a>
+    </div>
+  </form>
+  </div>
+</div>
+
+{% endblock %}
