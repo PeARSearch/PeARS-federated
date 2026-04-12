@@ -1,0 +1,165 @@
+<!--
+SPDX-FileCopyrightText: 2026 PeARS Project, <community@pearsproject.org>
+
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
+{% extends "base/base.html" %}
+{% block title %}{{ gettext(admin.display_name) }}{% endblock %}
+{% block body %}
+
+{% macro sort_link(col) %}
+  {% set is_active = (sort_col == col) %}
+  {% set next_desc = '1' if (is_active and not sort_desc) else '0' %}
+  {% set args = {'sort': col, 'desc': next_desc} %}
+  {% if search %}{% set _ = args.update({'q': search}) %}{% endif %}
+  <a href="{{ url_for('admin_views.list_view', model=admin.endpoint, **args) }}"
+     {% if is_active %}aria-sort="{{ 'descending' if sort_desc else 'ascending' }}"{% endif %}>
+    {{ gettext(column_labels.get(col, col.replace('_', ' ').title())) }}
+    <span class="sort-arrow" aria-hidden="true">{% if is_active %}{{ '↓' if sort_desc else '↑' }}{% else %}↕{% endif %}</span>
+  </a>
+{% endmacro %}
+
+{% macro page_link(page_num, label=None, disabled=False, current=False) %}
+  {% set args = {'page': page_num} %}
+  {% if search %}{% set _ = args.update({'q': search}) %}{% endif %}
+  {% if sort_col %}{% set _ = args.update({'sort': sort_col, 'desc': '1' if sort_desc else '0'}) %}{% endif %}
+  <li>
+    <a href="{{ url_for('admin_views.list_view', model=admin.endpoint, **args) }}"
+       {% if disabled %}aria-disabled="true"{% endif %}
+       {% if current %}aria-current="page"{% endif %}>
+      {{ label or page_num }}
+    </a>
+  </li>
+{% endmacro %}
+
+<div class="admin-shell">
+  {% include 'admin_views/_sidebar.html' %}
+  <div class="admin-main">
+  <header class="admin-page-header">
+    <div>
+      <h2>{{ gettext(admin.display_name) }}</h2>
+      <p class="muted-text"><strong>{{ total }}</strong> {{ gettext('records') }}</p>
+    </div>
+    {% if admin.can_create %}
+    <a href="{{ url_for('admin_views.create_view', model=admin.endpoint) }}" role="button" data-variant="primary">
+      + {{ gettext('New') }}
+    </a>
+    {% endif %}
+  </header>
+
+  {% if admin.column_searchable_list %}
+  <form class="admin-search" method="get" action="{{ url_for('admin_views.list_view', model=admin.endpoint) }}">
+    <label data-field>
+      <input type="search" name="q" value="{{ search }}"
+             placeholder="{{ gettext('Search') }} {{ gettext(admin.display_name) }}&hellip;">
+    </label>
+    {% if sort_col %}<input type="hidden" name="sort" value="{{ sort_col }}">{% endif %}
+    {% if sort_desc %}<input type="hidden" name="desc" value="1">{% endif %}
+  </form>
+  {% endif %}
+
+  {% if rows %}
+  <div class="table admin-table">
+    <table>
+      <thead>
+        <tr>
+          <th class="pk-col">{{ sort_link(pk_name) }}</th>
+          {% for col in columns %}
+          {% if col != pk_name %}
+          <th>{{ sort_link(col) }}</th>
+          {% endif %}
+          {% endfor %}
+          <th class="actions-col" aria-label="{{ gettext('Actions') }}"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          <td class="pk-col cell-mono">
+            {% if admin.can_edit %}
+            <a href="{{ url_for('admin_views.edit_view', model=admin.endpoint, pk=row[pk_name]) }}" class="pk-link">
+              #{{ row[pk_name] }}
+            </a>
+            {% else %}
+            <span class="muted-text">#{{ row[pk_name] }}</span>
+            {% endif %}
+          </td>
+          {% for col in columns %}
+          {% if col != pk_name %}
+          <td{% if col in ['url', 'name', 'email'] %} class="cell-mono"{% endif %}>
+            {% set val = row[col] %}
+            {% if val is none %}
+              <span class="muted-text">&mdash;</span>
+            {% elif val is sameas true %}
+              <span class="bool-yes">{{ gettext('Yes') }}</span>
+            {% elif val is sameas false %}
+              <span class="bool-no">{{ gettext('No') }}</span>
+            {% else %}
+              {{ val|string|truncate(120) }}
+            {% endif %}
+          </td>
+          {% endif %}
+          {% endfor %}
+          <td class="actions-col">
+            <div class="row-actions">
+              {% if admin.can_edit %}
+              <a href="{{ url_for('admin_views.edit_view', model=admin.endpoint, pk=row[pk_name]) }}"
+                 aria-label="{{ gettext('Edit') }}" title="{{ gettext('Edit') }}">
+                <img src="{{ url_for('static', filename='pencil-outline.svg') }}" class="icon icon-sm" alt="">
+              </a>
+              {% endif %}
+              {% if admin.can_delete %}
+              <a href="{{ url_for('admin_views.delete_view', model=admin.endpoint, pk=row[pk_name]) }}"
+                 class="danger" aria-label="{{ gettext('Delete') }}" title="{{ gettext('Delete') }}">
+                <img src="{{ url_for('static', filename='trash-outline.svg') }}" class="icon icon-sm" alt="">
+              </a>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if pages > 1 %}
+  <nav class="admin-pagination" aria-label="{{ gettext('Pagination') }}">
+    <p class="muted-text">
+      {{ gettext('Showing') }}
+      <strong>{{ (page - 1) * admin.page_size + 1 }}&ndash;{{ [page * admin.page_size, total]|min }}</strong>
+      {{ gettext('of') }} <strong>{{ total }}</strong>
+    </p>
+    <ul>
+      {{ page_link(page - 1, label='‹', disabled=(page == 1)) }}
+      {% for p in range(1, pages + 1) %}
+        {% if p == 1 or p == pages or (p >= page - 2 and p <= page + 2) %}
+          {{ page_link(p, current=(p == page)) }}
+        {% elif p == page - 3 or p == page + 3 %}
+          <li><span aria-hidden="true">&hellip;</span></li>
+        {% endif %}
+      {% endfor %}
+      {{ page_link(page + 1, label='›', disabled=(page == pages)) }}
+    </ul>
+  </nav>
+  {% endif %}
+
+  {% else %}
+  <div class="admin-empty">
+    {% if search %}
+    <p>{{ gettext('No records match your search.') }}</p>
+    <a href="{{ url_for('admin_views.list_view', model=admin.endpoint) }}">{{ gettext('Clear search') }}</a>
+    {% else %}
+    <p>{{ gettext('No records yet.') }}</p>
+    {% if admin.can_create %}
+    <a href="{{ url_for('admin_views.create_view', model=admin.endpoint) }}">
+      {{ gettext('Create the first one') }}
+    </a>
+    {% endif %}
+    {% endif %}
+  </div>
+  {% endif %}
+  </div>
+</div>
+
+{% endblock %}
