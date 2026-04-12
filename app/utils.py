@@ -262,8 +262,9 @@ def beautify_pears_content(content):
     '''Beautify pears-created content, in particular
     by converting basic markdown into html.
     '''
-    rendered = mistletoe.markdown(content.replace('<br>','\n'))
-    return rendered
+    cleaned = str(escape(content)).replace('&lt;br&gt;', '\n').replace('<br>', '\n')
+    rendered = mistletoe.markdown(cleaned)
+    return Markup(rendered)
 
 def timer(func):
     ''' This function shows the execution time of

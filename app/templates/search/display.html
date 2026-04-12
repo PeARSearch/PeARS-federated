@@ -1,22 +1,19 @@
 <!--
-	SPDX-FileCopyrightText: 2026 PeARS Project, <community@pearsproject.org>, 
+SPDX-FileCopyrightText: 2026 PeARS Project, <community@pearsproject.org>,
 
-	SPDX-License-Identifier: AGPL-3.0-only
+SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 {% extends "base/base.html" %}
 {% block body %}
-<div class="container">
-
-	<div class="row h-100 justify-content-center align-items-center">
-		<div class="col-8">
-			<h1>{{title}}</h1>
-			{% if comment %} 
-			<p>{{gettext('A commentary on ')}}<a href={{share_url}}>{{share_url}}</a></p>
-			{% endif %}
-			<p><i>{{contributor}}, {{date}}</i></p>
-			{{content|safe}}
-		</div>
-	</div> <!-- /row -->
-</div> <!-- /container full -->
+<div class="content-prose pb-8">
+  <header class="text-center mb-6">
+    <h2>{{title}}</h2>
+    {% if comment %}
+    <p class="muted-text">{{gettext('A commentary on ')}} <a href="{{share_url}}">{{share_url}}</a></p>
+    {% endif %}
+    <p class="fine-text"><em>{{contributor}}, {{date}}</em></p>
+  </header>
+  {{content|safe}}
+</div>
 {% endblock %}
