@@ -88,8 +88,7 @@ def compute_vector_local_docs(title, doc, theme, lang, contributor):
     """ Compute vector for manual document and add it to the matrix
     for the user's chosen theme.
     """
-    print("COMPUTE VECTOR LOCAL DOCS")
-    print("doc", doc)
+    logger.debug("Computing vector for local doc: %s", title)
     user_dir = join(pod_dir, contributor, lang)
     npz_path = join(user_dir,theme+'.u.'+contributor+'.npz')
     pod_m = load_npz(npz_path)
