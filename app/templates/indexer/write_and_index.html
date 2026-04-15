@@ -43,12 +43,16 @@ SPDX-License-Identifier: AGPL-3.0-only
 </div>
 
 <script>
-  let themes = {{themes|tojson}};
-  let str = '';
-  for (theme of themes) {
-    str += '<option value="' + theme + '" />';
+  // Theme names come from the database and may contain HTML-special
+  // characters. Build <option> nodes via the DOM API so the browser
+  // escapes attribute values for us — never use innerHTML here.
+  const themes = {{themes|tojson}};
+  const themesList = document.getElementById("themes");
+  for (const theme of themes) {
+    const option = document.createElement("option");
+    option.value = theme;
+    themesList.appendChild(option);
   }
-  document.getElementById("themes").innerHTML = str;
 </script>
 
 {% endblock %}
