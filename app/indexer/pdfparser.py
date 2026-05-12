@@ -23,9 +23,10 @@ logger = logging.getLogger(__name__)
 def pdf_mine(pdf_path, max_pages = 12):
     body = ""
     title = ""
-    parse = pdfparser.PDFParser(open(pdf_path,'rb'))
-    metadata = pdfdocument.PDFDocument(parse).info
-    title = metadata[0]['Title'].decode(encoding='utf-8', errors='ignore').replace('\x00', '')
+    with open(pdf_path, 'rb') as pdf_file:
+        parse = pdfparser.PDFParser(pdf_file)
+        metadata = pdfdocument.PDFDocument(parse).info
+        title = metadata[0]['Title'].decode(encoding='utf-8', errors='ignore').replace('\x00', '')
     #authors = metadata[0]['Author'].decode(encoding='utf-8', errors='ignore').replace('\x00', '')
     if which('pdftotext') is not None:
         logger.info("Indexing with installed pdftotext")
