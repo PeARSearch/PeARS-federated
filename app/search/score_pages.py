@@ -77,6 +77,9 @@ def mk_vec_matrix(lang):
         m.append(csr_matrix(npz))
         c+=npz.shape[0]
         bins.append(c)
+    if len(m) == 0:
+        m = None
+        return m, bins, podnames, urls
     m = vstack(m)
     m = csr_matrix(m)
     return m, bins, podnames, urls
@@ -90,15 +93,19 @@ def load_vec_matrix(lang):
         urls = app_module.models[lang]['urls']
     else:
         m, bins, podnames, urls = mk_vec_matrix(lang)
-    m = m.todense()
+    if m is not None:
+        m = m.todense()
     return m, bins, podnames, urls
 
 
 
 @timer
 def compute_scores(query, query_vectors, lang):
-    snippet_length = current_app.config['SNIPPET_LENGTH']
+    document_scores = {}
     m, bins, podnames, urls = load_vec_matrix(lang)
+    if m is None:
+        return document_scores
+    snippet_length = current_app.config['SNIPPET_LENGTH']
     query_vector = np.sum(query_vectors, axis=0)
     
     # Only compute cosines over the dimensions of interest
@@ -113,7 +120,6 @@ def compute_scores(query, query_vectors, lang):
     idx = np.argsort(cos)[-len(idx):][::-1][:50]
 
     # Get urls
-    document_scores = {}
     best_urls = [urls[i] for i in idx]
     best_cos = [cos[i] for i in idx]
     us = Urls.query.filter(Urls.url.in_(best_urls)).all()

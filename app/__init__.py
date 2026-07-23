@@ -5,7 +5,7 @@
 from os import getenv, path
 from glob import glob
 from pathlib import Path
-from os.path import join, dirname, realpath, isfile
+from os.path import join, dirname, realpath, isfile, exists
 import logging
 logger = logging.getLogger(__name__)
 
@@ -151,6 +151,9 @@ if app.config.get('LOAD_MODELS', True):
         models[LANG] = {}
         spm_vocab_path = f'app/api/models/{LANG}/{LANG}wiki.16k.vocab'
         ft_path = f'app/api/models/{LANG}/{LANG}wiki.16k.cos'
+        if not exists(spm_vocab_path) or not exists(ft_path):
+            logging.warning(f"The models for language code {LANG} are missing. Please install them using 'flask pears install-language {LANG}'.")
+            continue
         vocab, inverted_vocab, logprobs = read_vocab(spm_vocab_path)
         vectorizer = CountVectorizer(vocabulary=vocab, lowercase=True, token_pattern='[^ ]+')
         ftcos = read_cosines(ft_path)
