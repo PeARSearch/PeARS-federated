@@ -1,0 +1,50 @@
+<!--
+SPDX-FileCopyrightText: 2026 PeARS Project, <community@pearsproject.org>
+
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
+{% extends "base/base.html" %}
+{% block title %}{{ gettext('Confirm delete') }}{% endblock %}
+{% block body %}
+
+<div class="admin-shell">
+  {% include 'admin_views/_sidebar.html' %}
+  <div class="admin-main admin-main--narrow">
+  <header class="admin-page-header">
+    <div>
+      <p class="muted-text">
+        <a href="{{ url_for('admin_views.list_view', model=admin.endpoint) }}">
+          &larr; {{ gettext(admin.display_name) }}
+        </a>
+      </p>
+      <h2>{{ gettext('Confirm delete') }}</h2>
+    </div>
+  </header>
+
+  <div class="admin-confirm" role="alert" data-variant="warning">
+    <p>
+      {{ gettext('You are about to permanently delete this record. This cannot be undone.') }}
+    </p>
+    <dl class="admin-confirm-fields">
+      <dt>ID</dt>
+      <dd>{{ instance[pk_name] }}</dd>
+      {% if instance.__repr__ and instance.__repr__() %}
+      <dt>{{ gettext('Summary') }}</dt>
+      <dd>{{ instance.__repr__() }}</dd>
+      {% endif %}
+    </dl>
+  </div>
+
+  <form method="post" class="admin-confirm-actions">
+    <button type="submit" data-variant="danger">
+      {{ gettext('Yes, delete') }}
+    </button>
+    <a href="{{ url_for('admin_views.list_view', model=admin.endpoint) }}" role="button" data-variant="secondary">
+      {{ gettext('Cancel') }}
+    </a>
+  </form>
+  </div>
+</div>
+
+{% endblock %}

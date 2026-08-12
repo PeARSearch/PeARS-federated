@@ -1,0 +1,37 @@
+<!--
+SPDX-FileCopyrightText: 2026 PeARS Project, <community@pearsproject.org>
+
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
+{% extends "base/base.html" %}
+{% block title %}{{gettext('Database Admin')}}{% endblock %}
+{% block body %}
+
+<div class="admin-shell">
+  {% include 'admin_views/_sidebar.html' %}
+  <div class="admin-main">
+    <header class="admin-page-header">
+      <div>
+        <h2>{{gettext('Database Admin')}}</h2>
+        <p class="muted-text">{{gettext('Manage your instance content, users, and settings.')}}</p>
+      </div>
+    </header>
+
+    {% for category, admins in categories %}
+    <h3>{{ gettext(category) }}</h3>
+    <div class="admin-link-grid">
+      {% for admin in admins %}
+      <a href="{{ url_for('admin_views.list_view', model=admin.endpoint) }}" class="admin-link-item">
+        <strong>{{ gettext(admin.display_name) }}</strong>
+        {% if admin.description %}
+        <span class="muted-text">{{ gettext(admin.description) }}</span>
+        {% endif %}
+      </a>
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}

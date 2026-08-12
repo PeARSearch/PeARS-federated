@@ -1,0 +1,27 @@
+<!--
+SPDX-FileCopyrightText: 2026 PeARS Project, <community@pearsproject.org>
+
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
+<aside class="admin-sidebar" aria-label="{{ gettext('Admin navigation') }}">
+  <a href="{{ url_for('admin_views.index') }}"
+     class="admin-sidebar-home{% if request.endpoint == 'admin_views.index' %} is-active{% endif %}">
+    {{ gettext('Dashboard') }}
+  </a>
+  {% for category, admins in sidebar_categories %}
+  <div class="admin-sidebar-group">
+    <h4>{{ gettext(category) }}</h4>
+    <ul>
+      {% for admin in admins %}
+      <li>
+        <a href="{{ url_for('admin_views.list_view', model=admin.endpoint) }}"
+           {% if current_model_endpoint == admin.endpoint %}class="is-active" aria-current="page"{% endif %}>
+          {{ gettext(admin.display_name) }}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endfor %}
+</aside>

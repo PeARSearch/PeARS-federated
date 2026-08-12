@@ -11,7 +11,6 @@ import logging
 # Import flask and template operators
 from flask import Flask, flash, send_file, send_from_directory, request, abort, render_template, url_for
 from flask_migrate import Migrate
-from flask_admin import Admin, AdminIndexView
 from flask_mail import Mail
 
 # Import SQLAlchemy and LoginManager
@@ -219,19 +218,10 @@ def check_sitename_and_hostname():
 # Admin
 #######
 
-from flask_admin.contrib.sqla import ModelView
-from app.api.models import Pods, Urls, User, Personalization, Suggestions, RejectedSuggestions
-from app.utils_db import delete_url_representations, delete_pod_representations, \
-        rm_from_npz, add_to_npz, create_pod_in_db, create_pod_npz_pos, rm_doc_from_pos, update_db_idvs_after_npz_delete
-
-from flask_admin import expose
-from flask_admin.contrib.sqla.view import ModelView
-from flask_admin.model.template import EndpointLinkRowAction
-
 # Authentification
 class MyLoginManager(LoginManager):
     def unauthorized(self):
-        return abort(404)        
+        return abort(404)
 
 login_manager = MyLoginManager()
 login_manager.login_view = 'auth.login'
@@ -244,214 +234,11 @@ def load_user(user_id):
     # since the user_id is just the primary key of our user table, use it in the query for the user
     return User.query.get(int(user_id))
 
-# Flask and Flask-SQLAlchemy initialization here
+from app.admin_views import admin_views_bp
+from app.admin_views.registrations import register_all
 
-def can_access_flaskadmin():
-    if not current_user.is_authenticated:
-        return abort(404)
-    if not current_user.is_admin:
-        return abort(404)
-    return True
-
-class MyAdminIndexView(AdminIndexView):
-    def is_accessible(self):
-        return can_access_flaskadmin()
-
-
-admin = Admin(app, name='PeARS DB', template_mode='bootstrap3', index_view=MyAdminIndexView())
-
-class UrlsModelView(ModelView):
-    list_template = 'admin/pears_list.html'
-    column_hide_backrefs = False
-    column_list = ['url', 'title', 'pod', 'notes']
-    column_searchable_list = ['url', 'title', 'pod', 'notes']
-    can_edit = True
-    page_size = 100
-    form_widget_args = {
-        'vector': {
-            'readonly': True
-        },
-        'url': {
-            'readonly': True
-        },
-        'date_created': {
-            'readonly': True
-        },
-        'date_modified': {
-            'readonly': True
-        },
-    }
-    def is_accessible(self):
-        return can_access_flaskadmin()
-    def delete_model(self, model):
-        try:
-            self.on_model_delete(model)
-            print("DELETING",model.url)
-            # Add your custom logic here and don't forget to commit any changes e.g.
-            print(delete_url_representations(model.url))
-            self.session.commit()
-        except Exception as ex:
-            if not self.handle_view_exception(ex):
-                flash(gettext('Failed to delete record. %(error)s', error=str(ex)), 'error')
-            self.session.rollback()
-            return False
-        else:
-            self.after_model_delete(model)
-
-        return True
-
-    def update_model(self, form, model):
-        """
-            Update model from form.
-        """
-        try:
-            # at this point model variable has the unmodified values
-            old_pod = model.pod
-            _, contributor = old_pod.split('.u.')
-            if '.u.' not in form.pod.data:
-                form.pod.data+='.u.'+contributor
-            new_pod = form.pod.data
-            new_theme = new_pod.split('.u.')[0]
-            p = db.session.query(Pods).filter_by(name=old_pod).first()
-            lang = p.language
-            form.populate_obj(model)
-
-            # at this point model variable has the form values
-            # your on_model_change is called
-            self._on_model_change(form, model, False)
-
-            # model is now being committed
-            self.session.commit()
-        except Exception as ex:
-            if not self.handle_view_exception(ex):
-                flash(gettext('Failed to update record. %(error)s', error=str(ex)), 'error')
-            self.session.rollback()
-            return False
-        else:
-            # model is now committed to the database
-            if old_pod != new_pod:
-                print(f"Pod name has changed from {old_pod} to {new_pod}!")
-                print("Move vector in npz file")
-                try:
-                    pod_path = create_pod_npz_pos(contributor, new_theme, lang)
-                    create_pod_in_db(contributor, new_theme, lang)
-                    idv, v = rm_from_npz(model.vector, old_pod)
-                    update_db_idvs_after_npz_delete(idv, old_pod)
-                    add_to_npz(v, pod_path+'.npz')
-                    #Removing from pos but not re-adding since current version does not make use of positional index. To fix.
-                    rm_doc_from_pos(model.id, old_pod)
-                    self.session.commit()
-                    #If pod empty, delete
-                    if len(db.session.query(Urls).filter_by(pod=old_pod).all()) == 0:
-                        delete_pod_representations(old_pod)
-
-                except Exception as ex:
-                    if not self.handle_view_exception(ex):
-                        flash(gettext('Failed to update record. %(error)s', error=str(ex)), 'error')
-                    self.session.rollback()
-                    return False
-            self.after_model_change(form, model, False)
-        return True
-
-
-class PodsModelView(ModelView):
-    list_template = 'admin/pears_list.html'
-    column_exclude_list = ['DS_vector','word_vector']
-    column_searchable_list = ['url', 'name', 'description', 'language']
-    can_edit = False
-    page_size = 50
-    form_widget_args = {
-        'DS_vector': {
-            'readonly': True
-        },
-        'word_vector': {
-            'readonly': True
-        },
-        'date_created': {
-            'readonly': True
-        },
-        'date_modified': {
-            'readonly': True
-        },
-    }
-    def is_accessible(self):
-        return can_access_flaskadmin()
-    def delete_model(self, model):
-        try:
-            self.on_model_delete(model)
-            print("DELETING",model.name)
-            # Add your custom logic here and don't forget to commit any changes e.g.
-            delete_pod_representations(model.name)
-            self.session.commit()
-        except Exception as ex:
-            if not self.handle_view_exception(ex):
-                flash(gettext('Failed to delete record. %(error)s', error=str(ex)), 'error')
-
-            self.session.rollback()
-
-            return False
-        else:
-            self.after_model_delete(model)
-
-        return True
-
-class UsersModelView(ModelView):
-    list_template = 'admin/pears_list.html'
-    column_exclude_list = ['password']
-    column_searchable_list = ['email', 'username']
-    can_edit = True
-    page_size = 50
-    form_widget_args = {
-        'email': {
-            'readonly': True
-        },
-        'password': {
-            'readonly': True
-        },
-        'username': {
-            'readonly': True
-        },
-        'is_confirmed': {
-            'readonly': True
-        },
-        'confirmed_on': {
-            'readonly': True
-        },
-    }
-    def is_accessible(self):
-        return can_access_flaskadmin()
-
-class PersonalizationModelView(ModelView):
-    list_template = 'admin/pears_list.html'
-    column_searchable_list = ['feature', 'language']
-    can_edit = True
-    page_size = 50
-    def is_accessible(self):
-        return can_access_flaskadmin()
-
-class SuggestionsModelView(ModelView):
-    list_template = 'admin/pears_list.html'
-    column_searchable_list = ['url', 'pod']
-    can_edit = True
-    page_size = 50
-    def is_accessible(self):
-        return can_access_flaskadmin()
-
-
-class RejectedSuggestionsModelView(ModelView):
-    list_template = 'admin/pears_list.html'
-    column_searchable_list = ['url', 'pod', 'rejection_reason']
-    can_edit = True
-    page_size = 50
-    def is_accessible(self):
-        return can_access_flaskadmin()
-
-admin.add_view(PodsModelView(Pods, db.session))
-admin.add_view(UrlsModelView(Urls, db.session))
-admin.add_view(UsersModelView(User, db.session))
-admin.add_view(PersonalizationModelView(Personalization, db.session))
-admin.add_view(SuggestionsModelView(Suggestions, db.session))
-admin.add_view(RejectedSuggestionsModelView(RejectedSuggestions, db.session))
+register_all()
+app.register_blueprint(admin_views_bp)
 
 
 @app.errorhandler(404)
